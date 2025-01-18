@@ -25,6 +25,18 @@
         .text-green-700 {
             color: #155724;
         }
+        .bg-red-100 {
+            background-color: #f8d7da;
+        }
+        .text-red-700 {
+            color: #721c24;
+        }
+        .bg-yellow-100 {
+            background-color: #fff3cd;
+        }
+        .text-yellow-700 {
+            color: #856404;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -42,6 +54,7 @@
             <div class="mb-4">
                 <label for="contract-number" class="block text-gray-700">Número do Contrato</label>
                 <input type="text" id="contract-number" class="w-full p-2 border border-gray-300 rounded mt-2" placeholder="Ex.: 14069">
+                <p id="contract-error" class="text-red-700 mt-2 hidden">Número de contrato inválido ou já existente.</p>
             </div>
             <button id="add-contract" class="bg-wine-600 text-white px-4 py-2 rounded hover:bg-wine-700 block mx-auto">Adicionar Contrato</button>
         </div>
@@ -68,8 +81,16 @@
             <button id="copy-notes" class="bg-wine-600 text-white px-4 py-2 rounded hover:bg-wine-700 block mx-auto mt-4">Copiar Anotações</button>
         </div>
 
-        <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
             <h2 class="text-2xl font-bold mb-4 text-center">Gestão de Contratos</h2>
+            <div class="mb-4 flex justify-between items-center">
+                <input type="text" id="search-contract" class="w-full p-2 border border-gray-300 rounded" placeholder="Buscar contratos...">
+                <select id="filter-contract" class="ml-4 p-2 border border-gray-300 rounded">
+                    <option value="all">Todos</option>
+                    <option value="completed">Concluídos</option>
+                    <option value="not-completed">Não Concluídos</option>
+                </select>
+            </div>
             <table class="w-full table-auto">
                 <thead>
                     <tr class="bg-gray-200">
@@ -93,6 +114,9 @@
         const contractsTable = document.getElementById('contracts-table');
         const toggleDateCheckbox = document.getElementById('toggle-date');
         const copyNotesButton = document.getElementById('copy-notes');
+        const contractError = document.getElementById('contract-error');
+        const searchContractInput = document.getElementById('search-contract');
+        const filterContractSelect = document.getElementById('filter-contract');
 
         let contracts = JSON.parse(localStorage.getItem('contracts')) || {};
 
@@ -103,23 +127,30 @@
         function renderContracts() {
             contractSelect.innerHTML = '';
             contractsTable.innerHTML = '';
-            for (const contractNumber in contracts) {
-                const option = document.createElement('option');
-                option.value = contractNumber;
-                option.textContent = contractNumber;
-                contractSelect.appendChild(option);
+            const searchQuery = searchContractInput.value.toLowerCase();
+            const filter = filterContractSelect.value;
 
-                const row = document.createElement('tr');
-                row.className = contracts[contractNumber].completed ? 'bg-green-100 text-green-700' : '';
-                row.innerHTML = `
-                    <td class="border px-4 py-2 text-center">${contractNumber} ${contracts[contractNumber].completed ? '(Já foi passado para a planilha)' : ''}</td>
-                    <td class="border px-4 py-2 text-center">
-                        <button class="text-blue-500 hover:text-blue-700" onclick="viewNotes('${contractNumber}')"><i class="fas fa-edit"></i></button>
-                        <button class="text-red-500 hover:text-red-700" onclick="deleteContract('${contractNumber}')"><i class="fas fa-trash"></i></button>
-                        <button class="text-green-500 hover:text-green-700" onclick="toggleCompleteContract('${contractNumber}')"><i class="fas fa-check"></i></button>
-                    </td>
-                `;
-                contractsTable.appendChild(row);
+            for (const contractNumber in contracts) {
+                if (contractNumber.toLowerCase().includes(searchQuery) && 
+                    (filter === 'all' || (filter === 'completed' && contracts[contractNumber].completed) || (filter === 'not-completed' && !contracts[contractNumber].completed))) {
+                    
+                    const option = document.createElement('option');
+                    option.value = contractNumber;
+                    option.textContent = contractNumber;
+                    contractSelect.appendChild(option);
+
+                    const row = document.createElement('tr');
+                    row.className = contracts[contractNumber].completed ? 'bg-green-100 text-green-700' : '';
+                    row.innerHTML = `
+                        <td class="border px-4 py-2 text-center">${contractNumber} ${contracts[contractNumber].completed ? '(Já foi passado para a planilha)' : ''}</td>
+                        <td class="border px-4 py-2 text-center">
+                            <button class="text-blue-500 hover:text-blue-700" onclick="viewNotes('${contractNumber}')"><i class="fas fa-edit"></i></button>
+                            <button class="text-red-500 hover:text-red-700" onclick="deleteContract('${contractNumber}')"><i class="fas fa-trash"></i></button>
+                            <button class="text-green-500 hover:text-green-700" onclick="toggleCompleteContract('${contractNumber}')"><i class="fas fa-check"></i></button>
+                        </td>
+                    `;
+                    contractsTable.appendChild(row);
+                }
             }
         }
 
@@ -147,8 +178,10 @@
                 saveContracts();
                 renderContracts();
                 contractNumberInput.value = '';
+                contractError.classList.add('hidden');
+                showNotification('Contrato adicionado com sucesso!', 'success');
             } else {
-                alert('Número de contrato inválido ou já existente.');
+                contractError.classList.remove('hidden');
             }
         }
 
@@ -194,6 +227,16 @@
             });
         }
 
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded shadow-lg text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
         addContractButton.addEventListener('click', addContract);
         noteInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -208,6 +251,8 @@
             renderNotes(contractSelect.value);
         });
         copyNotesButton.addEventListener('click', copyNotes);
+        searchContractInput.addEventListener('input', renderContracts);
+        filterContractSelect.addEventListener('change', renderContracts);
 
         renderContracts();
     </script>
