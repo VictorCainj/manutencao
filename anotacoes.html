@@ -32,8 +32,8 @@
         <nav class="bg-white p-4 rounded-lg shadow-lg mb-8 flex justify-between items-center">
             <h1 class="text-3xl font-bold text-wine-600">Gerenciador de Contratos Imobiliários</h1>
             <ul class="flex space-x-4">
-                <li><a href="index" class="text-gray-700 hover:text-wine-600">Página Principal</a></li>
-                <li><a href="anotacoes" class="text-gray-700 hover:text-wine-600">Outra Página</a></li>
+                <li><a href="#" class="text-gray-700 hover:text-wine-600">Página Principal</a></li>
+                <li><a href="#" class="text-gray-700 hover:text-wine-600">Outra Página</a></li>
             </ul>
         </nav>
         
@@ -62,7 +62,7 @@
                 <label for="toggle-date" class="text-gray-700 mr-2">Mostrar Data das Anotações</label>
                 <input type="checkbox" id="toggle-date">
             </div>
-            <ul id="notes-list" class="list-disc pl-5">
+            <ul id="notes-list" class="space-y-4">
                 <!-- Notes will be populated dynamically -->
             </ul>
         </div>
@@ -132,7 +132,8 @@
             const showDate = toggleDateCheckbox.checked;
             notes.forEach(note => {
                 const li = document.createElement('li');
-                li.textContent = showDate ? `${note.text} (Adicionado em: ${note.date})` : note.text;
+                li.className = "bg-gray-100 p-4 rounded-lg shadow";
+                li.innerHTML = showDate ? `<div class="text-sm text-gray-500 mb-1">Adicionado em: ${note.date}</div><div>${note.text}</div>` : note.text;
                 notesList.appendChild(li);
             });
         }
