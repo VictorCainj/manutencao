@@ -165,8 +165,12 @@
             const showDate = toggleDateCheckbox.checked;
             notes.forEach(note => {
                 const li = document.createElement('li');
-                li.className = "bg-gray-100 p-4 rounded-lg shadow";
-                li.innerHTML = showDate ? `<div class="text-sm text-gray-500 mb-1">Adicionado em: ${note.date}</div><div>${note.text}</div>` : note.text;
+                li.className = "bg-gray-100 p-4 rounded-lg shadow relative";
+                li.innerHTML = `
+                    <div class="absolute top-2 right-2 text-sm text-gray-500">#${contractNumber}</div>
+                    ${showDate ? `<div class="text-sm text-gray-500 mb-1">Adicionado em: ${note.date}</div>` : ''}
+                    <div>${note.text}</div>
+                `;
                 notesList.appendChild(li);
             });
         }
