@@ -38,16 +38,16 @@
         </nav>
         
         <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
-            <h2 class="text-2xl font-bold mb-4">Cadastro de Contratos</h2>
+            <h2 class="text-2xl font-bold mb-4 text-center">Cadastro de Contratos</h2>
             <div class="mb-4">
                 <label for="contract-number" class="block text-gray-700">Número do Contrato</label>
                 <input type="text" id="contract-number" class="w-full p-2 border border-gray-300 rounded mt-2" placeholder="Ex.: 14069">
             </div>
-            <button id="add-contract" class="bg-wine-600 text-white px-4 py-2 rounded hover:bg-wine-700">Adicionar Contrato</button>
+            <button id="add-contract" class="bg-wine-600 text-white px-4 py-2 rounded hover:bg-wine-700 block mx-auto">Adicionar Contrato</button>
         </div>
 
         <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
-            <h2 class="text-2xl font-bold mb-4">Anotações por Contrato</h2>
+            <h2 class="text-2xl font-bold mb-4 text-center">Anotações por Contrato</h2>
             <div class="mb-4">
                 <label for="contract-select" class="block text-gray-700">Selecione o Contrato</label>
                 <select id="contract-select" class="w-full p-2 border border-gray-300 rounded mt-2">
@@ -58,7 +58,7 @@
                 <label for="note-input" class="block text-gray-700">Adicionar Anotação</label>
                 <textarea id="note-input" class="w-full p-2 border border-gray-300 rounded mt-2" rows="3" placeholder="Digite sua anotação e pressione Enter"></textarea>
             </div>
-            <div class="mb-4 flex items-center">
+            <div class="mb-4 flex items-center justify-center">
                 <label for="toggle-date" class="text-gray-700 mr-2">Mostrar Data das Anotações</label>
                 <input type="checkbox" id="toggle-date">
             </div>
@@ -68,7 +68,7 @@
         </div>
 
         <div class="bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-bold mb-4">Gestão de Contratos</h2>
+            <h2 class="text-2xl font-bold mb-4 text-center">Gestão de Contratos</h2>
             <table class="w-full table-auto">
                 <thead>
                     <tr class="bg-gray-200">
@@ -110,8 +110,8 @@
                 const row = document.createElement('tr');
                 row.className = contracts[contractNumber].completed ? 'bg-green-100 text-green-700' : '';
                 row.innerHTML = `
-                    <td class="border px-4 py-2">${contractNumber} ${contracts[contractNumber].completed ? '(Já foi passado para a planilha)' : ''}</td>
-                    <td class="border px-4 py-2">
+                    <td class="border px-4 py-2 text-center">${contractNumber} ${contracts[contractNumber].completed ? '(Já foi passado para a planilha)' : ''}</td>
+                    <td class="border px-4 py-2 text-center">
                         <button class="text-blue-500 hover:text-blue-700" onclick="viewNotes('${contractNumber}')"><i class="fas fa-edit"></i></button>
                         <button class="text-red-500 hover:text-red-700" onclick="deleteContract('${contractNumber}')"><i class="fas fa-trash"></i></button>
                         <button class="text-green-500 hover:text-green-700" onclick="toggleCompleteContract('${contractNumber}')"><i class="fas fa-check"></i></button>
