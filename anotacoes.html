@@ -1,0 +1,170 @@
+<html lang="pt-BR"></html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Contratos Imobiliários</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .text-wine-600 {
+            color: #800020;
+        }
+        .bg-wine-600 {
+            background-color: #800020;
+        }
+        .hover\:bg-wine-700:hover {
+            background-color: #660018;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold text-center text-wine-600 mb-8">Gerenciador de Contratos Imobiliários</h1>
+        
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <h2 class="text-2xl font-bold mb-4">Cadastro de Contratos</h2>
+            <div class="mb-4">
+                <label for="contract-number" class="block text-gray-700">Número do Contrato</label>
+                <input type="text" id="contract-number" class="w-full p-2 border border-gray-300 rounded mt-2" placeholder="Ex.: 14069">
+            </div>
+            <button id="add-contract" class="bg-wine-600 text-white px-4 py-2 rounded hover:bg-wine-700">Adicionar Contrato</button>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <h2 class="text-2xl font-bold mb-4">Anotações por Contrato</h2>
+            <div class="mb-4">
+                <label for="contract-select" class="block text-gray-700">Selecione o Contrato</label>
+                <select id="contract-select" class="w-full p-2 border border-gray-300 rounded mt-2">
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="note-input" class="block text-gray-700">Adicionar Anotação</label>
+                <textarea id="note-input" class="w-full p-2 border border-gray-300 rounded mt-2" rows="3" placeholder="Digite sua anotação e pressione Enter"></textarea>
+            </div>
+            <ul id="notes-list" class="list-disc pl-5">
+                <!-- Notes will be populated dynamically -->
+            </ul>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold mb-4">Gestão de Contratos</h2>
+            <table class="w-full table-auto">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="px-4 py-2">Número do Contrato</th>
+                        <th class="px-4 py-2">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="contracts-table">
+                    <!-- Contracts will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const contractNumberInput = document.getElementById('contract-number');
+        const addContractButton = document.getElementById('add-contract');
+        const contractSelect = document.getElementById('contract-select');
+        const noteInput = document.getElementById('note-input');
+        const notesList = document.getElementById('notes-list');
+        const contractsTable = document.getElementById('contracts-table');
+
+        let contracts = JSON.parse(localStorage.getItem('contracts')) || {};
+
+        function saveContracts() {
+            localStorage.setItem('contracts', JSON.stringify(contracts));
+        }
+
+        function renderContracts() {
+            contractSelect.innerHTML = '';
+            contractsTable.innerHTML = '';
+            for (const contractNumber in contracts) {
+                const option = document.createElement('option');
+                option.value = contractNumber;
+                option.textContent = contractNumber;
+                contractSelect.appendChild(option);
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="border px-4 py-2">${contractNumber}</td>
+                    <td class="border px-4 py-2">
+                        <button class="text-blue-500 hover:text-blue-700" onclick="viewNotes('${contractNumber}')"><i class="fas fa-edit"></i></button>
+                        <button class="text-red-500 hover:text-red-700" onclick="deleteContract('${contractNumber}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                contractsTable.appendChild(row);
+            }
+        }
+
+        function viewNotes(contractNumber) {
+            contractSelect.value = contractNumber;
+            renderNotes(contractNumber);
+        }
+
+        function renderNotes(contractNumber) {
+            notesList.innerHTML = '';
+            const notes = contracts[contractNumber] || [];
+            notes.forEach(note => {
+                const li = document.createElement('li');
+                li.textContent = `${note.text} (Adicionado em: ${note.date})`;
+                notesList.appendChild(li);
+            });
+        }
+
+        function addContract() {
+            const contractNumber = contractNumberInput.value.trim();
+            if (contractNumber && !contracts[contractNumber]) {
+                contracts[contractNumber] = [];
+                saveContracts();
+                renderContracts();
+                contractNumberInput.value = '';
+            } else {
+                alert('Número de contrato inválido ou já existente.');
+            }
+        }
+
+        function addNote() {
+            const contractNumber = contractSelect.value;
+            const noteText = noteInput.value.trim();
+            if (contractNumber && noteText) {
+                const note = {
+                    text: noteText,
+                    date: new Date().toLocaleString()
+                };
+                contracts[contractNumber].unshift(note);
+                saveContracts();
+                renderNotes(contractNumber);
+                noteInput.value = '';
+            }
+        }
+
+        function deleteContract(contractNumber) {
+            if (confirm('Tem certeza que deseja excluir este contrato?')) {
+                delete contracts[contractNumber];
+                saveContracts();
+                renderContracts();
+                notesList.innerHTML = '';
+            }
+        }
+
+        addContractButton.addEventListener('click', addContract);
+        noteInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addNote();
+            }
+        });
+        contractSelect.addEventListener('change', (e) => {
+            renderNotes(e.target.value);
+        });
+
+        renderContracts();
+    </script>
+</body>
+</html>
