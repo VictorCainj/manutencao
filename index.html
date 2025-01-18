@@ -1,0 +1,105 @@
+<html lang="pt-BR"></html>
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Calculadora de Data Limite - Imobiliária
+  </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --vinho: #800020;
+      --branco: #ffffff;
+      --cinza: #f5f5f5;
+      --cinza-escuro: #4a4a4a;
+    }
+    .shadow-3d {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+    .transition-all {
+      transition: all 0.3s ease;
+    }
+  </style>
+ </head>
+ <body class="bg-cinza font-roboto">
+  <div class="min-h-screen flex flex-col items-center justify-center p-4">
+   <div class="bg-branco p-8 rounded-lg shadow-3d w-full max-w-md text-center">
+    <div class="flex justify-center mb-4">
+     <img alt="Logotipo da Imobiliária com fundo vinho e texto branco" class="h-12" height="50" src="https://storage.googleapis.com/a1aa/image/cvys5QO9ra1T1ixHfnxG957b49GeFN9J6Xo8lSZfmnY.jpg" width="150"/>
+    </div>
+    <h1 class="text-2xl font-bold text-center mb-6 text-vinho">
+     Calculadora de Data Limite
+    </h1>
+    <div class="mb-4 text-center">
+     <label class="block text-vinho font-bold mb-2" for="data-posse">
+      Data de Posse (DD/MM/AAAA):
+     </label>
+     <input class="w-full p-2 border border-gray-300 rounded" id="data-posse" placeholder="Ex: 01/01/2025" type="text" aria-label="Data de Posse"/>
+     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-2 hidden" id="error-message" role="alert" aria-live="assertive">
+      <i class="fas fa-exclamation-circle mr-2"></i>
+      <span class="block sm:inline">Por favor, insira uma data válida no formato DD/MM/AAAA.</span>
+     </div>
+    </div>
+    <div class="flex justify-between items-center">
+     <button class="bg-branco text-black px-4 py-2 rounded hover:bg-gray-200 shadow-3d transition-all" id="calcular-btn" aria-label="Calcular Data Limite">
+      Calcular Data Limite
+     </button>
+     <button class="bg-branco text-black px-4 py-2 rounded hover:bg-gray-200 shadow-3d transition-all" id="recalcular-btn" aria-label="Recalcular">
+      Recalcular
+     </button>
+    </div>
+    <div class="mt-6 hidden" id="resultado">
+     <div class="bg-vinho text-branco border border-vinho px-4 py-3 rounded relative shadow-3d" role="status" aria-live="polite">
+      <p class="text-lg font-bold">
+       A data limite para contestação é:
+      </p>
+      <p class="text-2xl font-bold" id="data-limite">
+      </p>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+   document.getElementById('calcular-btn').addEventListener('click', function() {
+            const dataPosseInput = document.getElementById('data-posse').value;
+            const errorMessage = document.getElementById('error-message');
+            const resultado = document.getElementById('resultado');
+            const dataLimiteElement = document.getElementById('data-limite');
+
+            errorMessage.classList.add('hidden');
+            resultado.classList.add('hidden');
+
+            const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+            const match = dataPosseInput.match(regex);
+
+            if (!match) {
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            const [_, dia, mes, ano] = match;
+            const dataPosse = new Date(`${ano}-${mes}-${dia}`);
+            if (isNaN(dataPosse.getTime())) {
+                errorMessage.classList.remove('hidden');
+                return;
+            }
+
+            const dataLimite = new Date(dataPosse);
+            dataLimite.setDate(dataLimite.getDate() + 15);
+
+            const dataLimiteFormatada = dataLimite.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+            dataLimiteElement.textContent = dataLimiteFormatada;
+            resultado.classList.remove('hidden');
+        });
+
+        document.getElementById('recalcular-btn').addEventListener('click', function() {
+            document.getElementById('data-posse').value = '';
+            document.getElementById('resultado').classList.add('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+        });
+  </script>
+ </body>
+</html>
