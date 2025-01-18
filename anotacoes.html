@@ -65,6 +65,7 @@
             <ul id="notes-list" class="space-y-4">
                 <!-- Notes will be populated dynamically -->
             </ul>
+            <button id="copy-notes" class="bg-wine-600 text-white px-4 py-2 rounded hover:bg-wine-700 block mx-auto mt-4">Copiar Anotações</button>
         </div>
 
         <div class="bg-white p-6 rounded-lg shadow-lg">
@@ -91,6 +92,7 @@
         const notesList = document.getElementById('notes-list');
         const contractsTable = document.getElementById('contracts-table');
         const toggleDateCheckbox = document.getElementById('toggle-date');
+        const copyNotesButton = document.getElementById('copy-notes');
 
         let contracts = JSON.parse(localStorage.getItem('contracts')) || {};
 
@@ -180,6 +182,18 @@
             renderContracts();
         }
 
+        function copyNotes() {
+            const contractNumber = contractSelect.value;
+            const notes = contracts[contractNumber].notes || [];
+            const showDate = toggleDateCheckbox.checked;
+            let notesText = notes.map(note => showDate ? `Adicionado em: ${note.date}\n${note.text}` : note.text).join('\n\n');
+            navigator.clipboard.writeText(notesText).then(() => {
+                alert('Anotações copiadas para a área de transferência.');
+            }).catch(err => {
+                console.error('Erro ao copiar anotações: ', err);
+            });
+        }
+
         addContractButton.addEventListener('click', addContract);
         noteInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
@@ -193,6 +207,7 @@
         toggleDateCheckbox.addEventListener('change', () => {
             renderNotes(contractSelect.value);
         });
+        copyNotesButton.addEventListener('click', copyNotes);
 
         renderContracts();
     </script>
