@@ -1,4 +1,4 @@
-<html lang="pt-BR"></html>
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +11,9 @@
     <div class="container mx-auto p-4">
         <header class="flex justify-between items-center py-4">
             <h1 class="text-3xl font-bold text-gray-800">Sistema de Anotações</h1>
+            <button id="reloadBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                <i class="fas fa-sync-alt"></i> Recarregar
+            </button>
         </header>
 
         <main class="mt-8">
@@ -215,6 +218,10 @@ ${Array.from(noteContainer.querySelectorAll('.update')).map(update => update.tex
             });
         });
 
+        document.getElementById('reloadBtn').addEventListener('click', function() {
+            loadNotesFromLocalStorage();
+        });
+
         function saveNotesToLocalStorage() {
             const notes = [];
             document.querySelectorAll('#notesContainer > div').forEach(noteContainer => {
@@ -228,6 +235,7 @@ ${Array.from(noteContainer.querySelectorAll('.update')).map(update => update.tex
         }
 
         function loadNotesFromLocalStorage() {
+            document.getElementById('notesContainer').innerHTML = '';
             const notes = JSON.parse(localStorage.getItem('notes')) || [];
             notes.forEach(note => {
                 const noteContainer = document.createElement('div');
