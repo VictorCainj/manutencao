@@ -1,121 +1,108 @@
 <html lang="pt-BR">
- <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>
-   Calculadora de Contestação - Imobiliária
-  </title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --vinho: #800020;
-      --branco: #ffffff;
-      --cinza: #f5f5f5;
-      --cinza-escuro: #4a4a4a;
-    }
-    .shadow-3d {
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
-    }
-    .transition-all {
-      transition: all 0.3s ease;
-    }
-  </style>
- </head>
- <body class="bg-cinza font-roboto">
-  <div class="min-h-screen flex flex-col items-center justify-center p-4">
-   <div class="bg-branco p-8 rounded-lg shadow-3d w-full max-w-md text-center relative">
-    <div class="absolute top-4 right-4">
-     <button id="info-btn" aria-label="Informações">
-      <i class="fas fa-question-circle text-vinho text-2xl"></i>
-     </button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Contratos Imobiliários</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .text-wine-600 {
+            color: #800020;
+        }
+        .bg-wine-600 {
+            background-color: #800020;
+        }
+        .hover\:bg-wine-700:hover {
+            background-color: #660018;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto p-4">
+        <nav class="bg-white p-4 rounded-lg shadow-lg mb-8 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-wine-600">Gerenciador de Contratos Imobiliários</h1>
+            <ul class="flex space-x-4">
+                <li><a href="#" class="text-gray-700 hover:text-wine-600">Página Principal</a></li>
+                <li><a href="Anotacoes" class="text-gray-700 hover:text-wine-600">Anotacoes</a></li>
+            </ul>
+        </nav>
+        
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-center">Calculo de Contestação</h2>
+            <div class="mb-4 text-left">
+                <label for="contract-number" class="block text-gray-700">Número do Contrato</label>
+                <input type="text" id="contract-number" class="w-full p-2 border border-gray-300 rounded mt-2" placeholder="Ex.: 14069">
+            </div>
+            <div class="mb-4 text-left">
+                <label for="possession-date" class="block text-gray-700">Data da Posse</label>
+                <input type="date" id="possession-date" class="w-full p-2 border border-gray-300 rounded mt-2">
+            </div>
+            <button id="calculate-date" class="bg-wine-600 text-white px-4 py-2 rounded hover:bg-wine-700 block mx-auto">Calcular</button>
+        </div>
     </div>
-    <div class="flex justify-center mb-4">
-     <img alt="Logotipo da Imobiliária com fundo vinho e texto branco" class="h-12" height="50" src="https://storage.googleapis.com/a1aa/image/cvys5QO9ra1T1ixHfnxG957b49GeFN9J6Xo8lSZfmnY.jpg" width="150"/>
-    </div>
-    <h1 class="text-2xl font-bold text-center mb-6 text-vinho">
-     Calculadora de Contestação
-    </h1>
-    <div class="mb-4 text-center">
-     <label class="block text-vinho font-bold mb-2" for="data-posse">
-      Data de Posse (DD/MM/AAAA):
-     </label>
-     <input class="w-full p-2 border border-gray-300 rounded" id="data-posse" placeholder="Ex: 01/01/2025" type="text" aria-label="Data de Posse"/>
-     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-2 hidden" id="error-message" role="alert" aria-live="assertive">
-      <i class="fas fa-exclamation-circle mr-2"></i>
-      <span class="block sm:inline">Por favor, insira uma data válida no formato DD/MM/AAAA.</span>
-     </div>
-    </div>
-    <div class="flex justify-between items-center">
-     <button class="bg-branco text-black px-4 py-2 rounded hover:bg-gray-200 shadow-3d transition-all" id="calcular-btn" aria-label="Calcular Data Limite">
-      Calcular Data Limite
-     </button>
-     <button class="bg-branco text-black px-4 py-2 rounded hover:bg-gray-200 shadow-3d transition-all" id="recalcular-btn" aria-label="Recalcular">
-      Recalcular
-     </button>
-    </div>
-    <div class="mt-6 hidden" id="resultado">
-     <div class="bg-vinho text-branco border border-vinho px-4 py-3 rounded relative shadow-3d" role="status" aria-live="polite">
-      <p class="text-lg font-bold">
-       A data limite para contestação é:
-      </p>
-      <p class="text-2xl font-bold" id="data-limite">
-      </p>
-     </div>
-    </div>
-    <div class="mt-4 hidden" id="info-message">
-     <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative shadow-3d" role="alert" aria-live="assertive">
-      <i class="fas fa-info-circle mr-2"></i>
-      <span class="block sm:inline">Esta calculadora adiciona 15 dias à data informada.</span>
-     </div>
-    </div>
-   </div>
-  </div>
-  <script>
-   document.getElementById('calcular-btn').addEventListener('click', function() {
-            const dataPosseInput = document.getElementById('data-posse').value;
-            const errorMessage = document.getElementById('error-message');
-            const resultado = document.getElementById('resultado');
-            const dataLimiteElement = document.getElementById('data-limite');
 
-            errorMessage.classList.add('hidden');
-            resultado.classList.add('hidden');
+    <div id="modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h3 class="text-xl font-bold mb-4">Resultado</h3>
+            <p id="result-date" class="text-lg font-bold text-wine-600"></p>
+            <button id="close-modal" class="mt-4 bg-wine-600 text-white px-4 py-2 rounded hover:bg-wine-700">Fechar</button>
+        </div>
+    </div>
 
-            const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-            const match = dataPosseInput.match(regex);
+    <script>
+        const calculateDateButton = document.getElementById('calculate-date');
+        const possessionDateInput = document.getElementById('possession-date');
+        const resultDateParagraph = document.getElementById('result-date');
+        const modal = document.getElementById('modal');
+        const closeModalButton = document.getElementById('close-modal');
 
-            if (!match) {
-                errorMessage.classList.remove('hidden');
-                return;
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        function formatDate(date) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        function calculateDate() {
+            const possessionDate = new Date(possessionDateInput.value);
+            if (!isNaN(possessionDate)) {
+                const newDate = addDays(possessionDate, 15);
+                resultDateParagraph.textContent = `O inquilino poderá contestar até a data: ${formatDate(newDate)}`;
+                modal.classList.remove('hidden');
+            } else {
+                resultDateParagraph.textContent = 'Por favor, insira uma data válida.';
+                modal.classList.remove('hidden');
             }
+        }
 
-            const [_, dia, mes, ano] = match;
-            const dataPosse = new Date(`${ano}-${mes}-${dia}`);
-            if (isNaN(dataPosse.getTime())) {
-                errorMessage.classList.remove('hidden');
-                return;
+        calculateDateButton.addEventListener('click', calculateDate);
+
+        possessionDateInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                calculateDate();
             }
-
-            const dataLimite = new Date(dataPosse);
-            dataLimite.setDate(dataLimite.getDate() + 15);
-
-            const dataLimiteFormatada = dataLimite.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-            dataLimiteElement.textContent = dataLimiteFormatada;
-            resultado.classList.remove('hidden');
         });
 
-        document.getElementById('recalcular-btn').addEventListener('click', function() {
-            document.getElementById('data-posse').value = '';
-            document.getElementById('resultado').classList.add('hidden');
-            document.getElementById('error-message').classList.add('hidden');
+        closeModalButton.addEventListener('click', () => {
+            modal.classList.add('hidden');
         });
 
-        document.getElementById('info-btn').addEventListener('click', function() {
-            const infoMessage = document.getElementById('info-message');
-            infoMessage.classList.toggle('hidden');
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+            }
         });
-  </script>
- </body>
+    </script>
+</body>
 </html>
