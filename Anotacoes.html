@@ -139,11 +139,11 @@
             });
 
             noteContainer.querySelector('.downloadNoteBtn').addEventListener('click', function() {
-                downloadNote(noteTitle, noteSubtitle, noteBody);
+                downloadNote(noteTitle, noteSubtitle, noteBody, noteContainer.querySelector('.updatesContainer'));
             });
 
             noteContainer.querySelector('.copyNoteBtn').addEventListener('click', function() {
-                copyNoteContent(noteTitle, noteSubtitle, noteBody);
+                copyNoteContent(noteTitle, noteSubtitle, noteBody, noteContainer.querySelector('.updatesContainer'));
             });
 
             return noteContainer;
@@ -157,11 +157,15 @@
             document.getElementById('errorMessage').classList.add('hidden');
         }
 
-        function downloadNote(noteTitle, noteSubtitle, noteBody) {
+        function downloadNote(noteTitle, noteSubtitle, noteBody, updatesContainer) {
+            const updates = Array.from(updatesContainer.querySelectorAll('p')).map(update => update.textContent).join('\n');
             const noteData = `
 Número de contrato: ${noteTitle}
 Nome do locatário ou Locador: ${noteSubtitle}
 Problema: ${noteBody}
+
+Atualizações:
+${updates}
             `;
             const blob = new Blob([noteData], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
@@ -172,11 +176,15 @@ Problema: ${noteBody}
             URL.revokeObjectURL(url);
         }
 
-        function copyNoteContent(noteTitle, noteSubtitle, noteBody) {
+        function copyNoteContent(noteTitle, noteSubtitle, noteBody, updatesContainer) {
+            const updates = Array.from(updatesContainer.querySelectorAll('p')).map(update => update.textContent).join('\n');
             const noteContent = `
 Número de contrato: ${noteTitle}
 Nome do locatário ou Locador: ${noteSubtitle}
 Problema: ${noteBody}
+
+Atualizações:
+${updates}
             `;
             navigator.clipboard.writeText(noteContent).then(() => {
                 alert('Anotações copiadas para a área de transferência.');
@@ -230,7 +238,7 @@ Problema: ${noteBody}
                 const noteTitle = noteContainer.querySelector('h3').textContent;
                 const noteSubtitle = noteContainer.querySelector('p').textContent;
                 const noteBody = noteContainer.querySelector('p:nth-of-type(2)').textContent;
-                const updates = Array.from(noteContainer.querySelectorAll('.updatesContainer p')).map(update => update.textContent);
+                const updates = Array.from(noteContainer.querySelector('.updatesContainer p')).map(update => update.textContent);
                 notes.push({ noteTitle, noteSubtitle, noteBody, updates });
             });
             localStorage.setItem('notes', JSON.stringify(notes));
