@@ -85,8 +85,7 @@
         });
 
         document.getElementById('cancelNoteBtn').addEventListener('click', function() {
-            document.getElementById('noteModal').classList.add('hidden');
-            document.getElementById('errorMessage').classList.add('hidden');
+            clearNoteModal();
         });
 
         document.getElementById('saveNoteBtn').addEventListener('click', function() {
@@ -106,7 +105,7 @@
                 document.getElementById('notesContainer').prepend(noteContainer);
                 saveNotesToLocalStorage();
                 showNotification('Nota salva com sucesso!');
-                clearNoteModal();
+                clearNoteModal(); // Fechar a janela após salvar
             } else {
                 alert('Número de contrato já existe ou é inválido.');
             }
