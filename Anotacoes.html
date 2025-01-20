@@ -20,12 +20,6 @@
 
     <div class="mb-6 w-full max-w-4xl flex space-x-4">
         <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-        <select id="filterStatus" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-            <option value="all">Todos</option>
-            <option value="open">Em Aberto</option>
-            <option value="closed">Finalizado</option>
-        </select>
-        <input type="date" id="filterDate" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
     </div>
 
     <!-- Modal -->
@@ -83,9 +77,6 @@
                 <button type="button" id="copyDetailsBtn" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700">Copiar Dados</button>
                 <button type="button" id="downloadContractBtn" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-700">Baixar Contrato</button>
                 <button type="button" id="closeDetailsBtn" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700">Fechar</button>
-            </div>
-            <div class="flex justify-center mt-4">
-                <button type="button" id="completeBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">Concluído</button>
             </div>
         </div>
     </div>
@@ -232,15 +223,6 @@
             downloadAnchorNode.remove();
         });
 
-        document.getElementById('completeBtn').addEventListener('click', function() {
-            const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
-            notes[contractNumber].status = 'closed';
-            const noteButton = document.querySelector(`.note-button:contains("#${contractNumber}")`);
-            noteButton.classList.remove('bg-blue-500', 'hover:bg-blue-700');
-            noteButton.classList.add('bg-green-500', 'hover:bg-green-700');
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-        });
-
         document.getElementById('importNotesBtn').addEventListener('click', function() {
             document.getElementById('fileInput').click();
         });
@@ -307,23 +289,15 @@
         });
 
         document.getElementById('searchInput').addEventListener('input', filterNotes);
-        document.getElementById('filterStatus').addEventListener('change', filterNotes);
-        document.getElementById('filterDate').addEventListener('change', filterNotes);
 
         function filterNotes() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filterStatus = document.getElementById('filterStatus').value;
-            const filterDate = document.getElementById('filterDate').value;
             const noteButtons = document.querySelectorAll('.note-button');
             noteButtons.forEach(button => {
                 const contractNumber = button.textContent.toLowerCase();
                 const role = button.dataset.role;
-                const date = button.dataset.date;
-                const status = button.dataset.status;
                 const matchesSearch = contractNumber.includes(searchTerm) || role.includes(searchTerm);
-                const matchesStatus = filterStatus === 'all' || status === filterStatus;
-                const matchesDate = !filterDate || date === filterDate;
-                if (matchesSearch && matchesStatus && matchesDate) {
+                if (matchesSearch) {
                     button.classList.remove('hidden');
                 } else {
                     button.classList.add('hidden');
