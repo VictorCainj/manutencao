@@ -1,0 +1,377 @@
+<html>
+<head>
+    <title>Criar Agendamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <div class="mb-6 space-x-4">
+        <button class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75" id="createAppointmentBtn">Criar Agendamento</button>
+        <button class="px-6 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75" id="importAppointmentsBtn">Importar Agendamentos</button>
+        <button class="px-6 py-3 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75" id="downloadAppointmentsBtn">Baixar Todos os Agendamentos</button>
+        <input accept=".json" class="hidden" id="fileInput" type="file"/>
+    </div>
+    <div class="mb-6 w-full max-w-4xl flex space-x-4">
+        <input class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="searchInput" placeholder="Pesquisar agendamentos..." type="text"/>
+        <select class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="providerFilter">
+            <option value="">Todos os Prestadores</option>
+            <option value="André">André</option>
+            <option value="Luis">Luis</option>
+            <option value="Terceiros">Terceiros</option>
+        </select>
+        <select class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="dateFilter">
+            <option value="recent">Mais Recentes</option>
+            <option value="oldest">Mais Antigos</option>
+        </select>
+    </div>
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden" id="appointmentModal">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-semibold mb-4 text-center" id="modalTitle">Criar Agendamento</h2>
+            <form id="appointmentForm">
+                <div class="mb-4">
+                    <label class="block text-gray-700" for="contractNumber">Número do Contrato:</label>
+                    <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="contractNumber" type="text"/>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700" for="appointmentDate">Data:</label>
+                    <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="appointmentDate" type="date"/>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700" for="appointmentTime">Hora:</label>
+                    <input class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="appointmentTime" type="time"/>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700" for="appointmentDescription">Descrição:</label>
+                    <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="appointmentDescription"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700" for="provider">Prestador:</label>
+                    <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" id="provider">
+                        <option value="André">André</option>
+                        <option value="Luis">Luis</option>
+                        <option value="Terceiros">Terceiros</option>
+                    </select>
+                </div>
+                <div class="flex justify-end">
+                    <button class="px-4 py-2 bg-gray-500 text-white rounded-lg mr-2 hover:bg-gray-700" id="cancelBtn" type="button">Cancelar</button>
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700" type="submit">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="appointmentsContainer">
+    </div>
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden" id="appointmentDetailsModal">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md max-h-full overflow-y-auto">
+            <h2 class="text-xl font-semibold mb-4 text-center">Detalhes do Agendamento</h2>
+            <div id="appointmentDetailsContent"></div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold mb-2 text-center">Adicionar Comentário</h3>
+                <form id="commentForm">
+                    <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 mb-2" id="commentText"></textarea>
+                    <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700" type="submit">Adicionar</button>
+                </form>
+            </div>
+            <div class="mt-4 space-y-2 max-h-40 overflow-y-auto" id="commentsContainer"></div>
+            <div class="flex justify-between mt-4">
+                <button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700" id="copyDetailsBtn" type="button">Copiar Dados</button>
+                <button class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-700" id="downloadAppointmentBtn" type="button">Baixar Agendamento</button>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700" id="editAppointmentBtn" type="button">Editar</button>
+                <button class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700" id="closeDetailsBtn" type="button">Fechar</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const appointments = {};
+        const modal = document.getElementById('appointmentModal');
+        const detailsModal = document.getElementById('appointmentDetailsModal');
+        const appointmentForm = document.getElementById('appointmentForm');
+        const commentForm = document.getElementById('commentForm');
+        const commentsContainer = document.getElementById('commentsContainer');
+        const appointmentDetailsContent = document.getElementById('appointmentDetailsContent');
+        const modalTitle = document.getElementById('modalTitle');
+        let editingAppointment = null;
+
+        const showModal = (modal) => modal.classList.remove('hidden');
+        const hideModal = (modal) => modal.classList.add('hidden');
+
+        document.getElementById('createAppointmentBtn').addEventListener('click', () => {
+            modalTitle.textContent = 'Criar Agendamento';
+            editingAppointment = null;
+            appointmentForm.reset();
+            showModal(modal);
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', () => hideModal(modal));
+        document.getElementById('closeDetailsBtn').addEventListener('click', () => hideModal(detailsModal));
+
+        appointmentForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            
+            const contractNumber = document.getElementById('contractNumber').value;
+            const appointmentDate = document.getElementById('appointmentDate').value;
+            const appointmentTime = document.getElementById('appointmentTime').value;
+            const appointmentDescription = document.getElementById('appointmentDescription').value;
+            const provider = document.getElementById('provider').value;
+
+            if (editingAppointment) {
+                const button = editingAppointment.button;
+                button.innerHTML = `<div><strong>${provider}</strong></div><div class="text-lg">#${contractNumber}</div><div class="text-sm">${appointmentDate}</div>`;
+                button.dataset.date = appointmentDate;
+                button.dataset.time = appointmentTime;
+                button.dataset.description = appointmentDescription;
+                button.dataset.provider = provider;
+
+                appointments[contractNumber] = {
+                    date: appointmentDate,
+                    time: appointmentTime,
+                    description: appointmentDescription,
+                    provider: provider,
+                    comments: appointments[contractNumber].comments
+                };
+            } else {
+                const appointmentButton = document.createElement('button');
+                appointmentButton.className = 'appointment-button w-full px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
+                appointmentButton.innerHTML = `<div><strong>${provider}</strong></div><div class="text-lg">#${contractNumber}</div><div class="text-sm">${appointmentDate}</div>`;
+                appointmentButton.dataset.date = appointmentDate;
+                appointmentButton.dataset.time = appointmentTime;
+                appointmentButton.dataset.description = appointmentDescription;
+                appointmentButton.dataset.provider = provider;
+                appointmentButton.dataset.contractNumber = contractNumber;
+                appointmentButton.addEventListener('click', () => {
+                    appointmentDetailsContent.innerHTML = `
+                        <h3 class="text-lg font-semibold text-center"><strong>${provider}</strong></h3>
+                        <p><strong>Número do Contrato:</strong> #${contractNumber}</p>
+                        <p><strong>Data:</strong> ${appointmentDate}</p>
+                        <p><strong>Hora:</strong> ${appointmentTime}</p>
+                        <p><strong>Descrição:</strong> ${appointmentDescription}</p>
+                    `;
+                    commentsContainer.innerHTML = ''; // Clear previous comments
+
+                    if (appointments[contractNumber]) {
+                        appointments[contractNumber].comments.forEach(comment => {
+                            const commentBlock = document.createElement('div');
+                            commentBlock.className = 'p-2 bg-gray-100 rounded-lg shadow-md';
+                            commentBlock.innerHTML = `
+                                <p>${comment.text}</p>
+                                <p class="text-sm text-gray-500">${comment.dateTime}</p>
+                            `;
+                            commentsContainer.appendChild(commentBlock);
+                        });
+                    }
+
+                    showModal(detailsModal);
+                });
+
+                document.getElementById('appointmentsContainer').appendChild(appointmentButton);
+
+                appointments[contractNumber] = {
+                    date: appointmentDate,
+                    time: appointmentTime,
+                    description: appointmentDescription,
+                    provider: provider,
+                    comments: []
+                };
+            }
+
+            appointmentForm.reset();
+            hideModal(modal);
+        });
+
+        commentForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            
+            const commentText = document.getElementById('commentText').value;
+            const currentDateTime = new Date().toLocaleString();
+
+            const commentBlock = document.createElement('div');
+            commentBlock.className = 'p-2 bg-gray-100 rounded-lg shadow-md';
+            commentBlock.innerHTML = `
+                <p>${commentText}</p>
+                <p class="text-sm text-gray-500">${currentDateTime}</p>
+            `;
+
+            commentsContainer.insertBefore(commentBlock, commentsContainer.firstChild);
+
+            const contractNumber = appointmentDetailsContent.querySelector('p').textContent.split('#')[1];
+            appointments[contractNumber].comments.unshift({
+                text: commentText,
+                dateTime: currentDateTime
+            });
+
+            commentForm.reset();
+        });
+
+        document.getElementById('commentText').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                commentForm.dispatchEvent(new Event('submit'));
+            } else if (event.key === 'Escape') {
+                hideModal(detailsModal);
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                hideModal(modal);
+                hideModal(detailsModal);
+            }
+        });
+
+        document.getElementById('copyDetailsBtn').addEventListener('click', () => {
+            const contractNumber = appointmentDetailsContent.querySelector('p').textContent.split('#')[1];
+            const appointment = appointments[contractNumber];
+            let appointmentDetails = `Número do Contrato: ${contractNumber}\nPrestador: ${appointment.provider}\nData: ${appointment.date}\nHora: ${appointment.time}\nDescrição: ${appointment.description}\n\nComentários:\n`;
+
+            appointment.comments.forEach(comment => {
+                appointmentDetails += `${comment.dateTime}: ${comment.text}\n`;
+            });
+
+            navigator.clipboard.writeText(appointmentDetails).then(() => {
+                alert('Dados copiados para a área de transferência');
+            }).catch(err => {
+                console.error('Erro ao copiar os dados: ', err);
+            });
+        });
+
+        document.getElementById('downloadAppointmentBtn').addEventListener('click', () => {
+            const contractNumber = appointmentDetailsContent.querySelector('p').textContent.split('#')[1];
+            const appointment = appointments[contractNumber];
+            let appointmentDetails = `Número do Contrato: ${contractNumber}\nPrestador: ${appointment.provider}\nData: ${appointment.date}\nHora: ${appointment.time}\nDescrição: ${appointment.description}\n\nComentários:\n`;
+
+            appointment.comments.forEach(comment => {
+                appointmentDetails += `${comment.dateTime}: ${comment.text}\n`;
+            });
+
+            const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(appointmentDetails);
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `${contractNumber}.txt`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+
+        document.getElementById('importAppointmentsBtn').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const importedAppointments = JSON.parse(e.target.result);
+                    for (const contractNumber in importedAppointments) {
+                        if (importedAppointments.hasOwnProperty(contractNumber)) {
+                            const appointment = importedAppointments[contractNumber];
+                            appointments[contractNumber] = appointment;
+
+                            const appointmentButton = document.createElement('button');
+                            appointmentButton.className = 'appointment-button w-full px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
+                            appointmentButton.innerHTML = `<div><strong>${appointment.provider}</strong></div><div class="text-lg">#${contractNumber}</div><div class="text-sm">${appointment.date}</div>`;
+                            appointmentButton.dataset.date = appointment.date;
+                            appointmentButton.dataset.time = appointment.time;
+                            appointmentButton.dataset.description = appointment.description;
+                            appointmentButton.dataset.provider = appointment.provider;
+                            appointmentButton.dataset.contractNumber = contractNumber;
+                            appointmentButton.addEventListener('click', () => {
+                                appointmentDetailsContent.innerHTML = `
+                                    <h3 class="text-lg font-semibold text-center"><strong>${appointment.provider}</strong></h3>
+                                    <p><strong>Número do Contrato:</strong> #${contractNumber}</p>
+                                    <p><strong>Data:</strong> ${appointment.date}</p>
+                                    <p><strong>Hora:</strong> ${appointment.time}</p>
+                                    <p><strong>Descrição:</strong> ${appointment.description}</p>
+                                `;
+                                commentsContainer.innerHTML = ''; // Clear previous comments
+
+                                appointment.comments.forEach(comment => {
+                                    const commentBlock = document.createElement('div');
+                                    commentBlock.className = 'p-2 bg-gray-100 rounded-lg shadow-md';
+                                    commentBlock.innerHTML = `
+                                        <p>${comment.text}</p>
+                                        <p class="text-sm text-gray-500">${comment.dateTime}</p>
+                                    `;
+                                    commentsContainer.appendChild(commentBlock);
+                                });
+
+                                showModal(detailsModal);
+                            });
+
+                            document.getElementById('appointmentsContainer').appendChild(appointmentButton);
+                        }
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        document.getElementById('downloadAppointmentsBtn').addEventListener('click', () => {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appointments));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "agendamentos.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+
+        document.getElementById('searchInput').addEventListener('input', filterAppointments);
+        document.getElementById('providerFilter').addEventListener('change', filterAppointments);
+        document.getElementById('dateFilter').addEventListener('change', filterAppointments);
+
+        function filterAppointments() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const providerFilter = document.getElementById('providerFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const appointmentButtons = Array.from(document.querySelectorAll('.appointment-button'));
+
+            appointmentButtons.forEach(button => {
+                const appointmentTitle = button.textContent.toLowerCase();
+                const provider = button.dataset.provider;
+                const matchesSearch = appointmentTitle.includes(searchTerm);
+                const matchesProvider = providerFilter === "" || provider === providerFilter;
+
+                if (matchesSearch && matchesProvider) {
+                    button.classList.remove('hidden');
+                } else {
+                    button.classList.add('hidden');
+                }
+            });
+
+            if (dateFilter === "recent") {
+                appointmentButtons.sort((a, b) => new Date(b.dataset.date) - new Date(a.dataset.date));
+            } else {
+                appointmentButtons.sort((a, b) => new Date(a.dataset.date) - new Date(b.dataset.date));
+            }
+
+            const container = document.getElementById('appointmentsContainer');
+            container.innerHTML = "";
+            appointmentButtons.forEach(button => {
+                container.appendChild(button);
+            });
+        }
+
+        document.getElementById('editAppointmentBtn').addEventListener('click', () => {
+            const contractNumber = appointmentDetailsContent.querySelector('p').textContent.split('#')[1];
+            const appointment = appointments[contractNumber];
+
+            document.getElementById('contractNumber').value = contractNumber;
+            document.getElementById('appointmentDate').value = appointment.date;
+            document.getElementById('appointmentTime').value = appointment.time;
+            document.getElementById('appointmentDescription').value = appointment.description;
+            document.getElementById('provider').value = appointment.provider;
+
+            showModal(modal);
+        });
+    </script>
+    <style>
+        .btn {
+            @apply px-6 py-3 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75;
+        }
+        .input {
+            @apply w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400;
+        }
+    </style>
+</body>
+</html>
