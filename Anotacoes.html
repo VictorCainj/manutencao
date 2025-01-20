@@ -81,6 +81,7 @@
         let noteCount = 0;
         let currentNoteContainer = null;
         const contractNumbers = new Set();
+        let isDirty = false; // Variável para controlar se houve alterações
 
         document.getElementById('newNoteBtn').addEventListener('click', function() {
             document.getElementById('noteModal').classList.remove('hidden');
@@ -108,6 +109,7 @@
                 saveNotesToLocalStorage(); // Salvar imediatamente após criar a nota
                 showNotification('Nota salva com sucesso!');
                 clearNoteModal(); // Fechar a janela após salvar
+                isDirty = true; // Marcar como alterado
             } else {
                 alert('Número de contrato já existe ou é inválido.');
             }
@@ -131,6 +133,7 @@
                 contractNumbers.delete(noteTitle);
                 noteContainer.remove();
                 saveNotesToLocalStorage(); // Salvar após excluir
+                isDirty = true; // Marcar como alterado
             });
 
             noteContainer.querySelector('.updateNoteBtn').addEventListener('click', function() {
@@ -174,6 +177,7 @@ ${updates}
             contractNumbers.clear();
             noteCount = 0;
             alert('Cache e contratos limpos.');
+            isDirty = false; // Resetar a variável de controle
         });
 
         document.getElementById('cancelUpdateBtn').addEventListener('click', function() {
@@ -194,6 +198,7 @@ ${updates}
                 document.getElementById('updateText').value = '';
                 saveNotesToLocalStorage(); // Salvar após adicionar atualização
                 showNotification('Atualização salva com sucesso!');
+                isDirty = true; // Marcar como alterado
             }
         });
 
@@ -216,6 +221,7 @@ ${updates}
                 notes.push({ noteTitle, noteSubtitle, noteBody, updates });
             });
             localStorage.setItem('notes', JSON.stringify(notes));
+            isDirty = false; // Resetar a variável de controle após salvar
         }
 
         function loadNotesFromLocalStorage() {
@@ -281,10 +287,9 @@ ${updates}
         });
 
         window.addEventListener('beforeunload', function(event) {
-            const notes = JSON.parse(localStorage.getItem('notes')) || [];
-            if (notes.length > 0) {
+            if (isDirty) {
                 event.preventDefault();
-                event.returnValue = '';
+                event.returnValue = ''; // Mostra a mensagem padrão do navegador
             }
         });
 
