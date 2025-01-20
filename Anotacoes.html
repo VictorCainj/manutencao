@@ -90,34 +90,88 @@
             if (noteTitle && !contractNumbers.has(noteTitle)) {
                 contractNumbers.add(noteTitle);
                 noteCount++;
-                const noteContainer = document.createElement('div');
-                noteContainer.className = 'bg-white p-4 rounded shadow relative';
-                noteContainer.innerHTML = `
-                    <span class="absolute top-2 right-2 text-gray-500">#${noteCount}</span>
-                    <h3 class="text-xl font-semibold text-gray-800">${noteTitle}</h3>
-                    <p class="text-gray-600">${noteSubtitle}</p>
-                    <p class="text-gray-600 mt-2">${noteBody}</p>
-                    <button class="bg-red-500 text-white px-2 py-1 rounded mt-2 hover:bg-red-600 deleteNoteBtn">Excluir</button>
-                `;
+                const noteContainer = createNoteContainer(noteTitle, noteSubtitle, noteBody);
                 document.getElementById('notesContainer').prepend(noteContainer);
-
-                noteContainer.querySelector('.deleteNoteBtn').addEventListener('click', function() {
-                    contractNumbers.delete(noteTitle);
-                    noteContainer.remove();
-                    saveNotesToLocalStorage();
-                });
-
                 saveNotesToLocalStorage();
                 showNotification('Nota salva com sucesso!');
-                document.getElementById('noteModal').classList.add('hidden');
-                document.getElementById('noteTitle').value = '';
-                document.getElementById('noteSubtitle').value = '';
-                document.getElementById('noteBody').value = '';
-                document.getElementById('errorMessage').classList.add('hidden');
+                clearNoteModal();
             } else {
                 alert('Número de contrato já existe ou é inválido.');
             }
         });
+
+        function createNoteContainer(noteTitle, noteSubtitle, noteBody) {
+            const noteContainer = document.createElement('div');
+            noteContainer.className = 'bg-white p-4 rounded shadow relative';
+            noteContainer.innerHTML = `
+                <span class="absolute top-2 right-2 text-gray-500">#${noteCount}</span>
+                <h3 class="text-xl font-semibold text-gray-800">${noteTitle}</h3>
+                <p class="text-gray-600">${noteSubtitle}</p>
+                <p class="text-gray-600 mt-2">${noteBody}</p>
+                <button class="bg-red-500 text-white px-2 py-1 rounded mt-2 hover:bg-red-600 deleteNoteBtn">Excluir</button>
+                <button class="bg-yellow-500 text-white px-2 py-1 rounded mt-2 hover:bg-yellow-600 updateNoteBtn">Atualizar</button>
+                <button class="bg-gray-500 text-white px-2 py-1 rounded mt-2 hover:bg-gray-600 downloadNoteBtn">Baixar</button>
+                <button class="bg-blue-500 text-white px-2 py-1 rounded mt-2 hover:bg-blue-600 copyNoteBtn">Copiar</button>
+            `;
+
+            noteContainer.querySelector('.deleteNoteBtn').addEventListener('click', function() {
+                contractNumbers.delete(noteTitle);
+                noteContainer.remove();
+                saveNotesToLocalStorage();
+            });
+
+            noteContainer.querySelector('.updateNoteBtn').addEventListener('click', function() {
+                document.getElementById('noteTitle').value = noteTitle;
+                document.getElementById('noteSubtitle').value = noteSubtitle;
+                document.getElementById('noteBody').value = noteBody;
+                currentNoteContainer = noteContainer;
+                document.getElementById('noteModal').classList.remove('hidden');
+            });
+
+            noteContainer.querySelector('.downloadNoteBtn').addEventListener('click', function() {
+                downloadNote(noteTitle, noteSubtitle, noteBody);
+            });
+
+            noteContainer.querySelector('.copyNoteBtn').addEventListener('click', function() {
+                copyNoteContent(noteTitle, noteSubtitle, noteBody);
+            });
+
+            return noteContainer;
+        }
+
+        function clearNoteModal() {
+            document.getElementById('noteModal').classList.add('hidden');
+            document.getElementById('noteTitle').value = '';
+            document.getElementById('noteSubtitle').value = '';
+            document.getElementById('noteBody').value = '';
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        function downloadNote(noteTitle, noteSubtitle, noteBody) {
+            const noteData = `
+Número de contrato: ${noteTitle}
+Nome do locatário ou Locador: ${noteSubtitle}
+Problema: ${noteBody}
+            `;
+            const blob = new Blob([noteData], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${noteTitle}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function copyNoteContent(noteTitle, noteSubtitle, noteBody) {
+            const noteContent = `
+Número de contrato: ${noteTitle}
+Nome do locatário ou Locador: ${noteSubtitle}
+Problema: ${noteBody}
+            `;
+            navigator.clipboard.writeText(noteContent).then(() => {
+                alert('Anotações copiadas para a área de transferência.');
+            });
+        }
 
         document.getElementById('reloadBtn').addEventListener('click', function() {
             loadNotesFromLocalStorage();
@@ -155,23 +209,8 @@
             document.getElementById('notesContainer').innerHTML = '';
             const notes = JSON.parse(localStorage.getItem('notes')) || [];
             notes.forEach(note => {
-                const noteContainer = document.createElement('div');
-                noteContainer.className = 'bg-white p-4 rounded shadow relative';
-                noteContainer.innerHTML = `
-                    <span class="absolute top-2 right-2 text-gray-500">#${++noteCount}</span>
-                    <h3 class="text-xl font-semibold text-gray-800">${note.noteTitle}</h3>
-                    <p class="text-gray-600">${note.noteSubtitle}</p>
-                    <p class="text-gray-600 mt-2">${note.noteBody}</p>
-                    <button class="bg-red-500 text-white px-2 py-1 rounded mt-2 hover:bg-red-600 deleteNoteBtn">Excluir</button>
-                `;
+                const noteContainer = createNoteContainer(note.noteTitle, note.noteSubtitle, note.noteBody);
                 document.getElementById('notesContainer').prepend(noteContainer);
-
-                noteContainer.querySelector('.deleteNoteBtn').addEventListener('click', function() {
-                    contractNumbers.delete(note.noteTitle);
-                    noteContainer.remove();
-                    saveNotesToLocalStorage();
-                });
-
                 contractNumbers.add(note.noteTitle);
             });
         }
