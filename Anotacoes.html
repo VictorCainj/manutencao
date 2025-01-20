@@ -30,7 +30,7 @@
                 </button>
             </div>
             <div class="mb-4">
-                <input type="text" id="searchBar" class="w-full p-2 border border-gray-300 rounded" placeholder="Buscar notas...">
+                <input type="text" id="searchBar" class="w-full p-2 border border-gray-300 rounded" placeholder="Buscar notas pelo número do contrato...">
             </div>
             <div id="notesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <!-- Notas serão adicionadas aqui -->
@@ -77,7 +77,6 @@
     <script>
         let noteCount = 0;
         let currentNoteContainer = null;
-        let userName = '';
         const contractNumbers = new Set();
 
         document.getElementById('newNoteBtn').addEventListener('click', function() {
@@ -260,6 +259,20 @@ ${updates}
                 contractNumbers.add(note.noteTitle);
             });
         }
+
+        // Função de busca
+        document.getElementById('searchBar').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const notes = document.querySelectorAll('#notesContainer > div');
+            notes.forEach(note => {
+                const title = note.querySelector('h3').textContent.toLowerCase();
+                if (title.includes(searchTerm)) {
+                    note.classList.remove('hidden');
+                } else {
+                    note.classList.add('hidden');
+                }
+            });
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             userName = localStorage.getItem('userName') || '';
