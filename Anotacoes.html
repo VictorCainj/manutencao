@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -257,7 +258,7 @@ ${updates}
                     updatesContainer.appendChild(updateParagraph);
                 });
                 document.getElementById('notesContainer').prepend(noteContainer);
-                contractNumbers.add(note.noteTitle);
+                contractNumbers.add(note.noteTitle); // Adiciona o número do contrato ao Set
             });
         }
 
