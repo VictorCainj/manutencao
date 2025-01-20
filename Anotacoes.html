@@ -103,7 +103,7 @@
                 noteCount++;
                 const noteContainer = createNoteContainer(noteTitle, noteSubtitle, noteBody);
                 document.getElementById('notesContainer').prepend(noteContainer);
-                saveNotesToLocalStorage();
+                saveNotesToLocalStorage(); // Salvar imediatamente após criar a nota
                 showNotification('Nota salva com sucesso!');
                 clearNoteModal(); // Fechar a janela após salvar
             } else {
@@ -129,7 +129,7 @@
             noteContainer.querySelector('.deleteNoteBtn').addEventListener('click', function() {
                 contractNumbers.delete(noteTitle);
                 noteContainer.remove();
-                saveNotesToLocalStorage();
+                saveNotesToLocalStorage(); // Salvar após excluir
             });
 
             noteContainer.querySelector('.updateNoteBtn').addEventListener('click', function() {
@@ -191,6 +191,7 @@ ${updates}
         }
 
         document.getElementById('reloadBtn').addEventListener('click', function() {
+            saveNotesToLocalStorage(); // Salvar antes de recarregar
             loadNotesFromLocalStorage();
         });
 
@@ -218,7 +219,7 @@ ${updates}
                 updatesContainer.appendChild(updateParagraph);
                 document.getElementById('updateModal').classList.add('hidden');
                 document.getElementById('updateText').value = '';
-                saveNotesToLocalStorage();
+                saveNotesToLocalStorage(); // Salvar após adicionar atualização
             }
         });
 
