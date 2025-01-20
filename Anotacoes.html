@@ -1,301 +1,335 @@
-<html lang="pt-BR">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Anotações - v1.0</title>
+    <title>Criar Anotação</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
 </head>
-<body class="bg-gray-100 font-roboto">
-    <div class="container mx-auto p-4">
-        <header class="flex justify-between items-center py-4">
-            <h1 class="text-3xl font-bold text-gray-800">Sistema de Anotações - v1.0</h1>
-            <div class="flex space-x-4">
-                <button id="clearCacheBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-                    <i class="fas fa-trash-alt"></i> Limpar Cache
-                </button>
-                <label for="uploadNotes" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 cursor-pointer">
-                    <i class="fas fa-upload"></i> Importar Contratos
-                </label>
-                <input type="file" id="uploadNotes" class="hidden" accept=".txt">
-                <button id="saveDataBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                    <i class="fas fa-save"></i> Salvar Dados
-                </button>
-            </div>
-        </header>
-
-        <main class="mt-8">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-semibold text-gray-700">Notas</h2>
-                <button id="newNoteBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                    <i class="fas fa-plus"></i> Nova Nota
-                </button>
-            </div>
-            <div class="mb-4">
-                <input type="text" id="searchBar" class="w-full p-2 border border-gray-300 rounded" placeholder="Buscar notas pelo número do contrato...">
-            </div>
-            <div id="notesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Notas serão adicionadas aqui -->
-            </div>
-        </main>
-
-        <footer class="mt-8 py-4 text-center text-gray-600">
-            <p>&copy; 2023 Sistema de Anotações. Todos os direitos reservados.</p>
-        </footer>
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <div class="mb-6 space-x-4">
+        <button id="createNoteBtn" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
+            Criar anotação
+        </button>
+        <button id="importNotesBtn" class="px-6 py-3 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75">
+            Importar Contratos
+        </button>
+        <button id="downloadNotesBtn" class="px-6 py-3 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-opacity-75">
+            Baixar Todos os Contratos
+        </button>
+        <input type="file" id="fileInput" class="hidden" accept=".json">
     </div>
 
-    <!-- Notification for user feedback -->
-    <div id="notification" class="hidden fixed top-0 left-1/2 transform -translate-x-1/2 bg-green-500 text-white p-4 rounded shadow-lg z-50">
-        Nota salva com sucesso!
+    <div class="mb-6 w-full max-w-4xl flex space-x-4">
+        <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <select id="filterStatus" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="all">Todos</option>
+            <option value="open">Em Aberto</option>
+            <option value="closed">Finalizado</option>
+        </select>
+        <input type="date" id="filterDate" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
     </div>
 
-    <!-- Modal for creating/editing notes -->
-    <div id="noteModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded shadow-lg w-1/3">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Nova Nota</h2>
-            <input type="text" id="noteTitle" class="w-full p-2 border border-gray-300 rounded mb-4" placeholder="Número do Contrato">
-            <input type="text" id="noteSubtitle" class="w-full p-2 border border-gray-300 rounded mb-4" placeholder="Nome do locatário ou Locador">
-            <textarea id="noteBody" class="w-full p-2 border border-gray-300 rounded mb-4" rows="5" placeholder="Problema"></textarea>
-            <p id="errorMessage" class="text-red-500 hidden">Número do contrato deve ser um número.</p>
-            <div class="flex justify-end space-x-4">
-                <button id="cancelNoteBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Cancelar</button>
-                <button id="addNoteBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Adicionar</button>
-            </div>
+    <!-- Modal -->
+    <div id="noteModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
+            <form id="noteForm">
+                <div class="mb-4">
+                    <label for="contractNumber" class="block text-gray-700">Número de Contrato:</label>
+                    <input type="text" id="contractNumber" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div class="mb-4">
+                    <label for="role" class="block text-gray-700">Locador ou Locatário:</label>
+                    <input type="text" id="role" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div class="mb-4">
+                    <label for="problem" class="block text-gray-700">Problema:</label>
+                    <textarea id="problem" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="date" class="block text-gray-700">Data:</label>
+                    <input type="date" id="date" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-500 text-white rounded-lg mr-2 hover:bg-gray-700">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">Salvar</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Modal for adding updates to notes -->
-    <div id="updateModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden">
-        <div class="bg-white p-6 rounded shadow-lg w-1/3">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-4">Adicionar Atualização</h2>
-            <textarea id="updateText" class="w-full p-2 border border-gray-300 rounded mb-4" rows="5" placeholder="Descreva como está resolvendo o problema..."></textarea>
-            <div class="flex justify-end space-x-4">
-                <button id="cancelUpdateBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Cancelar</button>
-                <button id="saveUpdateBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Salvar Atualização</button>
+    <!-- Notes Container -->
+    <div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- Notes will be appended here -->
+    </div>
+
+    <!-- Note Details Modal -->
+    <div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md max-h-full overflow-y-auto">
+            <h2 class="text-xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+            <div id="noteDetailsContent">
+                <!-- Note details will be displayed here -->
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold mb-2 text-center">Adicionar Comentário</h3>
+                <form id="commentForm">
+                    <textarea id="commentText" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 mb-2"></textarea>
+                    <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">Adicionar</button>
+                </form>
+            </div>
+            <div id="commentsContainer" class="mt-4 space-y-2 max-h-40 overflow-y-auto">
+                <!-- Comments will be appended here -->
+            </div>
+            <div class="flex justify-between mt-4">
+                <button type="button" id="copyDetailsBtn" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700">Copiar Dados</button>
+                <button type="button" id="downloadContractBtn" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-700">Baixar Contrato</button>
+                <button type="button" id="closeDetailsBtn" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700">Fechar</button>
+            </div>
+            <div class="flex justify-center mt-4">
+                <button type="button" id="completeBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700">Concluído</button>
             </div>
         </div>
     </div>
 
     <script>
-        let noteCount = 0;
-        let currentNoteContainer = null;
-        const contractNumbers = new Set();
-        let isDirty = false; // Variável para controlar se houve alterações
+        const notes = {};
 
-        document.getElementById('newNoteBtn').addEventListener('click', function() {
+        document.getElementById('createNoteBtn').addEventListener('click', function() {
             document.getElementById('noteModal').classList.remove('hidden');
         });
 
-        document.getElementById('cancelNoteBtn').addEventListener('click', function() {
-            clearNoteModal();
-        });
-
-        document.getElementById('addNoteBtn').addEventListener('click', function() {
-            const noteTitle = document.getElementById('noteTitle').value;
-            const noteSubtitle = document.getElementById('noteSubtitle').value;
-            const noteBody = document.getElementById('noteBody').value;
-
-            if (isNaN(noteTitle)) {
-                document.getElementById('errorMessage').classList.remove('hidden');
-                return;
-            }
-
-            if (noteTitle && !contractNumbers.has(noteTitle)) {
-                contractNumbers.add(noteTitle);
-                noteCount++;
-                const noteContainer = createNoteContainer(noteTitle, noteSubtitle, noteBody);
-                document.getElementById('notesContainer').prepend(noteContainer);
-                saveNotesToLocalStorage(); // Salvar imediatamente após criar a nota
-                showNotification('Nota salva com sucesso!');
-                clearNoteModal(); // Fechar a janela após salvar
-                isDirty = true; // Marcar como alterado
-            } else {
-                alert('Número de contrato já existe ou é inválido.');
-            }
-        });
-
-        function createNoteContainer(noteTitle, noteSubtitle, noteBody) {
-            const noteContainer = document.createElement('div');
-            noteContainer.className = 'bg-white p-4 rounded shadow relative';
-            noteContainer.innerHTML = `
-                <span class="absolute top-2 right-2 text-gray-500">#${noteCount}</span>
-                <h3 class="text-xl font-semibold text-gray-800">${noteTitle}</h3>
-                <p class="text-gray-600">${noteSubtitle}</p>
-                <p class="text-gray-600 mt-2">${noteBody}</p>
-                <div class="updatesContainer"></div>
-                <button class="bg-red-500 text-white px-2 py-1 rounded mt-2 hover:bg-red-600 deleteNoteBtn">Excluir</button>
-                <button class="bg-yellow-500 text-white px-2 py-1 rounded mt-2 hover:bg-yellow-600 updateNoteBtn">Atualizar</button>
-                <button class="bg-blue-500 text-white px-2 py-1 rounded mt-2 hover:bg-blue-600 copyNoteBtn">Copiar</button>
-            `;
-
-            noteContainer.querySelector('.deleteNoteBtn').addEventListener('click', function() {
-                contractNumbers.delete(noteTitle);
-                noteContainer.remove();
-                saveNotesToLocalStorage(); // Salvar após excluir
-                isDirty = true; // Marcar como alterado
-            });
-
-            noteContainer.querySelector('.updateNoteBtn').addEventListener('click', function() {
-                currentNoteContainer = noteContainer;
-                document.getElementById('updateModal').classList.remove('hidden');
-            });
-
-            noteContainer.querySelector('.copyNoteBtn').addEventListener('click', function() {
-                copyNoteContent(noteTitle, noteSubtitle, noteBody, noteContainer.querySelector('.updatesContainer'));
-            });
-
-            return noteContainer;
-        }
-
-        function clearNoteModal() {
+        document.getElementById('cancelBtn').addEventListener('click', function() {
             document.getElementById('noteModal').classList.add('hidden');
-            document.getElementById('noteTitle').value = '';
-            document.getElementById('noteSubtitle').value = '';
-            document.getElementById('noteBody').value = '';
-            document.getElementById('errorMessage').classList.add('hidden');
-        }
+        });
 
-        function copyNoteContent(noteTitle, noteSubtitle, noteBody, updatesContainer) {
-            const updates = Array.from(updatesContainer.querySelectorAll('p')).map(update => update.textContent).join('\n');
-            const noteContent = `
-Número de contrato: ${noteTitle}
-Nome do locatário ou Locador: ${noteSubtitle}
-Problema: ${noteBody}
+        document.getElementById('closeDetailsBtn').addEventListener('click', function() {
+            document.getElementById('noteDetailsModal').classList.add('hidden');
+        });
 
-Atualizações:
-${updates}
-            `;
-            navigator.clipboard.writeText(noteContent).then(() => {
-                alert('Anotações copiadas para a área de transferência.');
+        document.getElementById('noteForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const contractNumber = document.getElementById('contractNumber').value;
+            const role = document.getElementById('role').value;
+            const problem = document.getElementById('problem').value;
+            const date = document.getElementById('date').value;
+
+            const noteButton = document.createElement('button');
+            noteButton.className = 'note-button w-full px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
+            noteButton.textContent = `#${contractNumber}`;
+            noteButton.dataset.role = role.toLowerCase();
+            noteButton.dataset.date = date;
+            noteButton.dataset.status = 'open';
+            noteButton.addEventListener('click', function() {
+                document.getElementById('noteDetailsContent').innerHTML = `
+                    <h3 class="text-lg font-semibold text-center">#${contractNumber}</h3>
+                    <p><strong>Locador ou Locatário:</strong> ${role}</p>
+                    <p><strong>Problema:</strong> ${problem}</p>
+                    <p><strong>Data:</strong> ${date}</p>
+                `;
+                document.getElementById('commentsContainer').innerHTML = ''; // Clear previous comments
+
+                if (notes[contractNumber]) {
+                    notes[contractNumber].comments.forEach(comment => {
+                        const commentBlock = document.createElement('div');
+                        commentBlock.className = 'p-2 bg-gray-100 rounded-lg shadow-md';
+                        commentBlock.innerHTML = `
+                            <p>${comment.text}</p>
+                            <p class="text-sm text-gray-500">${comment.dateTime}</p>
+                        `;
+                        document.getElementById('commentsContainer').appendChild(commentBlock);
+                    });
+                }
+
+                document.getElementById('noteDetailsModal').classList.remove('hidden');
             });
-        }
 
-        document.getElementById('clearCacheBtn').addEventListener('click', function() {
-            localStorage.clear();
-            document.getElementById('notesContainer').innerHTML = '';
-            contractNumbers.clear();
-            noteCount = 0;
-            alert('Cache e contratos limpos.');
-            isDirty = false; // Resetar a variável de controle
+            document.getElementById('notesContainer').appendChild(noteButton);
+
+            notes[contractNumber] = {
+                role: role,
+                problem: problem,
+                date: date,
+                status: 'open',
+                comments: []
+            };
+
+            document.getElementById('noteForm').reset();
+            document.getElementById('noteModal').classList.add('hidden');
         });
 
-        document.getElementById('cancelUpdateBtn').addEventListener('click', function() {
-            document.getElementById('updateModal').classList.add('hidden');
+        document.getElementById('commentForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const commentText = document.getElementById('commentText').value;
+            const currentDateTime = new Date().toLocaleString();
+
+            const commentBlock = document.createElement('div');
+            commentBlock.className = 'p-2 bg-gray-100 rounded-lg shadow-md';
+            commentBlock.innerHTML = `
+                <p>${commentText}</p>
+                <p class="text-sm text-gray-500">${currentDateTime}</p>
+            `;
+
+            const commentsContainer = document.getElementById('commentsContainer');
+            commentsContainer.insertBefore(commentBlock, commentsContainer.firstChild);
+
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
+            notes[contractNumber].comments.unshift({
+                text: commentText,
+                dateTime: currentDateTime
+            });
+
+            document.getElementById('commentForm').reset();
         });
 
-        document.getElementById('saveUpdateBtn').addEventListener('click', function() {
-            const updateText = document.getElementById('updateText').value;
-            if (updateText && currentNoteContainer) {
-                const updatesContainer = currentNoteContainer.querySelector('.updatesContainer');
-                const now = new Date();
-                const dateTime = now.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-                const updateParagraph = document.createElement('p');
-                updateParagraph.className = 'text-gray-600 mt-2 update';
-                updateParagraph.textContent = `${dateTime}: ${updateText}`;
-                updatesContainer.appendChild(updateParagraph);
-                document.getElementById('updateModal').classList.add('hidden');
-                document.getElementById('updateText').value = '';
-                saveNotesToLocalStorage(); // Salvar após adicionar atualização
-                showNotification('Atualização salva com sucesso!');
-                isDirty = true; // Marcar como alterado
+        document.getElementById('commentText').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+            } else if (event.key === 'Escape') {
+                document.getElementById('noteDetailsModal').classList.add('hidden');
             }
         });
 
-        function showNotification(message) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.classList.remove('hidden');
-            setTimeout(() => {
-                notification.classList.add('hidden');
-            }, 3000);
-        }
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                document.getElementById('noteModal').classList.add('hidden');
+                document.getElementById('noteDetailsModal').classList.add('hidden');
+            }
+        });
 
-        function saveNotesToLocalStorage() {
-            const notes = [];
-            document.querySelectorAll('#notesContainer > div').forEach(noteContainer => {
-                const noteTitle = noteContainer.querySelector('h3').textContent;
-                const noteSubtitle = noteContainer.querySelector('p').textContent;
-                const noteBody = noteContainer.querySelector('p:nth-of-type(2)').textContent;
-                const updates = Array.from(noteContainer.querySelector('.updatesContainer p')).map(update => update.textContent);
-                notes.push({ noteTitle, noteSubtitle, noteBody, updates });
+        document.getElementById('copyDetailsBtn').addEventListener('click', function() {
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
+            const note = notes[contractNumber];
+            let noteDetails = `Número de Contrato: ${contractNumber}\nLocador ou Locatário: ${note.role}\nProblema: ${note.problem}\nData: ${note.date}\n\nComentários:\n`;
+
+            note.comments.forEach(comment => {
+                noteDetails += `${comment.dateTime}: ${comment.text}\n`;
             });
-            localStorage.setItem('notes', JSON.stringify(notes));
-            isDirty = false; // Resetar a variável de controle após salvar
-        }
 
-        function loadNotesFromLocalStorage() {
-            document.getElementById('notesContainer').innerHTML = '';
-            const notes = JSON.parse(localStorage.getItem('notes')) || [];
-            notes.forEach(note => {
-                const noteContainer = createNoteContainer(note.noteTitle, note.noteSubtitle, note.noteBody);
-                note.updates.forEach(update => {
-                    const updatesContainer = noteContainer.querySelector('.updatesContainer');
-                    const updateParagraph = document.createElement('p');
-                    updateParagraph.className = 'text-gray-600 mt-2 update';
-                    updateParagraph.textContent = update;
-                    updatesContainer.appendChild(updateParagraph);
-                });
-                document.getElementById('notesContainer').prepend(noteContainer);
-                contractNumbers.add(note.noteTitle); // Adiciona o número do contrato ao Set
+            navigator.clipboard.writeText(noteDetails).then(() => {
+                alert('Dados copiados para a área de transferência');
+            }).catch(err => {
+                console.error('Erro ao copiar os dados: ', err);
             });
-        }
+        });
 
-        // Função de busca
-        document.getElementById('searchBar').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const notes = document.querySelectorAll('#notesContainer > div');
-            notes.forEach(note => {
-                const title = note.querySelector('h3').textContent.toLowerCase();
-                if (title.includes(searchTerm)) {
-                    note.classList.remove('hidden');
+        document.getElementById('downloadContractBtn').addEventListener('click', function() {
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
+            const note = notes[contractNumber];
+            let noteDetails = `Número de Contrato: ${contractNumber}\nLocador ou Locatário: ${note.role}\nProblema: ${note.problem}\nData: ${note.date}\n\nComentários:\n`;
+
+            note.comments.forEach(comment => {
+                noteDetails += `${comment.dateTime}: ${comment.text}\n`;
+            });
+
+            const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(noteDetails);
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `${contractNumber}.txt`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+
+        document.getElementById('completeBtn').addEventListener('click', function() {
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
+            notes[contractNumber].status = 'closed';
+            const noteButton = document.querySelector(`.note-button:contains("#${contractNumber}")`);
+            noteButton.classList.remove('bg-blue-500', 'hover:bg-blue-700');
+            noteButton.classList.add('bg-green-500', 'hover:bg-green-700');
+            document.getElementById('noteDetailsModal').classList.add('hidden');
+        });
+
+        document.getElementById('importNotesBtn').addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const importedNotes = JSON.parse(e.target.result);
+                    for (const contractNumber in importedNotes) {
+                        if (importedNotes.hasOwnProperty(contractNumber)) {
+                            const note = importedNotes[contractNumber];
+                            notes[contractNumber] = note;
+
+                            const noteButton = document.createElement('button');
+                            noteButton.className = 'note-button w-full px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
+                            noteButton.textContent = `#${contractNumber}`;
+                            noteButton.dataset.role = note.role.toLowerCase();
+                            noteButton.dataset.date = note.date;
+                            noteButton.dataset.status = note.status;
+                            if (note.status === 'closed') {
+                                noteButton.classList.remove('bg-blue-500', 'hover:bg-blue-700');
+                                noteButton.classList.add('bg-green-500', 'hover:bg-green-700');
+                            }
+                            noteButton.addEventListener('click', function() {
+                                document.getElementById('noteDetailsContent').innerHTML = `
+                                    <h3 class="text-lg font-semibold text-center">#${contractNumber}</h3>
+                                    <p><strong>Locador ou Locatário:</strong> ${note.role}</p>
+                                    <p><strong>Problema:</strong> ${note.problem}</p>
+                                    <p><strong>Data:</strong> ${note.date}</p>
+                                `;
+                                document.getElementById('commentsContainer').innerHTML = ''; // Clear previous comments
+
+                                note.comments.forEach(comment => {
+                                    const commentBlock = document.createElement('div');
+                                    commentBlock.className = 'p-2 bg-gray-100 rounded-lg shadow-md';
+                                    commentBlock.innerHTML = `
+                                        <p>${comment.text}</p>
+                                        <p class="text-sm text-gray-500">${comment.dateTime}</p>
+                                    `;
+                                    document.getElementById('commentsContainer').appendChild(commentBlock);
+                                });
+
+                                document.getElementById('noteDetailsModal').classList.remove('hidden');
+                            });
+
+                            document.getElementById('notesContainer').appendChild(noteButton);
+                        }
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        document.getElementById('downloadNotesBtn').addEventListener('click', function() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "contratos.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+
+        document.getElementById('searchInput').addEventListener('input', filterNotes);
+        document.getElementById('filterStatus').addEventListener('change', filterNotes);
+        document.getElementById('filterDate').addEventListener('change', filterNotes);
+
+        function filterNotes() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filterStatus = document.getElementById('filterStatus').value;
+            const filterDate = document.getElementById('filterDate').value;
+            const noteButtons = document.querySelectorAll('.note-button');
+            noteButtons.forEach(button => {
+                const contractNumber = button.textContent.toLowerCase();
+                const role = button.dataset.role;
+                const date = button.dataset.date;
+                const status = button.dataset.status;
+                const matchesSearch = contractNumber.includes(searchTerm) || role.includes(searchTerm);
+                const matchesStatus = filterStatus === 'all' || status === filterStatus;
+                const matchesDate = !filterDate || date === filterDate;
+                if (matchesSearch && matchesStatus && matchesDate) {
+                    button.classList.remove('hidden');
                 } else {
-                    note.classList.add('hidden');
+                    button.classList.add('hidden');
                 }
             });
-        });
-
-        // Importar notas
-        document.getElementById('uploadNotes').addEventListener('change', function(event) {
-            const files = event.target.files;
-            if (files.length > 0) {
-                const notes = [];
-                Array.from(files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const noteText = e.target.result.trim();
-                        const lines = noteText.split('\n');
-                        const noteTitle = lines[0].split(': ')[1];
-                        const noteSubtitle = lines[1].split(': ')[1];
-                        const noteBody = lines[2].split(': ')[1];
-                        const updates = lines.slice(4).map(line => line.trim());
-                        notes.push({ noteTitle, noteSubtitle, noteBody, updates });
-                        if (notes.length === files.length) {
-                            localStorage.setItem('notes', JSON.stringify(notes));
-                            loadNotesFromLocalStorage();
-                        }
-                    };
-                    reader.readAsText(file);
-                });
-            }
-        });
-
-        // Salvar dados no navegador
-        document.getElementById('saveDataBtn').addEventListener('click', function() {
-            saveNotesToLocalStorage();
-            showNotification('Dados salvos no navegador!');
-        });
-
-        window.addEventListener('beforeunload', function(event) {
-            if (isDirty) {
-                event.preventDefault();
-                event.returnValue = ''; // Mostra a mensagem padrão do navegador
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            loadNotesFromLocalStorage();
-        });
+        }
     </script>
 </body>
 </html>
