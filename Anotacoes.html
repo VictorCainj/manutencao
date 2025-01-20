@@ -15,9 +15,6 @@
                 <button id="clearCacheBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
                     <i class="fas fa-trash-alt"></i> Limpar Cache
                 </button>
-                <button id="downloadAllBtn" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                    <i class="fas fa-download"></i> Baixar Todos
-                </button>
                 <label for="uploadNotes" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 cursor-pointer">
                     <i class="fas fa-upload"></i> Importar Contratos
                 </label>
@@ -127,7 +124,6 @@
                 <div class="updatesContainer"></div>
                 <button class="bg-red-500 text-white px-2 py-1 rounded mt-2 hover:bg-red-600 deleteNoteBtn">Excluir</button>
                 <button class="bg-yellow-500 text-white px-2 py-1 rounded mt-2 hover:bg-yellow-600 updateNoteBtn">Atualizar</button>
-                <button class="bg-gray-500 text-white px-2 py-1 rounded mt-2 hover:bg-gray-600 downloadNoteBtn">Baixar</button>
                 <button class="bg-blue-500 text-white px-2 py-1 rounded mt-2 hover:bg-blue-600 copyNoteBtn">Copiar</button>
             `;
 
@@ -140,10 +136,6 @@
             noteContainer.querySelector('.updateNoteBtn').addEventListener('click', function() {
                 currentNoteContainer = noteContainer;
                 document.getElementById('updateModal').classList.remove('hidden');
-            });
-
-            noteContainer.querySelector('.downloadNoteBtn').addEventListener('click', function() {
-                downloadNote(noteTitle, noteSubtitle, noteBody, noteContainer.querySelector('.updatesContainer'));
             });
 
             noteContainer.querySelector('.copyNoteBtn').addEventListener('click', function() {
@@ -159,25 +151,6 @@
             document.getElementById('noteSubtitle').value = '';
             document.getElementById('noteBody').value = '';
             document.getElementById('errorMessage').classList.add('hidden');
-        }
-
-        function downloadNote(noteTitle, noteSubtitle, noteBody, updatesContainer) {
-            const updates = Array.from(updatesContainer.querySelectorAll('p')).map(update => update.textContent).join('\n');
-            const noteData = `
-Número de contrato: ${noteTitle}
-Nome do locatário ou Locador: ${noteSubtitle}
-Problema: ${noteBody}
-
-Atualizações:
-${updates}
-            `;
-            const blob = new Blob([noteData], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${noteTitle}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
         }
 
         function copyNoteContent(noteTitle, noteSubtitle, noteBody, updatesContainer) {
@@ -273,29 +246,6 @@ ${updates}
                 } else {
                     note.classList.add('hidden');
                 }
-            });
-        });
-
-        // Baixar todas as notas individualmente
-        document.getElementById('downloadAllBtn').addEventListener('click', function() {
-            const notes = JSON.parse(localStorage.getItem('notes')) || [];
-            notes.forEach(note => {
-                const updates = note.updates.join('\n');
-                const noteData = `
-Número de contrato: ${note.noteTitle}
-Nome do locatário ou Locador: ${note.noteSubtitle}
-Problema: ${note.noteBody}
-
-Atualizações:
-${updates}
-                `;
-                const blob = new Blob([noteData], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${note.noteTitle}.txt`;
-                a.click();
-                URL.revokeObjectURL(url);
             });
         });
 
