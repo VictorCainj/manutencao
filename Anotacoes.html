@@ -99,59 +99,52 @@
             document.getElementById('noteDetailsModal').classList.add('hidden');
         });
 
-        document.getElementById('noteForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            const contractNumber = document.getElementById('contractNumber').value;
-            const role = document.getElementById('role').value;
-            const problem = document.getElementById('problem').value;
-            const date = document.getElementById('date').value;
+document.getElementById('noteForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const contractNumber = document.getElementById('contractNumber').value;
+    const role = document.getElementById('role').value;
+    const problem = document.getElementById('problem').value;
+    const date = document.getElementById('date').value;
 
-            const noteButton = document.createElement('button');
-            noteButton.className = 'note-button w-full px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
-            noteButton.textContent = `#${contractNumber}`;
-            noteButton.dataset.role = role.toLowerCase();
-            noteButton.dataset.date = date;
-            noteButton.dataset.status = 'open';
-            noteButton.dataset.inSpreadsheet = false;
-            noteButton.addEventListener('click', function() {
-                document.getElementById('noteDetailsContent').innerHTML = `
-                    <h3 class="text-lg font-semibold text-center">#${contractNumber}</h3>
-                    <p><strong>Locador ou Locatário:</strong> ${role}</p>
-                    <p><strong>Problema:</strong> ${problem}</p>
-                    <p><strong>Data:</strong> ${date}</p>
-                `;
-                document.getElementById('commentsContainer').innerHTML = ''; // Clear previous comments
+    // Cria o elemento de nota
+    const noteDiv = document.createElement('div');
+    noteDiv.className = 'note w-full p-4 bg-white rounded-lg shadow-md relative';
+    noteDiv.dataset.contractNumber = contractNumber;
 
-                if (notes[contractNumber]) {
-                    notes[contractNumber].comments.forEach(comment => {
-                        const commentBlock = document.createElement('div');
-                        commentBlock.className = 'p-2 bg-gray-100 rounded-lg shadow-md';
-                        commentBlock.innerHTML = `
-                            <p>${comment.text}</p>
-                            <p class="text-sm text-gray-500">${comment.dateTime}</p>
-                        `;
-                        document.getElementById('commentsContainer').appendChild(commentBlock);
-                    });
-                }
+    noteDiv.innerHTML = `
+        <h3 class="text-lg font-semibold text-blue-500">#${contractNumber}</h3>
+        <p><strong>Locador ou Locatário:</strong> ${role}</p>
+        <p><strong>Problema:</strong> ${problem}</p>
+        <p><strong>Data:</strong> ${date}</p>
+        <button class="delete-btn absolute top-2 right-2 text-red-500 hover:text-red-700">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
 
-                document.getElementById('noteDetailsModal').classList.remove('hidden');
-            });
+    // Adiciona evento de exclusão
+    noteDiv.querySelector('.delete-btn').addEventListener('click', function() {
+        delete notes[contractNumber]; // Remove do objeto notes
+        noteDiv.remove(); // Remove do DOM
+    });
 
-            document.getElementById('notesContainer').appendChild(noteButton);
+    // Adiciona o elemento ao container
+    document.getElementById('notesContainer').appendChild(noteDiv);
 
-            notes[contractNumber] = {
-                role: role,
-                problem: problem,
-                date: date,
-                status: 'open',
-                inSpreadsheet: false,
-                comments: []
-            };
+    // Salva no objeto notes
+    notes[contractNumber] = {
+        role: role,
+        problem: problem,
+        date: date,
+        status: 'open',
+        inSpreadsheet: false,
+        comments: []
+    };
 
-            document.getElementById('noteForm').reset();
-            document.getElementById('noteModal').classList.add('hidden');
-        });
+    // Reseta o formulário e fecha o modal
+    document.getElementById('noteForm').reset();
+    document.getElementById('noteModal').classList.add('hidden');
+});
 
         document.getElementById('commentForm').addEventListener('submit', function(event) {
             event.preventDefault();
