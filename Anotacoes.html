@@ -133,11 +133,14 @@
             noteButton.dataset.status = 'open';
             noteButton.dataset.inSpreadsheet = false;
             noteButton.addEventListener('click', function() {
+                const formattedDate = new Date(date);
+                formattedDate.setDate(formattedDate.getDate() + 1);
+                const formattedDateString = formattedDate.toLocaleDateString('pt-BR');
                 document.getElementById('noteDetailsContent').innerHTML = `
                     <h3 class="text-lg font-semibold text-center">#${contractNumber}</h3>
-                    <p><strong>Locador ou Locatário:</strong> <span class="font-bold">${role}</span></p>
-                    <p><strong>Problema:</strong> <span class="font-bold">${problem}</span></p>
-                    <p><strong>Data:</strong> <span class="font-bold">${date}</span></p>
+                    <p><strong>Locador ou Locatário:</strong> <span>${role}</span></p>
+                    <p><strong>Problema:</strong> <span>${problem}</span></p>
+                    <p><strong>Data:</strong> <span>${formattedDateString}</span></p>
                 `;
                 document.getElementById('commentsContainer').innerHTML = ''; // Clear previous comments
 
@@ -273,11 +276,14 @@
                                 noteButton.classList.add('bg-green-500', 'hover:bg-green-700');
                             }
                             noteButton.addEventListener('click', function() {
+                                const formattedDate = new Date(note.date);
+                                formattedDate.setDate(formattedDate.getDate() + 1);
+                                const formattedDateString = formattedDate.toLocaleDateString('pt-BR');
                                 document.getElementById('noteDetailsContent').innerHTML = `
                                     <h3 class="text-lg font-semibold text-center">#${contractNumber}</h3>
-                                    <p><strong>Locador ou Locatário:</strong> <span class="font-bold">${note.role}</span></p>
-                                    <p><strong>Problema:</strong> <span class="font-bold">${note.problem}</span></p>
-                                    <p><strong>Data:</strong> <span class="font-bold">${note.date}</span></p>
+                                    <p><strong>Locador ou Locatário:</strong> <span>${note.role}</span></p>
+                                    <p><strong>Problema:</strong> <span>${note.problem}</span></p>
+                                    <p><strong>Data:</strong> <span>${formattedDateString}</span></p>
                                 `;
                                 document.getElementById('commentsContainer').innerHTML = ''; // Clear previous comments
 
