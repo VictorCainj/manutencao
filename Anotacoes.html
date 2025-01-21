@@ -5,9 +5,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-    <div class="mb-6">
-        <img src="https://i.ibb.co/R3dKTYr/Madia-Im-veis-40-anos.webp" alt="Logo da empresa" class="mx-auto">
-    </div>
     <div class="mb-6 space-x-4">
         <button id="createNoteBtn" class="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
             Criar anotação
@@ -79,6 +76,7 @@
             <div class="flex justify-between mt-4">
                 <button type="button" id="copyDetailsBtn" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700">Copiar Dados</button>
                 <button type="button" id="downloadContractBtn" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-700">Baixar Contrato</button>
+                <button type="button" id="deleteNoteBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700">Excluir</button>
                 <button type="button" id="closeDetailsBtn" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-700">Fechar</button>
             </div>
         </div>
@@ -99,56 +97,63 @@
             document.getElementById('noteDetailsModal').classList.add('hidden');
         });
 
-document.getElementById('noteForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    
-    const contractNumber = document.getElementById('contractNumber').value;
-    const role = document.getElementById('role').value;
-    const problem = document.getElementById('problem').value;
-    const date = document.getElementById('date').value;
+        document.getElementById('noteForm').addEventListener('submit', function(event) {
+            event.preventDefault();
 
-    // Cria o elemento de nota
-    const noteDiv = document.createElement('div');
-    noteDiv.className = 'note w-full p-4 bg-white rounded-lg shadow-md relative';
-    noteDiv.dataset.contractNumber = contractNumber;
+            const contractNumber = document.getElementById('contractNumber').value;
+            const role = document.getElementById('role').value;
+            const problem = document.getElementById('problem').value;
+            const date = document.getElementById('date').value;
 
-    noteDiv.innerHTML = `
-        <h3 class="text-lg font-semibold text-blue-500">#${contractNumber}</h3>
-        <p><strong>Locador ou Locatário:</strong> ${role}</p>
-        <p><strong>Problema:</strong> ${problem}</p>
-        <p><strong>Data:</strong> ${date}</p>
-        <button class="delete-btn absolute top-2 right-2 text-red-500 hover:text-red-700">
-            <i class="fas fa-trash"></i>
-        </button>
-    `;
+            const noteButton = document.createElement('button');
+            noteButton.className = 'note-button w-full px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
+            noteButton.textContent = `#${contractNumber}`;
+            noteButton.dataset.role = role.toLowerCase();
+            noteButton.dataset.date = date;
+            noteButton.dataset.status = 'open';
+            noteButton.dataset.inSpreadsheet = false;
+            noteButton.addEventListener('click', function() {
+                document.getElementById('noteDetailsContent').innerHTML = `
+                    <h3 class="text-lg font-semibold text-center">#${contractNumber}</h3>
+                    <p><strong>Locador ou Locatário:</strong> ${role}</p>
+                    <p><strong>Problema:</strong> ${problem}</p>
+                    <p><strong>Data:</strong> ${date}</p>
+                `;
+                document.getElementById('commentsContainer').innerHTML = ''; // Clear previous comments
 
-    // Adiciona evento de exclusão
-    noteDiv.querySelector('.delete-btn').addEventListener('click', function() {
-        delete notes[contractNumber]; // Remove do objeto notes
-        noteDiv.remove(); // Remove do DOM
-    });
+                if (notes[contractNumber]) {
+                    notes[contractNumber].comments.forEach(comment => {
+                        const commentBlock = document.createElement('div');
+                        commentBlock.className = 'p-2 bg-gray-100 rounded-lg shadow-md';
+                        commentBlock.innerHTML = `
+                            <p>${comment.text}</p>
+                            <p class="text-sm text-gray-500">${comment.dateTime}</p>
+                        `;
+                        document.getElementById('commentsContainer').appendChild(commentBlock);
+                    });
+                }
 
-    // Adiciona o elemento ao container
-    document.getElementById('notesContainer').appendChild(noteDiv);
+                document.getElementById('noteDetailsModal').classList.remove('hidden');
+            });
 
-    // Salva no objeto notes
-    notes[contractNumber] = {
-        role: role,
-        problem: problem,
-        date: date,
-        status: 'open',
-        inSpreadsheet: false,
-        comments: []
-    };
+            document.getElementById('notesContainer').appendChild(noteButton);
 
-    // Reseta o formulário e fecha o modal
-    document.getElementById('noteForm').reset();
-    document.getElementById('noteModal').classList.add('hidden');
-});
+            notes[contractNumber] = {
+                role: role,
+                problem: problem,
+                date: date,
+                status: 'open',
+                inSpreadsheet: false,
+                comments: []
+            };
+
+            document.getElementById('noteForm').reset();
+            document.getElementById('noteModal').classList.add('hidden');
+        });
 
         document.getElementById('commentForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            
+
             const commentText = document.getElementById('commentText').value;
             const currentDateTime = new Date().toLocaleString();
 
@@ -303,6 +308,16 @@ document.getElementById('noteForm').addEventListener('submit', function(event) {
                 }
             });
         }
+
+        document.getElementById('deleteNoteBtn').addEventListener('click', function() {
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
+            delete notes[contractNumber];
+            const noteButton = Array.from(document.querySelectorAll('.note-button')).find(button => button.textContent.slice(1) === contractNumber);
+            if (noteButton) {
+                noteButton.remove();
+            }
+            document.getElementById('noteDetailsModal').classList.add('hidden');
+        });
     </script>
 </body>
 </html>
