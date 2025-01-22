@@ -135,6 +135,7 @@
             noteButton.textContent = `#${contractNumber}`;
             noteButton.dataset.role = role.toLowerCase();
             noteButton.dataset.date = date;
+            noteButton.dataset.address = address.toLowerCase();
             noteButton.dataset.status = 'open';
             noteButton.dataset.inSpreadsheet = false;
             noteButton.addEventListener('click', function() {
@@ -293,6 +294,7 @@
                             noteButton.textContent = `#${contractNumber}`;
                             noteButton.dataset.role = note.role.toLowerCase();
                             noteButton.dataset.date = note.date;
+                            noteButton.dataset.address = note.address.toLowerCase();
                             noteButton.dataset.status = note.status;
                             noteButton.dataset.inSpreadsheet = note.inSpreadsheet;
                             if (note.status === 'closed') {
@@ -352,7 +354,8 @@
             noteButtons.forEach(button => {
                 const contractNumber = button.textContent.toLowerCase();
                 const role = button.dataset.role;
-                const matchesSearch = contractNumber.includes(searchTerm) || role.includes(searchTerm);
+                const address = button.dataset.address;
+                const matchesSearch = contractNumber.includes(searchTerm) || role.includes(searchTerm) || address.includes(searchTerm);
                 if (matchesSearch) {
                     button.classList.remove('hidden');
                 } else {
