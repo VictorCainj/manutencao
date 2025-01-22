@@ -40,10 +40,6 @@
 
     <div class="mb-6 w-full max-w-4xl flex space-x-4">
         <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-        <select id="sortOrder" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-            <option value="recent">Mais Recentes</option>
-            <option value="oldest">Mais Antigas</option>
-        </select>
     </div>
 
     <!-- Modal -->
@@ -146,14 +142,12 @@
                 const formattedDate = new Date(date);
                 formattedDate.setDate(formattedDate.getDate() + 1);
                 const formattedDateString = formattedDate.toLocaleDateString('pt-BR');
-                const daysSince = Math.floor((new Date() - new Date(date)) / (1000 * 60 * 60 * 24));
                 document.getElementById('noteDetailsContent').innerHTML = `
                     <h3 class="text-lg font-semibold text-center">#${contractNumber}</h3>
                     <p><strong>Locador ou Locatário:</strong> <span>${role}</span></p>
                     <p><strong>Problema:</strong> <span>${problem}</span></p>
                     <p><strong>Data:</strong> <span>${formattedDateString}</span></p>
                     <p><strong>Endereço:</strong> <span>${address}</span></p>
-                    <p><strong>Dias desde a data:</strong> <span>${daysSince} dias</span></p>
                 `;
                 document.getElementById('commentsContainer').innerHTML = ''; // Clear previous comments
 
@@ -187,7 +181,6 @@
 
             document.getElementById('noteForm').reset();
             document.getElementById('noteModal').classList.add('hidden');
-            sortAndDisplayNotes();
         });
 
         document.getElementById('commentForm').addEventListener('submit', function(event) {
@@ -312,14 +305,12 @@
                                 const formattedDate = new Date(note.date);
                                 formattedDate.setDate(formattedDate.getDate() + 1);
                                 const formattedDateString = formattedDate.toLocaleDateString('pt-BR');
-                                const daysSince = Math.floor((new Date() - new Date(note.date)) / (1000 * 60 * 60 * 24));
                                 document.getElementById('noteDetailsContent').innerHTML = `
                                     <h3 class="text-lg font-semibold text-center">#${contractNumber}</h3>
                                     <p><strong>Locador ou Locatário:</strong> <span>${note.role}</span></p>
                                     <p><strong>Problema:</strong> <span>${note.problem}</span></p>
                                     <p><strong>Data:</strong> <span>${formattedDateString}</span></p>
                                     <p><strong>Endereço:</strong> <span>${note.address}</span></p>
-                                    <p><strong>Dias desde a data:</strong> <span>${daysSince} dias</span></p>
                                 `;
                                 document.getElementById('commentsContainer').innerHTML = ''; // Clear previous comments
 
@@ -340,7 +331,6 @@
                             document.getElementById('notesContainer').appendChild(noteButton);
                         }
                     }
-                    sortAndDisplayNotes();
                 };
                 reader.readAsText(file);
             }
@@ -375,14 +365,14 @@
         }
 
         document.getElementById('deleteNoteBtn').addEventListener('click', function() {
-            const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
-            delete notes[contractNumber];
-            const noteButton = Array.from(document.querySelectorAll('.note-button')).find(button => button.textContent.slice(1) === contractNumber);
-            if (noteButton) {
-                noteButton.remove();
-            }
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-        });
-    </script>
+  const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
+  delete notes[contractNumber];
+  const noteButton = Array.from(document.querySelectorAll('.note-button')).find(button => button.textContent.slice(1) === contractNumber);
+  if (noteButton) {
+      noteButton.remove();
+  }
+  document.getElementById('noteDetailsModal').classList.add('hidden');
+});
+</script>
 </body>
 </html>
