@@ -1,3 +1,88 @@
+document.getElementById('fileInput').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const importedNotes = JSON.parse(e.target.result);
+
+                // Verificar se o formato é válido
+                if (typeof importedNotes !== 'object' || importedNotes === null) {
+                    alert('Erro: O arquivo não possui um formato válido.');
+                    return;
+                }
+
+                for (const contractNumber in importedNotes) {
+                    if (importedNotes.hasOwnProperty(contractNumber)) {
+                        const note = importedNotes[contractNumber];
+
+                        // Validação básica para os campos essenciais
+                        if (!note.role || !note.problem || !note.date || !note.address) {
+                            alert(`Erro: Dados incompletos no contrato #${contractNumber}.`);
+                            continue;
+                        }
+
+                        // Adicionar o contrato ao objeto `notes`
+                        notes[contractNumber] = {
+                            ...note,
+                            comments: note.comments || [], // Garantir que comentários estejam presentes
+                        };
+
+                        // Criar botão para o contrato
+                        const noteButton = document.createElement('button');
+                        noteButton.className = 'note-button w-full px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
+                        noteButton.innerHTML = `<span class="block font-bold">#${contractNumber}</span><span class="block text-sm">${note.role}</span>`;
+                        noteButton.dataset.role = note.role.toLowerCase();
+                        noteButton.dataset.date = note.date;
+                        noteButton.dataset.address = note.address.toLowerCase();
+                        noteButton.dataset.status = note.status || 'open';
+                        noteButton.dataset.inSpreadsheet = note.inSpreadsheet || false;
+
+                        // Alterar aparência se o status for "closed"
+                        if (note.status === 'closed') {
+                            noteButton.classList.remove('bg-blue-500', 'hover:bg-blue-700');
+                            noteButton.classList.add('bg-green-500', 'hover:bg-green-700');
+                        }
+
+                        noteButton.addEventListener('click', function () {
+                            const formattedDate = new Date(note.date);
+                            formattedDate.setDate(formattedDate.getDate() + 1);
+                            const formattedDateString = formattedDate.toLocaleDateString('pt-BR');
+                            document.getElementById('noteDetailsContent').innerHTML = `
+                                <h3 class="text-lg font-semibold text-center">#${contractNumber}</h3>
+                                <p><strong>Locador ou Locatário:</strong> <span>${note.role}</span></p>
+                                <p><strong>Problema:</strong> <span>${note.problem}</span></p>
+                                <p><strong>Data:</strong> <span>${formattedDateString}</span></p>
+                                <p><strong>Endereço:</strong> <span>${note.address}</span></p>
+                            `;
+                            document.getElementById('commentsContainer').innerHTML = ''; // Limpar comentários anteriores
+
+                            note.comments.forEach(comment => {
+                                const commentBlock = document.createElement('div');
+                                commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
+                                commentBlock.innerHTML = `
+                                    <p>${comment.text}</p>
+                                    <p class="text-sm text-gray-500">${comment.dateTime}</p>
+                                `;
+                                document.getElementById('commentsContainer').appendChild(commentBlock);
+                            });
+
+                            document.getElementById('noteDetailsModal').classList.remove('hidden');
+                        });
+
+                        document.getElementById('notesContainer').appendChild(noteButton);
+                    }
+                }
+                alert('Contratos importados com sucesso!');
+            } catch (error) {
+                console.error('Erro ao importar contratos:', error);
+                alert('Erro: O arquivo não é um JSON válido.');
+            }
+        };
+        reader.readAsText(file);
+    }
+});
+
 <html>
 <head>
     <title>Criar Anotação</title>
