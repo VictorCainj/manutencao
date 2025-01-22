@@ -153,12 +153,10 @@
 
     // Atualizar cor da nota
     function updateNoteColor(contractNumber, newColor) {
-        // Atualiza a cor na estrutura de dados
         if (notes[contractNumber]) {
             notes[contractNumber].color = newColor;
         }
 
-        // Atualiza a cor no botão correspondente
         const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
             (button) => button.querySelector('span').textContent.slice(1) === contractNumber
         );
@@ -193,6 +191,7 @@
         return colorButtonsContainer;
     }
 
+    // Criar nova anotação
     document.getElementById('noteForm').addEventListener('submit', function (event) {
         event.preventDefault();
 
@@ -201,6 +200,11 @@
         const problem = document.getElementById('problem').value;
         const date = document.getElementById('date').value;
         const address = document.getElementById('address').value;
+
+        if (!contractNumber || !role || !problem || !date || !address) {
+            alert("Todos os campos são obrigatórios!");
+            return;
+        }
 
         const noteButton = document.createElement('button');
         const defaultColor = 'bg-blue-500';
@@ -237,16 +241,7 @@
         document.getElementById('noteModal').classList.add('hidden');
     });
 
-    document.getElementById('downloadNotesBtn').addEventListener('click', function () {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "contratos.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-    });
-
+    // Importar contratos
     document.getElementById('fileInput').addEventListener('change', function (event) {
         const file = event.target.files[0];
         if (file) {
@@ -284,56 +279,18 @@
             reader.readAsText(file);
         }
     });
-    
-        document.getElementById('downloadNotesBtn').addEventListener('click', function() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "contratos.json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        });
 
-        document.getElementById('searchInput').addEventListener('input', filterNotes);
-
-        function filterNotes() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const noteButtons = document.querySelectorAll('.note-button');
-            noteButtons.forEach(button => {
-                const contractNumber = button.textContent.toLowerCase();
-                const role = button.dataset.role;
-                const address = button.dataset.address;
-                const matchesSearch = contractNumber.includes(searchTerm) || role.includes(searchTerm) || address.includes(searchTerm);
-                if (matchesSearch) {
-                    button.classList.remove('hidden');
-                } else {
-                    button.classList.add('hidden');
-                }
-            });
-        }
-
-        document.getElementById('deleteNoteBtn').addEventListener('click', function () {
-    const contractNumber = document.getElementById('noteDetailsContent')
-        .querySelector('h3')
-        .textContent.slice(1);
-
-    // Remover a anotação do objeto 'notes'
-    if (notes[contractNumber]) {
-        delete notes[contractNumber];
-    }
-
-    // Encontrar e remover o botão correspondente à anotação
-    const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
-        (button) => button.querySelector('span').textContent.slice(1) === contractNumber
-    );
-    if (noteButton) {
-        noteButton.remove();
-    }
-
-    // Fechar o modal de detalhes
-    document.getElementById('noteDetailsModal').classList.add('hidden');
-});
+    // Baixar todas as notas
+    document.getElementById('downloadNotesBtn').addEventListener('click', function () {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "contratos.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    });
 </script>
+
 </body>
 </html>
