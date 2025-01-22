@@ -1,52 +1,43 @@
-<html>
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Criar Anotação</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
+        /* Custom button classes */
         .btn {
             @apply px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75;
         }
-        .btn-blue {
-            @apply bg-blue-500 hover:bg-blue-700 focus:ring-blue-400;
-        }
-        .btn-green {
-            @apply bg-green-500 hover:bg-green-700 focus:ring-green-400;
-        }
-        .btn-yellow {
-            @apply bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400;
-        }
-        .btn-gray {
-            @apply bg-gray-500 hover:bg-gray-700 focus:ring-gray-400;
-        }
-        .btn-red {
-            @apply bg-red-500 hover:bg-red-700 focus:ring-red-400;
-        }
+        .btn-blue { @apply bg-blue-500 hover:bg-blue-700 focus:ring-blue-400; }
+        .btn-green { @apply bg-green-500 hover:bg-green-700 focus:ring-green-400; }
+        .btn-yellow { @apply bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400; }
+        .btn-gray { @apply bg-gray-500 hover:bg-gray-700 focus:ring-gray-400; }
+        .btn-red { @apply bg-red-500 hover:bg-red-700 focus:ring-red-400; }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <!-- Header Buttons -->
     <div class="mb-6 space-x-4">
-        <button id="createNoteBtn" class="btn btn-blue">
-            Criar anotação
-        </button>
-        <button id="importNotesBtn" class="btn btn-green">
-            Importar Contratos
-        </button>
-        <button id="downloadNotesBtn" class="btn btn-yellow">
-            Baixar Todos os Contratos
-        </button>
+        <button id="createNoteBtn" class="btn btn-blue">Criar Anotação</button>
+        <button id="importNotesBtn" class="btn btn-green">Importar Contratos</button>
+        <button id="downloadNotesBtn" class="btn btn-yellow">Baixar Todos os Contratos</button>
         <input type="file" id="fileInput" class="hidden" accept=".json">
     </div>
 
+    <!-- Search Input -->
     <div class="mb-6 w-full max-w-4xl flex space-x-4">
         <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
     </div>
 
-    <!-- Modal -->
+    <!-- Modal para Criação de Anotação -->
     <div id="noteModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
         <div class="bg-white rounded-md shadow-lg p-6 w-full max-w-md">
             <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
             <form id="noteForm">
+                <!-- Form Fields -->
                 <div class="mb-4">
                     <label for="contractNumber" class="block text-gray-700">Número de Contrato:</label>
                     <input type="text" id="contractNumber" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
@@ -67,6 +58,7 @@
                     <label for="address" class="block text-gray-700">Endereço:</label>
                     <input type="text" id="address" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
+                <!-- Form Actions -->
                 <div class="flex justify-end">
                     <button type="button" id="cancelBtn" class="btn btn-gray mr-2">Cancelar</button>
                     <button type="submit" class="btn btn-blue">Salvar</button>
@@ -75,64 +67,44 @@
         </div>
     </div>
 
-    <!-- Notes Container -->
+    <!-- Container de Anotações -->
     <div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <!-- Notes will be appended here -->
+        <!-- Anotações serão adicionadas aqui dinamicamente -->
     </div>
 
-<!-- Note Details Modal -->
-<div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg max-h-screen overflow-y-auto">
-        <!-- Header -->
-        <div class="flex justify-between items-center border-b pb-4 mb-4">
-            <h2 class="text-2xl font-semibold text-gray-800">Detalhes da Anotação</h2>
-            <button id="closeDetailsBtn" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-2xl"></i>
-            </button>
-        </div>
+    <!-- Modal de Detalhes -->
+    <div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg max-h-screen overflow-y-auto">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b pb-4 mb-4">
+                <h2 class="text-2xl font-semibold text-gray-800">Detalhes da Anotação</h2>
+                <button id="closeDetailsBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <!-- Detalhes -->
+            <div id="noteDetailsContent" class="space-y-4"></div>
 
-        <!-- Anotação Info -->
-        <div id="noteDetailsContent" class="space-y-4">
-            <!-- Conteúdo gerado dinamicamente -->
-        </div>
+            <!-- Comentários -->
+            <div id="commentsContainer" class="mt-6 space-y-4"></div>
 
-        <!-- Tempo de Abertura -->
-        <div id="contractTime" class="text-sm text-gray-600 mt-2">
-            <!-- O tempo será calculado e exibido dinamicamente -->
-        </div>
-
-        <!-- Adicionar Comentário -->
-        <div class="mt-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Adicionar Comentário</h3>
-            <form id="commentForm" class="flex flex-col space-y-3">
-                <textarea id="commentText" placeholder="Escreva seu comentário..." 
-                          class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
-                <button type="submit" class="btn btn-blue self-end px-6 py-2">Adicionar</button>
-            </form>
-        </div>
-
-        <!-- Lista de Comentários -->
-        <div id="commentsContainer" class="mt-6 space-y-4">
-            <!-- Comentários renderizados dinamicamente -->
-        </div>
-
-        <!-- Ações -->
-        <div class="flex justify-between items-center mt-6">
-            <button type="button" id="copyDetailsBtn" class="btn btn-green flex items-center space-x-2">
-                <i class="fas fa-copy"></i>
-                <span>Copiar Dados</span>
-            </button>
-            <button type="button" id="downloadContractBtn" class="btn btn-yellow flex items-center space-x-2">
-                <i class="fas fa-download"></i>
-                <span>Baixar Contrato</span>
-            </button>
-            <button type="button" id="deleteNoteBtn" class="btn btn-red flex items-center space-x-2">
-                <i class="fas fa-trash-alt"></i>
-                <span>Excluir</span>
-            </button>
+            <!-- Ações -->
+            <div class="flex justify-between items-center mt-6">
+                <button id="copyDetailsBtn" class="btn btn-green flex items-center space-x-2">
+                    <i class="fas fa-copy"></i>
+                    <span>Copiar Dados</span>
+                </button>
+                <button id="downloadContractBtn" class="btn btn-yellow flex items-center space-x-2">
+                    <i class="fas fa-download"></i>
+                    <span>Baixar Contrato</span>
+                </button>
+                <button id="deleteNoteBtn" class="btn btn-red flex items-center space-x-2">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Excluir</span>
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
     <script>
         const notes = {};
@@ -148,22 +120,6 @@
         document.getElementById('closeDetailsBtn').addEventListener('click', function() {
             document.getElementById('noteDetailsModal').classList.add('hidden');
         });
-
-        document.getElementById('noteDetailsModal').addEventListener('show', function () {
-    const contractNumber = document.getElementById('noteDetailsContent')
-        .querySelector('h3')
-        .textContent.slice(1);
-    const note = notes[contractNumber];
-
-    // Calcula o tempo de abertura do contrato
-    const contractDate = new Date(note.date);
-    const currentDate = new Date();
-    const diffTime = Math.abs(currentDate - contractDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Converter para dias
-
-    // Atualiza o campo de tempo no modal
-    document.getElementById('contractTime').textContent = `Contrato aberto há ${diffDays} dia${diffDays > 1 ? 's' : ''}.`;
-});
 
         document.getElementById('noteForm').addEventListener('submit', function(event) {
             event.preventDefault();
