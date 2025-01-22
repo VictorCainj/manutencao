@@ -80,31 +80,55 @@
         <!-- Notes will be appended here -->
     </div>
 
-    <!-- Note Details Modal -->
-    <div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white rounded-md shadow-lg p-6 w-full max-w-md max-h-full overflow-y-auto">
-            <h2 class="text-xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-            <div id="noteDetailsContent">
-                <!-- Note details will be displayed here -->
-            </div>
-            <div class="mt-4">
-                <h3 class="text-lg font-semibold mb-2 text-center">Adicionar Comentário</h3>
-                <form id="commentForm">
-                    <textarea id="commentText" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mb-2"></textarea>
-                    <button type="submit" class="btn btn-blue">Adicionar</button>
-                </form>
-            </div>
-            <div id="commentsContainer" class="mt-4 space-y-2 max-h-40 overflow-y-auto">
-                <!-- Comments will be appended here -->
-            </div>
-            <div class="flex justify-between mt-4">
-                <button type="button" id="copyDetailsBtn" class="btn btn-green">Copiar Dados</button>
-                <button type="button" id="downloadContractBtn" class="btn btn-yellow">Baixar Contrato</button>
-                <button type="button" id="deleteNoteBtn" class="btn btn-red">Excluir</button>
-                <button type="button" id="closeDetailsBtn" class="btn btn-gray">Fechar</button>
-            </div>
+<!-- Note Details Modal -->
+<div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg max-h-screen overflow-y-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b pb-4 mb-4">
+            <h2 class="text-2xl font-semibold text-gray-800">Detalhes da Anotação</h2>
+            <button id="closeDetailsBtn" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Anotação Info -->
+        <div id="noteDetailsContent" class="space-y-4">
+            <!-- Conteúdo gerado dinamicamente -->
+        </div>
+
+        <!-- Adicionar Comentário -->
+        <div class="mt-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Adicionar Comentário</h3>
+            <form id="commentForm" class="flex flex-col space-y-3">
+                <textarea id="commentText" placeholder="Escreva seu comentário..." 
+                          class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                <button type="submit" class="btn btn-blue self-end px-6 py-2">Adicionar</button>
+            </form>
+        </div>
+
+        <!-- Lista de Comentários -->
+        <div id="commentsContainer" class="mt-6 space-y-4">
+            <!-- Comentários renderizados dinamicamente -->
+        </div>
+
+        <!-- Ações -->
+        <div class="flex justify-between items-center mt-6">
+            <button type="button" id="copyDetailsBtn" class="btn btn-green flex items-center space-x-2">
+                <i class="fas fa-copy"></i>
+                <span>Copiar Dados</span>
+            </button>
+            <button type="button" id="downloadContractBtn" class="btn btn-yellow flex items-center space-x-2">
+                <i class="fas fa-download"></i>
+                <span>Baixar Contrato</span>
+            </button>
+            <button type="button" id="deleteNoteBtn" class="btn btn-red flex items-center space-x-2">
+                <i class="fas fa-trash-alt"></i>
+                <span>Excluir</span>
+            </button>
         </div>
     </div>
+</div>
+
 
     <script>
         const notes = {};
