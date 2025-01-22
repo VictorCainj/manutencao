@@ -284,9 +284,7 @@
             reader.readAsText(file);
         }
     });
-</script>
-
-
+    
         document.getElementById('downloadNotesBtn').addEventListener('click', function() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
             const downloadAnchorNode = document.createElement('a');
