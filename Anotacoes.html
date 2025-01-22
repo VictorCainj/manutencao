@@ -364,15 +364,24 @@
             });
         }
 
-        document.getElementById('deleteNoteBtn').addEventListener('click', function() {
-  const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
-  delete notes[contractNumber];
-  const noteButton = Array.from(document.querySelectorAll('.note-button')).find(button => button.textContent.slice(1) === contractNumber);
-  if (noteButton) {
-      noteButton.remove();
-  }
-  document.getElementById('noteDetailsModal').classList.add('hidden');
+        document.getElementById('deleteNoteBtn').addEventListener('click', function () {
+    const contractNumber = document.getElementById('noteDetailsContent')
+        .querySelector('h3')
+        .textContent.slice(1);
+
+    // Remover a anotação do objeto 'notes'
+    if (notes[contractNumber]) {
+        delete notes[contractNumber];
+    }
+
+    // Encontrar e remover o botão correspondente à anotação
+    const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
+        (button) => button.querySelector('span').textContent.slice(1) === contractNumber
+    );
+    if (noteButton) {
+        noteButton.remove();
+    }
+
+    // Fechar o modal de detalhes
+    document.getElementById('noteDetailsModal').classList.add('hidden');
 });
-</script>
-</body>
-</html>
