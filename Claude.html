@@ -63,6 +63,10 @@
         .progress-bar {
             @apply absolute bottom-0 left-0 h-2 bg-blue-500 transition-all duration-300;
         }
+        /* Adicionando estilo para input de data */
+        .date-input {
+            @apply px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400;
+        }
     </style>
 </head>
 
@@ -156,6 +160,14 @@
             </div>
 
             <div>
+                <label for="creationDate" class="block text-gray-700">Data de Criação: *</label>
+                <input type="datetime-local" 
+                       id="creationDate" 
+                       required
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div>
                 <label for="address" class="block text-gray-700">Endereço: *</label>
                 <input type="text" 
                        id="address" 
@@ -185,6 +197,14 @@
             <div class="space-y-4">
                 <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md"></div>
                 
+                <!-- Campo de Data de Agendamento -->
+                <div id="scheduleDateContainer" class="hidden">
+                    <label for="scheduleDate" class="block text-gray-700 mb-2">Data de Agendamento:</label>
+                    <input type="datetime-local" 
+                           id="scheduleDate" 
+                           class="date-input w-full mb-4">
+                </div>
+
                 <!-- Status Buttons -->
                 <div id="statusButtons" class="flex space-x-2">
                     <!-- Botões de status serão inseridos dinamicamente -->
@@ -238,6 +258,23 @@
 <script>
 // Utility Functions
 const utils = {
+    formatDateTime: (date) => {
+        if (!date) return '';
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return '';
+        
+        const pad = (num) => String(num).padStart(2, '0');
+        return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    },
+
+    calculateDaysOpen: (startDate) => {
+        if (!startDate) return 0;
+        const start = new Date(startDate);
+        const now = new Date();
+        const diffTime = Math.abs(now - start);
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    },
+
     showNotification: (message, type = 'success') => {
         const notification = document.getElementById('notification');
         notification.className = `notification ${type === 'success' ? 'notification-success' : 'notification-error'}`;
@@ -255,23 +292,6 @@ const utils = {
         }
     },
 
-    formatDate: (dateString) => {
-        try {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) return '23/01/2025 23:26';
-            
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = date.getHours().toString().padStart(2, '0');
-            const minutes = date.getMinutes().toString().padStart(2, '0');
-            
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
-        } catch (e) {
-            return '23/01/2025 23:26';
-        }
-    },
-
     sanitizeInput: (input) => {
         if (typeof input !== 'string') return '';
         return input.trim()
@@ -279,40 +299,6 @@ const utils = {
                    .replace(/&/g, '&amp;')
                    .replace(/"/g, '&quot;')
                    .replace(/'/g, '&#39;');
-    },
-
-    validateForm: (formData) => {
-        const errors = [];
-        
-        if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
-            errors.push('Número de contrato inválido - use apenas letras, números e hífen');
-        }
-        
-        if (formData.locator.length < 3) {
-            errors.push('Nome do Locador deve ter ao menos 3 caracteres');
-        }
-
-        if (formData.tenant.length < 3) {
-            errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
-        }
-        
-        if (formData.problem.length < 10) {
-            errors.push('Problema deve ter ao menos 10 caracteres');
-        }
-        
-        if (formData.address.length < 5) {
-            errors.push('Endereço deve ter ao menos 5 caracteres');
-        }
-        
-        return errors;
-    },
-
-    calculateDaysOpen: (dateString) => {
-        const start = new Date(dateString);
-        const today = new Date();
-        const diffTime = Math.abs(today - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
     }
 };
 
@@ -320,7 +306,7 @@ const utils = {
     constructor() {
         this.notes = {};
         this.currentUser = 'VictorCainj';
-        this.currentDateTime = '23/01/2025 23:27';
+        this.currentDateTime = '2025-01-23 23:52:18';
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
@@ -342,6 +328,8 @@ const utils = {
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             document.getElementById('noteModal').classList.remove('hidden');
             document.getElementById('contractNumber').focus();
+            // Set default creation date to current datetime
+            document.getElementById('creationDate').value = new Date().toISOString().slice(0, 16);
         });
 
         document.getElementById('cancelBtn').addEventListener('click', () => {
@@ -373,6 +361,13 @@ const utils = {
 
         document.getElementById('downloadNotesBtn').addEventListener('click', () => {
             this.exportNotes();
+        });
+
+        // Event Listeners para agendamento
+        document.getElementById('scheduleDate').addEventListener('change', (e) => {
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.updateScheduleDate(noteKey, e.target.value);
         });
 
         // Event Listeners para comentários
@@ -426,10 +421,11 @@ const utils = {
             locator: document.getElementById('locator').value,
             tenant: document.getElementById('tenant').value,
             problem: document.getElementById('problem').value,
-            address: document.getElementById('address').value
+            address: document.getElementById('address').value,
+            createdAt: document.getElementById('creationDate').value
         };
 
-        const errors = utils.validateForm(formData);
+        const errors = this.validateForm(formData);
         if (errors.length > 0) {
             utils.showNotification(errors.join('\n'), 'error');
             return;
@@ -442,6 +438,36 @@ const utils = {
         }
     }
 
+    validateForm(formData) {
+        const errors = [];
+        
+        if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
+            errors.push('Número de contrato inválido - use apenas letras, números e hífen');
+        }
+        
+        if (formData.locator.length < 3) {
+            errors.push('Nome do Locador deve ter ao menos 3 caracteres');
+        }
+
+        if (formData.tenant.length < 3) {
+            errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
+        }
+        
+        if (formData.problem.length < 10) {
+            errors.push('Problema deve ter ao menos 10 caracteres');
+        }
+        
+        if (formData.address.length < 5) {
+            errors.push('Endereço deve ter ao menos 5 caracteres');
+        }
+
+        if (!formData.createdAt) {
+            errors.push('Data de criação é obrigatória');
+        }
+        
+        return errors;
+    }
+
     addNote(formData) {
         try {
             const sanitizedData = {
@@ -449,7 +475,8 @@ const utils = {
                 locator: utils.sanitizeInput(formData.locator),
                 tenant: utils.sanitizeInput(formData.tenant),
                 problem: utils.sanitizeInput(formData.problem),
-                address: utils.sanitizeInput(formData.address)
+                address: utils.sanitizeInput(formData.address),
+                createdAt: formData.createdAt
             };
 
             if (!sanitizedData.contractNumber) {
@@ -466,8 +493,8 @@ const utils = {
                 ...sanitizedData,
                 status: 'open',
                 comments: [],
-                createdAt: '23/01/2025 23:28',
-                createdBy: 'VictorCainj'
+                createdBy: this.currentUser,
+                scheduleDate: null
             };
 
             this.renderNote(noteKey);
@@ -478,6 +505,22 @@ const utils = {
             console.error('Erro ao adicionar nota:', error);
             utils.showNotification(`Erro ao criar anotação: ${error.message}`, 'error');
             return false;
+        }
+    }
+
+    updateScheduleDate(noteKey, scheduleDate) {
+        try {
+            const note = this.notes[noteKey];
+            if (!note) return;
+
+            note.scheduleDate = scheduleDate;
+            this.saveToLocalStorage();
+            this.renderNote(noteKey);
+            this.showNoteDetails(noteKey);
+            utils.showNotification('Data de agendamento atualizada com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao atualizar data de agendamento:', error);
+            utils.showNotification('Erro ao atualizar data de agendamento', 'error');
         }
     }
 
@@ -496,7 +539,9 @@ const utils = {
 
             const statusText = {
                 'open': `Aberto há ${daysOpen} dias`,
-                'scheduled': 'Em agendamento',
+                'scheduled': note.scheduleDate ? 
+                    `Agendado para ${utils.formatDateTime(note.scheduleDate)}` : 
+                    'Em agendamento',
                 'closed': 'Finalizado'
             };
             
@@ -509,7 +554,7 @@ const utils = {
                 <span class="block font-bold">${utils.sanitizeInput(noteKey)}</span>
                 <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
                 <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-                <span class="block text-xs mt-1">${utils.formatDate(note.createdAt)}</span>
+                <span class="block text-xs mt-1">Criado em: ${utils.formatDateTime(note.createdAt)}</span>
                 <span class="block text-xs mt-1">${statusText[note.status] || statusText['open']}</span>
                 <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
             `;
@@ -549,8 +594,10 @@ const utils = {
             };
 
             const statusText = {
-                'open': `Aberto (${daysOpen} dias)`,
-                'scheduled': 'Em agendamento',
+                'open': `Aberto há ${daysOpen} dias`,
+                'scheduled': note.scheduleDate ? 
+                    `Agendado para ${utils.formatDateTime(note.scheduleDate)}` : 
+                    'Em agendamento',
                 'closed': 'Finalizado'
             };
 
@@ -569,12 +616,24 @@ const utils = {
                         <p><strong>Status:</strong> <span class="font-semibold ${statusColors[note.status]}">
                             ${statusText[note.status]}
                         </span></p>
-                        <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy || 'VictorCainj')}</span></p>
-                        <p><strong>Criado em:</strong> <span>${note.createdAt || '23/01/2025 23:28'}</span></p>
-                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${note.closedAt}</span></p>` : ''}
+                        <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy)}</span></p>
+                        <p><strong>Criado em:</strong> <span>${utils.formatDateTime(note.createdAt)}</span></p>
+                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDateTime(note.closedAt)}</span></p>` : ''}
                     </div>
                 </div>
             `;
+
+            // Controle do campo de data de agendamento
+            const scheduleDateContainer = document.getElementById('scheduleDateContainer');
+            const scheduleDateInput = document.getElementById('scheduleDate');
+            
+            if (note.status === 'scheduled') {
+                scheduleDateContainer.classList.remove('hidden');
+                scheduleDateInput.value = note.scheduleDate || '';
+            } else {
+                scheduleDateContainer.classList.add('hidden');
+                scheduleDateInput.value = '';
+            }
 
             // Atualiza os botões de status
             const statusButtons = document.getElementById('statusButtons');
@@ -608,8 +667,13 @@ const utils = {
             const oldStatus = note.status;
             note.status = newStatus;
             
+            if (newStatus === 'scheduled' && !note.scheduleDate) {
+                document.getElementById('scheduleDate').focus();
+                utils.showNotification('Por favor, selecione a data do agendamento', 'error');
+            }
+            
             if (newStatus === 'closed') {
-                note.closedAt = '23/01/2025 23:28:57';
+                note.closedAt = '2025-01-23 23:53:28';
             } else if (oldStatus === 'closed') {
                 note.closedAt = null;
             }
@@ -649,8 +713,8 @@ const utils = {
                         <div class="flex-grow">
                             <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
                             <div class="mt-2 text-sm text-gray-500">
-                                <span>${comment.dateTime || '23/01/2025 23:28:57'}</span>
-                                ${comment.editedAt ? ` <span class="italic">(editado em ${comment.editedAt})</span>` : ''}
+                                <span>${utils.formatDateTime(comment.dateTime)}</span>
+                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDateTime(comment.editedAt)})</span>` : ''}
                             </div>
                         </div>
                         <button class="ml-2 text-blue-500 hover:text-blue-700" 
@@ -681,8 +745,8 @@ const utils = {
             const comment = {
                 id: Date.now().toString(),
                 text: utils.sanitizeInput(commentText),
-                dateTime: '23/01/2025 23:28:57',
-                author: 'VictorCainj'
+                dateTime: '2025-01-23 23:54:09',
+                author: this.currentUser
             };
 
             if (!Array.isArray(this.notes[noteKey].comments)) {
@@ -702,6 +766,65 @@ const utils = {
         }
     }
 
+    downloadSingleContract(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            if (!note) {
+                throw new Error('Nota não encontrada');
+            }
+
+            const statusText = {
+                'open': `Aberto há ${utils.calculateDaysOpen(note.createdAt)} dias`,
+                'scheduled': note.scheduleDate ? 
+                    `Em agendamento - Agendado para ${utils.formatDateTime(note.scheduleDate)}` : 
+                    'Em agendamento',
+                'closed': 'Finalizado'
+            };
+
+            let content = 'Informações do Contrato\n\n';
+            content += `Número de Contrato: ${noteKey}\n\n`;
+            content += `Locador: ${note.locator}\n\n`;
+            content += `Locatário: ${note.tenant}\n\n`;
+            content += `Problema: ${note.problem}\n\n`;
+            content += `Endereço: ${note.address}\n\n`;
+            content += `Status: ${statusText[note.status]}\n\n`;
+            content += `Criado por: ${note.createdBy}\n\n`;
+            content += `Criado em: ${utils.formatDateTime(note.createdAt)}\n\n`;
+            
+            if (note.closedAt) {
+                content += `Finalizado em: ${utils.formatDateTime(note.closedAt)}\n\n`;
+            }
+
+            content += '---------------------------------\n';
+            content += 'Comentários:\n\n';
+
+            if (Array.isArray(note.comments) && note.comments.length > 0) {
+                note.comments.forEach(comment => {
+                    content += `${comment.text}\n\n`;
+                    content += `${utils.formatDateTime(comment.dateTime)}\n\n`;
+                });
+            } else {
+                content += 'Nenhum comentário registrado.\n\n';
+            }
+            content += '---------------------------------\n';
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `contrato_${noteKey}_${utils.formatDateTime(note.createdAt).replace(/[/: ]/g, '-')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            utils.showNotification('Contrato exportado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao baixar contrato:', error);
+            utils.showNotification('Erro ao baixar contrato', 'error');
+        }
+    }
+
     editComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
@@ -716,7 +839,7 @@ const utils = {
             const newText = prompt('Editar comentário:', comment.text);
             if (newText !== null && newText.trim() !== '') {
                 comment.text = utils.sanitizeInput(newText);
-                comment.editedAt = '23/01/2025 23:29:28';
+                comment.editedAt = '2025-01-23 23:54:46';
                 this.saveToLocalStorage();
                 this.renderComments(noteKey);
                 utils.showNotification('Comentário atualizado com sucesso!', 'success');
@@ -724,140 +847,6 @@ const utils = {
         } catch (error) {
             console.error('Erro ao editar comentário:', error);
             utils.showNotification('Erro ao editar comentário', 'error');
-        }
-    }
-
-    handleFileImport(event) {
-        try {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    let importCount = 0;
-
-                    Object.entries(importedData).forEach(([key, note]) => {
-                        if (note && note.contractNumber) {
-                            this.notes[key] = {
-                                ...note,
-                                createdAt: note.createdAt || '23/01/2025 23:29:28',
-                                createdBy: note.createdBy || 'VictorCainj',
-                                comments: Array.isArray(note.comments) ? note.comments : []
-                            };
-                            this.renderNote(key);
-                            importCount++;
-                        }
-                    });
-
-                    this.saveToLocalStorage();
-                    utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
-                } catch (error) {
-                    utils.showNotification('Erro ao processar arquivo: formato inválido', 'error');
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = ''; // Limpa o input file
-        } catch (error) {
-            console.error('Erro ao importar arquivo:', error);
-            utils.showNotification('Erro ao importar arquivo', 'error');
-        }
-    }
-
-    exportNotes() {
-        try {
-            const notesJson = JSON.stringify(this.notes, null, 2);
-            const filename = `contratos_export_${this.currentDateTime.split(' ')[0].replace(/\//g, '-')}.json`;
-            
-            const blob = new Blob([notesJson], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-            
-            utils.showNotification('Contratos exportados com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao exportar contratos:', error);
-            utils.showNotification('Erro ao exportar contratos', 'error');
-        }
-    }
-
-    downloadSingleContract(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            const exportData = {
-                [noteKey]: {
-                    ...note,
-                    comments: note.comments || []
-                }
-            };
-            
-            const notesJson = JSON.stringify(exportData, null, 2);
-            const filename = `contrato_${noteKey}_${this.currentDateTime.split(' ')[0].replace(/\//g, '-')}.json`;
-            
-            const blob = new Blob([notesJson], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-            
-            utils.showNotification('Contrato exportado com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao baixar contrato:', error);
-            utils.showNotification('Erro ao baixar contrato', 'error');
-        }
-    }
-
-    copyNoteDetails(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            const details = `
-Número do Contrato: ${noteKey}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Problema: ${note.problem}
-Endereço: ${note.address}
-Status: ${note.status === 'open' ? 'Aberto' : note.status === 'scheduled' ? 'Em agendamento' : 'Finalizado'}
-Criado em: ${note.createdAt}
-${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
-            `.trim();
-
-            navigator.clipboard.writeText(details).then(() => {
-                utils.showNotification('Detalhes copiados para a área de transferência!', 'success');
-            });
-        } catch (error) {
-            console.error('Erro ao copiar detalhes:', error);
-            utils.showNotification('Erro ao copiar detalhes', 'error');
-        }
-    }
-
-    deleteNote(noteKey) {
-        try {
-            if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
-                return;
-            }
-
-            delete this.notes[noteKey];
-            const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
-            if (noteButton) {
-                noteButton.remove();
-            }
-
-            this.saveToLocalStorage();
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-            utils.showNotification('Anotação excluída com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao excluir nota:', error);
-            utils.showNotification('Erro ao excluir anotação', 'error');
         }
     }
 
