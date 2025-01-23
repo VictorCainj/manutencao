@@ -60,6 +60,20 @@
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+    <!-- User Info Banner -->
+    <div class="w-full max-w-4xl mb-4 bg-white p-4 rounded-lg shadow-md">
+        <div class="flex justify-between items-center">
+            <div class="text-gray-600">
+                <span class="font-semibold">Usuário:</span> 
+                <span id="currentUser">VictorCainj</span>
+            </div>
+            <div class="text-gray-600">
+                <span class="font-semibold">Data atual (UTC):</span> 
+                <span id="currentDateTime">2025-01-23 04:34:50</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification Component -->
     <div id="notification" class="notification hidden"></div>
 
@@ -230,6 +244,22 @@
     </div>
 
 <script>
+// Configurações globais
+const CONFIG = {
+    currentUser: 'VictorCainj',
+    currentDateTime: '2025-01-23 04:36:00'
+
+    <script>
+// Configurações globais
+const CONFIG = {
+    currentUser: 'VictorCainj',
+    currentDateTime: '2025-01-23 04:36:58'
+};
+
+// Atualiza a exibição de data/hora e usuário
+document.getElementById('currentUser').textContent = CONFIG.currentUser;
+document.getElementById('currentDateTime').textContent = CONFIG.currentDateTime;
+
 // Utility Functions
 const utils = {
     showNotification: (message, type = 'success') => {
@@ -309,16 +339,21 @@ const utils = {
         }
     },
 
-    calculateDaysOpen: (dateString) => {
-        const start = new Date(dateString);
-        const today = new Date();
-        const diffTime = Math.abs(today - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
+    calculateDaysOpen: (contractDate) => {
+        try {
+            const start = new Date(contractDate + 'T00:00:00');
+            const today = new Date(CONFIG.currentDateTime);
+            const diffTime = Math.abs(today - start);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        } catch (error) {
+            console.error('Erro ao calcular dias em aberto:', error);
+            return 0;
+        }
     },
 
     getCurrentDateTime: () => {
-        return new Date().toISOString();
+        return CONFIG.currentDateTime;
     },
 
     debounce: (func, wait) => {
@@ -333,7 +368,7 @@ const utils = {
         };
     },
 
-downloadFile: (content, filename, type = 'text/plain') => {
+    downloadFile: (content, filename, type = 'text/plain') => {
         const blob = new Blob([content], { type });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -350,7 +385,7 @@ downloadFile: (content, filename, type = 'text/plain') => {
 class NoteManager {
     constructor() {
         this.notes = {};
-        this.currentUser = 'VictorCainj';
+        this.currentUser = CONFIG.currentUser;
         this.initializeEventListeners();
         this.loadFromLocalStorage();
     }
@@ -508,7 +543,7 @@ class NoteManager {
     renderNote(contractNumber) {
         try {
             const note = this.notes[contractNumber];
-            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
+            const daysOpen = utils.calculateDaysOpen(note.date);
             
             const noteButton = document.createElement('button');
             noteButton.className = `note-button w-full px-4 py-3 ${
@@ -520,7 +555,7 @@ class NoteManager {
                 <span class="block text-sm">${utils.sanitizeInput(note.role)}</span>
                 <span class="block text-xs mt-1">${utils.formatDate(note.date, false)}</span>
                 <span class="block text-xs mt-1">
-                    ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 'Finalizado'}
+                    ${note.status === 'open' ? `Em aberto há ${daysOpen} dias` : 'Finalizado'}
                 </span>
                 <span class="block text-xs opacity-75 mt-1">${note.comments.length} comentário(s)</span>
             `;
@@ -540,7 +575,7 @@ class NoteManager {
                 document.getElementById('notesContainer').appendChild(noteButton);
             }
 
-            this.sortNotes(); // Reordena após adicionar/atualizar
+            this.sortNotes();
         } catch (error) {
             console.error('Erro ao renderizar nota:', error);
             utils.showNotification('Erro ao exibir nota', 'error');
@@ -550,7 +585,7 @@ class NoteManager {
     showNoteDetails(contractNumber) {
         try {
             const note = this.notes[contractNumber];
-            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
+            const daysOpen = utils.calculateDaysOpen(note.date);
             const detailsContent = document.getElementById('noteDetailsContent');
             
             detailsContent.innerHTML = `
@@ -565,7 +600,7 @@ class NoteManager {
                         <p><strong>Data do Contrato:</strong> <span>${utils.formatDate(note.date, false)}</span></p>
                         <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
                         <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-blue-600' : 'text-green-600'}">
-                            ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 'Finalizado'}
+                            ${note.status === 'open' ? `Em aberto há ${daysOpen} dias` : 'Finalizado'}
                         </span></p>
                         <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy)}</span></p>
                         <p><strong>Criado em:</strong> <span>${utils.formatDate(note.createdAt)}</span></p>
@@ -674,6 +709,10 @@ class NoteManager {
         }
     }
 
+    handleSearch(searchTerm) {
+        this.filterNotes();
+    }
+
     sortNotes() {
         const container = document.getElementById('notesContainer');
         const sortOrder = document.getElementById('dateSort').value;
@@ -707,10 +746,6 @@ class NoteManager {
             
             noteBtn.classList.toggle('hidden', !(matchesStatus && matchesSearch));
         });
-    }
-
-handleSearch(searchTerm) {
-        this.filterNotes();
     }
 
     async handleFileImport(event) {
@@ -761,6 +796,7 @@ handleSearch(searchTerm) {
     downloadSingleContract(contractNumber) {
         try {
             const note = this.notes[contractNumber];
+            const daysOpen = utils.calculateDaysOpen(note.date);
             const content = `
 =======================================================
                 DETALHES DO CONTRATO
@@ -784,8 +820,8 @@ Criado por: ${note.createdBy}
 Data de Criação: ${utils.formatDate(note.createdAt)}
 ${note.status === 'closed' ? `Data de Finalização: ${utils.formatDate(note.closedAt)}` : ''}
 Tempo em Aberto: ${note.status === 'closed' ? 
-    `${utils.calculateDaysOpen(note.createdAt)} dias (Finalizado)` : 
-    `${utils.calculateDaysOpen(note.createdAt)} dias (Em andamento)`}
+    `${daysOpen} dias (Finalizado)` : 
+    `${daysOpen} dias (Em andamento)`}
 
 =======================================================
                     COMENTÁRIOS
@@ -819,13 +855,14 @@ Por: ${this.currentUser}
     copyNoteDetails(contractNumber) {
         try {
             const note = this.notes[contractNumber];
+            const daysOpen = utils.calculateDaysOpen(note.date);
             const detailsToCopy = `
 Número de Contrato: ${contractNumber}
 Locador ou Locatário: ${note.role}
 Problema: ${note.problem}
 Data do Contrato: ${utils.formatDate(note.date, false)}
 Endereço: ${note.address}
-Status: ${note.status === 'open' ? `Aberto (${utils.calculateDaysOpen(note.createdAt)} dias)` : 'Finalizado'}
+Status: ${note.status === 'open' ? `Em aberto há ${daysOpen} dias` : 'Finalizado'}
 Criado por: ${note.createdBy}
 Criado em: ${utils.formatDate(note.createdAt)}
 ${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
@@ -907,15 +944,22 @@ ${note.comments.map(comment => `[${utils.formatDate(comment.dateTime)}] ${commen
         }
     }
 
-    updateNoteButton(contractNumber) {
+updateNoteButton(contractNumber) {
         const noteButton = document.querySelector(`[data-contract="${contractNumber}"]`);
         if (noteButton) {
             const note = this.notes[contractNumber];
+            const daysOpen = utils.calculateDaysOpen(note.date);
             const commentCount = note.comments.length;
-            const commentCountSpan = noteButton.querySelector('span:last-child');
-            if (commentCountSpan) {
-                commentCountSpan.textContent = `${commentCount} comentário(s)`;
-            }
+            
+            noteButton.innerHTML = `
+                <span class="block font-bold">#${utils.sanitizeInput(contractNumber)}</span>
+                <span class="block text-sm">${utils.sanitizeInput(note.role)}</span>
+                <span class="block text-xs mt-1">${utils.formatDate(note.date, false)}</span>
+                <span class="block text-xs mt-1">
+                    ${note.status === 'open' ? `Em aberto há ${daysOpen} dias` : 'Finalizado'}
+                </span>
+                <span class="block text-xs opacity-75 mt-1">${commentCount} comentário(s)</span>
+            `;
         }
     }
 }
@@ -943,6 +987,11 @@ document.querySelectorAll('textarea').forEach(textarea => {
         textarea.value = savedDraft;
     }
 });
+
+// Update current date/time display periodically
+setInterval(() => {
+    document.getElementById('currentDateTime').textContent = CONFIG.currentDateTime;
+}, 1000);
 </script>
 </body>
 </html>
