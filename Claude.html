@@ -57,16 +57,22 @@
         .note-card {
             @apply transition-all duration-200 transform hover:scale-102;
         }
+        /* Adicione a barra de progresso */
+        .progress-bar {
+            @apply absolute bottom-0 left-0 h-2 bg-blue-500 transition-all duration-300;
+        }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+
+    <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
 
 <!-- Notification Component -->
 <div id="notification" class="notification hidden"></div>
 
-<!-- Loading Spinner -->
-<div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+<!-- Loading Spinner with Progress Bar -->
+<div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center hidden z-50">
     <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+    <div class="w-64 h-2 mt-4 bg-gray-200 rounded-full overflow-hidden"></div>
 </div>
 
 <!-- Main Controls -->
@@ -85,7 +91,6 @@
 
 <!-- Search and Filter Controls -->
 <div class="mb-6 w-full max-w-4xl space-y-4">
-    <!-- Search Bar -->
     <div class="relative">
         <input type="text" 
                id="searchInput" 
@@ -95,7 +100,6 @@
         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
     </div>
 
-    <!-- Filter Controls -->
     <div class="flex space-x-4 items-center">
         <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             <option value="newest">Mais recentes primeiro</option>
@@ -142,8 +146,8 @@
             <div>
                 <label for="problem" class="block text-gray-700">Problema: *</label>
                 <textarea id="problem" 
-                        required
-                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
+                         required
+                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
             </div>
 
             <div>
@@ -166,18 +170,16 @@
     </div>
 </div>
 
-<!-- Note Details Modal -->
+        <!-- Note Details Modal -->
 <div id="noteDetailsModal" class="modal-overlay hidden">
     <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
         
-        <!-- Grid container para dividir detalhes e comentários -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Coluna da esquerda - Detalhes -->
             <div class="space-y-4">
                 <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md"></div>
                 
-                <!-- Botões de ação -->
                 <div class="flex space-x-2">
                     <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
                         <i class="fas fa-copy mr-2"></i>Copiar
@@ -200,7 +202,6 @@
                 <div class="bg-gray-50 p-4 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-4">Comentários</h3>
                     
-                    <!-- Form de comentários -->
                     <form id="commentForm" class="mb-4">
                         <textarea id="commentText" 
                                  required
@@ -211,13 +212,11 @@
                         </button>
                     </form>
 
-                    <!-- Container de comentários -->
                     <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Botão fechar -->
         <div class="mt-4 text-right">
             <button type="button" id="closeDetailsBtn" class="btn btn-gray">
                 <i class="fas fa-times mr-2"></i>Fechar
@@ -230,7 +229,7 @@
 <div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 </div>
 
-<script>
+        <script>
 // Utility Functions
 const utils = {
     showNotification: (message, type = 'success') => {
@@ -241,8 +240,15 @@ const utils = {
         setTimeout(() => notification.classList.add('hidden'), 3000);
     },
 
-    showLoading: (show = true) => {
-        document.getElementById('loadingSpinner').classList.toggle('hidden', !show);
+    showLoading: (show = true, progress = 0) => {
+        const spinner = document.getElementById('loadingSpinner');
+        spinner.classList.toggle('hidden', !show);
+        if (show && progress > 0) {
+            const progressBar = spinner.querySelector('.progress-bar');
+            if (progressBar) {
+                progressBar.style.width = `${progress}%`;
+            }
+        }
     },
 
     sanitizeInput: (input) => {
@@ -335,18 +341,20 @@ const utils = {
 
     downloadFile: (content, filename, type = 'text/plain') => {
         const blob = new Blob([content], { type });
-        const url = window.URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
-        a.remove();
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }, 100);
     }
 };
 
-// Note Management Class
+            // Note Management Class
 class NoteManager {
     constructor() {
         this.notes = {};
@@ -356,6 +364,7 @@ class NoteManager {
     }
 
     initializeEventListeners() {
+        // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             document.getElementById('noteModal').classList.remove('hidden');
             document.getElementById('contractNumber').focus();
@@ -371,18 +380,15 @@ class NoteManager {
             this.handleFormSubmit();
         });
 
+        // Event Listeners para busca e filtros
         document.getElementById('searchInput').addEventListener('input', 
             utils.debounce((e) => this.handleSearch(e.target.value), 300)
         );
 
-        document.getElementById('dateSort').addEventListener('change', () => {
-            this.sortNotes();
-        });
+        document.getElementById('dateSort').addEventListener('change', () => this.sortNotes());
+        document.getElementById('statusFilter').addEventListener('change', () => this.filterNotes());
 
-        document.getElementById('statusFilter').addEventListener('change', () => {
-            this.filterNotes();
-        });
-
+        // Event Listeners para importação/exportação
         document.getElementById('importNotesBtn').addEventListener('click', () => {
             document.getElementById('fileInput').click();
         });
@@ -395,6 +401,7 @@ class NoteManager {
             this.exportNotes();
         });
 
+        // Event Listeners para comentários e detalhes
         document.getElementById('commentForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleCommentSubmit();
@@ -411,36 +418,174 @@ class NoteManager {
             document.getElementById('noteDetailsModal').classList.add('hidden');
         });
 
+        // Event Listeners para ações nos detalhes
         document.getElementById('copyDetailsBtn').addEventListener('click', () => {
-            const contractNumber = document.getElementById('noteDetailsContent')
+            const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
-            this.copyNoteDetails(contractNumber);
+            this.copyNoteDetails(noteKey);
         });
 
         document.getElementById('downloadContractBtn').addEventListener('click', () => {
-            const contractNumber = document.getElementById('noteDetailsContent')
+            const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
-            this.downloadSingleContract(contractNumber);
+            this.downloadSingleContract(noteKey);
         });
 
         document.getElementById('toggleStatusBtn').addEventListener('click', () => {
-            const contractNumber = document.getElementById('noteDetailsContent')
+            const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
-            this.toggleNoteStatus(contractNumber);
+            this.toggleNoteStatus(noteKey);
         });
 
         document.getElementById('deleteNoteBtn').addEventListener('click', () => {
-            const contractNumber = document.getElementById('noteDetailsContent')
+            const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
-            this.deleteNote(contractNumber);
+            this.deleteNote(noteKey);
         });
 
+        // Event Listener global para tecla ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.getElementById('noteModal').classList.add('hidden');
                 document.getElementById('noteDetailsModal').classList.add('hidden');
             }
         });
+    }
+
+    async handleFileImport(event) {
+        try {
+            utils.showLoading(true);
+            const file = event.target.files[0];
+            if (!file) {
+                utils.showNotification('Nenhum arquivo selecionado', 'error');
+                return;
+            }
+
+            if (!file.name.endsWith('.json')) {
+                utils.showNotification('Por favor, selecione um arquivo JSON válido', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const importedNotes = JSON.parse(e.target.result);
+                    
+                    if (!importedNotes || typeof importedNotes !== 'object') {
+                        throw new Error('Formato de arquivo inválido');
+                    }
+
+                    let importCount = 0;
+                    const totalNotes = Object.keys(importedNotes).length;
+
+                    for (const [noteKey, note] of Object.entries(importedNotes)) {
+                        try {
+                            if (!this.notes[noteKey]) {
+                                if (!this.validateImportedNote(note, noteKey)) {
+                                    continue;
+                                }
+
+                                this.notes[noteKey] = {
+                                    ...note,
+                                    createdAt: note.createdAt || utils.getCurrentDateTime(),
+                                    status: note.status || 'open',
+                                    comments: Array.isArray(note.comments) ? note.comments : []
+                                };
+                                this.renderNote(noteKey);
+                                importCount++;
+                            }
+                            utils.showLoading(true, (importCount / totalNotes) * 100);
+                        } catch (error) {
+                            console.warn(`Erro ao importar nota ${noteKey}:`, error);
+                        }
+                    }
+
+                    this.saveToLocalStorage();
+                    utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
+                } catch (error) {
+                    console.error('Erro ao processar arquivo:', error);
+                    utils.showNotification(`Erro ao processar arquivo: ${error.message}`, 'error');
+                }
+            };
+
+            reader.onerror = () => {
+                utils.showNotification('Erro ao ler o arquivo', 'error');
+            };
+
+            reader.readAsText(file);
+        } catch (error) {
+            console.error('Erro na importação:', error);
+            utils.showNotification(`Erro ao importar arquivo: ${error.message}`, 'error');
+        } finally {
+            utils.showLoading(false);
+            event.target.value = '';
+        }
+    }
+
+    validateImportedNote(note, noteKey) {
+        const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
+        const missingFields = requiredFields.filter(field => !note[field]);
+        
+        if (missingFields.length > 0) {
+            console.warn(`Nota ${noteKey} ignorada: campos obrigatórios ausentes (${missingFields.join(', ')})`);
+            return false;
+        }
+
+        // Validar formato das datas
+        const dateFields = ['createdAt', 'closedAt', 'editedAt'];
+        for (const field of dateFields) {
+            if (note[field] && isNaN(new Date(note[field]).getTime())) {
+                console.warn(`Nota ${noteKey} ignorada: data inválida em ${field}`);
+                return false;
+            }
+        }
+
+        // Validar comentários
+        if (note.comments && !Array.isArray(note.comments)) {
+            console.warn(`Nota ${noteKey} ignorada: formato inválido de comentários`);
+            return false;
+        }
+
+        return true;
+    }
+
+    exportNotes() {
+        try {
+            if (Object.keys(this.notes).length === 0) {
+                utils.showNotification('Não há contratos para exportar', 'error');
+                return;
+            }
+
+            utils.showLoading(true);
+
+            // Criar uma cópia limpa dos dados
+            const exportData = {};
+            Object.entries(this.notes).forEach(([key, note]) => {
+                exportData[key] = {
+                    ...note,
+                    comments: note.comments.map(comment => ({
+                        ...comment,
+                        text: utils.sanitizeInput(comment.text)
+                    }))
+                };
+            });
+
+            const notesJson = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([notesJson], { type: 'application/json' });
+            
+            if (blob.size > 50 * 1024 * 1024) { // 50MB limit
+                throw new Error('Arquivo muito grande para download');
+            }
+
+            const filename = `contratos_${new Date().toISOString().split('T')[0]}.json`;
+            utils.downloadFile(notesJson, filename, 'application/json');
+            utils.showNotification('Contratos exportados com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro na exportação:', error);
+            utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
+        } finally {
+            utils.showLoading(false);
+        }
     }
 
     handleFormSubmit() {
@@ -475,11 +620,9 @@ class NoteManager {
         };
 
         try {
-            // Verifica se já existem notas com este número de contrato
             const existingNotes = Object.keys(this.notes).filter(key => 
                 key.startsWith(sanitizedData.contractNumber + '#'));
             
-            // Define o número da sequência para a nova nota
             const sequence = existingNotes.length + 1;
             const noteKey = `${sanitizedData.contractNumber}#${sequence}`;
 
@@ -546,7 +689,9 @@ class NoteManager {
         }
     }
 
-    showNoteDetails(noteKey) {
+    // ... (continuação no próximo comentário)
+
+            showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -654,7 +799,26 @@ class NoteManager {
         }
     }
 
-toggleNoteStatus(noteKey) {
+    editComment(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            const comment = note.comments.find(c => c.id === commentId);
+            
+            const newText = prompt('Editar comentário:', comment.text);
+            if (newText !== null && newText.trim() !== '') {
+                comment.text = utils.sanitizeInput(newText);
+                comment.editedAt = utils.getCurrentDateTime();
+                this.saveToLocalStorage();
+                this.renderComments(noteKey);
+                utils.showNotification('Comentário atualizado com sucesso!', 'success');
+            }
+        } catch (error) {
+            console.error('Erro ao editar comentário:', error);
+            utils.showNotification('Erro ao editar comentário', 'error');
+        }
+    }
+
+    toggleNoteStatus(noteKey) {
         try {
             const note = this.notes[noteKey];
             note.status = note.status === 'open' ? 'closed' : 'open';
@@ -669,6 +833,82 @@ toggleNoteStatus(noteKey) {
         } catch (error) {
             console.error('Erro ao alterar status:', error);
             utils.showNotification('Erro ao alterar status do chamado', 'error');
+        }
+    }
+
+    deleteNote(noteKey) {
+        try {
+            if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
+                return;
+            }
+
+            delete this.notes[noteKey];
+            const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
+            if (noteButton) {
+                noteButton.remove();
+            }
+
+            this.saveToLocalStorage();
+            document.getElementById('noteDetailsModal').classList.add('hidden');
+            utils.showNotification('Anotação excluída com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao excluir nota:', error);
+            utils.showNotification('Erro ao excluir anotação', 'error');
+        }
+    }
+
+    saveToLocalStorage() {
+        try {
+            const data = JSON.stringify(this.notes);
+            if (data.length * 2 > 5 * 1024 * 1024) { // 5MB limit
+                throw new Error('Dados muito grandes para armazenamento local');
+            }
+
+            const previousData = localStorage.getItem('notes');
+            
+            try {
+                localStorage.setItem('notes', data);
+                
+                const savedData = localStorage.getItem('notes');
+                if (savedData !== data) {
+                    throw new Error('Falha na verificação de integridade dos dados');
+                }
+            } catch (e) {
+                if (previousData) {
+                    localStorage.setItem('notes', previousData);
+                }
+                throw e;
+            }
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+            utils.showNotification(`Erro ao salvar dados localmente: ${error.message}`, 'error');
+        }
+    }
+
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            if (savedNotes) {
+                this.notes = JSON.parse(savedNotes);
+                Object.keys(this.notes).forEach(noteKey => {
+                    this.renderNote(noteKey);
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            utils.showNotification('Erro ao carregar dados locais', 'error');
+        }
+    }
+
+    updateNoteButton(noteKey) {
+        const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
+        if (noteButton) {
+            const note = this.notes[noteKey];
+            const commentCount = note.comments.length;
+            const commentCountSpan = noteButton.querySelector('span:last-child');
+            if (commentCountSpan) {
+                commentCountSpan.textContent = `${commentCount} comentário(s)`;
+            }
         }
     }
 
@@ -711,354 +951,11 @@ toggleNoteStatus(noteKey) {
         container.innerHTML = '';
         notes.forEach(note => container.appendChild(note));
     }
-
-async handleFileImport(event) {
-    try {
-        utils.showLoading(true);
-        const file = event.target.files[0];
-        if (!file) {
-            utils.showNotification('Nenhum arquivo selecionado', 'error');
-            return;
-        }
-
-        // Verificar o tipo do arquivo
-        if (!file.name.endsWith('.json')) {
-            utils.showNotification('Por favor, selecione um arquivo JSON válido', 'error');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                const importedNotes = JSON.parse(e.target.result);
-                
-                // Validar estrutura dos dados
-                if (!importedNotes || typeof importedNotes !== 'object') {
-                    throw new Error('Formato de arquivo inválido');
-                }
-
-                let importCount = 0;
-                await Promise.all(Object.entries(importedNotes).map(async ([noteKey, note]) => {
-                    if (!this.notes[noteKey]) {
-                        // Validar campos obrigatórios
-                        if (!note.contractNumber || !note.locator || !note.tenant || !note.problem || !note.address) {
-                            console.warn(`Nota ${noteKey} ignorada: campos obrigatórios ausentes`);
-                            return;
-                        }
-                        
-                        this.notes[noteKey] = {
-                            ...note,
-                            createdAt: note.createdAt || utils.getCurrentDateTime(),
-                            status: note.status || 'open',
-                            comments: Array.isArray(note.comments) ? note.comments : []
-                        };
-                        this.renderNote(noteKey);
-                        importCount++;
-                    }
-                }));
-
-                this.saveToLocalStorage();
-                utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
-            } catch (error) {
-                console.error('Erro ao processar arquivo:', error);
-                utils.showNotification(`Erro ao processar arquivo: ${error.message}`, 'error');
-            }
-        };
-
-        reader.onerror = () => {
-            utils.showNotification('Erro ao ler o arquivo', 'error');
-        };
-
-        reader.readAsText(file);
-    } catch (error) {
-        console.error('Erro na importação:', error);
-        utils.showNotification(`Erro ao importar arquivo: ${error.message}`, 'error');
-    } finally {
-        utils.showLoading(false);
-        event.target.value = '';
-    }
-}
-
-exportNotes() {
-    try {
-        // Verificar se existem notas para exportar
-        if (Object.keys(this.notes).length === 0) {
-            utils.showNotification('Não há contratos para exportar', 'error');
-            return;
-        }
-
-        utils.showLoading(true);
-
-        // Criar uma cópia limpa dos dados
-        const exportData = {};
-        Object.entries(this.notes).forEach(([key, note]) => {
-            exportData[key] = {
-                ...note,
-                comments: note.comments.map(comment => ({
-                    ...comment,
-                    text: utils.sanitizeInput(comment.text)
-                }))
-            };
-        });
-
-        const notesJson = JSON.stringify(exportData, null, 2);
-        
-        // Verificar tamanho do arquivo
-        const blob = new Blob([notesJson], { type: 'application/json' });
-        if (blob.size > 50 * 1024 * 1024) { // 50MB limit
-            throw new Error('Arquivo muito grande para download');
-        }
-
-        const filename = `contratos_${new Date().toISOString().split('T')[0]}.json`;
-        
-        // Usar URL.createObjectURL para melhor performance
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        
-        // Limpar
-        setTimeout(() => {
-            URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        }, 100);
-
-        utils.showNotification('Contratos exportados com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro na exportação:', error);
-        utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
-    } finally {
-        utils.showLoading(false);
-    }
-}
-
-    downloadSingleContract(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            const content = `
-=======================================================
-                DETALHES DO CONTRATO
-=======================================================
-
-Número do Contrato: ${noteKey}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Status: ${note.status === 'open' ? 'Aberto' : 'Fechado'}
-
--------------------------------------------------------
-PROBLEMA
--------------------------------------------------------
-${note.problem}
-
--------------------------------------------------------
-INFORMAÇÕES ADICIONAIS
--------------------------------------------------------
-Endereço: ${note.address}
-Criado por: ${note.createdBy}
-Data de Criação: ${utils.formatDate(note.createdAt)}
-${note.status === 'closed' ? `Data de Finalização: ${utils.formatDate(note.closedAt)}` : ''}
-Tempo em Aberto: ${note.status === 'closed' ? 
-    `${utils.calculateDaysOpen(note.createdAt)} dias (Finalizado)` : 
-    `${utils.calculateDaysOpen(note.createdAt)} dias (Em andamento)`}
-
-=======================================================
-                    COMENTÁRIOS
-=======================================================
-
-${note.comments.map((comment, index) => `
-COMENTÁRIO #${index + 1}
--------------
-Autor: ${comment.author}
-Data: ${utils.formatDate(comment.dateTime)}
-${comment.editedAt ? `Editado em: ${utils.formatDate(comment.editedAt)}\n` : ''}
-Conteúdo:
-${comment.text}
-`).join('\n' + '-'.repeat(55) + '\n')}
-
-=======================================================
-Exportado em: ${utils.formatDate(utils.getCurrentDateTime())}
-Por: ${this.currentUser}
-=======================================================
-`.trim();
-
-            const filename = `contrato_${noteKey}_${new Date().toISOString().split('T')[0]}.txt`;
-            utils.downloadFile(content, filename, 'text/plain');
-            utils.showNotification('Contrato exportado com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao baixar contrato:', error);
-            utils.showNotification('Erro ao exportar contrato', 'error');
-        }
-    }
-
-    copyNoteDetails(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            const detailsToCopy = `
-Número do Contrato: ${noteKey}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Problema: ${note.problem}
-Endereço: ${note.address}
-Status: ${note.status === 'open' ? `Aberto (${utils.calculateDaysOpen(note.createdAt)} dias)` : 'Finalizado'}
-Criado por: ${note.createdBy}
-Criado em: ${utils.formatDate(note.createdAt)}
-${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
-
-Comentários:
-${note.comments.map(comment => `[${utils.formatDate(comment.dateTime)}] ${comment.text}`).join('\n')}
-`.trim();
-
-            navigator.clipboard.writeText(detailsToCopy).then(() => {
-                utils.showNotification('Dados copiados para a área de transferência!', 'success');
-            });
-        } catch (error) {
-            console.error('Erro ao copiar detalhes:', error);
-            utils.showNotification('Erro ao copiar dados', 'error');
-        }
-    }
-
-    editComment(noteKey, commentId) {
-        try {
-            const note = this.notes[noteKey];
-            const comment = note.comments.find(c => c.id === commentId);
-            
-            const newText = prompt('Editar comentário:', comment.text);
-            if (newText !== null && newText.trim() !== '') {
-                comment.text = utils.sanitizeInput(newText);
-                comment.editedAt = utils.getCurrentDateTime();
-                this.saveToLocalStorage();
-                this.renderComments(noteKey);
-                utils.showNotification('Comentário atualizado com sucesso!', 'success');
-            }
-        } catch (error) {
-            console.error('Erro ao editar comentário:', error);
-            utils.showNotification('Erro ao editar comentário', 'error');
-        }
-    }
-
-    deleteNote(noteKey) {
-        try {
-            if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
-                return;
-            }
-
-            delete this.notes[noteKey];
-            const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
-            if (noteButton) {
-                noteButton.remove();
-            }
-
-            this.saveToLocalStorage();
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-            utils.showNotification('Anotação excluída com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao excluir nota:', error);
-            utils.showNotification('Erro ao excluir anotação', 'error');
-        }
-    }
-
-saveToLocalStorage() {
-    try {
-        // Verificar espaço disponível
-        const data = JSON.stringify(this.notes);
-        if (data.length * 2 > 5 * 1024 * 1024) { // 5MB limit
-            throw new Error('Dados muito grandes para armazenamento local');
-        }
-
-        // Backup dos dados anteriores
-        const previousData = localStorage.getItem('notes');
-        
-        try {
-            localStorage.setItem('notes', data);
-            
-            // Verificar integridade dos dados salvos
-            const savedData = localStorage.getItem('notes');
-            if (savedData !== data) {
-                throw new Error('Falha na verificação de integridade dos dados');
-            }
-        } catch (e) {
-            // Restaurar backup em caso de erro
-            if (previousData) {
-                localStorage.setItem('notes', previousData);
-            }
-            throw e;
-        }
-    } catch (error) {
-        console.error('Erro ao salvar no localStorage:', error);
-        utils.showNotification(`Erro ao salvar dados localmente: ${error.message}`, 'error');
-    }
-}
-
-    loadFromLocalStorage() {
-        try {
-            const savedNotes = localStorage.getItem('notes');
-            if (savedNotes) {
-                this.notes = JSON.parse(savedNotes);
-                Object.keys(this.notes).forEach(noteKey => {
-                    this.renderNote(noteKey);
-                });
-            }
-        } catch (error) {
-            console.error('Erro ao carregar do localStorage:', error);
-            utils.showNotification('Erro ao carregar dados locais', 'error');
-        }
-    }
-
-    validateImportedNote(note, noteKey) {
-    const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
-    const missingFields = requiredFields.filter(field => !note[field]);
-    
-    if (missingFields.length > 0) {
-        throw new Error(`Campos obrigatórios ausentes em ${noteKey}: ${missingFields.join(', ')}`);
-    }
-
-    // Validar formato das datas
-    const dateFields = ['createdAt', 'closedAt', 'editedAt'];
-    dateFields.forEach(field => {
-        if (note[field] && isNaN(new Date(note[field]).getTime())) {
-            throw new Error(`Data inválida em ${field} para ${noteKey}`);
-        }
-    });
-
-    // Validar comentários
-    if (note.comments && !Array.isArray(note.comments)) {
-        throw new Error(`Formato inválido de comentários em ${noteKey}`);
-    }
-
-    return true;
-}
-
-    updateNoteButton(noteKey) {
-        const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
-        if (noteButton) {
-            const note = this.notes[noteKey];
-            const commentCount = note.comments.length;
-            const commentCountSpan = noteButton.querySelector('span:last-child');
-            if (commentCountSpan) {
-                commentCountSpan.textContent = `${commentCount} comentário(s)`;
-            }
-        }
-    }
 }
 
 // Initialize the application
 const noteManager = new NoteManager();
 
-// Adicione ao utils
-utils.showProgress = (progress) => {
-    const spinner = document.getElementById('loadingSpinner');
-    if (!spinner.querySelector('.progress-bar')) {
-        const progressBar = document.createElement('div');
-        progressBar.className = 'progress-bar bg-blue-500 h-2 transition-all duration-300';
-        spinner.appendChild(progressBar);
-    }
-    
-    const progressBar = spinner.querySelector('.progress-bar');
-    progressBar.style.width = `${progress}%`;
-};
-    
 // Add error boundary
 window.addEventListener('error', (event) => {
     console.error('Erro na aplicação:', event.error);
