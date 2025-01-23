@@ -60,174 +60,175 @@
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+
     <!-- Notification Component -->
-    <div id="notification" class="notification hidden"></div>
+<div id="notification" class="notification hidden"></div>
 
-    <!-- Loading Spinner -->
-    <div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+<!-- Loading Spinner -->
+<div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+</div>
+
+<!-- Main Controls -->
+<div class="mb-6 space-x-4">
+    <button id="createNoteBtn" class="btn btn-blue">
+        <i class="fas fa-plus mr-2"></i>Criar anotação
+    </button>
+    <button id="importNotesBtn" class="btn btn-green">
+        <i class="fas fa-file-import mr-2"></i>Importar Contratos
+    </button>
+    <button id="downloadNotesBtn" class="btn btn-yellow">
+        <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
+    </button>
+    <input type="file" id="fileInput" class="hidden" accept=".json">
+</div>
+
+<!-- Search and Filter Controls -->
+<div class="mb-6 w-full max-w-4xl space-y-4">
+    <!-- Search Bar -->
+    <div class="relative">
+        <input type="text" 
+               id="searchInput" 
+               placeholder="Pesquisar contratos..." 
+               class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+               aria-label="Pesquisar contratos">
+        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
     </div>
 
-    <!-- Main Controls -->
-    <div class="mb-6 space-x-4">
-        <button id="createNoteBtn" class="btn btn-blue">
-            <i class="fas fa-plus mr-2"></i>Criar anotação
-        </button>
-        <button id="importNotesBtn" class="btn btn-green">
-            <i class="fas fa-file-import mr-2"></i>Importar Contratos
-        </button>
-        <button id="downloadNotesBtn" class="btn btn-yellow">
-            <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
-        </button>
-        <input type="file" id="fileInput" class="hidden" accept=".json">
+    <!-- Filter Controls -->
+    <div class="flex space-x-4 items-center">
+        <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="newest">Mais recentes primeiro</option>
+            <option value="oldest">Mais antigos primeiro</option>
+        </select>
+        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="all">Todos os status</option>
+            <option value="open">Abertos</option>
+            <option value="closed">Fechados</option>
+        </select>
     </div>
+</div>
 
-    <!-- Search and Filter Controls -->
-    <div class="mb-6 w-full max-w-4xl space-y-4">
-        <!-- Search Bar -->
-        <div class="relative">
-            <input type="text" 
-                   id="searchInput" 
-                   placeholder="Pesquisar contratos..." 
-                   class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                   aria-label="Pesquisar contratos">
-            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-        </div>
-
-        <!-- Filter Controls -->
-        <div class="flex space-x-4 items-center">
-            <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <option value="newest">Mais recentes primeiro</option>
-                <option value="oldest">Mais antigos primeiro</option>
-            </select>
-            <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <option value="all">Todos os status</option>
-                <option value="open">Abertos</option>
-                <option value="closed">Fechados</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Note Creation Modal -->
-    <div id="noteModal" class="modal-overlay hidden">
-        <div class="modal-content p-6 w-full max-w-md">
-            <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
-            <form id="noteForm" class="space-y-4">
-                <div>
-                    <label for="contractNumber" class="block text-gray-700">Número de Contrato: *</label>
-                    <input type="text" 
-                           id="contractNumber" 
-                           required
-                           pattern="[A-Za-z0-9-]+"
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label for="role" class="block text-gray-700">Locador ou Locatário: *</label>
-                    <input type="text" 
-                           id="role" 
-                           required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label for="problem" class="block text-gray-700">Problema: *</label>
-                    <textarea id="problem" 
-                            required
-                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
-                </div>
-
-                <div>
-                    <label for="date" class="block text-gray-700">Data: *</label>
-                    <input type="date" 
-                           id="date" 
-                           required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label for="address" class="block text-gray-700">Endereço: *</label>
-                    <input type="text" 
-                           id="address" 
-                           required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div class="flex justify-end space-x-2">
-                    <button type="button" id="cancelBtn" class="btn btn-gray">
-                        <i class="fas fa-times mr-2"></i>Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-blue">
-                        <i class="fas fa-save mr-2"></i>Salvar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Note Details Modal -->
-    <div id="noteDetailsModal" class="modal-overlay hidden">
-        <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-            <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-            
-            <!-- Grid container para dividir detalhes e comentários -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Coluna da esquerda - Detalhes -->
-                <div class="space-y-4">
-                    <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md"></div>
-                    
-                    <!-- Botões de ação -->
-                    <div class="flex space-x-2">
-                        <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
-                            <i class="fas fa-copy mr-2"></i>Copiar
-                        </button>
-                        <button type="button" id="downloadContractBtn" class="btn btn-yellow flex-1">
-                            <i class="fas fa-file-download mr-2"></i>Baixar
-                        </button>
-                        <button type="button" id="toggleStatusBtn" class="btn flex-1">
-                            <i class="fas mr-2"></i>
-                            <span>Carregando...</span>
-                        </button>
-                        <button type="button" id="deleteNoteBtn" class="btn btn-red flex-1">
-                            <i class="fas fa-trash mr-2"></i>Excluir
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Coluna da direita - Comentários -->
-                <div class="space-y-4">
-                    <div class="bg-gray-50 p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-semibold mb-4">Comentários</h3>
-                        
-                        <!-- Form de comentários -->
-                        <form id="commentForm" class="mb-4">
-                            <textarea id="commentText" 
-                                     required
-                                     class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
-                                     placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
-                            <button type="submit" class="btn btn-blue w-full mt-2">
-                                <i class="fas fa-comment mr-2"></i>Adicionar Comentário
-                            </button>
-                        </form>
-
-                        <!-- Container de comentários -->
-                        <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
-                    </div>
-                </div>
+<!-- Note Creation Modal -->
+<div id="noteModal" class="modal-overlay hidden">
+    <div class="modal-content p-6 w-full max-w-md">
+        <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
+        <form id="noteForm" class="space-y-4">
+            <div>
+                <label for="contractNumber" class="block text-gray-700">Número de Contrato: *</label>
+                <input type="text" 
+                       id="contractNumber" 
+                       required
+                       pattern="[A-Za-z0-9-]+"
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
-            <!-- Botão fechar -->
-            <div class="mt-4 text-right">
-                <button type="button" id="closeDetailsBtn" class="btn btn-gray">
-                    <i class="fas fa-times mr-2"></i>Fechar
+            <div>
+                <label for="locator" class="block text-gray-700">Locador: *</label>
+                <input type="text" 
+                       id="locator" 
+                       required
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div>
+                <label for="tenant" class="block text-gray-700">Locatário: *</label>
+                <input type="text" 
+                       id="tenant" 
+                       required
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div>
+                <label for="problem" class="block text-gray-700">Problema: *</label>
+                <textarea id="problem" 
+                        required
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
+            </div>
+
+            <div>
+                <label for="address" class="block text-gray-700">Endereço: *</label>
+                <input type="text" 
+                       id="address" 
+                       required
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="cancelBtn" class="btn btn-gray">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </button>
+                <button type="submit" class="btn btn-blue">
+                    <i class="fas fa-save mr-2"></i>Salvar
                 </button>
             </div>
+        </form>
+    </div>
+</div>
+
+    <!-- Note Details Modal -->
+<div id="noteDetailsModal" class="modal-overlay hidden">
+    <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+        <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+        
+        <!-- Grid container para dividir detalhes e comentários -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Coluna da esquerda - Detalhes -->
+            <div class="space-y-4">
+                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md"></div>
+                
+                <!-- Botões de ação -->
+                <div class="flex space-x-2">
+                    <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
+                        <i class="fas fa-copy mr-2"></i>Copiar
+                    </button>
+                    <button type="button" id="downloadContractBtn" class="btn btn-yellow flex-1">
+                        <i class="fas fa-file-download mr-2"></i>Baixar
+                    </button>
+                    <button type="button" id="toggleStatusBtn" class="btn flex-1">
+                        <i class="fas mr-2"></i>
+                        <span>Carregando...</span>
+                    </button>
+                    <button type="button" id="deleteNoteBtn" class="btn btn-red flex-1">
+                        <i class="fas fa-trash mr-2"></i>Excluir
+                    </button>
+                </div>
+            </div>
+
+            <!-- Coluna da direita - Comentários -->
+            <div class="space-y-4">
+                <div class="bg-gray-50 p-4 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">Comentários</h3>
+                    
+                    <!-- Form de comentários -->
+                    <form id="commentForm" class="mb-4">
+                        <textarea id="commentText" 
+                                 required
+                                 class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
+                                 placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
+                        <button type="submit" class="btn btn-blue w-full mt-2">
+                            <i class="fas fa-comment mr-2"></i>Adicionar Comentário
+                        </button>
+                    </form>
+
+                    <!-- Container de comentários -->
+                    <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão fechar -->
+        <div class="mt-4 text-right">
+            <button type="button" id="closeDetailsBtn" class="btn btn-gray">
+                <i class="fas fa-times mr-2"></i>Fechar
+            </button>
         </div>
     </div>
+</div>
 
-    <!-- Notes Container -->
-    <div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    </div>
+<!-- Notes Container -->
+<div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+</div>
 
 <script>
 // Utility Functions
@@ -260,16 +261,16 @@ const utils = {
             errors.push('Número de contrato inválido - use apenas letras, números e hífen');
         }
         
-        if (formData.role.length < 3) {
-            errors.push('Role deve ter ao menos 3 caracteres');
+        if (formData.locator.length < 3) {
+            errors.push('Nome do Locador deve ter ao menos 3 caracteres');
+        }
+
+        if (formData.tenant.length < 3) {
+            errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
         }
         
         if (formData.problem.length < 10) {
             errors.push('Problema deve ter ao menos 10 caracteres');
-        }
-        
-        if (!formData.date) {
-            errors.push('Data é obrigatória');
         }
         
         if (formData.address.length < 5) {
@@ -281,9 +282,8 @@ const utils = {
 
     formatDate: (dateString, includeTime = true) => {
         try {
-            // Corrige o problema do fuso horário mantendo a data informada
             const [datePart] = dateString.split('T');
-            const date = new Date(datePart + 'T12:00:00'); // Define meio-dia para evitar problemas de fuso
+            const date = new Date(datePart + 'T12:00:00');
             
             if (isNaN(date.getTime())) return 'Data inválida';
 
@@ -333,7 +333,7 @@ const utils = {
         };
     },
 
-downloadFile: (content, filename, type = 'text/plain') => {
+    downloadFile: (content, filename, type = 'text/plain') => {
         const blob = new Blob([content], { type });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -356,7 +356,6 @@ class NoteManager {
     }
 
     initializeEventListeners() {
-        // Main buttons
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             document.getElementById('noteModal').classList.remove('hidden');
             document.getElementById('contractNumber').focus();
@@ -372,7 +371,6 @@ class NoteManager {
             this.handleFormSubmit();
         });
 
-        // Search and filter functionality
         document.getElementById('searchInput').addEventListener('input', 
             utils.debounce((e) => this.handleSearch(e.target.value), 300)
         );
@@ -385,7 +383,6 @@ class NoteManager {
             this.filterNotes();
         });
 
-        // Import/Export
         document.getElementById('importNotesBtn').addEventListener('click', () => {
             document.getElementById('fileInput').click();
         });
@@ -398,7 +395,6 @@ class NoteManager {
             this.exportNotes();
         });
 
-        // Comments
         document.getElementById('commentForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleCommentSubmit();
@@ -411,7 +407,6 @@ class NoteManager {
             }
         });
 
-        // Modal close and actions
         document.getElementById('closeDetailsBtn').addEventListener('click', () => {
             document.getElementById('noteDetailsModal').classList.add('hidden');
         });
@@ -440,7 +435,6 @@ class NoteManager {
             this.deleteNote(contractNumber);
         });
 
-        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.getElementById('noteModal').classList.add('hidden');
@@ -452,9 +446,9 @@ class NoteManager {
     handleFormSubmit() {
         const formData = {
             contractNumber: document.getElementById('contractNumber').value,
-            role: document.getElementById('role').value,
+            locator: document.getElementById('locator').value,
+            tenant: document.getElementById('tenant').value,
             problem: document.getElementById('problem').value,
-            date: document.getElementById('date').value,
             address: document.getElementById('address').value
         };
 
@@ -474,19 +468,22 @@ class NoteManager {
     addNote(formData) {
         const sanitizedData = {
             contractNumber: utils.sanitizeInput(formData.contractNumber),
-            role: utils.sanitizeInput(formData.role),
+            locator: utils.sanitizeInput(formData.locator),
+            tenant: utils.sanitizeInput(formData.tenant),
             problem: utils.sanitizeInput(formData.problem),
-            date: formData.date,
             address: utils.sanitizeInput(formData.address)
         };
 
         try {
-            if (this.notes[sanitizedData.contractNumber]) {
-                utils.showNotification('Contrato já existe!', 'error');
-                return false;
-            }
+            // Verifica se já existem notas com este número de contrato
+            const existingNotes = Object.keys(this.notes).filter(key => 
+                key.startsWith(sanitizedData.contractNumber + '#'));
+            
+            // Define o número da sequência para a nova nota
+            const sequence = existingNotes.length + 1;
+            const noteKey = `${sanitizedData.contractNumber}#${sequence}`;
 
-            this.notes[sanitizedData.contractNumber] = {
+            this.notes[noteKey] = {
                 ...sanitizedData,
                 status: 'open',
                 comments: [],
@@ -494,7 +491,7 @@ class NoteManager {
                 createdBy: this.currentUser
             };
 
-            this.renderNote(sanitizedData.contractNumber);
+            this.renderNote(noteKey);
             this.saveToLocalStorage();
             utils.showNotification('Anotação criada com sucesso!', 'success');
             return true;
@@ -505,9 +502,9 @@ class NoteManager {
         }
     }
 
-    renderNote(contractNumber) {
+    renderNote(noteKey) {
         try {
-            const note = this.notes[contractNumber];
+            const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
             
             const noteButton = document.createElement('button');
@@ -516,40 +513,42 @@ class NoteManager {
             } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
             
             noteButton.innerHTML = `
-                <span class="block font-bold">#${utils.sanitizeInput(contractNumber)}</span>
-                <span class="block text-sm">${utils.sanitizeInput(note.role)}</span>
-                <span class="block text-xs mt-1">${utils.formatDate(note.date, false)}</span>
+                <span class="block font-bold">${utils.sanitizeInput(noteKey)}</span>
+                <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
+                <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
+                <span class="block text-xs mt-1">${utils.formatDate(note.createdAt, false)}</span>
                 <span class="block text-xs mt-1">
                     ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 'Finalizado'}
                 </span>
                 <span class="block text-xs opacity-75 mt-1">${note.comments.length} comentário(s)</span>
             `;
 
-            noteButton.dataset.contract = contractNumber;
-            noteButton.dataset.role = note.role.toLowerCase();
+            noteButton.dataset.contract = noteKey;
+            noteButton.dataset.locator = note.locator.toLowerCase();
+            noteButton.dataset.tenant = note.tenant.toLowerCase();
             noteButton.dataset.address = note.address.toLowerCase();
-            noteButton.dataset.date = note.date;
+            noteButton.dataset.date = note.createdAt;
             noteButton.dataset.status = note.status;
 
-            noteButton.addEventListener('click', () => this.showNoteDetails(contractNumber));
+            noteButton.addEventListener('click', () => this.showNoteDetails(noteKey));
 
-            const existingButton = document.querySelector(`[data-contract="${contractNumber}"]`);
+            const existingButton = document.querySelector(`[data-contract="${noteKey}"]`);
             if (existingButton) {
                 existingButton.replaceWith(noteButton);
             } else {
                 document.getElementById('notesContainer').appendChild(noteButton);
             }
 
-            this.sortNotes(); // Reordena após adicionar/atualizar
+            this.sortNotes();
         } catch (error) {
             console.error('Erro ao renderizar nota:', error);
             utils.showNotification('Erro ao exibir nota', 'error');
         }
     }
 
-    showNoteDetails(contractNumber) {
+    showNoteDetails(noteKey) {
         try {
-            const note = this.notes[contractNumber];
+            const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
             const detailsContent = document.getElementById('noteDetailsContent');
             
@@ -559,10 +558,10 @@ class NoteManager {
                         <h3 class="text-lg font-semibold">Informações do Contrato</h3>
                     </div>
                     <div class="grid grid-cols-1 gap-2">
-                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(contractNumber)}</span></p>
-                        <p><strong>Locador ou Locatário:</strong> <span>${utils.sanitizeInput(note.role)}</span></p>
+                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
+                        <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
+                        <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
                         <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
-                        <p><strong>Data do Contrato:</strong> <span>${utils.formatDate(note.date, false)}</span></p>
                         <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
                         <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-blue-600' : 'text-green-600'}">
                             ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 'Finalizado'}
@@ -574,7 +573,6 @@ class NoteManager {
                 </div>
             `;
 
-            // Atualiza o botão de toggle status
             const toggleBtn = document.getElementById('toggleStatusBtn');
             if (note.status === 'open') {
                 toggleBtn.className = 'btn btn-green flex-1';
@@ -584,7 +582,7 @@ class NoteManager {
                 toggleBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Reabrir Chamado';
             }
 
-            this.renderComments(contractNumber);
+            this.renderComments(noteKey);
             document.getElementById('noteDetailsModal').classList.remove('hidden');
             document.getElementById('commentText').focus();
         } catch (error) {
@@ -593,12 +591,12 @@ class NoteManager {
         }
     }
 
-    renderComments(contractNumber) {
+    renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
             
-            const note = this.notes[contractNumber];
+            const note = this.notes[noteKey];
             note.comments.forEach(comment => {
                 const commentElement = document.createElement('div');
                 commentElement.className = 'comment-box';
@@ -612,7 +610,7 @@ class NoteManager {
                             </div>
                         </div>
                         <button class="ml-2 text-blue-500 hover:text-blue-700" 
-                                onclick="noteManager.editComment('${contractNumber}', '${comment.id}')">
+                                onclick="noteManager.editComment('${noteKey}', '${comment.id}')">
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
@@ -633,7 +631,7 @@ class NoteManager {
                 return;
             }
 
-            const contractNumber = document.getElementById('noteDetailsContent')
+            const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
 
             const comment = {
@@ -643,10 +641,10 @@ class NoteManager {
                 author: this.currentUser
             };
 
-            this.notes[contractNumber].comments.unshift(comment);
+            this.notes[noteKey].comments.unshift(comment);
             this.saveToLocalStorage();
-            this.renderComments(contractNumber);
-            this.updateNoteButton(contractNumber);
+            this.renderComments(noteKey);
+            this.updateNoteButton(noteKey);
             document.getElementById('commentForm').reset();
             document.getElementById('commentText').focus();
             utils.showNotification('Comentário adicionado com sucesso!', 'success');
@@ -656,15 +654,15 @@ class NoteManager {
         }
     }
 
-    toggleNoteStatus(contractNumber) {
+toggleNoteStatus(noteKey) {
         try {
-            const note = this.notes[contractNumber];
+            const note = this.notes[noteKey];
             note.status = note.status === 'open' ? 'closed' : 'open';
             note.closedAt = note.status === 'closed' ? utils.getCurrentDateTime() : null;
             
             this.saveToLocalStorage();
-            this.renderNote(contractNumber);
-            this.showNoteDetails(contractNumber);
+            this.renderNote(noteKey);
+            this.showNoteDetails(noteKey);
             
             const status = note.status === 'open' ? 'reaberto' : 'finalizado';
             utils.showNotification(`Chamado ${status} com sucesso!`, 'success');
@@ -672,6 +670,31 @@ class NoteManager {
             console.error('Erro ao alterar status:', error);
             utils.showNotification('Erro ao alterar status do chamado', 'error');
         }
+    }
+
+    filterNotes() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        const notes = document.querySelectorAll('.note-button');
+        notes.forEach(noteBtn => {
+            const noteKey = noteBtn.dataset.contract;
+            const note = this.notes[noteKey];
+            
+            const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
+            const matchesSearch = [
+                noteKey,
+                noteBtn.dataset.locator,
+                noteBtn.dataset.tenant,
+                noteBtn.dataset.address
+            ].join(' ').toLowerCase().includes(searchTerm);
+            
+            noteBtn.classList.toggle('hidden', !(matchesStatus && matchesSearch));
+        });
+    }
+
+    handleSearch(searchTerm) {
+        this.filterNotes();
     }
 
     sortNotes() {
@@ -689,30 +712,6 @@ class NoteManager {
         notes.forEach(note => container.appendChild(note));
     }
 
-    filterNotes() {
-        const statusFilter = document.getElementById('statusFilter').value;
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        
-        const notes = document.querySelectorAll('.note-button');
-        notes.forEach(noteBtn => {
-            const contractNumber = noteBtn.dataset.contract;
-            const note = this.notes[contractNumber];
-            
-            const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
-            const matchesSearch = [
-                contractNumber,
-                noteBtn.dataset.role,
-                noteBtn.dataset.address
-            ].join(' ').toLowerCase().includes(searchTerm);
-            
-            noteBtn.classList.toggle('hidden', !(matchesStatus && matchesSearch));
-        });
-    }
-
-handleSearch(searchTerm) {
-        this.filterNotes();
-    }
-
     async handleFileImport(event) {
         try {
             utils.showLoading(true);
@@ -723,10 +722,10 @@ handleSearch(searchTerm) {
             reader.onload = (e) => {
                 try {
                     const importedNotes = JSON.parse(e.target.result);
-                    Object.entries(importedNotes).forEach(([contractNumber, note]) => {
-                        if (!this.notes[contractNumber]) {
-                            this.notes[contractNumber] = note;
-                            this.renderNote(contractNumber);
+                    Object.entries(importedNotes).forEach(([noteKey, note]) => {
+                        if (!this.notes[noteKey]) {
+                            this.notes[noteKey] = note;
+                            this.renderNote(noteKey);
                         }
                     });
                     this.saveToLocalStorage();
@@ -758,16 +757,17 @@ handleSearch(searchTerm) {
         }
     }
 
-    downloadSingleContract(contractNumber) {
+    downloadSingleContract(noteKey) {
         try {
-            const note = this.notes[contractNumber];
+            const note = this.notes[noteKey];
             const content = `
 =======================================================
                 DETALHES DO CONTRATO
 =======================================================
 
-Número do Contrato: ${contractNumber}
-Locador ou Locatário: ${note.role}
+Número do Contrato: ${noteKey}
+Locador: ${note.locator}
+Locatário: ${note.tenant}
 Status: ${note.status === 'open' ? 'Aberto' : 'Fechado'}
 
 -------------------------------------------------------
@@ -778,7 +778,6 @@ ${note.problem}
 -------------------------------------------------------
 INFORMAÇÕES ADICIONAIS
 -------------------------------------------------------
-Data do Contrato: ${utils.formatDate(note.date, false)}
 Endereço: ${note.address}
 Criado por: ${note.createdBy}
 Data de Criação: ${utils.formatDate(note.createdAt)}
@@ -807,7 +806,7 @@ Por: ${this.currentUser}
 =======================================================
 `.trim();
 
-            const filename = `contrato_${contractNumber}_${new Date().toISOString().split('T')[0]}.txt`;
+            const filename = `contrato_${noteKey}_${new Date().toISOString().split('T')[0]}.txt`;
             utils.downloadFile(content, filename, 'text/plain');
             utils.showNotification('Contrato exportado com sucesso!', 'success');
         } catch (error) {
@@ -816,14 +815,14 @@ Por: ${this.currentUser}
         }
     }
 
-    copyNoteDetails(contractNumber) {
+    copyNoteDetails(noteKey) {
         try {
-            const note = this.notes[contractNumber];
+            const note = this.notes[noteKey];
             const detailsToCopy = `
-Número de Contrato: ${contractNumber}
-Locador ou Locatário: ${note.role}
+Número do Contrato: ${noteKey}
+Locador: ${note.locator}
+Locatário: ${note.tenant}
 Problema: ${note.problem}
-Data do Contrato: ${utils.formatDate(note.date, false)}
 Endereço: ${note.address}
 Status: ${note.status === 'open' ? `Aberto (${utils.calculateDaysOpen(note.createdAt)} dias)` : 'Finalizado'}
 Criado por: ${note.createdBy}
@@ -843,9 +842,9 @@ ${note.comments.map(comment => `[${utils.formatDate(comment.dateTime)}] ${commen
         }
     }
 
-    editComment(contractNumber, commentId) {
+    editComment(noteKey, commentId) {
         try {
-            const note = this.notes[contractNumber];
+            const note = this.notes[noteKey];
             const comment = note.comments.find(c => c.id === commentId);
             
             const newText = prompt('Editar comentário:', comment.text);
@@ -853,7 +852,7 @@ ${note.comments.map(comment => `[${utils.formatDate(comment.dateTime)}] ${commen
                 comment.text = utils.sanitizeInput(newText);
                 comment.editedAt = utils.getCurrentDateTime();
                 this.saveToLocalStorage();
-                this.renderComments(contractNumber);
+                this.renderComments(noteKey);
                 utils.showNotification('Comentário atualizado com sucesso!', 'success');
             }
         } catch (error) {
@@ -862,14 +861,14 @@ ${note.comments.map(comment => `[${utils.formatDate(comment.dateTime)}] ${commen
         }
     }
 
-    deleteNote(contractNumber) {
+    deleteNote(noteKey) {
         try {
             if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
                 return;
             }
 
-            delete this.notes[contractNumber];
-            const noteButton = document.querySelector(`[data-contract="${contractNumber}"]`);
+            delete this.notes[noteKey];
+            const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
             if (noteButton) {
                 noteButton.remove();
             }
@@ -897,8 +896,8 @@ ${note.comments.map(comment => `[${utils.formatDate(comment.dateTime)}] ${commen
             const savedNotes = localStorage.getItem('notes');
             if (savedNotes) {
                 this.notes = JSON.parse(savedNotes);
-                Object.keys(this.notes).forEach(contractNumber => {
-                    this.renderNote(contractNumber);
+                Object.keys(this.notes).forEach(noteKey => {
+                    this.renderNote(noteKey);
                 });
             }
         } catch (error) {
@@ -907,10 +906,10 @@ ${note.comments.map(comment => `[${utils.formatDate(comment.dateTime)}] ${commen
         }
     }
 
-    updateNoteButton(contractNumber) {
-        const noteButton = document.querySelector(`[data-contract="${contractNumber}"]`);
+    updateNoteButton(noteKey) {
+        const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
         if (noteButton) {
-            const note = this.notes[contractNumber];
+            const note = this.notes[noteKey];
             const commentCount = note.comments.length;
             const commentCountSpan = noteButton.querySelector('span:last-child');
             if (commentCountSpan) {
