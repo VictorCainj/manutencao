@@ -123,6 +123,8 @@
 
         document.getElementById('closeDetailsBtn').addEventListener('click', function() {
             document.getElementById('noteDetailsModal').classList.add('hidden');
+            document.getElementById('editDetailsBtn').classList.remove('hidden');
+            document.getElementById('saveEditBtn').classList.add('hidden');
         });
 
         // Função para formatar a data
@@ -253,6 +255,8 @@
             if (event.key === 'Escape') {
                 document.getElementById('noteModal').classList.add('hidden');
                 document.getElementById('noteDetailsModal').classList.add('hidden');
+                document.getElementById('editDetailsBtn').classList.remove('hidden');
+                document.getElementById('saveEditBtn').classList.add('hidden');
             }
         });
 
@@ -325,7 +329,7 @@
 
                                     document.getElementById('commentsContainer').innerHTML = ''; // Limpa comentários anteriores
 
-                                    note.comments.forEach(comment => {
+note.comments.forEach(comment => {
                                         const commentBlock = document.createElement('div');
                                         commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
                                         commentBlock.innerHTML = 
@@ -347,7 +351,7 @@
             }
         });
 
-document.getElementById('downloadNotesBtn').addEventListener('click', function() {
+        document.getElementById('downloadNotesBtn').addEventListener('click', function() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
