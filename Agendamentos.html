@@ -105,7 +105,6 @@
                 <button type="button" id="downloadContractBtn" class="btn btn-yellow">Baixar Contrato</button>
                 <button type="button" id="deleteNoteBtn" class="btn btn-red">Excluir</button>
                 <button type="button" id="closeDetailsBtn" class="btn btn-gray">Fechar</button>
-                <button type="button" id="saveEditBtn" class="btn btn-blue hidden">Salvar</button>
             </div>
         </div>
     </div>
@@ -123,8 +122,6 @@
 
         document.getElementById('closeDetailsBtn').addEventListener('click', function() {
             document.getElementById('noteDetailsModal').classList.add('hidden');
-            document.getElementById('editDetailsBtn').classList.remove('hidden');
-            document.getElementById('saveEditBtn').classList.add('hidden');
         });
 
         // Função para formatar a data
@@ -144,6 +141,7 @@
                 <p><strong>Problema:</strong> <span id="detailProblem">${problem}</span></p>
                 <p><strong>Data:</strong> <span id="detailDate">${formattedDate}</span></p>
                 <p><strong>Endereço:</strong> <span id="detailAddress">${address}</span></p>
+                <button type="button" id="editDetailsBtn" class="btn btn-blue">Editar</button>
             `;
         }
 
@@ -255,8 +253,6 @@
             if (event.key === 'Escape') {
                 document.getElementById('noteModal').classList.add('hidden');
                 document.getElementById('noteDetailsModal').classList.add('hidden');
-                document.getElementById('editDetailsBtn').classList.remove('hidden');
-                document.getElementById('saveEditBtn').classList.add('hidden');
             }
         });
 
@@ -320,16 +316,12 @@
                                 noteButton.dataset.address = note.address.toLowerCase();
                                 noteButton.dataset.status = note.status;
                                 noteButton.dataset.inSpreadsheet = note.inSpreadsheet;
-                                if (note.status === 'closed') {
-                                    noteButton.classList.remove('bg-blue-500', 'hover:bg-blue-700');
-                                    noteButton.classList.add('bg-green-500', 'hover:bg-green-700');
-                                }
                                 noteButton.addEventListener('click', function() {
                                     updateNoteDetails(contractNumber, note.role, note.problem, note.date, note.address);
 
                                     document.getElementById('commentsContainer').innerHTML = ''; // Limpa comentários anteriores
 
-note.comments.forEach(comment => {
+                                    note.comments.forEach(comment => {
                                         const commentBlock = document.createElement('div');
                                         commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
                                         commentBlock.innerHTML = 
@@ -363,11 +355,11 @@ note.comments.forEach(comment => {
 
         document.getElementById('searchInput').addEventListener('input', filterNotes);
 
-        function filterNotes() {
+function filterNotes() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const noteButtons = document.querySelectorAll('.note-button');
             noteButtons.forEach(button => {
-                const contractNumber = button.textContent.toLowerCase();
+                const contractNumber = button.querySelector('.block.font-bold').textContent.slice(1).toLowerCase();
                 const role = button.dataset.role;
                 const address = button.dataset.address;
                 const matchesSearch = contractNumber.includes(searchTerm) || role.includes(searchTerm) || address.includes(searchTerm);
@@ -399,76 +391,86 @@ note.comments.forEach(comment => {
             document.getElementById('noteDetailsModal').classList.add('hidden');
         });
 
-        document.getElementById('editDetailsBtn').addEventListener('click', function() {
-            const noteDetailsContent = document.getElementById('noteDetailsContent');
-            const contractNumber = document.getElementById('detailContractNumber').textContent;
-            const role = notes[contractNumber].role;
-            const problem = notes[contractNumber].problem;
-            const date = notes[contractNumber].date;
-            const address = notes[contractNumber].address;
+        document.getElementById('noteDetailsContent').addEventListener('click', function(event) {
+            if (event.target && event.target.id === 'editDetailsBtn') {
+                const contractNumber = document.getElementById('detailContractNumber').textContent;
+                const role = notes[contractNumber].role;
+                const problem = notes[contractNumber].problem;
+                const date = notes[contractNumber].date;
+                const address = notes[contractNumber].address;
 
-            noteDetailsContent.innerHTML = `
-                <h3 class="text-lg font-semibold text-center">Editar Anotação</h3>
-                <div class="mb-4">
-                    <label for="editContractNumber" class="block text-gray-700">Número de Contrato:</label>
-                    <input type="text" id="editContractNumber" value="${contractNumber}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-                <div class="mb-4">
-                    <label for="editRole" class="block text-gray-700">Locador ou Locatário:</label>
-                    <input type="text" id="editRole" value="${role}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-                <div class="mb-4">
-                    <label for="editProblem" class="block text-gray-700">Problema:</label>
-                    <textarea id="editProblem" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">${problem}</textarea>
-                </div>
-                <div class="mb-4">
-                    <label for="editDate" class="block text-gray-700">Data:</label>
-                    <input type="date" id="editDate" value="${date}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-                <div class="mb-4">
-                    <label for="editAddress" class="block text-gray-700">Endereço:</label>
-                    <input type="text" id="editAddress" value="${address}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-            `;
-
-            document.getElementById('editDetailsBtn').classList.add('hidden');
-            document.getElementById('saveEditBtn').classList.remove('hidden');
+                document.getElementById('noteDetailsContent').innerHTML = `
+                    <h3 class="text-lg font-semibold text-center">Editar Anotação</h3>
+                    <div class="mb-4">
+                        <label for="editContractNumber" class="block text-gray-700">Número de Contrato:</label>
+                        <input type="text" id="editContractNumber" value="${contractNumber}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    </div>
+                    <div class="mb-4">
+                        <label for="editRole" class="block text-gray-700">Locador ou Locatário:</label>
+                        <input type="text" id="editRole" value="${role}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    </div>
+                    <div class="mb-4">
+                        <label for="editProblem" class="block text-gray-700">Problema:</label>
+                        <textarea id="editProblem" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">${problem}</textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="editDate" class="block text-gray-700">Data:</label>
+                        <input type="date" id="editDate" value="${date}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    </div>
+                    <div class="mb-4">
+                        <label for="editAddress" class="block text-gray-700">Endereço:</label>
+                        <input type="text" id="editAddress" value="${address}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="button" id="saveEditBtn" class="btn btn-blue">Salvar</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-gray ml-2">Cancelar</button>
+                    </div>
+                `;
+            }
         });
 
-        document.getElementById('saveEditBtn').addEventListener('click', function() {
-            const oldContractNumber = document.getElementById('detailContractNumber').textContent;
-            const newContractNumber = document.getElementById('editContractNumber').value;
-            const role = document.getElementById('editRole').value;
-            const problem = document.getElementById('editProblem').value;
-            const date = document.getElementById('editDate').value;
-            const address = document.getElementById('editAddress').value;
+        document.getElementById('noteDetailsContent').addEventListener('click', function(event) {
+            if (event.target && event.target.id === 'saveEditBtn') {
+                const oldContractNumber = document.getElementById('detailContractNumber').textContent;
+                const newContractNumber = document.getElementById('editContractNumber').value;
+                const role = document.getElementById('editRole').value;
+                const problem = document.getElementById('editProblem').value;
+                const date = document.getElementById('editDate').value;
+                const address = document.getElementById('editAddress').value;
 
-            // Atualizar a nota no objeto 'notes'
-            if (oldContractNumber !== newContractNumber) {
-                notes[newContractNumber] = { ...notes[oldContractNumber] };
-                delete notes[oldContractNumber];
+                // Atualizar a nota no objeto 'notes'
+                if (oldContractNumber !== newContractNumber) {
+                    notes[newContractNumber] = { ...notes[oldContractNumber] };
+                    delete notes[oldContractNumber];
+                }
+                notes[newContractNumber].role = role;
+                notes[newContractNumber].problem = problem;
+                notes[newContractNumber].date = date;
+                notes[newContractNumber].address = address;
+
+                // Atualizar o botão da nota na interface
+                const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
+                    (button) => button.querySelector('.block.font-bold').textContent.slice(1) === oldContractNumber
+                );
+                if (noteButton) {
+                    noteButton.innerHTML = `<span class="block font-bold">#${newContractNumber}</span><span class="block text-sm">${role}</span>`;
+                    noteButton.dataset.role = role.toLowerCase();
+                    noteButton.dataset.date = date;
+                    noteButton.dataset.address = address.toLowerCase();
+                }
+
+                updateNoteDetails(newContractNumber, role, problem, date, address);
             }
-            notes[newContractNumber].role = role;
-            notes[newContractNumber].problem = problem;
-            notes[newContractNumber].date = date;
-            notes[newContractNumber].address = address;
 
-            // Atualizar o botão da nota na interface
-            const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
-                (button) => button.querySelector('.block.font-bold').textContent.slice(1) === oldContractNumber
-            );
-            if (noteButton) {
-                noteButton.innerHTML = `<span class="block font-bold">#${newContractNumber}</span><span class="block text-sm">${role}</span>`;
-                noteButton.dataset.role = role.toLowerCase();
-                noteButton.dataset.date = date;
-                noteButton.dataset.address = address.toLowerCase();
-                noteButton.dataset.contractNumber = newContractNumber;
+            if (event.target && event.target.id === 'cancelEditBtn') {
+                const contractNumber = document.getElementById('editContractNumber').value;
+                const role = notes[contractNumber].role;
+                const problem = notes[contractNumber].problem;
+                const date = notes[contractNumber].date;
+                const address = notes[contractNumber].address;
+
+                updateNoteDetails(contractNumber, role, problem, date, address);
             }
-
-            updateNoteDetails(newContractNumber, role, problem, date, address);
-
-            document.getElementById('editDetailsBtn').classList.remove('hidden');
-            document.getElementById('saveEditBtn').classList.add('hidden');
         });
     </script>
 </body>
