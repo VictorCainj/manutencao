@@ -243,12 +243,50 @@
             }
         });
 
-        document.getElementById('commentText').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                document.getElementById('commentForm').dispatchEvent(new Event('submit'));
-            } else if (event.key === 'Escape') {
-                document.getElementById('noteDetailsModal').classList.add('hidden');
+        document.getElementById('noteDetailsContent').addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('edit-btn')) {
+                const field = event.target.dataset.field;
+                const valueElement = document.getElementById(`detail${field.charAt(0).toUpperCase() + field.slice(1)}`);
+                const currentValue = valueElement.textContent;
+
+                const inputType = field === 'date' ? 'date' : 'text';
+                valueElement.innerHTML = `<input type="${inputType}" id="edit${field}" value="${currentValue}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">`;
+                event.target.textContent = 'Salvar';
+                event.target.classList.remove('edit-btn');
+                event.target.classList.add('save-btn');
+            }
+        });
+
+        document.getElementById('noteDetailsContent').addEventListener('click', function(event) {
+            if (event.target && event.target.classList.contains('save-btn')) {
+                const field = event.target.dataset.field;
+                const inputElement = document.getElementById(`edit${field}`);
+                const newValue = inputElement.value;
+
+                const contractNumber = document.getElementById('detailContractNumber').textContent;
+
+                // Atualizar a nota no objeto 'notes'
+                notes[contractNumber][field] = newValue;
+
+                if (field === 'date') {
+                    document.getElementById(`detail${field.charAt(0).toUpperCase() + field.slice(1)}`).textContent = formatDate(newValue);
+                } else {
+                    document.getElementById(`detail${field.charAt(0).toUpperCase() + field.slice(1)}`).textContent = newValue;
+                }
+
+                // Atualizar o botão da nota na interface se necessário
+                if (field === 'contractNumber') {
+                    const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
+                        (button) => button.querySelector('.block.font-bold').textContent.slice(1) === contractNumber
+                    );
+                    if (noteButton) {
+                        noteButton.querySelector('.block.font-bold').textContent = `#${newValue}`;
+                    }
+                }
+
+                event.target.textContent = 'Editar';
+                event.target.classList.remove('save-btn');
+                event.target.classList.add('edit-btn');
             }
         });
 
@@ -297,7 +335,7 @@
             document.getElementById('fileInput').click();
         });
 
-        document.getElementById('fileInput').addEventListener('change', function(event) {
+document.getElementById('fileInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
@@ -346,7 +384,7 @@
             }
         });
 
-document.getElementById('downloadNotesBtn').addEventListener('click', function() {
+        document.getElementById('downloadNotesBtn').addEventListener('click', function() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
@@ -441,55 +479,6 @@ document.getElementById('downloadNotesBtn').addEventListener('click', function()
             }
         });
 
-        document.getElementById('commentForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const commentText = document.getElementById('commentText').value;
-            const currentDateTime = new Date().toLocaleString();
-            const commentId = Date.now().toString();
-
-            const commentBlock = document.createElement('div');
-            commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
-            commentBlock.innerHTML = 
-                `<p>${commentText}</p>
-                <p class="text-sm text-gray-500">${currentDateTime}</p>
-                <button class="edit-comment-btn text-blue-500 hover:text-blue-700" data-comment-id="${commentId}">Editar</button>`;
-
-            const commentsContainer = document.getElementById('commentsContainer');
-            commentsContainer.insertBefore(commentBlock, commentsContainer.firstChild);
-
-            const contractNumber = document.getElementById('detailContractNumber').textContent;
-            notes[contractNumber].comments.unshift({
-                id: commentId,
-                text: commentText,
-                dateTime: currentDateTime
-            });
-
-            document.getElementById('commentForm').reset();
-        });
-
-        document.getElementById('commentsContainer').addEventListener('click', function(event) {
-            if (event.target.classList.contains('edit-comment-btn')) {
-                const commentId = event.target.dataset.commentId;
-                const contractNumber = document.getElementById('detailContractNumber').textContent;
-                const comment = notes[contractNumber].comments.find(c => c.id === commentId);
-                const newCommentText = prompt('Editar comentário:', comment.text);
-                if (newCommentText !== null) {
-                    comment.text = newCommentText;
-                    event.target.parentElement.querySelector('p').textContent = newCommentText;
-                }
-            }
-        });
-
-        document.getElementById('commentText').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                document.getElementById('commentForm').dispatchEvent(new Event('submit'));
-            } else if (event.key === 'Escape') {
-                document.getElementById('noteDetailsModal').classList.add('hidden');
-            }
-        });
-
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 document.getElementById('noteModal').classList.add('hidden');
@@ -533,65 +522,6 @@ document.getElementById('downloadNotesBtn').addEventListener('click', function()
 
         document.getElementById('importNotesBtn').addEventListener('click', function() {
             document.getElementById('fileInput').click();
-        });
-
-        document.getElementById('fileInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const importedNotes = JSON.parse(e.target.result);
-                    for (const contractNumber in importedNotes) {
-                        if (importedNotes.hasOwnProperty(contractNumber)) {
-                            const note = importedNotes[contractNumber];
-
-                            // Verificar se a nota já existe para evitar duplicação
-                            if (!notes[contractNumber]) {
-                                notes[contractNumber] = note;
-
-                                const noteButton = document.createElement('button');
-                                noteButton.className = 'note-button w-full px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
-                                noteButton.innerHTML = `<span class="block font-bold">#${contractNumber}</span><span class="block text-sm">${note.role}</span>`;
-                                noteButton.dataset.role = note.role.toLowerCase();
-                                noteButton.dataset.date = note.date;
-                                noteButton.dataset.address = note.address.toLowerCase();
-                                noteButton.dataset.status = note.status;
-                                noteButton.dataset.inSpreadsheet = note.inSpreadsheet;
-                                noteButton.addEventListener('click', function() {
-                                    updateNoteDetails(contractNumber, note.role, note.problem, note.date, note.address);
-
-                                    document.getElementById('commentsContainer').innerHTML = ''; // Limpa comentários anteriores
-
-                                    note.comments.forEach(comment => {
-                                        const commentBlock = document.createElement('div');
-                                        commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
-                                        commentBlock.innerHTML = 
-                                            `<p>${comment.text}</p>
-                                            <p class="text-sm text-gray-500">${comment.dateTime}</p>
-                                            <button class="edit-comment-btn text-blue-500 hover:text-blue-700" data-comment-id="${comment.id}">Editar</button>`;
-                                        document.getElementById('commentsContainer').appendChild(commentBlock);
-                                    });
-
-                                    document.getElementById('noteDetailsModal').classList.remove('hidden');
-                                });
-
-                                document.getElementById('notesContainer').appendChild(noteButton);
-                            }
-                        }
-                    }
-                };
-                reader.readAsText(file);
-            }
-        });
-
-        document.getElementById('downloadNotesBtn').addEventListener('click', function() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
-            const downloadAnchorNode = document.createElement('a');
-            downloadAnchorNode.setAttribute("href", dataStr);
-            downloadAnchorNode.setAttribute("download", "contratos.json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
         });
     </script>
 </body>
