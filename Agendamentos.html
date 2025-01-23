@@ -132,11 +132,11 @@
             const formattedDate = formatDate(date);
             document.getElementById('noteDetailsContent').innerHTML = `
                 <h3 class="text-lg font-semibold text-center">Detalhes da Anotação</h3>
-                <p><strong>Número de Contrato:</strong> ${contractNumber}</p>
-                <p><strong>Locador ou Locatário:</strong> ${role}</p>
-                <p><strong>Problema:</strong> ${problem}</p>
-                <p><strong>Data:</strong> ${formattedDate}</p>
-                <p><strong>Endereço:</strong> ${address}</p>
+                <p><strong>Número de Contrato:</strong> <span>${contractNumber}</span></p>
+                <p><strong>Locador ou Locatário:</strong> <span>${role}</span></p>
+                <p><strong>Problema:</strong> <span>${problem}</span></p>
+                <p><strong>Data:</strong> <span>${formattedDate}</span></p>
+                <p><strong>Endereço:</strong> <span>${address}</span></p>
             `;
         }
 
@@ -212,7 +212,7 @@
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.insertBefore(commentBlock, commentsContainer.firstChild);
 
-            const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
             notes[contractNumber].comments.unshift({
                 id: commentId,
                 text: commentText,
@@ -225,7 +225,7 @@
         document.getElementById('commentsContainer').addEventListener('click', function(event) {
             if (event.target.classList.contains('edit-comment-btn')) {
                 const commentId = event.target.dataset.commentId;
-                const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
+                const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
                 const comment = notes[contractNumber].comments.find(c => c.id === commentId);
                 const newCommentText = prompt('Editar comentário:', comment.text);
                 if (newCommentText !== null) {
@@ -252,7 +252,7 @@
         });
 
         document.getElementById('copyDetailsBtn').addEventListener('click', function() {
-            const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
             const note = notes[contractNumber];
             let noteDetails = `Número de Contrato: ${contractNumber}\nLocador ou Locatário: ${note.role}\nProblema: ${note.problem}\nData: ${note.date}\nEndereço: ${note.address}\n\nComentários:\n`;
 
@@ -268,7 +268,7 @@
         });
 
         document.getElementById('downloadContractBtn').addEventListener('click', function() {
-            const contractNumber = document.getElementById('noteDetailsContent').querySelector('h3').textContent.slice(1);
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
             const note = notes[contractNumber];
             let noteDetails = `Número de Contrato: ${contractNumber}\nLocador ou Locatário: ${note.role}\nProblema: ${note.problem}\nData: ${note.date}\nEndereço: ${note.address}\n\nComentários:\n`;
 
@@ -351,45 +351,6 @@
             downloadAnchorNode.remove();
         });
 
-        document.getElementById('searchInput').addEventListener('input', filterNotes);
-
-function filterNotes() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const noteButtons = document.querySelectorAll('.note-button');
-            noteButtons.forEach(button => {
-                const contractNumber = button.textContent.toLowerCase();
-                const role = button.dataset.role;
-                const address = button.dataset.address;
-                const matchesSearch = contractNumber.includes(searchTerm) || role.includes(searchTerm) || address.includes(searchTerm);
-                if (matchesSearch) {
-                    button.classList.remove('hidden');
-                } else {
-                    button.classList.add('hidden');
-                }
-            });
-        }
-
-        document.getElementById('deleteNoteBtn').addEventListener('click', function () {
-            const contractNumber = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span')
-                .textContent;
-
-            // Remover a anotação do objeto 'notes'
-            if (notes[contractNumber]) {
-                delete notes[contractNumber];
-            }
-
-            // Encontrar e remover o botão correspondente à anotação
-            const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
-                (button) => button.querySelector('span.block.font-bold').textContent.slice(1) === contractNumber
-            );
-            if (noteButton) {
-                noteButton.remove();
-            }
-
-            // Fechar o modal de detalhes
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-        });
     </script>
 </body>
 </html>
