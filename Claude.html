@@ -26,7 +26,7 @@
             @apply bg-red-500 hover:bg-red-700 focus:ring-red-400;
         }
         .notification {
-            @apply fixed top-4 right-4 p-4 rounded-md shadow-lg transform transition-transform duration-300 ease-in-out;
+            @apply fixed top-4 right-4 p-4 rounded-md shadow-lg transform transition-transform duration-300 ease-in-out z-50;
         }
         .notification-success {
             @apply bg-green-500 text-white;
@@ -35,19 +35,22 @@
             @apply bg-red-500 text-white;
         }
         .modal-overlay {
-            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300;
+            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40;
         }
         .modal-content {
-            @apply bg-white rounded-md shadow-lg p-6 w-full max-w-md transform transition-all duration-300;
+            @apply bg-white rounded-lg shadow-lg transform transition-all duration-300;
+        }
+        .comment-box {
+            @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
     <!-- Notification Component -->
     <div id="notification" class="notification hidden"></div>
 
     <!-- Loading Spinner -->
-    <div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
         <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
     </div>
 
@@ -79,7 +82,7 @@
 
     <!-- Note Creation Modal -->
     <div id="noteModal" class="modal-overlay hidden">
-        <div class="modal-content">
+        <div class="modal-content p-6 w-full max-w-md">
             <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
             <form id="noteForm" class="space-y-4">
                 <div>
@@ -139,61 +142,61 @@
         </div>
     </div>
 
-<!-- Note Details Modal -->
-<div id="noteDetailsModal" class="modal-overlay hidden">
-    <div class="modal-content max-h-[90vh] overflow-y-auto w-full max-w-5xl"> <!-- Aumentei a largura máxima -->
-        <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-        
-        <!-- Grid container para dividir detalhes e comentários -->
-        <div class="grid grid-cols-2 gap-6">
-            <!-- Coluna da esquerda - Detalhes -->
-            <div class="space-y-4">
-                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow"></div>
-                
-                <!-- Botões de ação -->
-                <div class="flex space-x-2">
-                    <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
-                        <i class="fas fa-copy mr-2"></i>Copiar
-                    </button>
-                    <button type="button" id="downloadContractBtn" class="btn btn-yellow flex-1">
-                        <i class="fas fa-file-download mr-2"></i>Baixar
-                    </button>
-                    <button type="button" id="deleteNoteBtn" class="btn btn-red flex-1">
-                        <i class="fas fa-trash mr-2"></i>Excluir
-                    </button>
-                </div>
-            </div>
-
-            <!-- Coluna da direita - Comentários -->
-            <div class="space-y-4">
-                <div class="bg-gray-50 p-4 rounded-lg shadow">
-                    <h3 class="text-lg font-semibold mb-2">Comentários</h3>
+    <!-- Note Details Modal -->
+    <div id="noteDetailsModal" class="modal-overlay hidden">
+        <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+            
+            <!-- Grid container para dividir detalhes e comentários -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Coluna da esquerda - Detalhes -->
+                <div class="space-y-4">
+                    <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md"></div>
                     
-                    <!-- Form de comentários -->
-                    <form id="commentForm" class="mb-4">
-                        <textarea id="commentText" 
-                                 required
-                                 class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
-                                 placeholder="Digite seu comentário aqui..."></textarea>
-                        <button type="submit" class="btn btn-blue w-full mt-2">
-                            <i class="fas fa-comment mr-2"></i>Adicionar Comentário
+                    <!-- Botões de ação -->
+                    <div class="flex space-x-2">
+                        <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
+                            <i class="fas fa-copy mr-2"></i>Copiar
                         </button>
-                    </form>
+                        <button type="button" id="downloadContractBtn" class="btn btn-yellow flex-1">
+                            <i class="fas fa-file-download mr-2"></i>Baixar
+                        </button>
+                        <button type="button" id="deleteNoteBtn" class="btn btn-red flex-1">
+                            <i class="fas fa-trash mr-2"></i>Excluir
+                        </button>
+                    </div>
+                </div>
 
-                    <!-- Container de comentários -->
-                    <div id="commentsContainer" class="space-y-2 max-h-[400px] overflow-y-auto"></div>
+                <!-- Coluna da direita - Comentários -->
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-4 rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold mb-4">Comentários</h3>
+                        
+                        <!-- Form de comentários -->
+                        <form id="commentForm" class="mb-4">
+                            <textarea id="commentText" 
+                                     required
+                                     class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
+                                     placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
+                            <button type="submit" class="btn btn-blue w-full mt-2">
+                                <i class="fas fa-comment mr-2"></i>Adicionar Comentário
+                            </button>
+                        </form>
+
+                        <!-- Container de comentários -->
+                        <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Botão fechar no final -->
-        <div class="mt-4 text-right">
-            <button type="button" id="closeDetailsBtn" class="btn btn-gray">
-                <i class="fas fa-times mr-2"></i>Fechar
-            </button>
+            <!-- Botão fechar -->
+            <div class="mt-4 text-right">
+                <button type="button" id="closeDetailsBtn" class="btn btn-gray">
+                    <i class="fas fa-times mr-2"></i>Fechar
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
     <!-- Notes Container -->
     <div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -255,7 +258,9 @@ const utils = {
             return date.toLocaleDateString('pt-BR', {
                 year: 'numeric',
                 month: 'long',
-                day: 'numeric'
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
             });
         } catch (e) {
             console.error('Error formatting date:', e);
@@ -292,6 +297,7 @@ const utils = {
 class NoteManager {
     constructor() {
         this.notes = {};
+        this.currentUser = 'VictorCainj';
         this.initializeEventListeners();
         this.loadFromLocalStorage();
     }
@@ -300,6 +306,7 @@ class NoteManager {
         // Main buttons
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             document.getElementById('noteModal').classList.remove('hidden');
+            document.getElementById('contractNumber').focus();
         });
 
         document.getElementById('cancelBtn').addEventListener('click', () => {
@@ -337,198 +344,262 @@ class NoteManager {
             this.handleCommentSubmit();
         });
 
-        // Modal close buttons
-        document.getElementById('closeDetailsBtn').addEventListener('click', () => {
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-        });
+document.getElementById('commentText').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+                }
+            });
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.getElementById('noteModal').classList.add('hidden');
+            // Modal close and escape key
+            document.getElementById('closeDetailsBtn').addEventListener('click', () => {
                 document.getElementById('noteDetailsModal').classList.add('hidden');
-            }
-        });
+            });
 
-        // Delete note
-        document.getElementById('deleteNoteBtn').addEventListener('click', () => {
-            const contractNumber = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.deleteNote(contractNumber);
-        });
-    }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.getElementById('noteModal').classList.add('hidden');
+                    document.getElementById('noteDetailsModal').classList.add('hidden');
+                }
+            });
 
-    handleFormSubmit() {
-        const formData = {
-            contractNumber: document.getElementById('contractNumber').value,
-            role: document.getElementById('role').value,
-            problem: document.getElementById('problem').value,
-            date: document.getElementById('date').value,
-            address: document.getElementById('address').value
-        };
+            // Delete note
+            document.getElementById('deleteNoteBtn').addEventListener('click', () => {
+                const contractNumber = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.deleteNote(contractNumber);
+            });
 
-        const errors = utils.validateForm(formData);
-        if (errors.length > 0) {
-            utils.showNotification(errors.join('\n'), 'error');
-            return;
+            // Copy details
+            document.getElementById('copyDetailsBtn').addEventListener('click', () => {
+                const contractNumber = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.copyNoteDetails(contractNumber);
+            });
+
+            // Download contract
+            document.getElementById('downloadContractBtn').addEventListener('click', () => {
+                const contractNumber = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.downloadSingleContract(contractNumber);
+            });
         }
 
-        const success = this.addNote(formData);
-        if (success) {
-            document.getElementById('noteForm').reset();
-            document.getElementById('noteModal').classList.add('hidden');
-        }
-    }
-
-addNote(formData) {
-        const sanitizedData = {
-            contractNumber: utils.sanitizeInput(formData.contractNumber),
-            role: utils.sanitizeInput(formData.role),
-            problem: utils.sanitizeInput(formData.problem),
-            date: formData.date,
-            address: utils.sanitizeInput(formData.address)
-        };
-
-        try {
-            if (this.notes[sanitizedData.contractNumber]) {
-                utils.showNotification('Contrato já existe!', 'error');
-                return false;
-            }
-
-            this.notes[sanitizedData.contractNumber] = {
-                ...sanitizedData,
-                status: 'open',
-                inSpreadsheet: false,
-                comments: [],
-                createdAt: new Date().toISOString(),
-                createdBy: 'VictorCainj' // Using the current user's login
+        handleFormSubmit() {
+            const formData = {
+                contractNumber: document.getElementById('contractNumber').value,
+                role: document.getElementById('role').value,
+                problem: document.getElementById('problem').value,
+                date: document.getElementById('date').value,
+                address: document.getElementById('address').value
             };
 
-            this.renderNote(sanitizedData.contractNumber);
-            this.saveToLocalStorage();
-            utils.showNotification('Anotação criada com sucesso!');
-            return true;
-        } catch (error) {
-            console.error('Erro ao adicionar nota:', error);
-            utils.showNotification('Erro ao criar anotação', 'error');
-            return false;
+            const errors = utils.validateForm(formData);
+            if (errors.length > 0) {
+                utils.showNotification(errors.join('\n'), 'error');
+                return;
+            }
+
+            const success = this.addNote(formData);
+            if (success) {
+                document.getElementById('noteForm').reset();
+                document.getElementById('noteModal').classList.add('hidden');
+            }
         }
-    }
 
-    renderNote(contractNumber) {
-        try {
-            const note = this.notes[contractNumber];
-            const noteButton = document.createElement('button');
-            noteButton.className = `note-button w-full px-4 py-2 ${
-                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' : 'bg-blue-500 hover:bg-blue-700'
-            } text-white rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors duration-200`;
-            
-            noteButton.innerHTML = `
-                <span class="block font-bold">#${utils.sanitizeInput(contractNumber)}</span>
-                <span class="block text-sm">${utils.sanitizeInput(note.role)}</span>
-                <span class="block text-xs">${utils.formatDate(note.date)}</span>
-            `;
+        addNote(formData) {
+            const sanitizedData = {
+                contractNumber: utils.sanitizeInput(formData.contractNumber),
+                role: utils.sanitizeInput(formData.role),
+                problem: utils.sanitizeInput(formData.problem),
+                date: formData.date,
+                address: utils.sanitizeInput(formData.address)
+            };
 
-            noteButton.dataset.contract = contractNumber;
-            noteButton.dataset.role = note.role.toLowerCase();
-            noteButton.dataset.address = note.address.toLowerCase();
-            noteButton.dataset.date = note.date;
+            try {
+                if (this.notes[sanitizedData.contractNumber]) {
+                    utils.showNotification('Contrato já existe!', 'error');
+                    return false;
+                }
 
-            noteButton.addEventListener('click', () => this.showNoteDetails(contractNumber));
+                this.notes[sanitizedData.contractNumber] = {
+                    ...sanitizedData,
+                    status: 'open',
+                    inSpreadsheet: false,
+                    comments: [],
+                    createdAt: new Date().toISOString(),
+                    createdBy: this.currentUser
+                };
 
-            document.getElementById('notesContainer').appendChild(noteButton);
-        } catch (error) {
-            console.error('Erro ao renderizar nota:', error);
-            utils.showNotification('Erro ao exibir nota', 'error');
+                this.renderNote(sanitizedData.contractNumber);
+                this.saveToLocalStorage();
+                utils.showNotification('Anotação criada com sucesso!');
+                return true;
+            } catch (error) {
+                console.error('Erro ao adicionar nota:', error);
+                utils.showNotification('Erro ao criar anotação', 'error');
+                return false;
+            }
         }
-    }
 
-showNoteDetails(contractNumber) {
-    try {
-        const note = this.notes[contractNumber];
-        const detailsContent = document.getElementById('noteDetailsContent');
-        
-        detailsContent.innerHTML = `
-            <div class="space-y-3">
-                <div class="pb-2 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold">Informações do Contrato</h3>
-                </div>
-                <div class="grid grid-cols-1 gap-2">
-                    <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(contractNumber)}</span></p>
-                    <p><strong>Locador ou Locatário:</strong> <span>${utils.sanitizeInput(note.role)}</span></p>
-                    <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
-                    <p><strong>Data:</strong> <span>${utils.formatDate(note.date)}</span></p>
-                    <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
-                    <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-blue-600' : 'text-green-600'}">${note.status === 'open' ? 'Aberto' : 'Fechado'}</span></p>
-                    <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy)}</span></p>
-                    <p><strong>Criado em:</strong> <span>${utils.formatDate(note.createdAt)}</span></p>
-                </div>
-            </div>
-        `;
+        renderNote(contractNumber) {
+            try {
+                const note = this.notes[contractNumber];
+                const noteButton = document.createElement('button');
+                noteButton.className = `note-button w-full px-4 py-3 ${
+                    note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' : 'bg-blue-500 hover:bg-blue-700'
+                } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
+                
+                noteButton.innerHTML = `
+                    <span class="block font-bold">#${utils.sanitizeInput(contractNumber)}</span>
+                    <span class="block text-sm">${utils.sanitizeInput(note.role)}</span>
+                    <span class="block text-xs mt-1">${utils.formatDate(note.date)}</span>
+                    <span class="block text-xs opacity-75 mt-1">${note.comments.length} comentário(s)</span>
+                `;
 
-        this.renderComments(contractNumber);
-        document.getElementById('noteDetailsModal').classList.remove('hidden');
-    } catch (error) {
-        console.error('Erro ao exibir detalhes da nota:', error);
-        utils.showNotification('Erro ao carregar detalhes', 'error');
-    }
-}
+                noteButton.dataset.contract = contractNumber;
+                noteButton.dataset.role = note.role.toLowerCase();
+                noteButton.dataset.address = note.address.toLowerCase();
+                noteButton.dataset.date = note.date;
 
-renderComments(contractNumber) {
-    try {
-        const commentsContainer = document.getElementById('commentsContainer');
-        commentsContainer.innerHTML = '';
-        
-        const note = this.notes[contractNumber];
-        note.comments.forEach(comment => {
-            const commentElement = document.createElement('div');
-            commentElement.className = 'bg-white p-3 rounded-lg shadow-sm border border-gray-200';
-            commentElement.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <div class="flex-grow">
-                        <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
-                        <div class="mt-2 text-sm text-gray-500">
-                            <span>${utils.formatDate(comment.dateTime)}</span>
-                            ${comment.editedAt ? ' (editado)' : ''}
+                noteButton.addEventListener('click', () => this.showNoteDetails(contractNumber));
+
+                document.getElementById('notesContainer').appendChild(noteButton);
+            } catch (error) {
+                console.error('Erro ao renderizar nota:', error);
+                utils.showNotification('Erro ao exibir nota', 'error');
+            }
+        }
+
+        showNoteDetails(contractNumber) {
+            try {
+                const note = this.notes[contractNumber];
+                const detailsContent = document.getElementById('noteDetailsContent');
+                
+                detailsContent.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="pb-2 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold">Informações do Contrato</h3>
+                        </div>
+                        <div class="grid grid-cols-1 gap-2">
+                            <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(contractNumber)}</span></p>
+                            <p><strong>Locador ou Locatário:</strong> <span>${utils.sanitizeInput(note.role)}</span></p>
+                            <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
+                            <p><strong>Data:</strong> <span>${utils.formatDate(note.date)}</span></p>
+                            <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
+                            <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-blue-600' : 'text-green-600'}">${note.status === 'open' ? 'Aberto' : 'Fechado'}</span></p>
+                            <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy)}</span></p>
+                            <p><strong>Criado em:</strong> <span>${utils.formatDate(note.createdAt)}</span></p>
                         </div>
                     </div>
-                    <button class="ml-2 text-blue-500 hover:text-blue-700" 
-                            onclick="noteManager.editComment('${contractNumber}', '${comment.id}')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </div>
-            `;
-            commentsContainer.appendChild(commentElement);
-        });
-    } catch (error) {
-        console.error('Erro ao renderizar comentários:', error);
-        utils.showNotification('Erro ao carregar comentários', 'error');
-    }
-}
+                `;
 
-initializeEventListeners() {
-    // ... outros event listeners ...
-
-    // Adicionar funcionalidade ao botão de copiar
-    document.getElementById('copyDetailsBtn').addEventListener('click', () => {
-        const contractNumber = document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent;
-        this.copyNoteDetails(contractNumber);
-    });
-
-    // Adicionar suporte à tecla Enter para comentários
-    document.getElementById('commentText').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+                this.renderComments(contractNumber);
+                document.getElementById('noteDetailsModal').classList.remove('hidden');
+                document.getElementById('commentText').focus();
+            } catch (error) {
+                console.error('Erro ao exibir detalhes da nota:', error);
+                utils.showNotification('Erro ao carregar detalhes', 'error');
+            }
         }
-    });
-}
 
-copyNoteDetails(contractNumber) {
-    try {
-        const note = this.notes[contractNumber];
-        const detailsToCopy = `
+        renderComments(contractNumber) {
+            try {
+                const commentsContainer = document.getElementById('commentsContainer');
+                commentsContainer.innerHTML = '';
+                
+                const note = this.notes[contractNumber];
+                note.comments.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment-box';
+                    commentElement.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div class="flex-grow">
+                                <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
+                                <div class="mt-2 text-sm text-gray-500">
+                                    <span>${utils.formatDate(comment.dateTime)}</span>
+                                    ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+                                </div>
+                            </div>
+                            <button class="ml-2 text-blue-500 hover:text-blue-700" 
+                                    onclick="noteManager.editComment('${contractNumber}', '${comment.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    `;
+                    commentsContainer.appendChild(commentElement);
+                });
+            } catch (error) {
+                console.error('Erro ao renderizar comentários:', error);
+                utils.showNotification('Erro ao carregar comentários', 'error');
+            }
+        }
+
+        handleCommentSubmit() {
+            try {
+                const commentText = document.getElementById('commentText').value;
+                if (!commentText.trim()) {
+                    utils.showNotification('Comentário não pode estar vazio', 'error');
+                    return;
+                }
+
+                const contractNumber = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+
+                const comment = {
+                    id: Date.now().toString(),
+                    text: utils.sanitizeInput(commentText),
+                    dateTime: new Date().toISOString(),
+                    author: this.currentUser
+                };
+
+                this.notes[contractNumber].comments.unshift(comment);
+                this.saveToLocalStorage();
+                this.renderComments(contractNumber);
+                this.updateNoteButton(contractNumber);
+                document.getElementById('commentForm').reset();
+                document.getElementById('commentText').focus();
+                utils.showNotification('Comentário adicionado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao adicionar comentário:', error);
+                utils.showNotification('Erro ao adicionar comentário', 'error');
+            }
+        }
+
+        updateNoteButton(contractNumber) {
+            const noteButton = document.querySelector(`[data-contract="${contractNumber}"]`);
+            if (noteButton) {
+                const commentCount = this.notes[contractNumber].comments.length;
+                const commentCountSpan = noteButton.querySelector('span:last-child');
+                if (commentCountSpan) {
+                    commentCountSpan.textContent = `${commentCount} comentário(s)`;
+                }
+            }
+        }
+
+        editComment(contractNumber, commentId) {
+            try {
+                const note = this.notes[contractNumber];
+                const comment = note.comments.find(c => c.id === commentId);
+                
+                const newText = prompt('Editar comentário:', comment.text);
+                if (newText !== null && newText.trim() !== '') {
+                    comment.text = utils.sanitizeInput(newText);
+                    comment.editedAt = new Date().toISOString();
+                    this.saveToLocalStorage();
+                    this.renderComments(contractNumber);
+                    utils.showNotification('Comentário atualizado com sucesso!');
+                }
+            } catch (error) {
+                console.error('Erro ao editar comentário:', error);
+                utils.showNotification('Erro ao editar comentário', 'error');
+            }
+        }
+
+        copyNoteDetails(contractNumber) {
+            try {
+                const note = this.notes[contractNumber];
+                const detailsToCopy = `
 Número de Contrato: ${contractNumber}
 Locador ou Locatário: ${note.role}
 Problema: ${note.problem}
@@ -540,182 +611,162 @@ Criado em: ${utils.formatDate(note.createdAt)}
 
 Comentários:
 ${note.comments.map(comment => `[${utils.formatDate(comment.dateTime)}] ${comment.text}`).join('\n')}
-        `.trim();
+                `.trim();
 
-        navigator.clipboard.writeText(detailsToCopy).then(() => {
-            utils.showNotification('Dados copiados para a área de transferência!');
-        });
-    } catch (error) {
-        console.error('Erro ao copiar detalhes:', error);
-        utils.showNotification('Erro ao copiar dados', 'error');
-    }
-}
-    handleCommentSubmit() {
-        try {
-            const commentText = document.getElementById('commentText').value;
-            const contractNumber = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-
-            if (!commentText.trim()) {
-                utils.showNotification('Comentário não pode estar vazio', 'error');
-                return;
-            }
-
-            const comment = {
-                id: Date.now().toString(),
-                text: utils.sanitizeInput(commentText),
-                dateTime: new Date().toISOString(),
-                author: 'VictorCainj'
-            };
-
-            this.notes[contractNumber].comments.unshift(comment);
-            this.saveToLocalStorage();
-            this.renderComments(contractNumber);
-            document.getElementById('commentForm').reset();
-            utils.showNotification('Comentário adicionado com sucesso!');
-        } catch (error) {
-            console.error('Erro ao adicionar comentário:', error);
-            utils.showNotification('Erro ao adicionar comentário', 'error');
-        }
-    }
-
-    editComment(contractNumber, commentId) {
-        try {
-            const note = this.notes[contractNumber];
-            const comment = note.comments.find(c => c.id === commentId);
-            
-            const newText = prompt('Editar comentário:', comment.text);
-            if (newText !== null && newText.trim() !== '') {
-                comment.text = utils.sanitizeInput(newText);
-                comment.editedAt = new Date().toISOString();
-                this.saveToLocalStorage();
-                this.renderComments(contractNumber);
-                utils.showNotification('Comentário atualizado com sucesso!');
-            }
-        } catch (error) {
-            console.error('Erro ao editar comentário:', error);
-            utils.showNotification('Erro ao editar comentário', 'error');
-        }
-    }
-
-    deleteNote(contractNumber) {
-        try {
-            if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
-                return;
-            }
-
-            delete this.notes[contractNumber];
-            const noteButton = document.querySelector(`[data-contract="${contractNumber}"]`);
-            if (noteButton) {
-                noteButton.remove();
-            }
-
-            this.saveToLocalStorage();
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-            utils.showNotification('Anotação excluída com sucesso!');
-        } catch (error) {
-            console.error('Erro ao excluir nota:', error);
-            utils.showNotification('Erro ao excluir anotação', 'error');
-        }
-    }
-
-    handleSearch(searchTerm) {
-        try {
-            const noteButtons = document.querySelectorAll('.note-button');
-            noteButtons.forEach(button => {
-                const searchableContent = [
-                    button.dataset.contract,
-                    button.dataset.role,
-                    button.dataset.address
-                ].join(' ').toLowerCase();
-
-                button.classList.toggle('hidden', 
-                    !searchableContent.includes(searchTerm.toLowerCase()));
-            });
-        } catch (error) {
-            console.error('Erro na pesquisa:', error);
-            utils.showNotification('Erro ao realizar pesquisa', 'error');
-        }
-    }
-
-    async handleFileImport(event) {
-        try {
-            utils.showLoading(true);
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const importedNotes = JSON.parse(e.target.result);
-                    Object.entries(importedNotes).forEach(([contractNumber, note]) => {
-                        if (!this.notes[contractNumber]) {
-                            this.notes[contractNumber] = note;
-                            this.renderNote(contractNumber);
-                        }
-                    });
-                    this.saveToLocalStorage();
-                    utils.showNotification('Contratos importados com sucesso!');
-                } catch (error) {
-                    console.error('Erro ao processar arquivo:', error);
-                    utils.showNotification('Erro ao processar arquivo', 'error');
-                }
-            };
-            reader.readAsText(file);
-        } catch (error) {
-            console.error('Erro na importação:', error);
-            utils.showNotification('Erro ao importar arquivo', 'error');
-        } finally {
-            utils.showLoading(false);
-            event.target.value = ''; // Reset input
-        }
-    }
-
-    exportNotes() {
-        try {
-            const notesJson = JSON.stringify(this.notes, null, 2);
-            const filename = `contratos_${new Date().toISOString().split('T')[0]}.json`;
-            utils.downloadFile(notesJson, filename, 'application/json');
-            utils.showNotification('Contratos exportados com sucesso!');
-        } catch (error) {
-            console.error('Erro na exportação:', error);
-            utils.showNotification('Erro ao exportar contratos', 'error');
-        }
-    }
-
-    saveToLocalStorage() {
-        try {
-            localStorage.setItem('notes', JSON.stringify(this.notes));
-        } catch (error) {
-            console.error('Erro ao salvar no localStorage:', error);
-            utils.showNotification('Erro ao salvar dados localmente', 'error');
-        }
-    }
-
-    loadFromLocalStorage() {
-        try {
-            const savedNotes = localStorage.getItem('notes');
-            if (savedNotes) {
-                this.notes = JSON.parse(savedNotes);
-                Object.keys(this.notes).forEach(contractNumber => {
-                    this.renderNote(contractNumber);
+                navigator.clipboard.writeText(detailsToCopy).then(() => {
+                    utils.showNotification('Dados copiados para a área de transferência!');
                 });
+            } catch (error) {
+                console.error('Erro ao copiar detalhes:', error);
+                utils.showNotification('Erro ao copiar dados', 'error');
             }
-        } catch (error) {
-            console.error('Erro ao carregar do localStorage:', error);
-            utils.showNotification('Erro ao carregar dados locais', 'error');
+        }
+
+        downloadSingleContract(contractNumber) {
+            try {
+                const note = this.notes[contractNumber];
+                const noteJson = JSON.stringify({ [contractNumber]: note }, null, 2);
+                utils.downloadFile(noteJson, `contrato_${contractNumber}.json`, 'application/json');
+                utils.showNotification('Contrato baixado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao baixar contrato:', error);
+                utils.showNotification('Erro ao baixar contrato', 'error');
+            }
+        }
+
+        deleteNote(contractNumber) {
+            try {
+                if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
+                    return;
+                }
+
+                delete this.notes[contractNumber];
+                const noteButton = document.querySelector(`[data-contract="${contractNumber}"]`);
+                if (noteButton) {
+                    noteButton.remove();
+                }
+
+                this.saveToLocalStorage();
+                document.getElementById('noteDetailsModal').classList.add('hidden');
+                utils.showNotification('Anotação excluída com sucesso!');
+            } catch (error) {
+                console.error('Erro ao excluir nota:', error);
+                utils.showNotification('Erro ao excluir anotação', 'error');
+            }
+        }
+
+        handleSearch(searchTerm) {
+            try {
+                const noteButtons = document.querySelectorAll('.note-button');
+                noteButtons.forEach(button => {
+                    const searchableContent = [
+                        button.dataset.contract,
+                        button.dataset.role,
+                        button.dataset.address
+                    ].join(' ').toLowerCase();
+
+                    button.classList.toggle('hidden', 
+                        !searchableContent.includes(searchTerm.toLowerCase()));
+                });
+            } catch (error) {
+                console.error('Erro na pesquisa:', error);
+                utils.showNotification('Erro ao realizar pesquisa', 'error');
+            }
+        }
+
+        async handleFileImport(event) {
+            try {
+                utils.showLoading(true);
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedNotes = JSON.parse(e.target.result);
+                        Object.entries(importedNotes).forEach(([contractNumber, note]) => {
+                            if (!this.notes[contractNumber]) {
+                                this.notes[contractNumber] = note;
+                                this.renderNote(contractNumber);
+                            }
+                        });
+                        this.saveToLocalStorage();
+                        utils.showNotification('Contratos importados com sucesso!');
+                    } catch (error) {
+                        console.error('Erro ao processar arquivo:', error);
+                        utils.showNotification('Erro ao processar arquivo', 'error');
+                    }
+                };
+                reader.readAsText(file);
+            } catch (error) {
+                console.error('Erro na importação:', error);
+                utils.showNotification('Erro ao importar arquivo', 'error');
+            } finally {
+                utils.showLoading(false);
+                event.target.value = '';
+            }
+        }
+
+exportNotes() {
+            try {
+                const notesJson = JSON.stringify(this.notes, null, 2);
+                const filename = `contratos_${new Date().toISOString().split('T')[0]}.json`;
+                utils.downloadFile(notesJson, filename, 'application/json');
+                utils.showNotification('Contratos exportados com sucesso!');
+            } catch (error) {
+                console.error('Erro na exportação:', error);
+                utils.showNotification('Erro ao exportar contratos', 'error');
+            }
+        }
+
+        saveToLocalStorage() {
+            try {
+                localStorage.setItem('notes', JSON.stringify(this.notes));
+            } catch (error) {
+                console.error('Erro ao salvar no localStorage:', error);
+                utils.showNotification('Erro ao salvar dados localmente', 'error');
+            }
+        }
+
+        loadFromLocalStorage() {
+            try {
+                const savedNotes = localStorage.getItem('notes');
+                if (savedNotes) {
+                    this.notes = JSON.parse(savedNotes);
+                    Object.keys(this.notes).forEach(contractNumber => {
+                        this.renderNote(contractNumber);
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar do localStorage:', error);
+                utils.showNotification('Erro ao carregar dados locais', 'error');
+            }
         }
     }
-}
 
-// Initialize the application
-const noteManager = new NoteManager();
+    // Initialize the application
+    const noteManager = new NoteManager();
 
-// Add error boundary
-window.addEventListener('error', (event) => {
-    console.error('Erro na aplicação:', event.error);
-    utils.showNotification('Ocorreu um erro na aplicação', 'error');
-});
+    // Add error boundary
+    window.addEventListener('error', (event) => {
+        console.error('Erro na aplicação:', event.error);
+        utils.showNotification('Ocorreu um erro na aplicação', 'error');
+    });
+
+    // Add auto-save feature for text areas
+    document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('input', utils.debounce(() => {
+            const draftKey = `draft_${textarea.id}`;
+            localStorage.setItem(draftKey, textarea.value);
+        }, 1000));
+
+        // Restore draft if exists
+        const draftKey = `draft_${textarea.id}`;
+        const savedDraft = localStorage.getItem(draftKey);
+        if (savedDraft) {
+            textarea.value = savedDraft;
+        }
+    });
 </script>
 </body>
 </html>
