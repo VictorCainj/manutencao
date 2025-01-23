@@ -438,6 +438,7 @@ document.getElementById('downloadNotesBtn').addEventListener('click', function()
             const date = document.getElementById('editDate').value;
             const address = document.getElementById('editAddress').value;
 
+            // Atualizar a nota no objeto 'notes'
             notes[contractNumber] = {
                 ...notes[contractNumber],
                 role: role,
@@ -445,6 +446,17 @@ document.getElementById('downloadNotesBtn').addEventListener('click', function()
                 date: date,
                 address: address
             };
+
+            // Atualizar o botão da nota na interface
+            const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
+                (button) => button.querySelector('.block.font-bold').textContent.slice(1) === contractNumber
+            );
+            if (noteButton) {
+                noteButton.innerHTML = `<span class="block font-bold">#${contractNumber}</span><span class="block text-sm">${role}</span>`;
+                noteButton.dataset.role = role.toLowerCase();
+                noteButton.dataset.date = date;
+                noteButton.dataset.address = address.toLowerCase();
+            }
 
             updateNoteDetails(contractNumber, role, problem, date, address);
 
