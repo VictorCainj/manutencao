@@ -359,12 +359,24 @@ class NoteManager {
     constructor() {
         this.notes = {};
         this.currentUser = 'VictorCainj';
-        this.initializeEventListeners();
+        this.currentDateTime = '2025-01-23 22:46:50';
         this.loadFromLocalStorage();
+        this.cleanInvalidNotes();
+        this.initializeEventListeners();
+    }
+
+    cleanInvalidNotes() {
+        const validNotes = {};
+        Object.entries(this.notes).forEach(([key, note]) => {
+            if (note && note.contractNumber) {
+                validNotes[key] = note;
+            }
+        });
+        this.notes = validNotes;
+        this.saveToLocalStorage();
     }
 
     initializeEventListeners() {
-        // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             document.getElementById('noteModal').classList.remove('hidden');
             document.getElementById('contractNumber').focus();
@@ -380,7 +392,6 @@ class NoteManager {
             this.handleFormSubmit();
         });
 
-        // Event Listeners para busca e filtros
         document.getElementById('searchInput').addEventListener('input', 
             utils.debounce((e) => this.handleSearch(e.target.value), 300)
         );
@@ -388,7 +399,6 @@ class NoteManager {
         document.getElementById('dateSort').addEventListener('change', () => this.sortNotes());
         document.getElementById('statusFilter').addEventListener('change', () => this.filterNotes());
 
-        // Event Listeners para importação/exportação
         document.getElementById('importNotesBtn').addEventListener('click', () => {
             document.getElementById('fileInput').click();
         });
@@ -401,7 +411,6 @@ class NoteManager {
             this.exportNotes();
         });
 
-        // Event Listeners para comentários e detalhes
         document.getElementById('commentForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleCommentSubmit();
@@ -418,7 +427,6 @@ class NoteManager {
             document.getElementById('noteDetailsModal').classList.add('hidden');
         });
 
-        // Event Listeners para ações nos detalhes
         document.getElementById('copyDetailsBtn').addEventListener('click', () => {
             const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
@@ -443,7 +451,6 @@ class NoteManager {
             this.deleteNote(noteKey);
         });
 
-        // Event Listener global para tecla ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.getElementById('noteModal').classList.add('hidden');
@@ -452,7 +459,7 @@ class NoteManager {
         });
     }
 
-    async handleFileImport(event) {
+    handleFileImport(event) {
         try {
             utils.showLoading(true);
             const file = event.target.files[0];
@@ -480,14 +487,10 @@ class NoteManager {
 
                     for (const [noteKey, note] of Object.entries(importedNotes)) {
                         try {
-                            if (!this.notes[noteKey]) {
-                                if (!this.validateImportedNote(note, noteKey)) {
-                                    continue;
-                                }
-
+                            if (!this.notes[noteKey] && this.validateImportedNote(note, noteKey)) {
                                 this.notes[noteKey] = {
                                     ...note,
-                                    createdAt: note.createdAt || utils.getCurrentDateTime(),
+                                    createdAt: note.createdAt || this.currentDateTime,
                                     status: note.status || 'open',
                                     comments: Array.isArray(note.comments) ? note.comments : []
                                 };
@@ -522,103 +525,90 @@ class NoteManager {
         }
     }
 
-validateImportedNote(note, noteKey) {
-    try {
-        // Verificar campos obrigatórios
-        const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
-        const missingFields = requiredFields.filter(field => !note[field]);
-        
-        if (missingFields.length > 0) {
-            console.warn(`Nota ${noteKey} ignorada: campos obrigatórios ausentes (${missingFields.join(', ')})`);
+    validateImportedNote(note, noteKey) {
+        try {
+            if (!note || typeof note !== 'object') {
+                throw new Error('Dados da nota inválidos');
+            }
+
+            const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
+            const missingFields = requiredFields.filter(field => !note[field]);
+            
+            if (missingFields.length > 0) {
+                throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
+            }
+
+            // Normalizar os comentários
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+            }
+
+            note.comments = note.comments.map(comment => ({
+                id: comment.id || Date.now().toString(),
+                text: utils.sanitizeInput(comment.text || ''),
+                dateTime: comment.dateTime || this.currentDateTime,
+                author: comment.author || this.currentUser,
+                editedAt: comment.editedAt || null
+            }));
+
+            return true;
+        } catch (error) {
+            console.warn(`Nota ${noteKey} inválida:`, error);
             return false;
         }
-
-        // Garantir que comments seja um array
-        if (!Array.isArray(note.comments)) {
-            note.comments = [];
-        }
-
-        // Validar cada comentário
-        note.comments = note.comments.map(comment => ({
-            id: comment.id || Date.now().toString(),
-            text: utils.sanitizeInput(comment.text || ''),
-            dateTime: comment.dateTime || utils.getCurrentDateTime(),
-            author: comment.author || 'VictorCainj',
-            editedAt: comment.editedAt || null
-        }));
-
-        // Validar formato das datas
-        const dateFields = ['createdAt', 'closedAt', 'editedAt'];
-        for (const field of dateFields) {
-            if (note[field] && isNaN(new Date(note[field]).getTime())) {
-                console.warn(`Nota ${noteKey} ignorada: data inválida em ${field}`);
-                return false;
-            }
-        }
-
-        return true;
-    } catch (error) {
-        console.error(`Erro ao validar nota ${noteKey}:`, error);
-        return false;
     }
-}
 
-exportNotes() {
-    try {
-        if (Object.keys(this.notes).length === 0) {
-            utils.showNotification('Não há contratos para exportar', 'error');
-            return;
-        }
-
-        utils.showLoading(true);
-
-        // Criar uma cópia limpa dos dados com validação
-        const exportData = {};
-        Object.entries(this.notes).forEach(([key, note]) => {
-            // Garantir que todos os campos necessários existam
-            const cleanedNote = {
-                contractNumber: utils.sanitizeInput(note.contractNumber || ''),
-                locator: utils.sanitizeInput(note.locator || ''),
-                tenant: utils.sanitizeInput(note.tenant || ''),
-                problem: utils.sanitizeInput(note.problem || ''),
-                address: utils.sanitizeInput(note.address || ''),
-                status: note.status || 'open',
-                createdAt: note.createdAt || utils.getCurrentDateTime(),
-                createdBy: note.createdBy || 'VictorCainj',
-                comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
-                    id: comment.id || Date.now().toString(),
-                    text: utils.sanitizeInput(comment.text || ''),
-                    dateTime: comment.dateTime || utils.getCurrentDateTime(),
-                    author: comment.author || 'VictorCainj',
-                    editedAt: comment.editedAt || null
-                })) : []
-            };
-
-            // Adicionar campos opcionais apenas se existirem
-            if (note.closedAt) {
-                cleanedNote.closedAt = note.closedAt;
+    exportNotes() {
+        try {
+            if (Object.keys(this.notes).length === 0) {
+                utils.showNotification('Não há contratos para exportar', 'error');
+                return;
             }
 
-            exportData[key] = cleanedNote;
-        });
+            utils.showLoading(true);
 
-        const notesJson = JSON.stringify(exportData, null, 2);
-        const blob = new Blob([notesJson], { type: 'application/json' });
-        
-        if (blob.size > 50 * 1024 * 1024) { // 50MB limit
-            throw new Error('Arquivo muito grande para download');
+            const exportData = {};
+            Object.entries(this.notes).forEach(([key, note]) => {
+                if (!note) return;
+
+                const contractNumber = note.contractNumber || key.split('#')[0];
+
+                const cleanedNote = {
+                    contractNumber: utils.sanitizeInput(contractNumber),
+                    locator: utils.sanitizeInput(note.locator || 'Não especificado'),
+                    tenant: utils.sanitizeInput(note.tenant || 'Não especificado'),
+                    problem: utils.sanitizeInput(note.problem || 'Não especificado'),
+                    address: utils.sanitizeInput(note.address || 'Não especificado'),
+                    status: note.status || 'open',
+                    createdAt: note.createdAt || this.currentDateTime,
+                    createdBy: note.createdBy || this.currentUser,
+                    comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
+                        id: comment.id || Date.now().toString(),
+                        text: utils.sanitizeInput(comment.text || ''),
+                        dateTime: comment.dateTime || this.currentDateTime,
+                        author: comment.author || this.currentUser,
+                        editedAt: comment.editedAt || null
+                    })) : []
+                };
+
+                if (note.closedAt) {
+                    cleanedNote.closedAt = note.closedAt;
+                }
+
+                exportData[key] = cleanedNote;
+            });
+
+            const notesJson = JSON.stringify(exportData, null, 2);
+            const filename = `contratos_${this.currentDateTime.split(' ')[0]}.json`;
+            utils.downloadFile(notesJson, filename, 'application/json');
+            utils.showNotification('Contratos exportados com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro na exportação:', error);
+            utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
+        } finally {
+            utils.showLoading(false);
         }
-
-        const filename = `contratos_${new Date().toISOString().split('T')[0]}.json`;
-        utils.downloadFile(notesJson, filename, 'application/json');
-        utils.showNotification('Contratos exportados com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro na exportação:', error);
-        utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
-    } finally {
-        utils.showLoading(false);
     }
-}
 
     handleFormSubmit() {
         const formData = {
@@ -642,40 +632,45 @@ exportNotes() {
         }
     }
 
-addNote(formData) {
-    const sanitizedData = {
-        contractNumber: utils.sanitizeInput(formData.contractNumber),
-        locator: utils.sanitizeInput(formData.locator),
-        tenant: utils.sanitizeInput(formData.tenant),
-        problem: utils.sanitizeInput(formData.problem),
-        address: utils.sanitizeInput(formData.address)
-    };
+    addNote(formData) {
+        try {
+            const sanitizedData = {
+                contractNumber: utils.sanitizeInput(formData.contractNumber),
+                locator: utils.sanitizeInput(formData.locator),
+                tenant: utils.sanitizeInput(formData.tenant),
+                problem: utils.sanitizeInput(formData.problem),
+                address: utils.sanitizeInput(formData.address)
+            };
 
-    try {
-        const existingNotes = Object.keys(this.notes).filter(key => 
-            key.startsWith(sanitizedData.contractNumber + '#'));
-        
-        const sequence = existingNotes.length + 1;
-        const noteKey = `${sanitizedData.contractNumber}#${sequence}`;
+            if (!sanitizedData.contractNumber) {
+                throw new Error('Número do contrato é obrigatório');
+            }
 
-        this.notes[noteKey] = {
-            ...sanitizedData,
-            status: 'open',
-            comments: [], // Garantir que comments seja sempre um array vazio
-            createdAt: utils.getCurrentDateTime(),
-            createdBy: this.currentUser || 'VictorCainj'
-        };
+            const existingNotes = Object.keys(this.notes).filter(key => 
+                key.startsWith(sanitizedData.contractNumber + '#'));
+            
+            const sequence = existingNotes.length + 1;
+            const noteKey = `${sanitizedData.contractNumber}#${sequence}`;
 
-        this.renderNote(noteKey);
-        this.saveToLocalStorage();
-        utils.showNotification('Anotação criada com sucesso!', 'success');
-        return true;
-    } catch (error) {
-        console.error('Erro ao adicionar nota:', error);
-        utils.showNotification('Erro ao criar anotação', 'error');
-        return false;
+            this.notes[noteKey] = {
+                ...sanitizedData,
+                status: 'open',
+                comments: [],
+                createdAt: this.currentDateTime,
+                createdBy: this.currentUser
+            };
+
+            this.renderNote(noteKey);
+            this.saveToLocalStorage();
+            utils.showNotification('Anotação criada com sucesso!', 'success');
+            return true;
+        } catch (error) {
+            console.error('Erro ao adicionar nota:', error);
+            utils.showNotification('Erro ao criar anotação', 'error');
+            return false;
+        }
     }
-}
+
     renderNote(noteKey) {
         try {
             const note = this.notes[noteKey];
@@ -690,7 +685,7 @@ addNote(formData) {
                 <span class="block font-bold">${utils.sanitizeInput(noteKey)}</span>
                 <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
                 <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-                <span class="block text-xs mt-1">${utils.formatDate(note.createdAt, false)}</span>
+                <span class="block text-xs mt-1">${utils.formatDate(note.createdAt)}</span>
                 <span class="block text-xs mt-1">
                     ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 'Finalizado'}
                 </span>
@@ -720,9 +715,26 @@ addNote(formData) {
         }
     }
 
-    // ... (continuação no próximo comentário)
+    showNoteDetails(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
+            const detailsContent = document.getElementById('noteDetailsContent');
+            
+            detailsContent.innerHTML = `
+                <div class="space-y-3">
+                    <div class="pb-2 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold">Informações do Contrato</h3>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2">
+                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
+                        <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
+                        <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
+                        <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
+                        <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
+                        <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-blue-600' : 'text-green-600'}">
 
-            showNoteDetails(noteKey) {
+showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -742,9 +754,9 @@ addNote(formData) {
                         <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-blue-600' : 'text-green-600'}">
                             ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 'Finalizado'}
                         </span></p>
-                        <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy)}</span></p>
-                        <p><strong>Criado em:</strong> <span>${utils.formatDate(note.createdAt)}</span></p>
-                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
+                        <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy || 'VictorCainj')}</span></p>
+                        <p><strong>Criado em:</strong> <span>${note.createdAt || '2025-01-23 22:48:20'}</span></p>
+                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${note.closedAt}</span></p>` : ''}
                     </div>
                 </div>
             `;
@@ -773,6 +785,10 @@ addNote(formData) {
             commentsContainer.innerHTML = '';
             
             const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+            }
+
             note.comments.forEach(comment => {
                 const commentElement = document.createElement('div');
                 commentElement.className = 'comment-box';
@@ -781,8 +797,8 @@ addNote(formData) {
                         <div class="flex-grow">
                             <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
                             <div class="mt-2 text-sm text-gray-500">
-                                <span>${utils.formatDate(comment.dateTime)}</span>
-                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+                                <span>${comment.dateTime || '2025-01-23 22:48:20'}</span>
+                                ${comment.editedAt ? ` <span class="italic">(editado em ${comment.editedAt})</span>` : ''}
                             </div>
                         </div>
                         <button class="ml-2 text-blue-500 hover:text-blue-700" 
@@ -813,9 +829,13 @@ addNote(formData) {
             const comment = {
                 id: Date.now().toString(),
                 text: utils.sanitizeInput(commentText),
-                dateTime: utils.getCurrentDateTime(),
-                author: this.currentUser
+                dateTime: '2025-01-23 22:48:20',
+                author: 'VictorCainj'
             };
+
+            if (!Array.isArray(this.notes[noteKey].comments)) {
+                this.notes[noteKey].comments = [];
+            }
 
             this.notes[noteKey].comments.unshift(comment);
             this.saveToLocalStorage();
@@ -833,12 +853,18 @@ addNote(formData) {
     editComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+                return;
+            }
+
             const comment = note.comments.find(c => c.id === commentId);
+            if (!comment) return;
             
             const newText = prompt('Editar comentário:', comment.text);
             if (newText !== null && newText.trim() !== '') {
                 comment.text = utils.sanitizeInput(newText);
-                comment.editedAt = utils.getCurrentDateTime();
+                comment.editedAt = '2025-01-23 22:48:20';
                 this.saveToLocalStorage();
                 this.renderComments(noteKey);
                 utils.showNotification('Comentário atualizado com sucesso!', 'success');
@@ -853,7 +879,7 @@ addNote(formData) {
         try {
             const note = this.notes[noteKey];
             note.status = note.status === 'open' ? 'closed' : 'open';
-            note.closedAt = note.status === 'closed' ? utils.getCurrentDateTime() : null;
+            note.closedAt = note.status === 'closed' ? '2025-01-23 22:48:20' : null;
             
             this.saveToLocalStorage();
             this.renderNote(noteKey);
@@ -891,28 +917,10 @@ addNote(formData) {
     saveToLocalStorage() {
         try {
             const data = JSON.stringify(this.notes);
-            if (data.length * 2 > 5 * 1024 * 1024) { // 5MB limit
-                throw new Error('Dados muito grandes para armazenamento local');
-            }
-
-            const previousData = localStorage.getItem('notes');
-            
-            try {
-                localStorage.setItem('notes', data);
-                
-                const savedData = localStorage.getItem('notes');
-                if (savedData !== data) {
-                    throw new Error('Falha na verificação de integridade dos dados');
-                }
-            } catch (e) {
-                if (previousData) {
-                    localStorage.setItem('notes', previousData);
-                }
-                throw e;
-            }
+            localStorage.setItem('notes', data);
         } catch (error) {
             console.error('Erro ao salvar no localStorage:', error);
-            utils.showNotification(`Erro ao salvar dados localmente: ${error.message}`, 'error');
+            utils.showNotification('Erro ao salvar dados localmente', 'error');
         }
     }
 
@@ -935,12 +943,16 @@ addNote(formData) {
         const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
         if (noteButton) {
             const note = this.notes[noteKey];
-            const commentCount = note.comments.length;
+            const commentCount = Array.isArray(note.comments) ? note.comments.length : 0;
             const commentCountSpan = noteButton.querySelector('span:last-child');
             if (commentCountSpan) {
                 commentCountSpan.textContent = `${commentCount} comentário(s)`;
             }
         }
+    }
+
+    handleSearch(searchTerm) {
+        this.filterNotes();
     }
 
     filterNotes() {
@@ -962,10 +974,6 @@ addNote(formData) {
             
             noteBtn.classList.toggle('hidden', !(matchesStatus && matchesSearch));
         });
-    }
-
-    handleSearch(searchTerm) {
-        this.filterNotes();
     }
 
     sortNotes() {
