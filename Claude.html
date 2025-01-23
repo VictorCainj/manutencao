@@ -522,7 +522,9 @@ class NoteManager {
         }
     }
 
-    validateImportedNote(note, noteKey) {
+validateImportedNote(note, noteKey) {
+    try {
+        // Verificar campos obrigatórios
         const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
         const missingFields = requiredFields.filter(field => !note[field]);
         
@@ -530,6 +532,20 @@ class NoteManager {
             console.warn(`Nota ${noteKey} ignorada: campos obrigatórios ausentes (${missingFields.join(', ')})`);
             return false;
         }
+
+        // Garantir que comments seja um array
+        if (!Array.isArray(note.comments)) {
+            note.comments = [];
+        }
+
+        // Validar cada comentário
+        note.comments = note.comments.map(comment => ({
+            id: comment.id || Date.now().toString(),
+            text: utils.sanitizeInput(comment.text || ''),
+            dateTime: comment.dateTime || utils.getCurrentDateTime(),
+            author: comment.author || 'VictorCainj',
+            editedAt: comment.editedAt || null
+        }));
 
         // Validar formato das datas
         const dateFields = ['createdAt', 'closedAt', 'editedAt'];
@@ -540,53 +556,69 @@ class NoteManager {
             }
         }
 
-        // Validar comentários
-        if (note.comments && !Array.isArray(note.comments)) {
-            console.warn(`Nota ${noteKey} ignorada: formato inválido de comentários`);
-            return false;
-        }
-
         return true;
+    } catch (error) {
+        console.error(`Erro ao validar nota ${noteKey}:`, error);
+        return false;
     }
+}
 
-    exportNotes() {
-        try {
-            if (Object.keys(this.notes).length === 0) {
-                utils.showNotification('Não há contratos para exportar', 'error');
-                return;
-            }
-
-            utils.showLoading(true);
-
-            // Criar uma cópia limpa dos dados
-            const exportData = {};
-            Object.entries(this.notes).forEach(([key, note]) => {
-                exportData[key] = {
-                    ...note,
-                    comments: note.comments.map(comment => ({
-                        ...comment,
-                        text: utils.sanitizeInput(comment.text)
-                    }))
-                };
-            });
-
-            const notesJson = JSON.stringify(exportData, null, 2);
-            const blob = new Blob([notesJson], { type: 'application/json' });
-            
-            if (blob.size > 50 * 1024 * 1024) { // 50MB limit
-                throw new Error('Arquivo muito grande para download');
-            }
-
-            const filename = `contratos_${new Date().toISOString().split('T')[0]}.json`;
-            utils.downloadFile(notesJson, filename, 'application/json');
-            utils.showNotification('Contratos exportados com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro na exportação:', error);
-            utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
-        } finally {
-            utils.showLoading(false);
+exportNotes() {
+    try {
+        if (Object.keys(this.notes).length === 0) {
+            utils.showNotification('Não há contratos para exportar', 'error');
+            return;
         }
+
+        utils.showLoading(true);
+
+        // Criar uma cópia limpa dos dados com validação
+        const exportData = {};
+        Object.entries(this.notes).forEach(([key, note]) => {
+            // Garantir que todos os campos necessários existam
+            const cleanedNote = {
+                contractNumber: utils.sanitizeInput(note.contractNumber || ''),
+                locator: utils.sanitizeInput(note.locator || ''),
+                tenant: utils.sanitizeInput(note.tenant || ''),
+                problem: utils.sanitizeInput(note.problem || ''),
+                address: utils.sanitizeInput(note.address || ''),
+                status: note.status || 'open',
+                createdAt: note.createdAt || utils.getCurrentDateTime(),
+                createdBy: note.createdBy || 'VictorCainj',
+                comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
+                    id: comment.id || Date.now().toString(),
+                    text: utils.sanitizeInput(comment.text || ''),
+                    dateTime: comment.dateTime || utils.getCurrentDateTime(),
+                    author: comment.author || 'VictorCainj',
+                    editedAt: comment.editedAt || null
+                })) : []
+            };
+
+            // Adicionar campos opcionais apenas se existirem
+            if (note.closedAt) {
+                cleanedNote.closedAt = note.closedAt;
+            }
+
+            exportData[key] = cleanedNote;
+        });
+
+        const notesJson = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([notesJson], { type: 'application/json' });
+        
+        if (blob.size > 50 * 1024 * 1024) { // 50MB limit
+            throw new Error('Arquivo muito grande para download');
+        }
+
+        const filename = `contratos_${new Date().toISOString().split('T')[0]}.json`;
+        utils.downloadFile(notesJson, filename, 'application/json');
+        utils.showNotification('Contratos exportados com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro na exportação:', error);
+        utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
+    } finally {
+        utils.showLoading(false);
     }
+}
 
     handleFormSubmit() {
         const formData = {
@@ -610,41 +642,40 @@ class NoteManager {
         }
     }
 
-    addNote(formData) {
-        const sanitizedData = {
-            contractNumber: utils.sanitizeInput(formData.contractNumber),
-            locator: utils.sanitizeInput(formData.locator),
-            tenant: utils.sanitizeInput(formData.tenant),
-            problem: utils.sanitizeInput(formData.problem),
-            address: utils.sanitizeInput(formData.address)
+addNote(formData) {
+    const sanitizedData = {
+        contractNumber: utils.sanitizeInput(formData.contractNumber),
+        locator: utils.sanitizeInput(formData.locator),
+        tenant: utils.sanitizeInput(formData.tenant),
+        problem: utils.sanitizeInput(formData.problem),
+        address: utils.sanitizeInput(formData.address)
+    };
+
+    try {
+        const existingNotes = Object.keys(this.notes).filter(key => 
+            key.startsWith(sanitizedData.contractNumber + '#'));
+        
+        const sequence = existingNotes.length + 1;
+        const noteKey = `${sanitizedData.contractNumber}#${sequence}`;
+
+        this.notes[noteKey] = {
+            ...sanitizedData,
+            status: 'open',
+            comments: [], // Garantir que comments seja sempre um array vazio
+            createdAt: utils.getCurrentDateTime(),
+            createdBy: this.currentUser || 'VictorCainj'
         };
 
-        try {
-            const existingNotes = Object.keys(this.notes).filter(key => 
-                key.startsWith(sanitizedData.contractNumber + '#'));
-            
-            const sequence = existingNotes.length + 1;
-            const noteKey = `${sanitizedData.contractNumber}#${sequence}`;
-
-            this.notes[noteKey] = {
-                ...sanitizedData,
-                status: 'open',
-                comments: [],
-                createdAt: utils.getCurrentDateTime(),
-                createdBy: this.currentUser
-            };
-
-            this.renderNote(noteKey);
-            this.saveToLocalStorage();
-            utils.showNotification('Anotação criada com sucesso!', 'success');
-            return true;
-        } catch (error) {
-            console.error('Erro ao adicionar nota:', error);
-            utils.showNotification('Erro ao criar anotação', 'error');
-            return false;
-        }
+        this.renderNote(noteKey);
+        this.saveToLocalStorage();
+        utils.showNotification('Anotação criada com sucesso!', 'success');
+        return true;
+    } catch (error) {
+        console.error('Erro ao adicionar nota:', error);
+        utils.showNotification('Erro ao criar anotação', 'error');
+        return false;
     }
-
+}
     renderNote(noteKey) {
         try {
             const note = this.notes[noteKey];
