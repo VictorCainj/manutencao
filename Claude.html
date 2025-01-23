@@ -712,50 +712,127 @@ toggleNoteStatus(noteKey) {
         notes.forEach(note => container.appendChild(note));
     }
 
-    async handleFileImport(event) {
-        try {
-            utils.showLoading(true);
-            const file = event.target.files[0];
-            if (!file) return;
+async handleFileImport(event) {
+    try {
+        utils.showLoading(true);
+        const file = event.target.files[0];
+        if (!file) {
+            utils.showNotification('Nenhum arquivo selecionado', 'error');
+            return;
+        }
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const importedNotes = JSON.parse(e.target.result);
-                    Object.entries(importedNotes).forEach(([noteKey, note]) => {
-                        if (!this.notes[noteKey]) {
-                            this.notes[noteKey] = note;
-                            this.renderNote(noteKey);
-                        }
-                    });
-                    this.saveToLocalStorage();
-                    utils.showNotification('Contratos importados com sucesso!', 'success');
-                } catch (error) {
-                    console.error('Erro ao processar arquivo:', error);
-                    utils.showNotification('Erro ao processar arquivo', 'error');
+        // Verificar o tipo do arquivo
+        if (!file.name.endsWith('.json')) {
+            utils.showNotification('Por favor, selecione um arquivo JSON válido', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const importedNotes = JSON.parse(e.target.result);
+                
+                // Validar estrutura dos dados
+                if (!importedNotes || typeof importedNotes !== 'object') {
+                    throw new Error('Formato de arquivo inválido');
                 }
-            };
-            reader.readAsText(file);
-        } catch (error) {
-            console.error('Erro na importação:', error);
-            utils.showNotification('Erro ao importar arquivo', 'error');
-        } finally {
-            utils.showLoading(false);
-            event.target.value = '';
-        }
-    }
 
-    exportNotes() {
-        try {
-            const notesJson = JSON.stringify(this.notes, null, 2);
-            const filename = `contratos_${new Date().toISOString().split('T')[0]}.json`;
-            utils.downloadFile(notesJson, filename, 'application/json');
-            utils.showNotification('Contratos exportados com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro na exportação:', error);
-            utils.showNotification('Erro ao exportar contratos', 'error');
-        }
+                let importCount = 0;
+                await Promise.all(Object.entries(importedNotes).map(async ([noteKey, note]) => {
+                    if (!this.notes[noteKey]) {
+                        // Validar campos obrigatórios
+                        if (!note.contractNumber || !note.locator || !note.tenant || !note.problem || !note.address) {
+                            console.warn(`Nota ${noteKey} ignorada: campos obrigatórios ausentes`);
+                            return;
+                        }
+                        
+                        this.notes[noteKey] = {
+                            ...note,
+                            createdAt: note.createdAt || utils.getCurrentDateTime(),
+                            status: note.status || 'open',
+                            comments: Array.isArray(note.comments) ? note.comments : []
+                        };
+                        this.renderNote(noteKey);
+                        importCount++;
+                    }
+                }));
+
+                this.saveToLocalStorage();
+                utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
+            } catch (error) {
+                console.error('Erro ao processar arquivo:', error);
+                utils.showNotification(`Erro ao processar arquivo: ${error.message}`, 'error');
+            }
+        };
+
+        reader.onerror = () => {
+            utils.showNotification('Erro ao ler o arquivo', 'error');
+        };
+
+        reader.readAsText(file);
+    } catch (error) {
+        console.error('Erro na importação:', error);
+        utils.showNotification(`Erro ao importar arquivo: ${error.message}`, 'error');
+    } finally {
+        utils.showLoading(false);
+        event.target.value = '';
     }
+}
+
+exportNotes() {
+    try {
+        // Verificar se existem notas para exportar
+        if (Object.keys(this.notes).length === 0) {
+            utils.showNotification('Não há contratos para exportar', 'error');
+            return;
+        }
+
+        utils.showLoading(true);
+
+        // Criar uma cópia limpa dos dados
+        const exportData = {};
+        Object.entries(this.notes).forEach(([key, note]) => {
+            exportData[key] = {
+                ...note,
+                comments: note.comments.map(comment => ({
+                    ...comment,
+                    text: utils.sanitizeInput(comment.text)
+                }))
+            };
+        });
+
+        const notesJson = JSON.stringify(exportData, null, 2);
+        
+        // Verificar tamanho do arquivo
+        const blob = new Blob([notesJson], { type: 'application/json' });
+        if (blob.size > 50 * 1024 * 1024) { // 50MB limit
+            throw new Error('Arquivo muito grande para download');
+        }
+
+        const filename = `contratos_${new Date().toISOString().split('T')[0]}.json`;
+        
+        // Usar URL.createObjectURL para melhor performance
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Limpar
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }, 100);
+
+        utils.showNotification('Contratos exportados com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro na exportação:', error);
+        utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
+    } finally {
+        utils.showLoading(false);
+    }
+}
 
     downloadSingleContract(noteKey) {
         try {
@@ -882,14 +959,37 @@ ${note.comments.map(comment => `[${utils.formatDate(comment.dateTime)}] ${commen
         }
     }
 
-    saveToLocalStorage() {
-        try {
-            localStorage.setItem('notes', JSON.stringify(this.notes));
-        } catch (error) {
-            console.error('Erro ao salvar no localStorage:', error);
-            utils.showNotification('Erro ao salvar dados localmente', 'error');
+saveToLocalStorage() {
+    try {
+        // Verificar espaço disponível
+        const data = JSON.stringify(this.notes);
+        if (data.length * 2 > 5 * 1024 * 1024) { // 5MB limit
+            throw new Error('Dados muito grandes para armazenamento local');
         }
+
+        // Backup dos dados anteriores
+        const previousData = localStorage.getItem('notes');
+        
+        try {
+            localStorage.setItem('notes', data);
+            
+            // Verificar integridade dos dados salvos
+            const savedData = localStorage.getItem('notes');
+            if (savedData !== data) {
+                throw new Error('Falha na verificação de integridade dos dados');
+            }
+        } catch (e) {
+            // Restaurar backup em caso de erro
+            if (previousData) {
+                localStorage.setItem('notes', previousData);
+            }
+            throw e;
+        }
+    } catch (error) {
+        console.error('Erro ao salvar no localStorage:', error);
+        utils.showNotification(`Erro ao salvar dados localmente: ${error.message}`, 'error');
     }
+}
 
     loadFromLocalStorage() {
         try {
@@ -905,6 +1005,30 @@ ${note.comments.map(comment => `[${utils.formatDate(comment.dateTime)}] ${commen
             utils.showNotification('Erro ao carregar dados locais', 'error');
         }
     }
+
+    validateImportedNote(note, noteKey) {
+    const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
+    const missingFields = requiredFields.filter(field => !note[field]);
+    
+    if (missingFields.length > 0) {
+        throw new Error(`Campos obrigatórios ausentes em ${noteKey}: ${missingFields.join(', ')}`);
+    }
+
+    // Validar formato das datas
+    const dateFields = ['createdAt', 'closedAt', 'editedAt'];
+    dateFields.forEach(field => {
+        if (note[field] && isNaN(new Date(note[field]).getTime())) {
+            throw new Error(`Data inválida em ${field} para ${noteKey}`);
+        }
+    });
+
+    // Validar comentários
+    if (note.comments && !Array.isArray(note.comments)) {
+        throw new Error(`Formato inválido de comentários em ${noteKey}`);
+    }
+
+    return true;
+}
 
     updateNoteButton(noteKey) {
         const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
@@ -922,6 +1046,19 @@ ${note.comments.map(comment => `[${utils.formatDate(comment.dateTime)}] ${commen
 // Initialize the application
 const noteManager = new NoteManager();
 
+// Adicione ao utils
+utils.showProgress = (progress) => {
+    const spinner = document.getElementById('loadingSpinner');
+    if (!spinner.querySelector('.progress-bar')) {
+        const progressBar = document.createElement('div');
+        progressBar.className = 'progress-bar bg-blue-500 h-2 transition-all duration-300';
+        spinner.appendChild(progressBar);
+    }
+    
+    const progressBar = spinner.querySelector('.progress-bar');
+    progressBar.style.width = `${progress}%`;
+};
+    
 // Add error boundary
 window.addEventListener('error', (event) => {
     console.error('Erro na aplicação:', event.error);
