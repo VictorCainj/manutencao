@@ -24,6 +24,9 @@
         .btn-red {
             @apply bg-red-500 hover:bg-red-700 focus:ring-red-400;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -79,316 +82,375 @@
         <!-- As anotações serão adicionadas aqui -->
     </div>
 
-<!-- Modal de detalhes da anotação -->
-<div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-    <div class="bg-white rounded-md shadow-lg p-6 w-full max-w-md max-h-full overflow-y-auto">
-        <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-        <div id="noteDetailsContent" class="space-y-4">
-            <!-- Os detalhes da anotação serão exibidos aqui -->
-        </div>
-        <div class="mt-4">
-            <h3 class="text-lg font-semibold mb-2 text-center">Adicionar Comentário</h3>
-            <form id="commentForm">
-                <textarea id="commentText" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mb-2"></textarea>
-                <button type="submit" class="btn btn-blue">Adicionar</button>
-            </form>
-        </div>
-        <div id="commentsContainer" class="mt-4 space-y-2 max-h-40 overflow-y-auto">
-            <!-- Os comentários serão adicionados aqui -->
-        </div>
-        <div class="flex justify-between mt-4">
-            <button type="button" id="copyDetailsBtn" class="btn btn-green">Copiar Dados</button>
-            <button type="button" id="downloadContractBtn" class="btn btn-yellow">Baixar Contrato</button>
-            <button type="button" id="deleteNoteBtn" class="btn btn-red">Excluir</button>
-            <button type="button" id="closeDetailsBtn" class="btn btn-gray">Fechar</button>
+    <!-- Modal de detalhes da anotação -->
+    <div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-md shadow-lg p-6 w-full max-w-md max-h-full overflow-y-auto">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+            <div id="noteDetailsContent" class="space-y-4">
+                <!-- Os detalhes da anotação serão exibidos aqui -->
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold mb-2 text-center">Adicionar Comentário</h3>
+                <form id="commentForm">
+                    <textarea id="commentText" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mb-2"></textarea>
+                    <button type="submit" class="btn btn-blue">Adicionar</button>
+                </form>
+            </div>
+            <div id="commentsContainer" class="mt-4 space-y-2 max-h-40 overflow-y-auto">
+                <!-- Os comentários serão adicionados aqui -->
+            </div>
+            <div class="flex justify-between mt-4">
+                <button type="button" id="editDetailsBtn" class="btn btn-blue">Editar</button>
+                <button type="button" id="copyDetailsBtn" class="btn btn-green">Copiar Dados</button>
+                <button type="button" id="downloadContractBtn" class="btn btn-yellow">Baixar Contrato</button>
+                <button type="button" id="deleteNoteBtn" class="btn btn-red">Excluir</button>
+                <button type="button" id="closeDetailsBtn" class="btn btn-gray">Fechar</button>
+                <button type="button" id="saveEditBtn" class="btn btn-blue hidden">Salvar</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const notes = {};
+    <script>
+        const notes = {};
 
-    document.getElementById('createNoteBtn').addEventListener('click', function() {
-        document.getElementById('noteModal').classList.remove('hidden');
-    });
-
-    document.getElementById('cancelBtn').addEventListener('click', function() {
-        document.getElementById('noteModal').classList.add('hidden');
-    });
-
-    document.getElementById('closeDetailsBtn').addEventListener('click', function() {
-        document.getElementById('noteDetailsModal').classList.add('hidden');
-    });
-
-    // Função para formatar a data
-    function formatDate(dateString) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        const date = new Date(dateString);
-        return isNaN(date) ? "Data inválida" : date.toLocaleDateString('pt-BR', options);
-    }
-
-    // Atualizar o conteúdo dos detalhes da anotação
-    function updateNoteDetails(contractNumber, role, problem, date, address) {
-        const formattedDate = formatDate(date);
-        document.getElementById('noteDetailsContent').innerHTML = `
-            <h3 class="text-lg font-semibold text-center">Detalhes da Anotação</h3>
-            <p><strong>Número de Contrato:</strong> <span>${contractNumber}</span></p>
-            <p><strong>Locador ou Locatário:</strong> <span>${role}</span></p>
-            <p><strong>Problema:</strong> <span>${problem}</span></p>
-            <p><strong>Data:</strong> <span>${formattedDate}</span></p>
-            <p><strong>Endereço:</strong> <span>${address}</span></p>
-        `;
-    }
-
-    document.getElementById('noteForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const contractNumber = document.getElementById('contractNumber').value;
-        const role = document.getElementById('role').value;
-        const problem = document.getElementById('problem').value;
-        const date = document.getElementById('date').value;
-        const address = document.getElementById('address').value;
-
-        const noteButton = document.createElement('button');
-        noteButton.className = 'note-button w-full px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
-        noteButton.innerHTML = `<span class="block font-bold">#${contractNumber}</span><span class="block text-sm">${role}</span>`;
-        noteButton.dataset.role = role.toLowerCase();
-        noteButton.dataset.date = date;
-        noteButton.dataset.address = address.toLowerCase();
-        noteButton.dataset.status = 'open';
-        noteButton.dataset.inSpreadsheet = false;
-        noteButton.addEventListener('click', function() {
-            updateNoteDetails(contractNumber, role, problem, date, address);
-
-            document.getElementById('commentsContainer').innerHTML = ''; // Limpa comentários anteriores
-
-            if (notes[contractNumber]) {
-                notes[contractNumber].comments.forEach(comment => {
-                    const commentBlock = document.createElement('div');
-                    commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
-                    commentBlock.innerHTML = 
-                        `<p>${comment.text}</p>
-                        <p class="text-sm text-gray-500">${comment.dateTime}</p>
-                        <button class="edit-comment-btn text-blue-500 hover:text-blue-700" data-comment-id="${comment.id}">Editar</button>`;
-                    document.getElementById('commentsContainer').appendChild(commentBlock);
-                });
-            }
-
-            document.getElementById('noteDetailsModal').classList.remove('hidden');
+        document.getElementById('createNoteBtn').addEventListener('click', function() {
+            document.getElementById('noteModal').classList.remove('hidden');
         });
 
-        // Verificar se a nota já existe para evitar duplicação
-        if (!notes[contractNumber]) {
-            document.getElementById('notesContainer').appendChild(noteButton);
+        document.getElementById('cancelBtn').addEventListener('click', function() {
+            document.getElementById('noteModal').classList.add('hidden');
+        });
+
+        document.getElementById('closeDetailsBtn').addEventListener('click', function() {
+            document.getElementById('noteDetailsModal').classList.add('hidden');
+        });
+
+        // Função para formatar a data
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const date = new Date(dateString);
+            return isNaN(date) ? "Data inválida" : date.toLocaleDateString('pt-BR', options);
+        }
+
+        // Atualizar o conteúdo dos detalhes da anotação
+        function updateNoteDetails(contractNumber, role, problem, date, address) {
+            const formattedDate = formatDate(date);
+            document.getElementById('noteDetailsContent').innerHTML = `
+                <h3 class="text-lg font-semibold text-center">Detalhes da Anotação</h3>
+                <p><strong>Número de Contrato:</strong> <span>${contractNumber}</span></p>
+                <p><strong>Locador ou Locatário:</strong> <span>${role}</span></p>
+                <p><strong>Problema:</strong> <span>${problem}</span></p>
+                <p><strong>Data:</strong> <span>${formattedDate}</span></p>
+                <p><strong>Endereço:</strong> <span>${address}</span></p>
+            `;
+        }
+
+        document.getElementById('noteForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const contractNumber = document.getElementById('contractNumber').value;
+            const role = document.getElementById('role').value;
+            const problem = document.getElementById('problem').value;
+            const date = document.getElementById('date').value;
+            const address = document.getElementById('address').value;
+
+            const noteButton = document.createElement('button');
+            noteButton.className = 'note-button w-full px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
+            noteButton.innerHTML = `<span class="block font-bold">#${contractNumber}</span><span class="block text-sm">${role}</span>`;
+            noteButton.dataset.role = role.toLowerCase();
+            noteButton.dataset.date = date;
+            noteButton.dataset.address = address.toLowerCase();
+            noteButton.dataset.status = 'open';
+            noteButton.dataset.inSpreadsheet = false;
+            noteButton.addEventListener('click', function() {
+                updateNoteDetails(contractNumber, role, problem, date, address);
+
+                document.getElementById('commentsContainer').innerHTML = ''; // Limpa comentários anteriores
+
+                if (notes[contractNumber]) {
+                    notes[contractNumber].comments.forEach(comment => {
+                        const commentBlock = document.createElement('div');
+                        commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
+                        commentBlock.innerHTML = 
+                            `<p>${comment.text}</p>
+                            <p class="text-sm text-gray-500">${comment.dateTime}</p>
+                            <button class="edit-comment-btn text-blue-500 hover:text-blue-700" data-comment-id="${comment.id}">Editar</button>`;
+                        document.getElementById('commentsContainer').appendChild(commentBlock);
+                    });
+                }
+
+                document.getElementById('noteDetailsModal').classList.remove('hidden');
+            });
+
+            // Verificar se a nota já existe para evitar duplicação
+            if (!notes[contractNumber]) {
+                document.getElementById('notesContainer').appendChild(noteButton);
+                notes[contractNumber] = {
+                    role: role,
+                    problem: problem,
+                    date: date,
+                    address: address,
+                    status: 'open',
+                    inSpreadsheet: false,
+                    comments: []
+                };
+            }
+
+            document.getElementById('noteForm').reset();
+            document.getElementById('noteModal').classList.add('hidden');
+        });
+
+        document.getElementById('commentForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const commentText = document.getElementById('commentText').value;
+            const currentDateTime = new Date().toLocaleString();
+            const commentId = Date.now().toString();
+
+            const commentBlock = document.createElement('div');
+            commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
+            commentBlock.innerHTML = 
+                `<p>${commentText}</p>
+                <p class="text-sm text-gray-500">${currentDateTime}</p>
+                <button class="edit-comment-btn text-blue-500 hover:text-blue-700" data-comment-id="${commentId}">Editar</button>`;
+
+            const commentsContainer = document.getElementById('commentsContainer');
+            commentsContainer.insertBefore(commentBlock, commentsContainer.firstChild);
+
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+            notes[contractNumber].comments.unshift({
+                id: commentId,
+                text: commentText,
+                dateTime: currentDateTime
+            });
+
+            document.getElementById('commentForm').reset();
+        });
+
+        document.getElementById('commentsContainer').addEventListener('click', function(event) {
+            if (event.target.classList.contains('edit-comment-btn')) {
+                const commentId = event.target.dataset.commentId;
+                const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+                const comment = notes[contractNumber].comments.find(c => c.id === commentId);
+                const newCommentText = prompt('Editar comentário:', comment.text);
+                if (newCommentText !== null) {
+                    comment.text = newCommentText;
+                    event.target.parentElement.querySelector('p').textContent = newCommentText;
+                }
+            }
+        });
+
+        document.getElementById('commentText').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+            } else if (event.key === 'Escape') {
+                document.getElementById('noteDetailsModal').classList.add('hidden');
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                document.getElementById('noteModal').classList.add('hidden');
+                document.getElementById('noteDetailsModal').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('copyDetailsBtn').addEventListener('click', function() {
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+            const note = notes[contractNumber];
+            let noteDetails = `Número de Contrato: ${contractNumber}\nLocador ou Locatário: ${note.role}\nProblema: ${note.problem}\nData: ${note.date}\nEndereço: ${note.address}\n\nComentários:\n`;
+
+            note.comments.forEach(comment => {
+                noteDetails += `${comment.dateTime}: ${comment.text}\n`;
+            });
+
+            navigator.clipboard.writeText(noteDetails).then(() => {
+                alert('Dados copiados para a área de transferência');
+            }).catch(err => {
+                console.error('Erro ao copiar os dados: ', err);
+            });
+        });
+
+        document.getElementById('downloadContractBtn').addEventListener('click', function() {
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+            const note = notes[contractNumber];
+            let noteDetails = `Número de Contrato: ${contractNumber}\nLocador ou Locatário: ${note.role}\nProblema: ${note.problem}\nData: ${note.date}\nEndereço: ${note.address}\n\nComentários:\n`;
+
+            note.comments.forEach(comment => {
+                noteDetails += `${comment.dateTime}: ${comment.text}\n`;
+            });
+
+            const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(noteDetails);
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `${contractNumber}.txt`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+
+        document.getElementById('importNotesBtn').addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const importedNotes = JSON.parse(e.target.result);
+                    for (const contractNumber in importedNotes) {
+                        if (importedNotes.hasOwnProperty(contractNumber)) {
+                            const note = importedNotes[contractNumber];
+
+                            // Verificar se a nota já existe para evitar duplicação
+                            if (!notes[contractNumber]) {
+                                notes[contractNumber] = note;
+
+                                const noteButton = document.createElement('button');
+                                noteButton.className = 'note-button w-full px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
+                                noteButton.innerHTML = `<span class="block font-bold">#${contractNumber}</span><span class="block text-sm">${note.role}</span>`;
+                                noteButton.dataset.role = note.role.toLowerCase();
+                                noteButton.dataset.date = note.date;
+                                noteButton.dataset.address = note.address.toLowerCase();
+                                noteButton.dataset.status = note.status;
+                                noteButton.dataset.inSpreadsheet = note.inSpreadsheet;
+                                if (note.status === 'closed') {
+                                    noteButton.classList.remove('bg-blue-500', 'hover:bg-blue-700');
+                                    noteButton.classList.add('bg-green-500', 'hover:bg-green-700');
+                                }
+                                noteButton.addEventListener('click', function() {
+                                    updateNoteDetails(contractNumber, note.role, note.problem, note.date, note.address);
+
+                                    document.getElementById('commentsContainer').innerHTML = ''; // Limpa comentários anteriores
+
+                                    note.comments.forEach(comment => {
+                                        const commentBlock = document.createElement('div');
+                                        commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
+                                        commentBlock.innerHTML = 
+                                            `<p>${comment.text}</p>
+                                            <p class="text-sm text-gray-500">${comment.dateTime}</p>
+                                            <button class="edit-comment-btn text-blue-500 hover:text-blue-700" data-comment-id="${comment.id}">Editar</button>`;
+                                        document.getElementById('commentsContainer').appendChild(commentBlock);
+                                    });
+
+                                    document.getElementById('noteDetailsModal').classList.remove('hidden');
+                                });
+
+                                document.getElementById('notesContainer').appendChild(noteButton);
+                            }
+                        }
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+document.getElementById('downloadNotesBtn').addEventListener('click', function() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "contratos.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+
+        document.getElementById('searchInput').addEventListener('input', filterNotes);
+
+        function filterNotes() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const noteButtons = document.querySelectorAll('.note-button');
+            noteButtons.forEach(button => {
+                const contractNumber = button.textContent.toLowerCase();
+                const role = button.dataset.role;
+                const address = button.dataset.address;
+                const matchesSearch = contractNumber.includes(searchTerm) || role.includes(searchTerm) || address.includes(searchTerm);
+                if (matchesSearch) {
+                    button.classList.remove('hidden');
+                } else {
+                    button.classList.add('hidden');
+                }
+            });
+        }
+
+        document.getElementById('deleteNoteBtn').addEventListener('click', function() {
+            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+
+            // Remover a anotação do objeto 'notes'
+            if (notes[contractNumber]) {
+                delete notes[contractNumber];
+            }
+
+            // Encontrar e remover o botão correspondente à anotação
+            const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
+                (button) => button.querySelector('.block.font-bold').textContent.slice(1) === contractNumber
+            );
+            if (noteButton) {
+                noteButton.remove();
+            }
+
+            // Fechar o modal de detalhes
+            document.getElementById('noteDetailsModal').classList.add('hidden');
+        });
+
+        document.getElementById('editDetailsBtn').addEventListener('click', function() {
+            const noteDetailsContent = document.getElementById('noteDetailsContent');
+            const contractNumber = noteDetailsContent.querySelector('p strong + span').textContent;
+            const role = notes[contractNumber].role;
+            const problem = notes[contractNumber].problem;
+            const date = notes[contractNumber].date;
+            const address = notes[contractNumber].address;
+
+            noteDetailsContent.innerHTML = `
+                <h3 class="text-lg font-semibold text-center">Editar Anotação</h3>
+                <div class="mb-4">
+                    <label for="editContractNumber" class="block text-gray-700">Número de Contrato:</label>
+                    <input type="text" id="editContractNumber" value="${contractNumber}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div class="mb-4">
+                    <label for="editRole" class="block text-gray-700">Locador ou Locatário:</label>
+                    <input type="text" id="editRole" value="${role}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div class="mb-4">
+                    <label for="editProblem" class="block text-gray-700">Problema:</label>
+                    <textarea id="editProblem" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">${problem}</textarea>
+                </div>
+                <div class="mb-4">
+                    <label for="editDate" class="block text-gray-700">Data:</label>
+                    <input type="date" id="editDate" value="${date}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div class="mb-4">
+                    <label for="editAddress" class="block text-gray-700">Endereço:</label>
+                    <input type="text" id="editAddress" value="${address}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+            `;
+
+            document.getElementById('editDetailsBtn').classList.add('hidden');
+            document.getElementById('saveEditBtn').classList.remove('hidden');
+        });
+
+        document.getElementById('saveEditBtn').addEventListener('click', function() {
+            const contractNumber = document.getElementById('editContractNumber').value;
+            const role = document.getElementById('editRole').value;
+            const problem = document.getElementById('editProblem').value;
+            const date = document.getElementById('editDate').value;
+            const address = document.getElementById('editAddress').value;
+
             notes[contractNumber] = {
+                ...notes[contractNumber],
                 role: role,
                 problem: problem,
                 date: date,
-                address: address,
-                status: 'open',
-                inSpreadsheet: false,
-                comments: []
+                address: address
             };
-        }
 
-        document.getElementById('noteForm').reset();
-        document.getElementById('noteModal').classList.add('hidden');
-    });
+            updateNoteDetails(contractNumber, role, problem, date, address);
 
-    document.getElementById('commentForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const commentText = document.getElementById('commentText').value;
-        const currentDateTime = new Date().toLocaleString();
-        const commentId = Date.now().toString();
-
-        const commentBlock = document.createElement('div');
-        commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
-        commentBlock.innerHTML = 
-            `<p>${commentText}</p>
-            <p class="text-sm text-gray-500">${currentDateTime}</p>
-            <button class="edit-comment-btn text-blue-500 hover:text-blue-700" data-comment-id="${commentId}">Editar</button>`;
-
-        const commentsContainer = document.getElementById('commentsContainer');
-        commentsContainer.insertBefore(commentBlock, commentsContainer.firstChild);
-
-        const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
-        notes[contractNumber].comments.unshift({
-            id: commentId,
-            text: commentText,
-            dateTime: currentDateTime
+            document.getElementById('editDetailsBtn').classList.remove('hidden');
+            document.getElementById('saveEditBtn').classList.add('hidden');
         });
-
-        document.getElementById('commentForm').reset();
-    });
-
-    document.getElementById('commentsContainer').addEventListener('click', function(event) {
-        if (event.target.classList.contains('edit-comment-btn')) {
-            const commentId = event.target.dataset.commentId;
-            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
-            const comment = notes[contractNumber].comments.find(c => c.id === commentId);
-            const newCommentText = prompt('Editar comentário:', comment.text);
-            if (newCommentText !== null) {
-                comment.text = newCommentText;
-                event.target.parentElement.querySelector('p').textContent = newCommentText;
-            }
-        }
-    });
-
-    document.getElementById('commentText').addEventListener('keydown', function(event) {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            document.getElementById('commentForm').dispatchEvent(new Event('submit'));
-        } else if (event.key === 'Escape') {
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-        }
-    });
-
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            document.getElementById('noteModal').classList.add('hidden');
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-        }
-    });
-
-    document.getElementById('copyDetailsBtn').addEventListener('click', function() {
-        const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
-        const note = notes[contractNumber];
-        let noteDetails = `Número de Contrato: ${contractNumber}\nLocador ou Locatário: ${note.role}\nProblema: ${note.problem}\nData: ${note.date}\nEndereço: ${note.address}\n\nComentários:\n`;
-
-        note.comments.forEach(comment => {
-            noteDetails += `${comment.dateTime}: ${comment.text}\n`;
-        });
-
-        navigator.clipboard.writeText(noteDetails).then(() => {
-            alert('Dados copiados para a área de transferência');
-        }).catch(err => {
-            console.error('Erro ao copiar os dados: ', err);
-        });
-    });
-
-    document.getElementById('downloadContractBtn').addEventListener('click', function() {
-        const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
-        const note = notes[contractNumber];
-        let noteDetails = `Número de Contrato: ${contractNumber}\nLocador ou Locatário: ${note.role}\nProblema: ${note.problem}\nData: ${note.date}\nEndereço: ${note.address}\n\nComentários:\n`;
-
-        note.comments.forEach(comment => {
-            noteDetails += `${comment.dateTime}: ${comment.text}\n`;
-        });
-
-        const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(noteDetails);
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", `${contractNumber}.txt`);
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-    });
-
-    document.getElementById('importNotesBtn').addEventListener('click', function() {
-        document.getElementById('fileInput').click();
-    });
-
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const importedNotes = JSON.parse(e.target.result);
-                for (const contractNumber in importedNotes) {
-                    if (importedNotes.hasOwnProperty(contractNumber)) {
-                        const note = importedNotes[contractNumber];
-
-                        // Verificar se a nota já existe para evitar duplicação
-                        if (!notes[contractNumber]) {
-                            notes[contractNumber] = note;
-
-                            const noteButton = document.createElement('button');
-                            noteButton.className = 'note-button w-full px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
-                            noteButton.innerHTML = `<span class="block font-bold">#${contractNumber}</span><span class="block text-sm">${note.role}</span>`;
-                            noteButton.dataset.role = note.role.toLowerCase();
-                            noteButton.dataset.date = note.date;
-                            noteButton.dataset.address = note.address.toLowerCase();
-                            noteButton.dataset.status = note.status;
-                            noteButton.dataset.inSpreadsheet = note.inSpreadsheet;
-                            if (note.status === 'closed') {
-                                noteButton.classList.remove('bg-blue-500', 'hover:bg-blue-700');
-                                noteButton.classList.add('bg-green-500', 'hover:bg-green-700');
-                            }
-                            noteButton.addEventListener('click', function() {
-                                updateNoteDetails(contractNumber, note.role, note.problem, note.date, note.address);
-
-                                document.getElementById('commentsContainer').innerHTML = ''; // Limpa comentários anteriores
-
-                                note.comments.forEach(comment => {
-                                    const commentBlock = document.createElement('div');
-                                    commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
-                                    commentBlock.innerHTML = 
-                                        `<p>${comment.text}</p>
-                                        <p class="text-sm text-gray-500">${comment.dateTime}</p>
-                                        <button class="edit-comment-btn text-blue-500 hover:text-blue-700" data-comment-id="${comment.id}">Editar</button>`;
-                                    document.getElementById('commentsContainer').appendChild(commentBlock);
-                                });
-
-                                document.getElementById('noteDetailsModal').classList.remove('hidden');
-                            });
-
-                            document.getElementById('notesContainer').appendChild(noteButton);
-                        }
-                    }
-                }
-            };
-            reader.readAsText(file);
-        }
-    });
-
-    document.getElementById('downloadNotesBtn').addEventListener('click', function() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "contratos.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-    });
-
-    document.getElementById('searchInput').addEventListener('input', filterNotes);
-
-    function filterNotes() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const noteButtons = document.querySelectorAll('.note-button');
-        noteButtons.forEach(button => {
-            const contractNumber = button.textContent.toLowerCase();
-            const role = button.dataset.role;
-            const address = button.dataset.address;
-            const matchesSearch = contractNumber.includes(searchTerm) || role.includes(searchTerm) || address.includes(searchTerm);
-            if (matchesSearch) {
-                button.classList.remove('hidden');
-            } else {
-                button.classList.add('hidden');
-            }
-        });
-    }
-
-    document.getElementById('deleteNoteBtn').addEventListener('click', function() {
-        const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
-
-        // Remover a anotação do objeto 'notes'
-        if (notes[contractNumber]) {
-            delete notes[contractNumber];
-        }
-
-        // Encontrar e remover o botão correspondente à anotação
-        const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
-            (button) => button.querySelector('.block.font-bold').textContent.slice(1) === contractNumber
-        );
-        if (noteButton) {
-            noteButton.remove();
-        }
-
-        // Fechar o modal de detalhes
-        document.getElementById('noteDetailsModal').classList.add('hidden');
-    });
-</script>
+    </script>
 </body>
 </html>
