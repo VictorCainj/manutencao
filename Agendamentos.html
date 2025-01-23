@@ -80,40 +80,30 @@
         <!-- Notes will be appended here -->
     </div>
 
-    <!-- Note Details Modal -->
-    <div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white rounded-md shadow-lg p-6 w-full max-w-md max-h-full overflow-y-auto">
-            <h2 class="text-xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-            <div id="noteDetailsContent">
-                <!-- Note details will be displayed here -->
-            </div>
-            <div class="mt-4">
-                <h3 class="text-lg font-semibold mb-2 text-center">Adicionar Comentário</h3>
-                <form id="commentForm">
-                    <textarea id="commentText" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mb-2"></textarea>
-                    <button type="submit" class="btn btn-blue">Adicionar</button>
-                </form>
-            </div>
-            <div id="commentsContainer" class="mt-4 space-y-2 max-h-40 overflow-y-auto">
-                <!-- Comments will be appended here -->
-            </div>
-<div class="flex flex-wrap justify-between mt-4 space-y-2">
-    <button type="button" id="copyDetailsBtn" class="btn btn-green flex items-center space-x-2">
-        <i class="fas fa-copy"></i>
-        <span>Copiar Dados</span>
-    </button>
-    <button type="button" id="downloadContractBtn" class="btn btn-yellow flex items-center space-x-2">
-        <i class="fas fa-download"></i>
-        <span>Baixar Contrato</span>
-    </button>
-    <button type="button" id="deleteNoteBtn" class="btn btn-red flex items-center space-x-2">
-        <i class="fas fa-trash-alt"></i>
-        <span>Excluir</span>
-    </button>
-    <button type="button" id="closeDetailsBtn" class="btn btn-gray flex items-center space-x-2">
-        <i class="fas fa-times"></i>
-        <span>Fechar</span>
-    </button>
+<!-- Note Details Modal -->
+<div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-md shadow-lg p-6 w-full max-w-md max-h-full overflow-y-auto">
+        <h2 class="text-xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+        <div id="noteDetailsContent">
+            <!-- Note details will be displayed here -->
+        </div>
+        <div class="mt-4">
+            <h3 class="text-lg font-semibold mb-2 text-center">Adicionar Comentário</h3>
+            <form id="commentForm">
+                <textarea id="commentText" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mb-2"></textarea>
+                <button type="submit" class="btn btn-blue">Adicionar</button>
+            </form>
+        </div>
+        <div id="commentsContainer" class="mt-4 space-y-2 max-h-40 overflow-y-auto">
+            <!-- Comments will be appended here -->
+        </div>
+        <div class="flex justify-between mt-4">
+            <button type="button" id="copyDetailsBtn" class="btn btn-green">Copiar Dados</button>
+            <button type="button" id="downloadContractBtn" class="btn btn-yellow">Baixar Contrato</button>
+            <button type="button" id="deleteNoteBtn" class="btn btn-red">Excluir</button>
+            <button type="button" id="closeDetailsBtn" class="btn btn-gray">Fechar</button>
+        </div>
+    </div>
 </div>
 <!-- Note Details Modal -->
 <div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
