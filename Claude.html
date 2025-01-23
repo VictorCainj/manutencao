@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Anotações de Contratos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .btn {
+            @apply px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200;
+        }
+        .btn-blue {
+            @apply bg-blue-500 hover:bg-blue-700 focus:ring-blue-400;
+        }
+        .btn-green {
+            @apply bg-green-500 hover:bg-green-700 focus:ring-green-400;
+        }
+        .btn-yellow {
+            @apply bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400;
+        }
+        .btn-gray {
+            @apply bg-gray-500 hover:bg-gray-700 focus:ring-gray-400;
+        }
+        .btn-red {
+            @apply bg-red-500 hover:bg-red-700 focus:ring-red-400;
+        }
+        .notification {
+            @apply fixed top-4 right-4 p-4 rounded-md shadow-lg transform transition-transform duration-300 ease-in-out;
+        }
+        .notification-success {
+            @apply bg-green-500 text-white;
+        }
+        .notification-error {
+            @apply bg-red-500 text-white;
+        }
+        .modal-overlay {
+            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300;
+        }
+        .modal-content {
+            @apply bg-white rounded-md shadow-lg p-6 w-full max-w-md transform transition-all duration-300;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <!-- Notification Component -->
+    <div id="notification" class="notification hidden"></div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+
+    <!-- Main Controls -->
+    <div class="mb-6 space-x-4">
+        <button id="createNoteBtn" class="btn btn-blue">
+            <i class="fas fa-plus mr-2"></i>Criar anotação
+        </button>
+        <button id="importNotesBtn" class="btn btn-green">
+            <i class="fas fa-file-import mr-2"></i>Importar Contratos
+        </button>
+        <button id="downloadNotesBtn" class="btn btn-yellow">
+            <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
+        </button>
+        <input type="file" id="fileInput" class="hidden" accept=".json">
+    </div>
+
+    <!-- Search Bar -->
+    <div class="mb-6 w-full max-w-4xl">
+        <div class="relative">
+            <input type="text" 
+                   id="searchInput" 
+                   placeholder="Pesquisar contratos..." 
+                   class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                   aria-label="Pesquisar contratos">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+    </div>
+
+    <!-- Note Creation Modal -->
+    <div id="noteModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
+            <form id="noteForm" class="space-y-4">
+                <div>
+                    <label for="contractNumber" class="block text-gray-700">Número de Contrato: *</label>
+                    <input type="text" 
+                           id="contractNumber" 
+                           required
+                           pattern="[A-Za-z0-9-]+"
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <span id="contractNumberError" class="text-sm text-red-500 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="role" class="block text-gray-700">Locador ou Locatário: *</label>
+                    <input type="text" 
+                           id="role" 
+                           required
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <span id="roleError" class="text-sm text-red-500 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="problem" class="block text-gray-700">Problema: *</label>
+                    <textarea id="problem" 
+                            required
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
+                    <span id="problemError" class="text-sm text-red-500 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="date" class="block text-gray-700">Data: *</label>
+                    <input type="date" 
+                           id="date" 
+                           required
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <span id="dateError" class="text-sm text-red-500 hidden"></span>
+                </div>
+
+                <div>
+                    <label for="address" class="block text-gray-700">Endereço: *</label>
+                    <input type="text" 
+                           id="address" 
+                           required
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <span id="addressError" class="text-sm text-red-500 hidden"></span>
+                </div>
+
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancelBtn" class="btn btn-gray">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-blue">
+                        <i class="fas fa-save mr-2"></i>Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Note Details Modal -->
+    <div id="noteDetailsModal" class="modal-overlay hidden">
+        <div class="modal-content max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+            <div id="noteDetailsContent" class="space-y-4"></div>
+
+            <!-- Comments Section -->
+            <div class="mt-6">
+                <h3 class="text-lg font-semibold mb-2">Adicionar Comentário</h3>
+                <form id="commentForm" class="space-y-2">
+                    <textarea id="commentText" 
+                             required
+                             class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
+                             placeholder="Digite seu comentário aqui..."></textarea>
+                    <button type="submit" class="btn btn-blue w-full">
+                        <i class="fas fa-comment mr-2"></i>Adicionar Comentário
+                    </button>
+                </form>
+            </div>
+
+            <div id="commentsContainer" class="mt-4 space-y-2 max-h-40 overflow-y-auto"></div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between mt-4 space-x-2">
+                <button type="button" id="copyDetailsBtn" class="btn btn-green">
+                    <i class="fas fa-copy mr-2"></i>Copiar
+                </button>
+                <button type="button" id="downloadContractBtn" class="btn btn-yellow">
+                    <i class="fas fa-file-download mr-2"></i>Baixar
+                </button>
+                <button type="button" id="deleteNoteBtn" class="btn btn-red">
+                    <i class="fas fa-trash mr-2"></i>Excluir
+                </button>
+                <button type="button" id="closeDetailsBtn" class="btn btn-gray">
+                    <i class="fas fa-times mr-2"></i>Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes Container -->
+    <div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    </div>
+
+<script>
+// Utility Functions
+const utils = {
+    showNotification: (message, type = 'success') => {
+        const notification = document.getElementById('notification');
+        notification.className = `notification ${type === 'success' ? 'notification-success' : 'notification-error'}`;
+        notification.textContent = message;
+        notification.classList.remove('hidden');
+        setTimeout(() => notification.classList.add('hidden'), 3000);
+    },
+
+    showLoading: (show = true) => {
+        document.getElementById('loadingSpinner').classList.toggle('hidden', !show);
+    },
+
+    sanitizeInput: (input) => {
+        if (typeof input !== 'string') return '';
+        return input.trim()
+                   .replace(/[<>]/g, '')
+                   .replace(/&/g, '&amp;')
+                   .replace(/"/g, '&quot;')
+                   .replace(/'/g, '&#39;');
+    },
+
+    validateForm: (formData) => {
+        const errors = [];
+        
+        if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
+            errors.push('Número de contrato inválido - use apenas letras, números e hífen');
+        }
+        
+        if (formData.role.length < 3) {
+            errors.push('Role deve ter ao menos 3 caracteres');
+        }
+        
+        if (formData.problem.length < 10) {
+            errors.push('Problema deve ter ao menos 10 caracteres');
+        }
+        
+        if (!formData.date) {
+            errors.push('Data é obrigatória');
+        }
+        
+        if (formData.address.length < 5) {
+            errors.push('Endereço deve ter ao menos 5 caracteres');
+        }
+        
+        return errors;
+    },
+
+    formatDate: (dateString) => {
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } catch (e) {
+            console.error('Error formatting date:', e);
+            return 'Data inválida';
+        }
+    },
+
+    debounce: (func, wait) => {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    },
+
+    downloadFile: (content, filename, type = 'text/plain') => {
+        const blob = new Blob([content], { type });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+    }
+};
+
+// Note Management Class
+class NoteManager {
+    constructor() {
+        this.notes = {};
+        this.initializeEventListeners();
+        this.loadFromLocalStorage();
+    }
+
+    initializeEventListeners() {
+        // Main buttons
+        document.getElementById('createNoteBtn').addEventListener('click', () => {
+            document.getElementById('noteModal').classList.remove('hidden');
+        });
+
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            document.getElementById('noteModal').classList.add('hidden');
+            document.getElementById('noteForm').reset();
+        });
+
+        // Form submission
+        document.getElementById('noteForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleFormSubmit();
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', 
+            utils.debounce((e) => this.handleSearch(e.target.value), 300)
+        );
+
+        // Import/Export
+        document.getElementById('importNotesBtn').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            this.handleFileImport(e);
+        });
+
+        document.getElementById('downloadNotesBtn').addEventListener('click', () => {
+            this.exportNotes();
+        });
+
+        // Comments
+        document.getElementById('commentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleCommentSubmit();
+        });
+
+        // Modal close buttons
+        document.getElementById('closeDetailsBtn').addEventListener('click', () => {
+            document.getElementById('noteDetailsModal').classList.add('hidden');
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('noteModal').classList.add('hidden');
+                document.getElementById('noteDetailsModal').classList.add('hidden');
+            }
+        });
+
+        // Delete note
+        document.getElementById('deleteNoteBtn').addEventListener('click', () => {
+            const contractNumber = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.deleteNote(contractNumber);
+        });
+    }
+
+    handleFormSubmit() {
+        const formData = {
+            contractNumber: document.getElementById('contractNumber').value,
+            role: document.getElementById('role').value,
+            problem: document.getElementById('problem').value,
+            date: document.getElementById('date').value,
+            address: document.getElementById('address').value
+        };
+
+        const errors = utils.validateForm(formData);
+        if (errors.length > 0) {
+            utils.showNotification(errors.join('\n'), 'error');
+            return;
+        }
+
+        const success = this.addNote(formData);
+        if (success) {
+            document.getElementById('noteForm').reset();
+            document.getElementById('noteModal').classList.add('hidden');
+        }
+    }
+
+addNote(formData) {
+        const sanitizedData = {
+            contractNumber: utils.sanitizeInput(formData.contractNumber),
+            role: utils.sanitizeInput(formData.role),
+            problem: utils.sanitizeInput(formData.problem),
+            date: formData.date,
+            address: utils.sanitizeInput(formData.address)
+        };
+
+        try {
+            if (this.notes[sanitizedData.contractNumber]) {
+                utils.showNotification('Contrato já existe!', 'error');
+                return false;
+            }
+
+            this.notes[sanitizedData.contractNumber] = {
+                ...sanitizedData,
+                status: 'open',
+                inSpreadsheet: false,
+                comments: [],
+                createdAt: new Date().toISOString(),
+                createdBy: 'VictorCainj' // Using the current user's login
+            };
+
+            this.renderNote(sanitizedData.contractNumber);
+            this.saveToLocalStorage();
+            utils.showNotification('Anotação criada com sucesso!');
+            return true;
+        } catch (error) {
+            console.error('Erro ao adicionar nota:', error);
+            utils.showNotification('Erro ao criar anotação', 'error');
+            return false;
+        }
+    }
+
+    renderNote(contractNumber) {
+        try {
+            const note = this.notes[contractNumber];
+            const noteButton = document.createElement('button');
+            noteButton.className = `note-button w-full px-4 py-2 ${
+                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' : 'bg-blue-500 hover:bg-blue-700'
+            } text-white rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors duration-200`;
+            
+            noteButton.innerHTML = `
+                <span class="block font-bold">#${utils.sanitizeInput(contractNumber)}</span>
+                <span class="block text-sm">${utils.sanitizeInput(note.role)}</span>
+                <span class="block text-xs">${utils.formatDate(note.date)}</span>
+            `;
+
+            noteButton.dataset.contract = contractNumber;
+            noteButton.dataset.role = note.role.toLowerCase();
+            noteButton.dataset.address = note.address.toLowerCase();
+            noteButton.dataset.date = note.date;
+
+            noteButton.addEventListener('click', () => this.showNoteDetails(contractNumber));
+
+            document.getElementById('notesContainer').appendChild(noteButton);
+        } catch (error) {
+            console.error('Erro ao renderizar nota:', error);
+            utils.showNotification('Erro ao exibir nota', 'error');
+        }
+    }
+
+    showNoteDetails(contractNumber) {
+        try {
+            const note = this.notes[contractNumber];
+            const detailsContent = document.getElementById('noteDetailsContent');
+            
+            detailsContent.innerHTML = `
+                <div class="space-y-2">
+                    <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(contractNumber)}</span></p>
+                    <p><strong>Locador ou Locatário:</strong> <span>${utils.sanitizeInput(note.role)}</span></p>
+                    <p><strong>Problema:</strong> <span>${utils.sanitizeInput(note.problem)}</span></p>
+                    <p><strong>Data:</strong> <span>${utils.formatDate(note.date)}</span></p>
+                    <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
+                    <p><strong>Status:</strong> <span>${note.status === 'open' ? 'Aberto' : 'Fechado'}</span></p>
+                    <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy)}</span></p>
+                    <p><strong>Criado em:</strong> <span>${utils.formatDate(note.createdAt)}</span></p>
+                </div>
+            `;
+
+            this.renderComments(contractNumber);
+            document.getElementById('noteDetailsModal').classList.remove('hidden');
+        } catch (error) {
+            console.error('Erro ao exibir detalhes da nota:', error);
+            utils.showNotification('Erro ao carregar detalhes', 'error');
+        }
+    }
+
+    renderComments(contractNumber) {
+        try {
+            const commentsContainer = document.getElementById('commentsContainer');
+            commentsContainer.innerHTML = '';
+            
+            const note = this.notes[contractNumber];
+            note.comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'p-2 bg-gray-100 rounded-md shadow-md';
+                commentElement.innerHTML = `
+                    <p class="text-gray-800">${utils.sanitizeInput(comment.text)}</p>
+                    <div class="flex justify-between items-center mt-2">
+                        <p class="text-sm text-gray-500">${utils.formatDate(comment.dateTime)}</p>
+                        <button class="text-blue-500 hover:text-blue-700 text-sm" 
+                                onclick="noteManager.editComment('${contractNumber}', '${comment.id}')">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                    </div>
+                `;
+                commentsContainer.appendChild(commentElement);
+            });
+        } catch (error) {
+            console.error('Erro ao renderizar comentários:', error);
+            utils.showNotification('Erro ao carregar comentários', 'error');
+        }
+    }
+
+    handleCommentSubmit() {
+        try {
+            const commentText = document.getElementById('commentText').value;
+            const contractNumber = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+
+            if (!commentText.trim()) {
+                utils.showNotification('Comentário não pode estar vazio', 'error');
+                return;
+            }
+
+            const comment = {
+                id: Date.now().toString(),
+                text: utils.sanitizeInput(commentText),
+                dateTime: new Date().toISOString(),
+                author: 'VictorCainj'
+            };
+
+            this.notes[contractNumber].comments.unshift(comment);
+            this.saveToLocalStorage();
+            this.renderComments(contractNumber);
+            document.getElementById('commentForm').reset();
+            utils.showNotification('Comentário adicionado com sucesso!');
+        } catch (error) {
+            console.error('Erro ao adicionar comentário:', error);
+            utils.showNotification('Erro ao adicionar comentário', 'error');
+        }
+    }
+
+    editComment(contractNumber, commentId) {
+        try {
+            const note = this.notes[contractNumber];
+            const comment = note.comments.find(c => c.id === commentId);
+            
+            const newText = prompt('Editar comentário:', comment.text);
+            if (newText !== null && newText.trim() !== '') {
+                comment.text = utils.sanitizeInput(newText);
+                comment.editedAt = new Date().toISOString();
+                this.saveToLocalStorage();
+                this.renderComments(contractNumber);
+                utils.showNotification('Comentário atualizado com sucesso!');
+            }
+        } catch (error) {
+            console.error('Erro ao editar comentário:', error);
+            utils.showNotification('Erro ao editar comentário', 'error');
+        }
+    }
+
+    deleteNote(contractNumber) {
+        try {
+            if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
+                return;
+            }
+
+            delete this.notes[contractNumber];
+            const noteButton = document.querySelector(`[data-contract="${contractNumber}"]`);
+            if (noteButton) {
+                noteButton.remove();
+            }
+
+            this.saveToLocalStorage();
+            document.getElementById('noteDetailsModal').classList.add('hidden');
+            utils.showNotification('Anotação excluída com sucesso!');
+        } catch (error) {
+            console.error('Erro ao excluir nota:', error);
+            utils.showNotification('Erro ao excluir anotação', 'error');
+        }
+    }
+
+    handleSearch(searchTerm) {
+        try {
+            const noteButtons = document.querySelectorAll('.note-button');
+            noteButtons.forEach(button => {
+                const searchableContent = [
+                    button.dataset.contract,
+                    button.dataset.role,
+                    button.dataset.address
+                ].join(' ').toLowerCase();
+
+                button.classList.toggle('hidden', 
+                    !searchableContent.includes(searchTerm.toLowerCase()));
+            });
+        } catch (error) {
+            console.error('Erro na pesquisa:', error);
+            utils.showNotification('Erro ao realizar pesquisa', 'error');
+        }
+    }
+
+    async handleFileImport(event) {
+        try {
+            utils.showLoading(true);
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedNotes = JSON.parse(e.target.result);
+                    Object.entries(importedNotes).forEach(([contractNumber, note]) => {
+                        if (!this.notes[contractNumber]) {
+                            this.notes[contractNumber] = note;
+                            this.renderNote(contractNumber);
+                        }
+                    });
+                    this.saveToLocalStorage();
+                    utils.showNotification('Contratos importados com sucesso!');
+                } catch (error) {
+                    console.error('Erro ao processar arquivo:', error);
+                    utils.showNotification('Erro ao processar arquivo', 'error');
+                }
+            };
+            reader.readAsText(file);
+        } catch (error) {
+            console.error('Erro na importação:', error);
+            utils.showNotification('Erro ao importar arquivo', 'error');
+        } finally {
+            utils.showLoading(false);
+            event.target.value = ''; // Reset input
+        }
+    }
+
+    exportNotes() {
+        try {
+            const notesJson = JSON.stringify(this.notes, null, 2);
+            const filename = `contratos_${new Date().toISOString().split('T')[0]}.json`;
+            utils.downloadFile(notesJson, filename, 'application/json');
+            utils.showNotification('Contratos exportados com sucesso!');
+        } catch (error) {
+            console.error('Erro na exportação:', error);
+            utils.showNotification('Erro ao exportar contratos', 'error');
+        }
+    }
+
+    saveToLocalStorage() {
+        try {
+            localStorage.setItem('notes', JSON.stringify(this.notes));
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+            utils.showNotification('Erro ao salvar dados localmente', 'error');
+        }
+    }
+
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            if (savedNotes) {
+                this.notes = JSON.parse(savedNotes);
+                Object.keys(this.notes).forEach(contractNumber => {
+                    this.renderNote(contractNumber);
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            utils.showNotification('Erro ao carregar dados locais', 'error');
+        }
+    }
+}
+
+// Initialize the application
+const noteManager = new NoteManager();
+
+// Add error boundary
+window.addEventListener('error', (event) => {
+    console.error('Erro na aplicação:', event.error);
+    utils.showNotification('Ocorreu um erro na aplicação', 'error');
+});
+</script>
+</body>
+</html>
