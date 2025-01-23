@@ -137,11 +137,11 @@
             const formattedDate = formatDate(date);
             document.getElementById('noteDetailsContent').innerHTML = `
                 <h3 class="text-lg font-semibold text-center">Detalhes da Anotação</h3>
-                <p><strong>Número de Contrato:</strong> <span>${contractNumber}</span></p>
-                <p><strong>Locador ou Locatário:</strong> <span>${role}</span></p>
-                <p><strong>Problema:</strong> <span>${problem}</span></p>
-                <p><strong>Data:</strong> <span>${formattedDate}</span></p>
-                <p><strong>Endereço:</strong> <span>${address}</span></p>
+                <p><strong>Número de Contrato:</strong> <span id="detailContractNumber">${contractNumber}</span></p>
+                <p><strong>Locador ou Locatário:</strong> <span id="detailRole">${role}</span></p>
+                <p><strong>Problema:</strong> <span id="detailProblem">${problem}</span></p>
+                <p><strong>Data:</strong> <span id="detailDate">${formattedDate}</span></p>
+                <p><strong>Endereço:</strong> <span id="detailAddress">${address}</span></p>
             `;
         }
 
@@ -217,7 +217,7 @@
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.insertBefore(commentBlock, commentsContainer.firstChild);
 
-            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+            const contractNumber = document.getElementById('detailContractNumber').textContent;
             notes[contractNumber].comments.unshift({
                 id: commentId,
                 text: commentText,
@@ -230,7 +230,7 @@
         document.getElementById('commentsContainer').addEventListener('click', function(event) {
             if (event.target.classList.contains('edit-comment-btn')) {
                 const commentId = event.target.dataset.commentId;
-                const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+                const contractNumber = document.getElementById('detailContractNumber').textContent;
                 const comment = notes[contractNumber].comments.find(c => c.id === commentId);
                 const newCommentText = prompt('Editar comentário:', comment.text);
                 if (newCommentText !== null) {
@@ -257,7 +257,7 @@
         });
 
         document.getElementById('copyDetailsBtn').addEventListener('click', function() {
-            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+            const contractNumber = document.getElementById('detailContractNumber').textContent;
             const note = notes[contractNumber];
             let noteDetails = `Número de Contrato: ${contractNumber}\nLocador ou Locatário: ${note.role}\nProblema: ${note.problem}\nData: ${note.date}\nEndereço: ${note.address}\n\nComentários:\n`;
 
@@ -273,7 +273,7 @@
         });
 
         document.getElementById('downloadContractBtn').addEventListener('click', function() {
-            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+            const contractNumber = document.getElementById('detailContractNumber').textContent;
             const note = notes[contractNumber];
             let noteDetails = `Número de Contrato: ${contractNumber}\nLocador ou Locatário: ${note.role}\nProblema: ${note.problem}\nData: ${note.date}\nEndereço: ${note.address}\n\nComentários:\n`;
 
@@ -347,124 +347,9 @@
             }
         });
 
-document.getElementById('downloadNotesBtn').addEventListener('click', function() {
+        document.getElementById('downloadNotesBtn').addEventListener('click', function() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(notes));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
             downloadAnchorNode.setAttribute("download", "contratos.json");
-            document.body.appendChild(downloadAnchorNode);
-            downloadAnchorNode.click();
-            downloadAnchorNode.remove();
-        });
-
-        document.getElementById('searchInput').addEventListener('input', filterNotes);
-
-        function filterNotes() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const noteButtons = document.querySelectorAll('.note-button');
-            noteButtons.forEach(button => {
-                const contractNumber = button.textContent.toLowerCase();
-                const role = button.dataset.role;
-                const address = button.dataset.address;
-                const matchesSearch = contractNumber.includes(searchTerm) || role.includes(searchTerm) || address.includes(searchTerm);
-                if (matchesSearch) {
-                    button.classList.remove('hidden');
-                } else {
-                    button.classList.add('hidden');
-                }
-            });
-        }
-
-        document.getElementById('deleteNoteBtn').addEventListener('click', function() {
-            const contractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
-
-            // Remover a anotação do objeto 'notes'
-            if (notes[contractNumber]) {
-                delete notes[contractNumber];
-            }
-
-            // Encontrar e remover o botão correspondente à anotação
-            const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
-                (button) => button.querySelector('.block.font-bold').textContent.slice(1) === contractNumber
-            );
-            if (noteButton) {
-                noteButton.remove();
-            }
-
-            // Fechar o modal de detalhes
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-        });
-
-        document.getElementById('editDetailsBtn').addEventListener('click', function() {
-            const noteDetailsContent = document.getElementById('noteDetailsContent');
-            const contractNumber = noteDetailsContent.querySelector('p strong + span').textContent;
-            const role = notes[contractNumber].role;
-            const problem = notes[contractNumber].problem;
-            const date = notes[contractNumber].date;
-            const address = notes[contractNumber].address;
-
-            noteDetailsContent.innerHTML = `
-                <h3 class="text-lg font-semibold text-center">Editar Anotação</h3>
-                <div class="mb-4">
-                    <label for="editContractNumber" class="block text-gray-700">Número de Contrato:</label>
-                    <input type="text" id="editContractNumber" value="${contractNumber}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-                <div class="mb-4">
-                    <label for="editRole" class="block text-gray-700">Locador ou Locatário:</label>
-                    <input type="text" id="editRole" value="${role}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-                <div class="mb-4">
-                    <label for="editProblem" class="block text-gray-700">Problema:</label>
-                    <textarea id="editProblem" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">${problem}</textarea>
-                </div>
-                <div class="mb-4">
-                    <label for="editDate" class="block text-gray-700">Data:</label>
-                    <input type="date" id="editDate" value="${date}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-                <div class="mb-4">
-                    <label for="editAddress" class="block text-gray-700">Endereço:</label>
-                    <input type="text" id="editAddress" value="${address}" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-            `;
-
-            document.getElementById('editDetailsBtn').classList.add('hidden');
-            document.getElementById('saveEditBtn').classList.remove('hidden');
-        });
-
-        document.getElementById('saveEditBtn').addEventListener('click', function() {
-            const oldContractNumber = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
-            const newContractNumber = document.getElementById('editContractNumber').value;
-            const role = document.getElementById('editRole').value;
-            const problem = document.getElementById('editProblem').value;
-            const date = document.getElementById('editDate').value;
-            const address = document.getElementById('editAddress').value;
-
-            // Atualizar a nota no objeto 'notes'
-            if (oldContractNumber !== newContractNumber) {
-                notes[newContractNumber] = { ...notes[oldContractNumber] };
-                delete notes[oldContractNumber];
-            }
-            notes[newContractNumber].role = role;
-            notes[newContractNumber].problem = problem;
-            notes[newContractNumber].date = date;
-            notes[newContractNumber].address = address;
-
-            // Atualizar o botão da nota na interface
-            const noteButton = Array.from(document.querySelectorAll('.note-button')).find(
-                (button) => button.querySelector('.block.font-bold').textContent.slice(1) === oldContractNumber
-            );
-            if (noteButton) {
-                noteButton.innerHTML = `<span class="block font-bold">#${newContractNumber}</span><span class="block text-sm">${role}</span>`;
-                noteButton.dataset.role = role.toLowerCase();
-                noteButton.dataset.date = date;
-                noteButton.dataset.address = address.toLowerCase();
-            }
-
-            updateNoteDetails(newContractNumber, role, problem, date, address);
-
-            document.getElementById('editDetailsBtn').classList.remove('hidden');
-            document.getElementById('saveEditBtn').classList.add('hidden');
-        });
-    </script>
-</body>
-</html>
+            document.body.appendChild(downloadAnchorNode
