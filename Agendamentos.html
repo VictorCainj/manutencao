@@ -79,31 +79,106 @@
         <!-- As anotações serão adicionadas aqui -->
     </div>
 
-    <!-- Modal de detalhes da anotação -->
-    <div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-        <div class="bg-white rounded-md shadow-lg p-6 w-full max-w-md max-h-full overflow-y-auto">
-            <h2 class="text-xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-            <div id="noteDetailsContent">
-                <!-- Os detalhes da anotação serão exibidos aqui -->
-            </div>
-            <div class="mt-4">
-                <h3 class="text-lg font-semibold mb-2 text-center">Adicionar Comentário</h3>
-                <form id="commentForm">
-                    <textarea id="commentText" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mb-2"></textarea>
-                    <button type="submit" class="btn btn-blue">Adicionar</button>
-                </form>
-            </div>
-            <div id="commentsContainer" class="mt-4 space-y-2 max-h-40 overflow-y-auto">
-                <!-- Os comentários serão adicionados aqui -->
-            </div>
-            <div class="flex justify-between mt-4">
-                <button type="button" id="copyDetailsBtn" class="btn btn-green">Copiar Dados</button>
-                <button type="button" id="downloadContractBtn" class="btn btn-yellow">Baixar Contrato</button>
-                <button type="button" id="deleteNoteBtn" class="btn btn-red">Excluir</button>
-                <button type="button" id="closeDetailsBtn" class="btn btn-gray">Fechar</button>
-            </div>
+<!-- Modal de detalhes da anotação -->
+<div id="noteDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+    <div class="bg-white rounded-md shadow-lg p-6 w-full max-w-md max-h-full overflow-y-auto">
+        <h2 class="text-xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+        <div id="noteDetailsContent">
+            <!-- Os detalhes da anotação serão exibidos aqui -->
+        </div>
+        <div class="mt-4">
+            <h3 class="text-lg font-semibold mb-2 text-center">Adicionar Comentário</h3>
+            <form id="commentForm">
+                <textarea id="commentText" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mb-2"></textarea>
+                <button type="submit" class="btn btn-blue">Adicionar</button>
+            </form>
+        </div>
+        <div id="commentsContainer" class="mt-4 space-y-2 max-h-40 overflow-y-auto">
+            <!-- Os comentários serão adicionados aqui -->
+        </div>
+        <div class="flex justify-between mt-4">
+            <button type="button" id="copyDetailsBtn" class="btn btn-green">Copiar Dados</button>
+            <button type="button" id="downloadContractBtn" class="btn btn-yellow">Baixar Contrato</button>
+            <button type="button" id="deleteNoteBtn" class="btn btn-red">Excluir</button>
+            <button type="button" id="closeDetailsBtn" class="btn btn-gray">Fechar</button>
         </div>
     </div>
+</div>
+
+<script>
+    // Função para formatar a data
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const date = new Date(dateString);
+        return isNaN(date) ? "Data inválida" : date.toLocaleDateString('pt-BR', options);
+    }
+
+    // Atualizar o conteúdo dos detalhes da anotação
+    function updateNoteDetails(contractNumber, role, problem, date, address) {
+        const formattedDate = formatDate(date);
+        document.getElementById('noteDetailsContent').innerHTML = `
+            <h3 class="text-lg font-semibold text-center">Detalhes da Anotação</h3>
+            <p><strong>Número de Contrato:</strong> ${contractNumber}</p>
+            <p><strong>Locador ou Locatário:</strong> ${role}</p>
+            <p><strong>Problema:</strong> ${problem}</p>
+            <p><strong>Data:</strong> ${formattedDate}</p>
+            <p><strong>Endereço:</strong> ${address}</p>
+        `;
+    }
+
+    document.getElementById('noteForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const contractNumber = document.getElementById('contractNumber').value;
+        const role = document.getElementById('role').value;
+        const problem = document.getElementById('problem').value;
+        const date = document.getElementById('date').value;
+        const address = document.getElementById('address').value;
+
+        const noteButton = document.createElement('button');
+        noteButton.className = 'note-button w-full px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400';
+        noteButton.innerHTML = `<span class="block font-bold">#${contractNumber}</span><span class="block text-sm">${role}</span>`;
+        noteButton.dataset.role = role.toLowerCase();
+        noteButton.dataset.date = date;
+        noteButton.dataset.address = address.toLowerCase();
+        noteButton.dataset.status = 'open';
+        noteButton.dataset.inSpreadsheet = false;
+        noteButton.addEventListener('click', function() {
+            updateNoteDetails(contractNumber, role, problem, date, address);
+
+            document.getElementById('commentsContainer').innerHTML = ''; // Clear previous comments
+
+            if (notes[contractNumber]) {
+                notes[contractNumber].comments.forEach(comment => {
+                    const commentBlock = document.createElement('div');
+                    commentBlock.className = 'p-2 bg-gray-100 rounded-md shadow-md';
+                    commentBlock.innerHTML = 
+                        `<p>${comment.text}</p>
+                        <p class="text-sm text-gray-500">${comment.dateTime}</p>
+                        <button class="edit-comment-btn text-blue-500 hover:text-blue-700" data-comment-id="${comment.id}">Editar</button>`;
+                    document.getElementById('commentsContainer').appendChild(commentBlock);
+                });
+            }
+
+            document.getElementById('noteDetailsModal').classList.remove('hidden');
+        });
+
+        document.getElementById('notesContainer').appendChild(noteButton);
+
+        notes[contractNumber] = {
+            role: role,
+            problem: problem,
+            date: date,
+            address: address,
+            status: 'open',
+            inSpreadsheet: false,
+            comments: []
+        };
+
+        document.getElementById('noteForm').reset();
+        document.getElementById('noteModal').classList.add('hidden');
+    });
+</script>
 
     <script>
         const notes = {};
