@@ -63,7 +63,7 @@
     </style>
 </head>
 
-<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+    <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
 
 <!-- Notification Component -->
 <div id="notification" class="notification hidden"></div>
@@ -110,8 +110,6 @@
             <option value="all">Todos os status</option>
             <option value="open">Abertos</option>
             <option value="closed">Fechados</option>
-            <option value="scheduled">Em agendamento</option>
-            <option value="verified">Verificado Hoje</option>
         </select>
     </div>
 </div>
@@ -121,7 +119,7 @@
     <div class="modal-content p-6 w-full max-w-md">
         <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
         <form id="noteForm" class="space-y-4">
-            <div class="mb-4">
+            <div>
                 <label for="contractNumber" class="block text-gray-700">Número de Contrato: *</label>
                 <input type="text" 
                        id="contractNumber" 
@@ -130,36 +128,35 @@
                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
-            <div class="mb-4 grid grid-cols-2 gap-4">
-                <div>
-                    <label for="locator" class="block text-gray-700">Locador: *</label>
-                    <input type="text" 
-                           id="locator" 
-                           required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-                <div>
-                    <label for="tenant" class="block text-gray-700">Locatário: *</label>
-                    <input type="text" 
-                           id="tenant" 
-                           required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
+            <div>
+                <label for="locator" class="block text-gray-700">Locador: *</label>
+                <input type="text" 
+                       id="locator" 
+                       required
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
-            <div class="mb-4">
+            <div>
+                <label for="tenant" class="block text-gray-700">Locatário: *</label>
+                <input type="text" 
+                       id="tenant" 
+                       required
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div>
+                <label for="problem" class="block text-gray-700">Problema: *</label>
+                <textarea id="problem" 
+                         required
+                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
+            </div>
+
+            <div>
                 <label for="address" class="block text-gray-700">Endereço: *</label>
                 <input type="text" 
                        id="address" 
                        required
                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-            </div>
-
-            <div class="mb-4">
-                <label for="problem" class="block text-gray-700">Problema: *</label>
-                <textarea id="problem" 
-                         required
-                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
             </div>
 
             <div class="flex justify-end space-x-2">
@@ -174,7 +171,7 @@
     </div>
 </div>
 
-<!-- Note Details Modal -->
+        <!-- Note Details Modal -->
 <div id="noteDetailsModal" class="modal-overlay hidden">
     <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
@@ -216,10 +213,6 @@
                         </button>
                     </form>
 
-                    <button id="viewAllCommentsBtn" class="btn btn-gray w-full mt-2">
-                        <i class="fas fa-comments mr-2"></i>Exibir Todos os Comentários
-                    </button>
-
                     <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
                 </div>
             </div>
@@ -227,20 +220,6 @@
 
         <div class="mt-4 text-right">
             <button type="button" id="closeDetailsBtn" class="btn btn-gray">
-                <i class="fas fa-times mr-2"></i>Fechar
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Full Comments Modal -->
-<div id="fullCommentsModal" class="modal-overlay hidden">
-    <div class="modal-content p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <h2 class="text-2xl font-semibold mb-4 text-center">Todos os Comentários</h2>
-        <div id="fullCommentsContainer" class="space-y-4 max-h-[70vh] overflow-y-auto pr-2"></div>
-        
-        <div class="mt-4 text-right">
-            <button type="button" id="closeFullCommentsBtn" class="btn btn-gray">
                 <i class="fas fa-times mr-2"></i>Fechar
             </button>
         </div>
@@ -310,10 +289,10 @@ const utils = {
     formatDate: (dateString) => {
         try {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return '23/01/2025 22:55:44';
-            return date.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+            if (isNaN(date.getTime())) return '2025-01-23 22:55:44';
+            return dateString;
         } catch (e) {
-            return '23/01/2025 22:55:44';
+            return '2025-01-23 22:55:44';
         }
     },
 
@@ -326,7 +305,7 @@ const utils = {
     },
 
     getCurrentDateTime: () => {
-        return '23/01/2025 22:55:44';
+        return '2025-01-23 22:55:44';
     },
 
     downloadFile: (content, filename, type = 'text/plain') => {
@@ -344,11 +323,11 @@ const utils = {
     }
 };
 
-class NoteManager {
+    class NoteManager {
     constructor() {
         this.notes = {};
         this.currentUser = 'VictorCainj';
-        this.currentDateTime = '23/01/2025 22:56:23';
+        this.currentDateTime = '2025-01-23 22:56:23';
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
@@ -420,7 +399,7 @@ class NoteManager {
             document.getElementById('noteDetailsModal').classList.add('hidden');
         });
 
-// Event Listeners para ações nos detalhes
+        // Event Listeners para ações nos detalhes
         document.getElementById('copyDetailsBtn').addEventListener('click', () => {
             const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
@@ -445,31 +424,11 @@ class NoteManager {
             this.deleteNote(noteKey);
         });
 
-        document.getElementById('viewAllCommentsBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.viewAllComments(noteKey);
-        });
-
-        document.getElementById('closeFullCommentsBtn').addEventListener('click', () => {
-            document.getElementById('fullCommentsModal').classList.add('hidden');
-        });
-
         // Event Listener global para tecla ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.getElementById('noteModal').classList.add('hidden');
                 document.getElementById('noteDetailsModal').classList.add('hidden');
-                document.getElementById('fullCommentsModal').classList.add('hidden');
-            }
-        });
-
-        // Event Listener global para tecla Delete/Del
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Delete' || e.key === 'Del') {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
-                this.deleteNote(noteKey);
             }
         });
     }
@@ -506,6 +465,7 @@ class NoteManager {
                                 this.notes[noteKey] = {
                                     ...note,
                                     createdAt: note.createdAt || '2025-01-23 22:56:52',
+                                    createdBy: note.createdBy || 'VictorCainj',
                                     status: note.status || 'open',
                                     comments: Array.isArray(note.comments) ? note.comments : []
                                 };
@@ -561,7 +521,7 @@ class NoteManager {
             note.comments = note.comments.map(comment => ({
                 id: comment.id || Date.now().toString(),
                 text: utils.sanitizeInput(comment.text || ''),
-                dateTime: comment.dateTime || '23/01/2025 22:56:52',
+                dateTime: comment.dateTime || '2025-01-23 22:56:52',
                 author: comment.author || 'VictorCainj',
                 editedAt: comment.editedAt || null
             }));
@@ -595,11 +555,12 @@ class NoteManager {
                     problem: utils.sanitizeInput(note.problem || 'Não especificado'),
                     address: utils.sanitizeInput(note.address || 'Não especificado'),
                     status: note.status || 'open',
-                    createdAt: note.createdAt || '23/01/2025 22:56:52',
+                    createdAt: note.createdAt || '2025-01-23 22:56:52',
+                    createdBy: note.createdBy || 'VictorCainj',
                     comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
-                        dateTime: comment.dateTime || '23/01/2025 22:56:52',
+                        dateTime: comment.dateTime || '2025-01-23 22:56:52',
                         author: comment.author || 'VictorCainj',
                         editedAt: comment.editedAt || null
                     })) : []
@@ -613,7 +574,7 @@ class NoteManager {
             });
 
             const notesJson = JSON.stringify(exportData, null, 2);
-            const filename = `contratos_${this.currentDateTime.split(' ')[0].split('/').reverse().join('-')}.json`;
+            const filename = `contratos_${this.currentDateTime.split(' ')[0]}.json`;
             utils.downloadFile(notesJson, filename, 'application/json');
             utils.showNotification('Contratos exportados com sucesso!', 'success');
         } catch (error) {
@@ -670,7 +631,8 @@ class NoteManager {
                 ...sanitizedData,
                 status: 'open',
                 comments: [],
-                createdAt: '23/01/2025 22:57:38'
+                createdAt: '2025-01-23 22:57:38',
+                createdBy: 'VictorCainj'
             };
 
             this.renderNote(noteKey);
@@ -693,10 +655,7 @@ class NoteManager {
             
             const noteButton = document.createElement('button');
             noteButton.className = `note-button w-full px-4 py-3 ${
-                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
-                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
-                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
-                'bg-blue-500 hover:bg-blue-700'))
+                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' : 'bg-blue-500 hover:bg-blue-700'
             } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
             
             noteButton.innerHTML = `
@@ -705,9 +664,7 @@ class NoteManager {
                 <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
                 <span class="block text-xs mt-1">${utils.formatDate(note.createdAt)}</span>
                 <span class="block text-xs mt-1">
-                    ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
-                    (note.status === 'scheduled' ? 'Em agendamento' : 
-                    (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+                    ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 'Finalizado'}
                 </span>
                 <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
             `;
@@ -752,34 +709,23 @@ class NoteManager {
                         <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
                         <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
                         <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
-                        <p><strong>Status:</strong> <span class="font-semibold ${
-                            note.status === 'open' ? 'text-blue-600' :
-                            (note.status === 'scheduled' ? 'text-yellow-600' :
-                            (note.status === 'verified' ? 'text-purple-600' : 'text-green-600'))
-                        }">
-                            ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
-                            (note.status === 'scheduled' ? 'Em agendamento' : 
-                            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+                        <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-blue-600' : 'text-green-600'}">
+                            ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 'Finalizado'}
                         </span></p>
-                        <p><strong>Criado em:</strong> <span>${utils.formatDate(note.createdAt) || '23/01/2025 22:58:21'}</span></p>
-                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
+                        <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy || 'VictorCainj')}</span></p>
+                        <p><strong>Criado em:</strong> <span>${note.createdAt || '2025-01-23 22:58:21'}</span></p>
+                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${note.closedAt}</span></p>` : ''}
                     </div>
                 </div>
             `;
 
             const toggleBtn = document.getElementById('toggleStatusBtn');
-            if (note.status === 'closed') {
-                toggleBtn.className = 'btn btn-blue flex-1';
-                toggleBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Reabrir Chamado';
-            } else if (note.status === 'scheduled') {
-                toggleBtn.className = 'btn btn-purple flex-1';
-                toggleBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Verificar Hoje';
-            } else if (note.status === 'verified') {
+            if (note.status === 'open') {
                 toggleBtn.className = 'btn btn-green flex-1';
                 toggleBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Finalizar Chamado';
             } else {
-                toggleBtn.className = 'btn btn-yellow flex-1';
-                toggleBtn.innerHTML = '<i class="fas fa-calendar-alt mr-2"></i>Agendar';
+                toggleBtn.className = 'btn btn-blue flex-1';
+                toggleBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Reabrir Chamado';
             }
 
             this.renderComments(noteKey);
@@ -809,8 +755,8 @@ class NoteManager {
                         <div class="flex-grow">
                             <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
                             <div class="mt-2 text-sm text-gray-500">
-                                <span>${utils.formatDate(comment.dateTime) || '23/01/2025 22:58:21'}</span>
-                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+                                <span>${comment.dateTime || '2025-01-23 22:58:21'}</span>
+                                ${comment.editedAt ? ` <span class="italic">(editado em ${comment.editedAt})</span>` : ''}
                             </div>
                         </div>
                         <button class="ml-2 text-blue-500 hover:text-blue-700" 
@@ -827,41 +773,7 @@ class NoteManager {
         }
     }
 
-    viewAllComments(noteKey) {
-        try {
-            const fullCommentsContainer = document.getElementById('fullCommentsContainer');
-            fullCommentsContainer.innerHTML = '';
-
-            const note = this.notes[noteKey];
-            if (!Array.isArray(note.comments)) {
-                note.comments = [];
-            }
-
-            note.comments.forEach(comment => {
-                const commentElement = document.createElement('div');
-                commentElement.className = 'comment-box';
-                commentElement.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex-grow">
-                            <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
-                            <div class="mt-2 text-sm text-gray-500">
-                                <span>${utils.formatDate(comment.dateTime) || '23/01/2025 22:58:21'}</span>
-                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                fullCommentsContainer.appendChild(commentElement);
-            });
-
-            document.getElementById('fullCommentsModal').classList.remove('hidden');
-        } catch (error) {
-            console.error('Erro ao exibir todos os comentários:', error);
-            utils.showNotification('Erro ao carregar comentários', 'error');
-        }
-    }
-
-handleCommentSubmit() {
+    handleCommentSubmit() {
         try {
             const commentText = document.getElementById('commentText').value;
             if (!commentText.trim()) {
@@ -924,25 +836,14 @@ handleCommentSubmit() {
     toggleNoteStatus(noteKey) {
         try {
             const note = this.notes[noteKey];
-            if (note.status === 'open') {
-                note.status = 'scheduled';
-            } else if (note.status === 'scheduled') {
-                note.status = 'verified';
-            } else if (note.status === 'verified') {
-                note.status = 'closed';
-                note.closedAt = '2025-01-23 22:59:03';
-            } else {
-                note.status = 'open';
-                note.closedAt = null;
-            }
-
+            note.status = note.status === 'open' ? 'closed' : 'open';
+            note.closedAt = note.status === 'closed' ? '2025-01-23 22:59:03' : null;
+            
             this.saveToLocalStorage();
             this.renderNote(noteKey);
             this.showNoteDetails(noteKey);
             
-            const status = note.status === 'open' ? 'reaberto' : 
-                (note.status === 'scheduled' ? 'em agendamento' : 
-                (note.status === 'verified' ? 'verificado hoje' : 'finalizado'));
+            const status = note.status === 'open' ? 'reaberto' : 'finalizado';
             utils.showNotification(`Chamado ${status} com sucesso!`, 'success');
         } catch (error) {
             console.error('Erro ao alterar status:', error);
@@ -980,11 +881,9 @@ Locador: ${note.locator}
 Locatário: ${note.tenant}
 Problema: ${note.problem}
 Endereço: ${note.address}
-Status: ${note.status === 'open' ? 'Aberto' : 
-            (note.status === 'scheduled' ? 'Em agendamento' : 
-            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-Criado em: ${utils.formatDate(note.createdAt)}
-${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
+Status: ${note.status === 'open' ? 'Aberto' : 'Finalizado'}
+Criado em: ${note.createdAt}
+${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
             `.trim();
 
             navigator.clipboard.writeText(details).then(() => {
@@ -1007,7 +906,7 @@ ${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
             };
             
             const notesJson = JSON.stringify(exportData, null, 2);
-            const filename = `contrato_${noteKey}_${this.currentDateTime.split(' ')[0].split('/').reverse().join('-')}.json`;
+            const filename = `contrato_${noteKey}_${this.currentDateTime.split(' ')[0]}.json`;
             utils.downloadFile(notesJson, filename, 'application/json');
             utils.showNotification('Contrato exportado com sucesso!', 'success');
         } catch (error) {
