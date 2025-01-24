@@ -71,8 +71,7 @@
         }
     </style>
 </head>
-
-    <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
     <!-- Notification Component -->
     <div id="notification" class="notification hidden"></div>
 
@@ -192,8 +191,7 @@
             </form>
         </div>
     </div>
-
-        <!-- Note Details Modal -->
+    <!-- Note Details Modal -->
     <div id="noteDetailsModal" class="modal-overlay hidden">
         <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
             <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
@@ -327,7 +325,6 @@ const utils = {
                    .replace(/'/g, '&#39;');
     }
 };
-
     class NoteManager {
     constructor() {
         if (window.noteManager) {
@@ -418,8 +415,7 @@ const utils = {
             container.appendChild(noteElement);
         }
     }
-
-    initializeEventListeners() {
+        initializeEventListeners() {
         const elementHandlers = {
             'createNoteBtn': {
                 event: 'click',
@@ -549,8 +545,7 @@ const utils = {
             }
         });
     }
-
-    handleSearch(searchTerm) {
+        handleSearch(searchTerm) {
         const notes = document.querySelectorAll('.note-card');
         let visibleCount = 0;
         
@@ -666,8 +661,7 @@ const utils = {
         modal.classList.remove('hidden');
         this.renderComments(noteKey);
     }
-
-    handleFormSubmit() {
+        handleFormSubmit() {
         const formData = {
             contractNumber: document.getElementById('contractNumber').value.trim(),
             locator: document.getElementById('locator').value.trim(),
@@ -795,8 +789,7 @@ const utils = {
             utils.showNotification('Erro ao carregar dados salvos.', 'error');
         }
     }
-
-    handleCommentSubmit() {
+        handleCommentSubmit() {
         if (!this.activeNoteKey) return;
 
         const commentText = document.getElementById('commentText').value.trim();
@@ -905,8 +898,7 @@ const utils = {
             commentsContainer.appendChild(commentElement);
         });
     }
-
-    editComment(noteKey, commentId, newText) {
+        editComment(noteKey, commentId, newText) {
         try {
             const note = this.notes[noteKey];
             const comment = note.comments.find(c => c.id === commentId);
@@ -999,8 +991,7 @@ const utils = {
 
         utils.showNotification('Informações de agendamento atualizadas!', 'success');
     }
-
-    exportAllNotes() {
+        exportAllNotes() {
         try {
             const dataStr = JSON.stringify(this.notes, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
