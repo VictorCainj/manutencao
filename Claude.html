@@ -71,8 +71,7 @@
         }
     </style>
 </head>
-
-    <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
 
 <!-- Notification Component -->
 <div id="notification" class="notification hidden"></div>
@@ -188,8 +187,7 @@
         </form>
     </div>
 </div>
-
-        <!-- Note Details Modal -->
+<!-- Note Details Modal -->
 <div id="noteDetailsModal" class="modal-overlay hidden">
     <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
@@ -324,7 +322,6 @@ const utils = {
                    .replace(/'/g, '&#39;');
     }
 };
-
     class NoteManager {
     constructor() {
         this.notes = {};
@@ -445,8 +442,7 @@ const utils = {
             }
         });
     }
-
-    handleFormSubmit() {
+        handleFormSubmit() {
         const formData = {
             contractNumber: document.getElementById('contractNumber').value,
             locator: document.getElementById('locator').value,
@@ -579,8 +575,7 @@ const utils = {
             container.appendChild(emptyMessage);
         }
     }
-
-    addNote(formData) {
+        addNote(formData) {
         try {
             const sanitizedData = {
                 contractNumber: utils.sanitizeInput(formData.contractNumber),
@@ -699,8 +694,7 @@ const utils = {
             utils.showNotification('Erro ao copiar detalhes', 'error');
         }
     }
-
-    renderNote(noteKey) {
+        renderNote(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (!note) return;
@@ -797,8 +791,7 @@ const utils = {
             container.appendChild(message);
         }
     }
-
-    showNoteDetails(noteKey) {
+        showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (!note) return;
