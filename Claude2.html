@@ -37,7 +37,7 @@
         }
 
         .note-card {
-            @apply bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer;
+        @apply bg-white p-3 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer text-sm;
         }
 
         .comment-box {
@@ -378,22 +378,21 @@
                     'closed': 'fa-check-circle'
                 };
 
-                noteElement.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-semibold text-lg">${utils.sanitizeInput(note.contractNumber)}</h3>
-                        <i class="fas ${statusIcons[note.status]} ${statusColors[note.status]}"></i>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-1">${utils.sanitizeInput(note.locator)}</p>
-                    <p class="text-sm text-gray-600 mb-1">${utils.sanitizeInput(note.tenant)}</p>
-                    <p class="text-sm text-gray-500 truncate mb-2">${utils.sanitizeInput(note.address)}</p>
-                    <div class="text-xs text-gray-400">
-                        ${utils.formatDate(note.createdAt)}
-                    </div>
-                `;
-
-                noteElement.addEventListener('click', () => this.showNoteDetails(noteKey));
-                container.appendChild(noteElement);
-            }
+noteElement.innerHTML = `
+    <div class="flex justify-between items-start">
+        <div class="flex-1">
+            <div class="flex items-center justify-between mb-1">
+                <h3 class="font-semibold">${utils.sanitizeInput(note.contractNumber)}</h3>
+                <i class="fas ${statusIcons[note.status]} ${statusColors[note.status]}"></i>
+            </div>
+            <p class="text-xs text-gray-600">${utils.sanitizeInput(note.locator)} / ${utils.sanitizeInput(note.tenant)}</p>
+            <p class="text-xs text-gray-500 truncate">${utils.sanitizeInput(note.address)}</p>
+            <div class="text-xs text-gray-400 mt-1">
+                ${utils.formatDate(note.createdAt)}
+            </div>
+        </div>
+    </div>
+`;
 
             addNote(formData) {
                 const noteKey = `#${formData.contractNumber}`;
@@ -474,7 +473,7 @@
                 };
 
                 modal.innerHTML = `
-                    <div class="modal-content p-6 w-full max-w-4xl mx-auto mt-20">
+                    <div class="modal-content p-6 w-full max-w-4xl mx-auto mt-8"> <!-- Reduzi o mt-20 para mt-8 -->
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-semibold">Detalhes da Anotação</h2>
                             <button id="closeDetailsBtn" class="text-gray-500 hover:text-gray-700">
@@ -647,30 +646,54 @@
                 }
             }
 
-            updateNoteStatus(noteKey, newStatus) {
-                const note = this.notes[noteKey];
-                if (!note) return;
+updateNoteStatus(noteKey, newStatus) {
+    const note = this.notes[noteKey];
+    if (!note) return;
 
-                const oldStatus = note.status;
-                note.status = newStatus;
+    const oldStatus = note.status;
+    note.status = newStatus;
 
-                switch (newStatus) {
-                    case 'open':
-                        note.scheduleDate = null;
-                        note.serviceProvider = null;
-                        note.closedAt = null;
-                        break;
+    switch (newStatus) {
+        case 'open':
+            note.scheduleDate = null;
+            note.serviceProvider = null;
+            note.closedAt = null;
+            break;
 
-                    case 'scheduled':
-                        note.closedAt = null;
-                        break;
+        case 'scheduled':
+            note.closedAt = null;
+            if (!note.scheduleDate) {
+                note.scheduleDate = '';
+            }
+            if (!note.serviceProvider) {
+                note.serviceProvider = '';
+            }
+            break;
 
-                    case 'closed':
-                        note.closedAt = new Date().toISOString();
-                        break;
-                }
+        case 'closed':
+            note.closedAt = new Date().toISOString();
+            break;
+    }
 
-                this.saveToLocalStorage();
+    this.saveToLocalStorage();
+    
+    // Remove a nota antiga antes de renderizar a nova
+    const noteElement = document.querySelector(`[data-note-key="${noteKey}"]`);
+    if (noteElement) {
+        noteElement.remove();
+    }
+    
+    this.renderNote(noteKey);
+    this.showNoteDetails(noteKey);
+
+    const statusMessages = {
+        'open': 'Anotação reaberta com sucesso!',
+        'scheduled': 'Anotação movida para agendamento!',
+        'closed': 'Anotação finalizada com sucesso!'
+    };
+
+    utils.showNotification(statusMessages[newStatus], 'success');
+}
                 this.renderNote(noteKey);
                 this.showNoteDetails(noteKey);
 
