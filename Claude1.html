@@ -62,8 +62,7 @@
         }
     </style>
 </head>
-
-    <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
 
 <!-- Notification Component -->
 <div id="notification" class="notification hidden"></div>
@@ -171,16 +170,14 @@
     </div>
 </div>
 
-        <!-- Note Details Modal -->
+<!-- Note Details Modal -->
 <div id="noteDetailsModal" class="modal-overlay hidden">
     <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Coluna da esquerda - Detalhes -->
             <div class="space-y-4">
                 <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md"></div>
-                
                 <div class="flex space-x-2">
                     <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
                         <i class="fas fa-copy mr-2"></i>Copiar
@@ -202,7 +199,6 @@
             <div class="space-y-4">
                 <div class="bg-gray-50 p-4 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-4">Comentários</h3>
-                    
                     <form id="commentForm" class="mb-4">
                         <textarea id="commentText" 
                                  required
@@ -212,12 +208,10 @@
                             <i class="fas fa-comment mr-2"></i>Adicionar Comentário
                         </button>
                     </form>
-
                     <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
                 </div>
             </div>
         </div>
-
         <div class="mt-4 text-right">
             <button type="button" id="closeDetailsBtn" class="btn btn-gray">
                 <i class="fas fa-times mr-2"></i>Fechar
@@ -227,8 +221,7 @@
 </div>
 
 <!-- Notes Container -->
-<div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-</div>
+<div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
 
 <!-- Início do JavaScript -->
 <script>
@@ -323,7 +316,7 @@ const utils = {
     }
 };
 
-    class NoteManager {
+class NoteManager {
     constructor() {
         this.notes = {};
         this.currentUser = 'VictorCainj';
@@ -433,7 +426,7 @@ const utils = {
         });
     }
 
-    handleFileImport(event) {
+handleFileImport(event) {
         try {
             utils.showLoading(true);
             const file = event.target.files[0];
@@ -451,7 +444,7 @@ const utils = {
             reader.onload = async (e) => {
                 try {
                     const importedNotes = JSON.parse(e.target.result);
-                    
+
                     if (!importedNotes || typeof importedNotes !== 'object') {
                         throw new Error('Formato de arquivo inválido');
                     }
@@ -508,7 +501,7 @@ const utils = {
 
             const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
             const missingFields = requiredFields.filter(field => !note[field]);
-            
+
             if (missingFields.length > 0) {
                 throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
             }
@@ -895,7 +888,7 @@ ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
         }
     }
 
-    downloadSingleContract(noteKey) {
+downloadSingleContract(noteKey) {
         try {
             const note = this.notes[noteKey];
             const exportData = {
