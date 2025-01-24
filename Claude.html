@@ -10,150 +10,188 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        .btn {
+            @apply px-4 py-2 rounded-md transition-colors duration-200 flex items-center justify-center;
+        }
+        
+        .btn-blue {
+            @apply bg-blue-500 text-white hover:bg-blue-600;
+        }
+        
+        .btn-green {
+            @apply bg-green-500 text-white hover:bg-green-600;
+        }
+        
+        .btn-yellow {
+            @apply bg-yellow-500 text-white hover:bg-yellow-600;
+        }
+        
+        .btn-red {
+            @apply bg-red-500 text-white hover:bg-red-600;
+        }
+        
+        .btn-gray {
+            @apply bg-gray-500 text-white hover:bg-gray-600;
+        }
+
+        .note-card {
+            @apply bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer;
+        }
+
+        .comment-box {
+            @apply bg-gray-50 p-4 rounded-lg mb-4;
+        }
+
+        .modal-overlay {
+            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+        }
+
+        .modal-content {
+            @apply bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto;
+        }
+
+        .notification {
+            @apply fixed top-4 right-4 px-6 py-3 rounded-md text-white z-50 transition-all duration-300 transform;
+        }
+
+        .notification-success {
+            @apply bg-green-500;
+        }
+
+        .notification-error {
+            @apply bg-red-500;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-4">
-    <!-- Container Principal -->
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-2xl font-bold text-center mb-8">Sistema de Anotações de Contratos</h1>
-        
-        <!-- Barra de Ferramentas -->
-        <div class="flex justify-center gap-4 mb-6">
-            <button id="createNoteBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                <i class="fas fa-plus mr-2"></i>Nova Anotação
-            </button>
-            <button id="importNotesBtn" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
-                <i class="fas fa-file-import mr-2"></i>Importar
-            </button>
-            <button id="downloadNotesBtn" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">
-                <i class="fas fa-download mr-2"></i>Exportar Todos
-            </button>
-        </div>
 
-        <!-- Barra de Busca e Filtros -->
-        <div class="mb-6">
-            <input type="text" 
-                   id="searchInput" 
-                   placeholder="Pesquisar contratos..." 
-                   class="w-full p-2 border rounded mb-2">
-            <div class="flex gap-4">
-                <select id="dateSort" class="p-2 border rounded">
-                    <option value="newest">Mais recentes</option>
-                    <option value="oldest">Mais antigos</option>
-                </select>
-                <select id="statusFilter" class="p-2 border rounded">
-                    <option value="all">Todos os status</option>
-                    <option value="open">Abertos</option>
-                    <option value="scheduled">Agendados</option>
-                    <option value="closed">Fechados</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Container de Notas -->
-        <div id="notesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- As notas serão inseridas aqui dinamicamente -->
-        </div>
-
-        <!-- Modal de Nova Anotação -->
-        <div id="noteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
-            <div class="bg-white p-6 rounded-lg max-w-md mx-auto mt-20">
-                <h2 class="text-xl font-bold mb-4">Nova Anotação</h2>
-                <form id="noteForm">
-                    <!-- Campos do formulário serão adicionados aqui -->
-                </form>
-            </div>
-        </div>
-
-        <!-- Modal de Detalhes -->
-        <div id="noteDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
-            <div class="bg-white p-6 rounded-lg max-w-4xl mx-auto mt-20">
-                <!-- Conteúdo dos detalhes será adicionado aqui -->
-            </div>
-        </div>
-
-        <!-- Input file oculto para importação -->
-        <input type="file" id="fileInput" class="hidden" accept=".json">
+<!-- Container Principal -->
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-2xl font-bold text-center mb-8">Sistema de Anotações de Contratos</h1>
+    
+    <!-- Barra de Ferramentas -->
+    <div class="flex justify-center gap-4 mb-6">
+        <button id="createNoteBtn" class="btn btn-blue">
+            <i class="fas fa-plus mr-2"></i>Nova Anotação
+        </button>
+        <button id="importNotesBtn" class="btn btn-green">
+            <i class="fas fa-file-import mr-2"></i>Importar
+        </button>
+        <button id="downloadNotesBtn" class="btn btn-yellow">
+            <i class="fas fa-download mr-2"></i>Exportar Todos
+        </button>
     </div>
+
+    <!-- Barra de Busca e Filtros -->
+    <div class="mb-6">
+        <input type="text" 
+               id="searchInput" 
+               placeholder="Pesquisar contratos..." 
+               class="w-full p-2 border rounded mb-2">
+        <div class="flex gap-4">
+            <select id="dateSort" class="p-2 border rounded">
+                <option value="newest">Mais recentes</option>
+                <option value="oldest">Mais antigos</option>
+            </select>
+            <select id="statusFilter" class="p-2 border rounded">
+                <option value="all">Todos os status</option>
+                <option value="open">Abertos</option>
+                <option value="scheduled">Agendados</option>
+                <option value="closed">Fechados</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Container de Notas -->
+    <div id="notesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- As notas serão inseridas aqui dinamicamente -->
+    </div>
+
+    <!-- Modal de Nova Anotação -->
+    <div id="noteModal" class="modal-overlay hidden">
+        <div class="modal-content p-6 w-full max-w-2xl">
+            <h2 class="text-2xl font-semibold mb-4">Nova Anotação</h2>
+            <form id="noteForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="contractNumber" class="block text-gray-700 mb-2">Número do Contrato*</label>
+                        <input type="text" 
+                               id="contractNumber" 
+                               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                               required
+                               placeholder="Ex: CT12345">
+                    </div>
+                    <div>
+                        <label for="creationDate" class="block text-gray-700 mb-2">Data de Criação*</label>
+                        <input type="date" 
+                               id="creationDate" 
+                               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                               required>
+                    </div>
+                    <div>
+                        <label for="locator" class="block text-gray-700 mb-2">Locador*</label>
+                        <input type="text" 
+                               id="locator" 
+                               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                               required
+                               placeholder="Nome do locador">
+                    </div>
+                    <div>
+                        <label for="tenant" class="block text-gray-700 mb-2">Locatário*</label>
+                        <input type="text" 
+                               id="tenant" 
+                               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                               required
+                               placeholder="Nome do locatário">
+                    </div>
+                    <div class="col-span-full">
+                        <label for="address" class="block text-gray-700 mb-2">Endereço*</label>
+                        <input type="text" 
+                               id="address" 
+                               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                               required
+                               placeholder="Endereço completo">
+                    </div>
+                    <div class="col-span-full">
+                        <label for="problem" class="block text-gray-700 mb-2">Problema*</label>
+                        <textarea id="problem" 
+                                  class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
+                                  required
+                                  placeholder="Descreva o problema"></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-2 mt-6">
+                    <button type="button" 
+                            id="cancelBtn"
+                            class="btn btn-gray">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </button>
+                    <button type="submit" 
+                            class="btn btn-blue">
+                        <i class="fas fa-save mr-2"></i>Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes -->
+    <div id="noteDetailsModal" class="modal-overlay hidden">
+        <!-- O conteúdo será inserido dinamicamente -->
+    </div>
+
+    <!-- Input file oculto para importação -->
+    <input type="file" id="fileInput" class="hidden" accept=".json">
 
     <!-- Notificação -->
     <div id="notification" class="fixed top-4 right-4 hidden"></div>
+</div>
 
-</body>
-</html>
-
-<!-- Adicionar logo após o título no head, antes do Tailwind CSS -->
-<style>
-    .btn {
-        @apply px-4 py-2 rounded-md transition-colors duration-200 flex items-center justify-center;
-    }
-    
-    .btn-blue {
-        @apply bg-blue-500 text-white hover:bg-blue-600;
-    }
-    
-    .btn-green {
-        @apply bg-green-500 text-white hover:bg-green-600;
-    }
-    
-    .btn-yellow {
-        @apply bg-yellow-500 text-white hover:bg-yellow-600;
-    }
-    
-    .btn-red {
-        @apply bg-red-500 text-white hover:bg-red-600;
-    }
-    
-    .btn-gray {
-        @apply bg-gray-500 text-white hover:bg-gray-600;
-    }
-
-    .note-card {
-        @apply bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer;
-    }
-
-    .comment-box {
-        @apply bg-gray-50 p-4 rounded-lg mb-4;
-    }
-
-    .modal-overlay {
-        @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
-    }
-
-    .modal-content {
-        @apply bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto;
-    }
-
-    .notification {
-        @apply fixed top-4 right-4 px-6 py-3 rounded-md text-white z-50 transition-all duration-300 transform;
-    }
-
-    .notification-success {
-        @apply bg-green-500;
-    }
-
-    .notification-error {
-        @apply bg-red-500;
-    }
-
-    .progress-bar {
-        @apply h-full bg-blue-500 transition-all duration-300;
-    }
-</style>
-
-<!-- Adicionar logo antes do fechamento do body -->
 <script>
-// Configuração inicial do Tailwind
-tailwind.config = {
-    theme: {
-        extend: {
-            zIndex: {
-                '100': '100',
-            }
-        }
-    }
-}
-
-// Utilitários básicos
+// Utilitários
 const utils = {
     formatDate: (date, includeTime = false) => {
         if (!date) return '';
@@ -178,190 +216,28 @@ const utils = {
         setTimeout(() => {
             notification.classList.add('hidden');
         }, 3000);
+    },
+
+    sanitizeInput: (text) => {
+        if (!text) return '';
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 };
 
-// Garantir que o DOM está carregado antes de inicializar
-document.addEventListener('DOMContentLoaded', () => {
-    // Teste inicial para verificar se os elementos estão sendo encontrados
-    const createNoteBtn = document.getElementById('createNoteBtn');
-    if (createNoteBtn) {
-        createNoteBtn.addEventListener('click', () => {
-            const modal = document.getElementById('noteModal');
-            if (modal) {
-                modal.classList.remove('hidden');
-                utils.showNotification('Modal aberto com sucesso!', 'success');
-            } else {
-                console.error('Modal não encontrado');
-            }
-        });
-    } else {
-        console.error('Botão de criar nota não encontrado');
-    }
-});
-</script>
-
-<!-- Atualizar o modal de nova anotação dentro do body -->
-<div id="noteModal" class="modal-overlay hidden">
-    <div class="modal-content p-6 w-full max-w-2xl">
-        <h2 class="text-2xl font-semibold mb-4">Nova Anotação</h2>
-        <form id="noteForm" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="contractNumber" class="block text-gray-700 mb-2">Número do Contrato*</label>
-                    <input type="text" 
-                           id="contractNumber" 
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                           required
-                           placeholder="Ex: CT12345">
-                </div>
-                <div>
-                    <label for="creationDate" class="block text-gray-700 mb-2">Data de Criação*</label>
-                    <input type="date" 
-                           id="creationDate" 
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                           required>
-                </div>
-                <div>
-                    <label for="locator" class="block text-gray-700 mb-2">Locador*</label>
-                    <input type="text" 
-                           id="locator" 
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                           required
-                           placeholder="Nome do locador">
-                </div>
-                <div>
-                    <label for="tenant" class="block text-gray-700 mb-2">Locatário*</label>
-                    <input type="text" 
-                           id="tenant" 
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                           required
-                           placeholder="Nome do locatário">
-                </div>
-                <div class="col-span-full">
-                    <label for="address" class="block text-gray-700 mb-2">Endereço*</label>
-                    <input type="text" 
-                           id="address" 
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                           required
-                           placeholder="Endereço completo">
-                </div>
-                <div class="col-span-full">
-                    <label for="problem" class="block text-gray-700 mb-2">Problema*</label>
-                    <textarea id="problem" 
-                              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
-                              required
-                              placeholder="Descreva o problema"></textarea>
-                </div>
-            </div>
-            
-            <div class="flex justify-end space-x-2 mt-6">
-                <button type="button" 
-                        id="cancelBtn"
-                        class="btn btn-gray">
-                    <i class="fas fa-times mr-2"></i>Cancelar
-                </button>
-                <button type="submit" 
-                        class="btn btn-blue">
-                    <i class="fas fa-save mr-2"></i>Salvar
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Adicionar antes do fechamento do body -->
-<script>
-// Inicialização do formulário
-document.addEventListener('DOMContentLoaded', () => {
-    const noteForm = document.getElementById('noteForm');
-    const noteModal = document.getElementById('noteModal');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const createNoteBtn = document.getElementById('createNoteBtn');
-    const creationDate = document.getElementById('creationDate');
-
-    // Configurar data atual no campo de data
-    const today = new Date().toISOString().split('T')[0];
-    if (creationDate) {
-        creationDate.value = today;
-        creationDate.max = today;
-    }
-
-    // Abrir modal
-    if (createNoteBtn) {
-        createNoteBtn.addEventListener('click', () => {
-            if (noteModal) {
-                noteModal.classList.remove('hidden');
-                document.getElementById('contractNumber')?.focus();
-            }
-        });
-    }
-
-    // Fechar modal
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => {
-            if (noteModal) {
-                noteModal.classList.add('hidden');
-                noteForm?.reset();
-            }
-        });
-    }
-
-    // Fechar modal com ESC
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && noteModal) {
-            noteModal.classList.add('hidden');
-            noteForm?.reset();
-        }
-    });
-
-    // Submeter formulário
-    if (noteForm) {
-        noteForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            // Coletar dados do formulário
-            const formData = {
-                contractNumber: document.getElementById('contractNumber')?.value.trim(),
-                creationDate: document.getElementById('creationDate')?.value,
-                locator: document.getElementById('locator')?.value.trim(),
-                tenant: document.getElementById('tenant')?.value.trim(),
-                address: document.getElementById('address')?.value.trim(),
-                problem: document.getElementById('problem')?.value.trim()
-            };
-
-            // Validar dados
-            if (Object.values(formData).some(value => !value)) {
-                utils.showNotification('Por favor, preencha todos os campos obrigatórios.', 'error');
-                return;
-            }
-
-            // Salvar nota (temporário até implementarmos o NoteManager)
-            console.log('Dados do formulário:', formData);
-            utils.showNotification('Nota criada com sucesso!', 'success');
-            
-            // Fechar modal e limpar formulário
-            noteModal.classList.add('hidden');
-            noteForm.reset();
-        });
-    }
-});
-</script>
-
-// Adicionar antes do fechamento do body, após o script anterior
-<script>
-// Classe NoteManager - Gerenciamento das notas
+// Classe principal de gerenciamento de notas
 class NoteManager {
     constructor() {
-        // Singleton pattern
         if (window.noteManager) {
             return window.noteManager;
         }
 
         this.notes = {};
-        this.currentUser = 'VictorCainj';
-        this.currentDateTime = '2025-01-24 01:03:14';
-        
+        this.activeNoteKey = null;
         this.initialize();
         window.noteManager = this;
     }
@@ -476,50 +352,47 @@ class NoteManager {
         return true;
     }
 
-    // Função auxiliar para sanitizar input
-    static sanitizeInput(text) {
-        if (!text) return '';
-        return text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
-}
+    filterAndSortNotes() {
+        const searchTerm = document.getElementById('searchInput')?.value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter')?.value;
+        const dateSort = document.getElementById('dateSort')?.value;
 
-// Inicializar NoteManager
-document.addEventListener('DOMContentLoaded', () => {
-    // Atualizar manipulador de eventos do formulário
-    const noteForm = document.getElementById('noteForm');
-    if (noteForm) {
-        noteForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                contractNumber: document.getElementById('contractNumber').value.trim(),
-                locator: document.getElementById('locator').value.trim(),
-                tenant: document.getElementById('tenant').value.trim(),
-                address: document.getElementById('address').value.trim(),
-                problem: document.getElementById('problem').value.trim(),
-                createdAt: new Date(document.getElementById('creationDate').value).toISOString()
-            };
+        const filteredNotes = Object.entries(this.notes)
+            .filter(([, note]) => {
+                const matchesSearch = !searchTerm || 
+                    note.contractNumber.toLowerCase().includes(searchTerm) ||
+                    note.locator.toLowerCase().includes(searchTerm) ||
+                    note.tenant.toLowerCase().includes(searchTerm) ||
+                    note.address.toLowerCase().includes(searchTerm);
 
-            const noteManager = new NoteManager();
-            if (noteManager.addNote(formData)) {
-                document.getElementById('noteModal').classList.add('hidden');
-                noteForm.reset();
-            }
+                const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
+
+                return matchesSearch && matchesStatus;
+            })
+            .sort(([, a], [, b]) => {
+                const dateA = new Date(a.createdAt);
+                const dateB = new Date(b.createdAt);
+                return dateSort === 'newest' ? dateB - dateA : dateA - dateB;
+            });
+
+        const container = document.getElementById('notesContainer');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (filteredNotes.length === 0) {
+            container.innerHTML = `
+                <div class="col-span-full text-center text-gray-500 py-8">
+                    Nenhuma anotação encontrada com os filtros atuais.
+                </div>
+            `;
+            return;
+        }
+
+        filteredNotes.forEach(([key]) => {
+            this.renderNote(key);
         });
     }
-});
-</script>
-
-// Adicionar antes do fechamento do body, após o script anterior
-<script>
-// Extensão da classe NoteManager com funcionalidades adicionais
-class NoteManager {
-    // ... (manter o código anterior da classe) ...
 
     showNoteDetails(noteKey) {
         const note = this.notes[noteKey];
@@ -547,22 +420,22 @@ class NoteManager {
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <h3 class="font-semibold mb-2">Contrato: ${this.sanitizeInput(note.contractNumber)}</h3>
+                        <h3 class="font-semibold mb-2">Contrato: ${utils.sanitizeInput(note.contractNumber)}</h3>
                         <p class="text-gray-600">Status: <span class="font-semibold">${statusText[note.status]}</span></p>
                         <p class="text-gray-600">Criado em: ${utils.formatDate(note.createdAt, true)}</p>
                         ${note.closedAt ? `<p class="text-gray-600">Fechado em: ${utils.formatDate(note.closedAt, true)}</p>` : ''}
                     </div>
 
                     <div class="space-y-2">
-                        <p><span class="font-semibold">Locador:</span> ${this.sanitizeInput(note.locator)}</p>
-                        <p><span class="font-semibold">Locatário:</span> ${this.sanitizeInput(note.tenant)}</p>
-                        <p><span class="font-semibold">Endereço:</span> ${this.sanitizeInput(note.address)}</p>
+                        <p><span class="font-semibold">Locador:</span> ${utils.sanitizeInput(note.locator)}</p>
+                        <p><span class="font-semibold">Locatário:</span> ${utils.sanitizeInput(note.tenant)}</p>
+                        <p><span class="font-semibold">Endereço:</span> ${utils.sanitizeInput(note.address)}</p>
                     </div>
 
                     <div class="col-span-full">
                         <p class="font-semibold mb-2">Problema:</p>
                         <p class="whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
-                            ${this.sanitizeInput(note.problem)}
+                            ${utils.sanitizeInput(note.problem)}
                         </p>
                     </div>
                 </div>
@@ -604,10 +477,7 @@ class NoteManager {
             </div>
         `;
 
-        // Mostrar modal
         modal.classList.remove('hidden');
-
-        // Configurar event listeners
         this.setupDetailsEventListeners(noteKey);
         this.renderComments(noteKey);
     }
@@ -653,15 +523,54 @@ class NoteManager {
         `;
     }
 
-    setupDetailsEventListeners(noteKey) {
-        // ... (continuará na próxima parte)
-    }
-}
-</script>
+    updateNoteStatus(noteKey, newStatus) {
+        const note = this.notes[noteKey];
+        if (!note) return;
 
-// Continuação da classe NoteManager
-class NoteManager {
-    // ... (manter o código anterior da classe) ...
+        const oldStatus = note.status;
+        note.status = newStatus;
+
+        switch (newStatus) {
+            case 'open':
+                note.scheduleDate = null;
+                note.serviceProvider = null;
+                note.closedAt = null;
+                break;
+
+            case 'scheduled':
+                note.closedAt = null;
+                break;
+
+            case 'closed':
+                note.closedAt = new Date().toISOString();
+                break;
+        }
+
+        this.saveToLocalStorage();
+        this.renderNote(noteKey);
+        this.showNoteDetails(noteKey);
+
+        const statusMessages = {
+            'open': 'Anotação reaberta com sucesso!',
+            'scheduled': 'Anotação movida para agendamento!',
+            'closed': 'Anotação finalizada com sucesso!'
+        };
+
+        utils.showNotification(statusMessages[newStatus], 'success');
+    }
+
+    updateSchedulingInfo(noteKey, scheduleDate, serviceProvider) {
+        const note = this.notes[noteKey];
+        if (!note || note.status !== 'scheduled') return;
+
+        note.scheduleDate = scheduleDate;
+        note.serviceProvider = serviceProvider;
+
+        this.saveToLocalStorage();
+        this.renderNote(noteKey);
+
+        utils.showNotification('Informações de agendamento atualizadas!', 'success');
+    }
 
     setupDetailsEventListeners(noteKey) {
         const modal = document.getElementById('noteDetailsModal');
@@ -724,55 +633,6 @@ class NoteManager {
                 this.activeNoteKey = null;
             }
         });
-    }
-
-    updateNoteStatus(noteKey, newStatus) {
-        const note = this.notes[noteKey];
-        if (!note) return;
-
-        const oldStatus = note.status;
-        note.status = newStatus;
-
-        switch (newStatus) {
-            case 'open':
-                note.scheduleDate = null;
-                note.serviceProvider = null;
-                note.closedAt = null;
-                break;
-
-            case 'scheduled':
-                note.closedAt = null;
-                break;
-
-            case 'closed':
-                note.closedAt = new Date().toISOString();
-                break;
-        }
-
-        this.saveToLocalStorage();
-        this.renderNote(noteKey);
-        this.showNoteDetails(noteKey);
-
-        const statusMessages = {
-            'open': 'Anotação reaberta com sucesso!',
-            'scheduled': 'Anotação movida para agendamento!',
-            'closed': 'Anotação finalizada com sucesso!'
-        };
-
-        utils.showNotification(statusMessages[newStatus], 'success');
-    }
-
-    updateSchedulingInfo(noteKey, scheduleDate, serviceProvider) {
-        const note = this.notes[noteKey];
-        if (!note || note.status !== 'scheduled') return;
-
-        note.scheduleDate = scheduleDate;
-        note.serviceProvider = serviceProvider;
-
-        this.saveToLocalStorage();
-        this.renderNote(noteKey);
-
-        utils.showNotification('Informações de agendamento atualizadas!', 'success');
     }
 
     addComment(noteKey) {
@@ -843,7 +703,7 @@ class NoteManager {
                     </button>
                 </div>
             </div>
-            <div class="comment-text whitespace-pre-wrap">${this.sanitizeInput(comment.text)}</div>
+            <div class="comment-text whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</div>
             <div class="edit-form hidden mt-2">
                 <textarea class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">${comment.text}</textarea>
                 <div class="flex justify-end space-x-2 mt-2">
@@ -856,14 +716,6 @@ class NoteManager {
         this.setupCommentEventListeners(div, noteKey, comment.id);
         return div;
     }
-
-    // ... (continuará na próxima parte)
-}
-</script>
-
-// Continuação da classe NoteManager
-class NoteManager {
-    // ... (manter o código anterior da classe) ...
 
     setupCommentEventListeners(commentElement, noteKey, commentId) {
         // Editar comentário
@@ -923,21 +775,6 @@ class NoteManager {
             this.renderComments(noteKey);
             utils.showNotification('Comentário excluído com sucesso!', 'success');
         }
-    }
-
-    deleteNote(noteKey) {
-        if (!confirm('Tem certeza que deseja excluir esta anotação? Esta ação não pode ser desfeita.')) {
-            return;
-        }
-
-        delete this.notes[noteKey];
-        this.saveToLocalStorage();
-        
-        document.querySelector(`[data-note-key="${noteKey}"]`)?.remove();
-        document.getElementById('noteDetailsModal').classList.add('hidden');
-        this.activeNoteKey = null;
-        
-        utils.showNotification('Anotação excluída com sucesso!', 'success');
     }
 
     exportNote(noteKey) {
@@ -1036,42 +873,12 @@ class NoteManager {
             note[field] !== undefined
         ) && ['open', 'scheduled', 'closed'].includes(note.status);
     }
-
-    // Inicialização dos event listeners globais
-    initializeEventListeners() {
-        // Botão de exportar todos
-        document.getElementById('downloadNotesBtn')?.addEventListener('click', () => {
-            this.exportAllNotes();
-        });
-
-        // Input de importação
-        const fileInput = document.getElementById('fileInput');
-        document.getElementById('importNotesBtn')?.addEventListener('click', () => {
-            fileInput?.click();
-        });
-
-        fileInput?.addEventListener('change', (e) => {
-            this.handleFileImport(e);
-        });
-
-        // Filtros e busca
-        ['statusFilter', 'dateSort', 'searchInput'].forEach(id => {
-            document.getElementById(id)?.addEventListener('change', () => {
-                this.filterAndSortNotes();
-            });
-        });
-
-        document.getElementById('searchInput')?.addEventListener('input', () => {
-            this.filterAndSortNotes();
-        });
-    }
 }
 
-// Inicialização global
+// Inicialização da aplicação
 document.addEventListener('DOMContentLoaded', () => {
     window.noteManager = new NoteManager();
 });
 </script>
-
 </body>
 </html>
