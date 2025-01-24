@@ -121,7 +121,7 @@
     <div class="modal-content p-6 w-full max-w-md">
         <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
         <form id="noteForm" class="space-y-4">
-            <div>
+            <div class="mb-4">
                 <label for="contractNumber" class="block text-gray-700">Número de Contrato: *</label>
                 <input type="text" 
                        id="contractNumber" 
@@ -130,35 +130,36 @@
                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
-            <div>
-                <label for="locator" class="block text-gray-700">Locador: *</label>
-                <input type="text" 
-                       id="locator" 
-                       required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <div class="mb-4 grid grid-cols-2 gap-4">
+                <div>
+                    <label for="locator" class="block text-gray-700">Locador: *</label>
+                    <input type="text" 
+                           id="locator" 
+                           required
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label for="tenant" class="block text-gray-700">Locatário: *</label>
+                    <input type="text" 
+                           id="tenant" 
+                           required
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
             </div>
 
-            <div>
-                <label for="tenant" class="block text-gray-700">Locatário: *</label>
-                <input type="text" 
-                       id="tenant" 
-                       required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-            </div>
-
-            <div>
-                <label for="problem" class="block text-gray-700">Problema: *</label>
-                <textarea id="problem" 
-                         required
-                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
-            </div>
-
-            <div>
+            <div class="mb-4">
                 <label for="address" class="block text-gray-700">Endereço: *</label>
                 <input type="text" 
                        id="address" 
                        required
                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <div class="mb-4">
+                <label for="problem" class="block text-gray-700">Problema: *</label>
+                <textarea id="problem" 
+                         required
+                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
             </div>
 
             <div class="flex justify-end space-x-2">
