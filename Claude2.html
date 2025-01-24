@@ -63,7 +63,7 @@
     </style>
 </head>
 
-<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+    <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
 
 <!-- Notification Component -->
 <div id="notification" class="notification hidden"></div>
@@ -159,14 +159,6 @@
                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
-            <div>
-                <label for="createdAt" class="block text-gray-700">Data de Criação: *</label>
-                <input type="date" 
-                       id="createdAt" 
-                       required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-            </div>
-
             <div class="flex justify-end space-x-2">
                 <button type="button" id="cancelBtn" class="btn btn-gray">
                     <i class="fas fa-times mr-2"></i>Cancelar
@@ -179,7 +171,7 @@
     </div>
 </div>
 
-<!-- Note Details Modal -->
+        <!-- Note Details Modal -->
 <div id="noteDetailsModal" class="modal-overlay hidden">
     <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
@@ -291,23 +283,29 @@ const utils = {
             errors.push('Endereço deve ter ao menos 5 caracteres');
         }
         
-        if (!formData.createdAt) {
-            errors.push('Data de criação é obrigatória');
-        }
-
         return errors;
+    },
+
+    formatDate: (dateString) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '2025-01-23 22:55:44';
+            return dateString;
+        } catch (e) {
+            return '2025-01-23 22:55:44';
+        }
     },
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date();
+        const today = new Date('2025-01-23 22:55:44');
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
     },
 
     getCurrentDateTime: () => {
-        return new Date().toISOString().split('T')[0];
+        return '2025-01-23 22:55:44';
     },
 
     downloadFile: (content, filename, type = 'text/plain') => {
@@ -325,11 +323,11 @@ const utils = {
     }
 };
 
-class NoteManager {
+    class NoteManager {
     constructor() {
         this.notes = {};
         this.currentUser = 'VictorCainj';
-        this.currentDateTime = '2025-01-24 03:15:40';
+        this.currentDateTime = '2025-01-23 22:56:23';
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
@@ -426,7 +424,7 @@ class NoteManager {
             this.deleteNote(noteKey);
         });
 
-// Event Listener global para tecla ESC
+        // Event Listener global para tecla ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.getElementById('noteModal').classList.add('hidden');
@@ -466,7 +464,7 @@ class NoteManager {
                             if (!this.notes[noteKey] && this.validateImportedNote(note, noteKey)) {
                                 this.notes[noteKey] = {
                                     ...note,
-                                    createdAt: note.createdAt || '2025-01-23',
+                                    createdAt: note.createdAt || '2025-01-23 22:56:52',
                                     createdBy: note.createdBy || 'VictorCainj',
                                     status: note.status || 'open',
                                     comments: Array.isArray(note.comments) ? note.comments : []
@@ -523,7 +521,7 @@ class NoteManager {
             note.comments = note.comments.map(comment => ({
                 id: comment.id || Date.now().toString(),
                 text: utils.sanitizeInput(comment.text || ''),
-                dateTime: comment.dateTime || '2025-01-23',
+                dateTime: comment.dateTime || '2025-01-23 22:56:52',
                 author: comment.author || 'VictorCainj',
                 editedAt: comment.editedAt || null
             }));
@@ -557,12 +555,12 @@ class NoteManager {
                     problem: utils.sanitizeInput(note.problem || 'Não especificado'),
                     address: utils.sanitizeInput(note.address || 'Não especificado'),
                     status: note.status || 'open',
-                    createdAt: note.createdAt || '2025-01-23',
+                    createdAt: note.createdAt || '2025-01-23 22:56:52',
                     createdBy: note.createdBy || 'VictorCainj',
                     comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
-                        dateTime: comment.dateTime || '2025-01-23',
+                        dateTime: comment.dateTime || '2025-01-23 22:56:52',
                         author: comment.author || 'VictorCainj',
                         editedAt: comment.editedAt || null
                     })) : []
@@ -593,8 +591,7 @@ class NoteManager {
             locator: document.getElementById('locator').value,
             tenant: document.getElementById('tenant').value,
             problem: document.getElementById('problem').value,
-            address: document.getElementById('address').value,
-            createdAt: document.getElementById('createdAt').value
+            address: document.getElementById('address').value
         };
 
         const errors = utils.validateForm(formData);
@@ -617,8 +614,7 @@ class NoteManager {
                 locator: utils.sanitizeInput(formData.locator),
                 tenant: utils.sanitizeInput(formData.tenant),
                 problem: utils.sanitizeInput(formData.problem),
-                address: utils.sanitizeInput(formData.address),
-                createdAt: formData.createdAt || utils.getCurrentDateTime()
+                address: utils.sanitizeInput(formData.address)
             };
 
             if (!sanitizedData.contractNumber) {
@@ -635,6 +631,7 @@ class NoteManager {
                 ...sanitizedData,
                 status: 'open',
                 comments: [],
+                createdAt: '2025-01-23 22:57:38',
                 createdBy: 'VictorCainj'
             };
 
@@ -662,9 +659,10 @@ class NoteManager {
             } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
             
             noteButton.innerHTML = `
-                <span class="block font-bold">${utils.sanitizeInput(noteKey.split('#')[0])} #${utils.sanitizeInput(noteKey.split('#')[1])}</span>
+                <span class="block font-bold">${utils.sanitizeInput(noteKey)}</span>
                 <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
                 <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
+                <span class="block text-xs mt-1">${utils.formatDate(note.createdAt)}</span>
                 <span class="block text-xs mt-1">
                     ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 'Finalizado'}
                 </span>
@@ -706,16 +704,16 @@ class NoteManager {
                         <h3 class="text-lg font-semibold">Informações do Contrato</h3>
                     </div>
                     <div class="grid grid-cols-1 gap-2">
-                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey.split('#')[0])} #${utils.sanitizeInput(noteKey.split('#')[1])}</span></p>
+                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
                         <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
                         <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
                         <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
                         <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
                         <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-blue-600' : 'text-green-600'}">
-                            ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 'Finalizado'}
+                            ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 'Finalizado'}
                         </span></p>
                         <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy || 'VictorCainj')}</span></p>
-                        <p><strong>Criado em:</strong> <span>${note.createdAt}</span></p>
+                        <p><strong>Criado em:</strong> <span>${note.createdAt || '2025-01-23 22:58:21'}</span></p>
                         ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${note.closedAt}</span></p>` : ''}
                     </div>
                 </div>
@@ -757,7 +755,7 @@ class NoteManager {
                         <div class="flex-grow">
                             <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
                             <div class="mt-2 text-sm text-gray-500">
-                                <span>${comment.dateTime || '2025-01-23'}</span>
+                                <span>${comment.dateTime || '2025-01-23 22:58:21'}</span>
                                 ${comment.editedAt ? ` <span class="italic">(editado em ${comment.editedAt})</span>` : ''}
                             </div>
                         </div>
@@ -789,7 +787,7 @@ class NoteManager {
             const comment = {
                 id: Date.now().toString(),
                 text: utils.sanitizeInput(commentText),
-                dateTime: utils.getCurrentDateTime(),
+                dateTime: '2025-01-23 22:58:21',
                 author: 'VictorCainj'
             };
 
@@ -824,7 +822,7 @@ class NoteManager {
             const newText = prompt('Editar comentário:', comment.text);
             if (newText !== null && newText.trim() !== '') {
                 comment.text = utils.sanitizeInput(newText);
-                comment.editedAt = utils.getCurrentDateTime();
+                comment.editedAt = '2025-01-23 22:59:03';
                 this.saveToLocalStorage();
                 this.renderComments(noteKey);
                 utils.showNotification('Comentário atualizado com sucesso!', 'success');
@@ -839,7 +837,7 @@ class NoteManager {
         try {
             const note = this.notes[noteKey];
             note.status = note.status === 'open' ? 'closed' : 'open';
-            note.closedAt = note.status === 'closed' ? utils.getCurrentDateTime() : null;
+            note.closedAt = note.status === 'closed' ? '2025-01-23 22:59:03' : null;
             
             this.saveToLocalStorage();
             this.renderNote(noteKey);
@@ -859,10 +857,7 @@ class NoteManager {
                 return;
             }
 
-            // Remover a anotação do armazenamento local
             delete this.notes[noteKey];
-
-            // Remover o botão da anotação da interface do usuário
             const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
             if (noteButton) {
                 noteButton.remove();
@@ -877,17 +872,16 @@ class NoteManager {
         }
     }
 
-copyNoteDetails(noteKey) {
+    copyNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const details = `
-Número do Contrato: ${noteKey.split('#')[0]} #${noteKey.split('#')[1]}
+Número do Contrato: ${noteKey}
 Locador: ${note.locator}
 Locatário: ${note.tenant}
 Problema: ${note.problem}
 Endereço: ${note.address}
 Status: ${note.status === 'open' ? 'Aberto' : 'Finalizado'}
-Criado por: ${note.createdBy || 'VictorCainj'}
 Criado em: ${note.createdAt}
 ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
             `.trim();
@@ -910,7 +904,7 @@ ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
                     comments: note.comments || []
                 }
             };
-
+            
             const notesJson = JSON.stringify(exportData, null, 2);
             const filename = `contrato_${noteKey}_${this.currentDateTime.split(' ')[0]}.json`;
             utils.downloadFile(notesJson, filename, 'application/json');
@@ -952,12 +946,12 @@ ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
     filterNotes() {
         const statusFilter = document.getElementById('statusFilter').value;
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-
+        
         const notes = document.querySelectorAll('.note-button');
         notes.forEach(noteBtn => {
             const noteKey = noteBtn.dataset.contract;
             const note = this.notes[noteKey];
-
+            
             const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
             const matchesSearch = [
                 noteKey,
@@ -965,7 +959,7 @@ ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
                 noteBtn.dataset.tenant,
                 noteBtn.dataset.address
             ].join(' ').toLowerCase().includes(searchTerm);
-
+            
             noteBtn.classList.toggle('hidden', !(matchesStatus && matchesSearch));
         });
     }
@@ -973,7 +967,7 @@ ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
     sortNotes() {
         const container = document.getElementById('notesContainer');
         const sortOrder = document.getElementById('dateSort').value;
-
+        
         const notes = Array.from(container.children);
         notes.sort((a, b) => {
             const dateA = new Date(a.dataset.date);
