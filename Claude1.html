@@ -216,6 +216,10 @@
                         </button>
                     </form>
 
+                    <button id="viewAllCommentsBtn" class="btn btn-gray w-full mt-2">
+                        <i class="fas fa-comments mr-2"></i>Exibir Todos os Comentários
+                    </button>
+
                     <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
                 </div>
             </div>
@@ -223,6 +227,20 @@
 
         <div class="mt-4 text-right">
             <button type="button" id="closeDetailsBtn" class="btn btn-gray">
+                <i class="fas fa-times mr-2"></i>Fechar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Full Comments Modal -->
+<div id="fullCommentsModal" class="modal-overlay hidden">
+    <div class="modal-content p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <h2 class="text-2xl font-semibold mb-4 text-center">Todos os Comentários</h2>
+        <div id="fullCommentsContainer" class="space-y-4"></div>
+        
+        <div class="mt-4 text-right">
+            <button type="button" id="closeFullCommentsBtn" class="btn btn-gray">
                 <i class="fas fa-times mr-2"></i>Fechar
             </button>
         </div>
@@ -402,8 +420,7 @@ class NoteManager {
             document.getElementById('noteDetailsModal').classList.add('hidden');
         });
 
-        // Event Listeners para ações nos detalhes
-        document.getElementById('copyDetailsBtn').addEventListener('click', () => {
+document.getElementById('copyDetailsBtn').addEventListener('click', () => {
             const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
             this.copyNoteDetails(noteKey);
@@ -427,10 +444,31 @@ class NoteManager {
             this.deleteNote(noteKey);
         });
 
-document.addEventListener('keydown', (e) => {
+        document.getElementById('viewAllCommentsBtn').addEventListener('click', () => {
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.viewAllComments(noteKey);
+        });
+
+        document.getElementById('closeFullCommentsBtn').addEventListener('click', () => {
+            document.getElementById('fullCommentsModal').classList.add('hidden');
+        });
+
+        // Event Listener global para tecla ESC
+        document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.getElementById('noteModal').classList.add('hidden');
                 document.getElementById('noteDetailsModal').classList.add('hidden');
+                document.getElementById('fullCommentsModal').classList.add('hidden');
+            }
+        });
+
+        // Event Listener global para tecla Delete/Del
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete' || e.key === 'Del') {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.deleteNote(noteKey);
             }
         });
     }
@@ -788,7 +826,41 @@ document.addEventListener('keydown', (e) => {
         }
     }
 
-    handleCommentSubmit() {
+    viewAllComments(noteKey) {
+        try {
+            const fullCommentsContainer = document.getElementById('fullCommentsContainer');
+            fullCommentsContainer.innerHTML = '';
+
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+            }
+
+            note.comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment-box';
+                commentElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
+                            <div class="mt-2 text-sm text-gray-500">
+                                <span>${utils.formatDate(comment.dateTime) || '23/01/2025 22:58:21'}</span>
+                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                fullCommentsContainer.appendChild(commentElement);
+            });
+
+            document.getElementById('fullCommentsModal').classList.remove('hidden');
+        } catch (error) {
+            console.error('Erro ao exibir todos os comentários:', error);
+            utils.showNotification('Erro ao carregar comentários', 'error');
+        }
+    }
+
+handleCommentSubmit() {
         try {
             const commentText = document.getElementById('commentText').value;
             if (!commentText.trim()) {
@@ -877,7 +949,7 @@ document.addEventListener('keydown', (e) => {
         }
     }
 
-deleteNote(noteKey) {
+    deleteNote(noteKey) {
         try {
             if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
                 return;
