@@ -37,7 +37,7 @@
         }
 
         .note-card {
-        @apply bg-white p-3 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer text-sm;
+            @apply bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer;
         }
 
         .comment-box {
@@ -107,6 +107,7 @@
         <div id="notesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <!-- As notas serão inseridas aqui dinamicamente -->
         </div>
+
         <!-- Modal de Nova Anotação -->
         <div id="noteModal" class="modal-overlay hidden">
             <div class="modal-content p-6 w-full max-w-2xl">
@@ -175,8 +176,7 @@
                 </form>
             </div>
         </div>
-
-        <!-- Modal de Detalhes -->
+<!-- Modal de Detalhes -->
         <div id="noteDetailsModal" class="modal-overlay hidden">
             <!-- O conteúdo será inserido dinamicamente -->
         </div>
@@ -227,7 +227,7 @@
             }
         };
 
-// Classe principal de gerenciamento de notas
+        // Classe principal de gerenciamento de notas
         class NoteManager {
             constructor() {
                 if (window.noteManager) {
@@ -273,8 +273,7 @@
                         document.getElementById('noteForm').reset();
                     }
                 });
-
-                // Botão de cancelar nova anotação
+// Botão de cancelar nova anotação
                 document.getElementById('cancelBtn')?.addEventListener('click', () => {
                     document.getElementById('noteModal').classList.add('hidden');
                     document.getElementById('noteForm').reset();
@@ -310,6 +309,7 @@
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') {
                         document.getElementById('noteModal')?.classList.add('hidden');
+                        document.getElementById('noteDetailsModal')?.classList.add('hidden');
                     }
                 });
             }
@@ -331,6 +331,7 @@
                     utils.showNotification('Erro ao salvar notas. Verifique o espaço disponível.', 'error');
                 }
             }
+
             renderAllNotes() {
                 const container = document.getElementById('notesContainer');
                 if (!container) return;
@@ -378,22 +379,22 @@
                     'closed': 'fa-check-circle'
                 };
 
-noteElement.innerHTML = `
-    <div class="flex justify-between items-start">
-        <div class="flex-1">
-            <div class="flex items-center justify-between mb-1">
-                <h3 class="font-semibold">${utils.sanitizeInput(note.contractNumber)}</h3>
-                <i class="fas ${statusIcons[note.status]} ${statusColors[note.status]}"></i>
-            </div>
-            <p class="text-xs text-gray-600">${utils.sanitizeInput(note.locator)} / ${utils.sanitizeInput(note.tenant)}</p>
-            <p class="text-xs text-gray-500 truncate">${utils.sanitizeInput(note.address)}</p>
-            <div class="text-xs text-gray-400 mt-1">
-                ${utils.formatDate(note.createdAt)}
-            </div>
-        </div>
-    </div>
-`;
+                noteElement.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-semibold text-lg">${utils.sanitizeInput(note.contractNumber)}</h3>
+                        <i class="fas ${statusIcons[note.status]} ${statusColors[note.status]}"></i>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-1">${utils.sanitizeInput(note.locator)}</p>
+                    <p class="text-sm text-gray-600 mb-1">${utils.sanitizeInput(note.tenant)}</p>
+                    <p class="text-sm text-gray-500 truncate mb-2">${utils.sanitizeInput(note.address)}</p>
+                    <div class="text-xs text-gray-400">
+                        ${utils.formatDate(note.createdAt)}
+                    </div>
+                `;
 
+                noteElement.addEventListener('click', () => this.showNoteDetails(noteKey));
+                container.appendChild(noteElement);
+            }
             addNote(formData) {
                 const noteKey = `#${formData.contractNumber}`;
                 
@@ -416,47 +417,6 @@ noteElement.innerHTML = `
                 return true;
             }
 
-            filterAndSortNotes() {
-                const searchTerm = document.getElementById('searchInput')?.value.toLowerCase();
-                const statusFilter = document.getElementById('statusFilter')?.value;
-                const dateSort = document.getElementById('dateSort')?.value;
-
-                const filteredNotes = Object.entries(this.notes)
-                    .filter(([, note]) => {
-                        const matchesSearch = !searchTerm || 
-                            note.contractNumber.toLowerCase().includes(searchTerm) ||
-                            note.locator.toLowerCase().includes(searchTerm) ||
-                            note.tenant.toLowerCase().includes(searchTerm) ||
-                            note.address.toLowerCase().includes(searchTerm);
-
-                        const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
-
-                        return matchesSearch && matchesStatus;
-                    })
-                    .sort(([, a], [, b]) => {
-                        const dateA = new Date(a.createdAt);
-                        const dateB = new Date(b.createdAt);
-                        return dateSort === 'newest' ? dateB - dateA : dateA - dateB;
-                    });
-
-                const container = document.getElementById('notesContainer');
-                if (!container) return;
-
-                container.innerHTML = '';
-
-                if (filteredNotes.length === 0) {
-                    container.innerHTML = `
-                        <div class="col-span-full text-center text-gray-500 py-8">
-                            Nenhuma anotação encontrada com os filtros atuais.
-                        </div>
-                    `;
-                    return;
-                }
-
-                filteredNotes.forEach(([key]) => {
-                    this.renderNote(key);
-                });
-            }
             showNoteDetails(noteKey) {
                 const note = this.notes[noteKey];
                 if (!note) return;
@@ -473,7 +433,7 @@ noteElement.innerHTML = `
                 };
 
                 modal.innerHTML = `
-                    <div class="modal-content p-6 w-full max-w-4xl mx-auto mt-8"> <!-- Reduzi o mt-20 para mt-8 -->
+                    <div class="modal-content p-6 w-full max-w-4xl mx-auto mt-20">
                         <div class="flex justify-between items-start mb-6">
                             <h2 class="text-2xl font-semibold">Detalhes da Anotação</h2>
                             <button id="closeDetailsBtn" class="text-gray-500 hover:text-gray-700">
@@ -544,7 +504,6 @@ noteElement.innerHTML = `
                 this.setupDetailsEventListeners(noteKey);
                 this.renderComments(noteKey);
             }
-
             generateStatusButtons(currentStatus) {
                 const buttons = [
                     { status: 'open', text: 'Reabrir', icon: 'folder-open', color: 'blue' },
@@ -560,6 +519,7 @@ noteElement.innerHTML = `
                         </button>
                     `).join('');
             }
+
             generateSchedulingSection(note) {
                 return `
                     <div id="schedulingContainer" class="mb-6 p-4 bg-gray-50 rounded-lg">
@@ -583,6 +543,121 @@ noteElement.innerHTML = `
                         </div>
                     </div>
                 `;
+            }
+
+            updateNoteStatus(noteKey, newStatus) {
+                const note = this.notes[noteKey];
+                if (!note) return;
+
+                // Remove a nota antiga antes de atualizar o status
+                const noteElement = document.querySelector(`[data-note-key="${noteKey}"]`);
+                if (noteElement) {
+                    noteElement.remove();
+                }
+
+                note.status = newStatus;
+
+                switch (newStatus) {
+                    case 'open':
+                        note.scheduleDate = null;
+                        note.serviceProvider = null;
+                        note.closedAt = null;
+                        break;
+
+                    case 'scheduled':
+                        note.closedAt = null;
+                        if (!note.scheduleDate) {
+                            note.scheduleDate = '';
+                        }
+                        if (!note.serviceProvider) {
+                            note.serviceProvider = '';
+                        }
+                        break;
+
+                    case 'closed':
+                        note.closedAt = new Date().toISOString();
+                        break;
+                }
+
+                this.saveToLocalStorage();
+                this.renderNote(noteKey);
+                this.showNoteDetails(noteKey);
+
+                const statusMessages = {
+                    'open': 'Anotação reaberta com sucesso!',
+                    'scheduled': 'Anotação movida para agendamento!',
+                    'closed': 'Anotação finalizada com sucesso!'
+                };
+
+                utils.showNotification(statusMessages[newStatus], 'success');
+            }
+
+            updateSchedulingInfo(noteKey, scheduleDate, serviceProvider) {
+                const note = this.notes[noteKey];
+                if (!note || note.status !== 'scheduled') return;
+
+                note.scheduleDate = scheduleDate;
+                note.serviceProvider = serviceProvider;
+
+                this.saveToLocalStorage();
+                this.renderNote(noteKey);
+
+                utils.showNotification('Informações de agendamento atualizadas!', 'success');
+            }
+            filterAndSortNotes() {
+                const statusFilter = document.getElementById('statusFilter')?.value;
+                const dateSort = document.getElementById('dateSort')?.value;
+                const searchQuery = document.getElementById('searchInput')?.value.toLowerCase();
+
+                const container = document.getElementById('notesContainer');
+                if (!container) return;
+
+                container.innerHTML = '';
+
+                let filteredNotes = Object.entries(this.notes);
+
+                // Aplicar filtro de status
+                if (statusFilter && statusFilter !== 'all') {
+                    filteredNotes = filteredNotes.filter(([, note]) => note.status === statusFilter);
+                }
+
+                // Aplicar filtro de busca
+                if (searchQuery) {
+                    filteredNotes = filteredNotes.filter(([, note]) => {
+                        const searchFields = [
+                            note.contractNumber,
+                            note.locator,
+                            note.tenant,
+                            note.address,
+                            note.problem
+                        ];
+                        return searchFields.some(field => 
+                            field?.toLowerCase().includes(searchQuery)
+                        );
+                    });
+                }
+
+                // Ordenar por data
+                filteredNotes.sort(([, a], [, b]) => {
+                    const dateA = new Date(a.createdAt);
+                    const dateB = new Date(b.createdAt);
+                    return dateSort === 'newest' 
+                        ? dateB - dateA 
+                        : dateA - dateB;
+                });
+
+                if (filteredNotes.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-full text-center text-gray-500 py-8">
+                            Nenhuma anotação encontrada com os filtros atuais.
+                        </div>
+                    `;
+                    return;
+                }
+
+                filteredNotes.forEach(([key]) => {
+                    this.renderNote(key);
+                });
             }
 
             setupDetailsEventListeners(noteKey) {
@@ -645,100 +720,6 @@ noteElement.innerHTML = `
                     serviceProvider?.addEventListener('blur', updateScheduling);
                 }
             }
-
-updateNoteStatus(noteKey, newStatus) {
-    const note = this.notes[noteKey];
-    if (!note) return;
-
-    const oldStatus = note.status;
-    note.status = newStatus;
-
-    switch (newStatus) {
-        case 'open':
-            note.scheduleDate = null;
-            note.serviceProvider = null;
-            note.closedAt = null;
-            break;
-
-        case 'scheduled':
-            note.closedAt = null;
-            if (!note.scheduleDate) {
-                note.scheduleDate = '';
-            }
-            if (!note.serviceProvider) {
-                note.serviceProvider = '';
-            }
-            break;
-
-        case 'closed':
-            note.closedAt = new Date().toISOString();
-            break;
-    }
-
-    this.saveToLocalStorage();
-    
-    // Remove a nota antiga antes de renderizar a nova
-    const noteElement = document.querySelector(`[data-note-key="${noteKey}"]`);
-    if (noteElement) {
-        noteElement.remove();
-    }
-    
-    this.renderNote(noteKey);
-    this.showNoteDetails(noteKey);
-
-    const statusMessages = {
-        'open': 'Anotação reaberta com sucesso!',
-        'scheduled': 'Anotação movida para agendamento!',
-        'closed': 'Anotação finalizada com sucesso!'
-    };
-
-    utils.showNotification(statusMessages[newStatus], 'success');
-}
-                this.renderNote(noteKey);
-                this.showNoteDetails(noteKey);
-
-                const statusMessages = {
-                    'open': 'Anotação reaberta com sucesso!',
-                    'scheduled': 'Anotação movida para agendamento!',
-                    'closed': 'Anotação finalizada com sucesso!'
-                };
-
-                utils.showNotification(statusMessages[newStatus], 'success');
-            }
-            updateSchedulingInfo(noteKey, scheduleDate, serviceProvider) {
-                const note = this.notes[noteKey];
-                if (!note || note.status !== 'scheduled') return;
-
-                note.scheduleDate = scheduleDate;
-                note.serviceProvider = serviceProvider;
-
-                this.saveToLocalStorage();
-                this.renderNote(noteKey);
-
-                utils.showNotification('Informações de agendamento atualizadas!', 'success');
-            }
-
-            copyNoteDetails(noteKey) {
-                const note = this.notes[noteKey];
-                if (!note) return;
-
-                const details = `
-Contrato: ${note.contractNumber}
-Data: ${utils.formatDate(note.createdAt)}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Endereço: ${note.address}
-Problema: ${note.problem}
-Status: ${note.status}
-${note.scheduleDate ? `Data Agendada: ${utils.formatDate(note.scheduleDate)}` : ''}
-${note.serviceProvider ? `Prestador: ${note.serviceProvider}` : ''}
-                `.trim();
-
-                navigator.clipboard.writeText(details)
-                    .then(() => utils.showNotification('Detalhes copiados para a área de transferência!', 'success'))
-                    .catch(() => utils.showNotification('Erro ao copiar detalhes.', 'error'));
-            }
-
             addComment(noteKey) {
                 const commentText = document.getElementById('commentText')?.value.trim();
                 if (!commentText) {
@@ -850,7 +831,6 @@ ${note.serviceProvider ? `Prestador: ${note.serviceProvider}` : ''}
                     this.deleteComment(noteKey, commentId);
                 });
             }
-
             editComment(noteKey, commentId, newText) {
                 const note = this.notes[noteKey];
                 const comment = note.comments.find(c => c.id === commentId);
@@ -878,6 +858,27 @@ ${note.serviceProvider ? `Prestador: ${note.serviceProvider}` : ''}
                     this.renderComments(noteKey);
                     utils.showNotification('Comentário excluído com sucesso!', 'success');
                 }
+            }
+
+            copyNoteDetails(noteKey) {
+                const note = this.notes[noteKey];
+                if (!note) return;
+
+                const details = `
+Contrato: ${note.contractNumber}
+Data: ${utils.formatDate(note.createdAt)}
+Locador: ${note.locator}
+Locatário: ${note.tenant}
+Endereço: ${note.address}
+Problema: ${note.problem}
+Status: ${note.status}
+${note.scheduleDate ? `Data Agendada: ${utils.formatDate(note.scheduleDate)}` : ''}
+${note.serviceProvider ? `Prestador: ${note.serviceProvider}` : ''}
+                `.trim();
+
+                navigator.clipboard.writeText(details)
+                    .then(() => utils.showNotification('Detalhes copiados para a área de transferência!', 'success'))
+                    .catch(() => utils.showNotification('Erro ao copiar detalhes.', 'error'));
             }
 
             exportNote(noteKey) {
