@@ -715,6 +715,7 @@ handleFileImport(event) {
                             ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 'Finalizado'}
                         </span></p>
                         <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy || 'VictorCainj')}</span></p>
+                        <p><strong>Criado em:</strong> <span>${note.createdAt}</span></p>
                         ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${note.closedAt}</span></p>` : ''}
                     </div>
                 </div>
@@ -884,6 +885,7 @@ Problema: ${note.problem}
 Endereço: ${note.address}
 Status: ${note.status === 'open' ? 'Aberto' : 'Finalizado'}
 Criado por: ${note.createdBy || 'VictorCainj'}
+Criado em: ${note.createdAt}
 ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
             `.trim();
 
