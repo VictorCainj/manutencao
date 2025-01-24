@@ -962,6 +962,33 @@ handleFileImport(event) {
                     continue;
                 }
 
+                if (this.validateImportedNote(note)) {
+                    this.notes[key] = note;
+                    this.renderNote(key);
+                    importCount++;
+                } else {
+                    skipCount++;
+                }
+            }
+
+            this.saveToLocalStorage();
+            utils.showNotification(
+                `Importação concluída! ${importCount} notas importadas, ${skipCount} ignoradas.`,
+                'success'
+            );
+        } catch (error) {
+            utils.showNotification('Erro ao importar arquivo. Verifique o formato.', 'error');
+        }
+    };
+
+    reader.onerror = () => {
+        utils.showNotification('Erro ao ler arquivo.', 'error');
+    };
+
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
 validateImportedNote(note) {
     const requiredFields = [
         'contractNumber',
