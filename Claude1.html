@@ -234,193 +234,193 @@
 
 <!-- Início do JavaScript -->
 <script>
-// Utility Functions
-const utils = {
-    showNotification: (message, type = 'success') => {
-        const notification = document.getElementById('notification');
-        notification.className = `notification ${type === 'success' ? 'notification-success' : 'notification-error'}`;
-        notification.textContent = message;
-        notification.classList.remove('hidden');
-        setTimeout(() => notification.classList.add('hidden'), 3000);
-    },
+    // Utility Functions
+    const utils = {
+        showNotification: (message, type = 'success') => {
+            const notification = document.getElementById('notification');
+            notification.className = `notification ${type === 'success' ? 'notification-success' : 'notification-error'}`;
+            notification.textContent = message;
+            notification.classList.remove('hidden');
+            setTimeout(() => notification.classList.add('hidden'), 3000);
+        },
 
-    showLoading: (show = true, progress = 0) => {
-        const spinner = document.getElementById('loadingSpinner');
-        const progressBar = spinner.querySelector('.progress-bar');
-        spinner.classList.toggle('hidden', !show);
-        if (show && progressBar) {
-            progressBar.style.width = `${progress}%`;
-        }
-    },
+        showLoading: (show = true, progress = 0) => {
+            const spinner = document.getElementById('loadingSpinner');
+            const progressBar = spinner.querySelector('.progress-bar');
+            spinner.classList.toggle('hidden', !show);
+            if (show && progressBar) {
+                progressBar.style.width = `${progress}%`;
+            }
+        },
 
-    sanitizeInput: (input) => {
-        if (typeof input !== 'string') return '';
-        return input.trim()
-                   .replace(/[<>]/g, '')
-                   .replace(/&/g, '&amp;')
-                   .replace(/"/g, '&quot;')
-                   .replace(/'/g, '&#39;');
-    },
+        sanitizeInput: (input) => {
+            if (typeof input !== 'string') return '';
+            return input.trim()
+                       .replace(/[<>]/g, '')
+                       .replace(/&/g, '&amp;')
+                       .replace(/"/g, '&quot;')
+                       .replace(/'/g, '&#39;');
+        },
 
-    validateForm: (formData) => {
-        const errors = [];
-        
-        if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
-            errors.push('Número de contrato inválido - use apenas letras, números e hífen');
-        }
-        
-        if (formData.locator.length < 3) {
-            errors.push('Nome do Locador deve ter ao menos 3 caracteres');
-        }
+        validateForm: (formData) => {
+            const errors = [];
+            
+            if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
+                errors.push('Número de contrato inválido - use apenas letras, números e hífen');
+            }
+            
+            if (formData.locator.length < 3) {
+                errors.push('Nome do Locador deve ter ao menos 3 caracteres');
+            }
 
-        if (formData.tenant.length < 3) {
-            errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
-        }
-        
-        if (formData.problem.length < 10) {
-            errors.push('Problema deve ter ao menos 10 caracteres');
-        }
-        
-        if (formData.address.length < 5) {
-            errors.push('Endereço deve ter ao menos 5 caracteres');
-        }
-        
-        return errors;
-    },
+            if (formData.tenant.length < 3) {
+                errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
+            }
+            
+            if (formData.problem.length < 10) {
+                errors.push('Problema deve ter ao menos 10 caracteres');
+            }
+            
+            if (formData.address.length < 5) {
+                errors.push('Endereço deve ter ao menos 5 caracteres');
+            }
+            
+            return errors;
+        },
 
-    formatDate: (dateString) => {
-        try {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) return '2025-01-23 22:55:44';
-            return dateString;
-        } catch (e) {
+        formatDate: (dateString) => {
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return '2025-01-23 22:55:44';
+                return dateString;
+            } catch (e) {
+                return '2025-01-23 22:55:44';
+            }
+        },
+
+        calculateDaysOpen: (dateString) => {
+            const start = new Date(dateString);
+            const today = new Date('2025-01-23 22:55:44');
+            const diffTime = Math.abs(today - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        },
+
+        getCurrentDateTime: () => {
             return '2025-01-23 22:55:44';
+        },
+
+        downloadFile: (content, filename, type = 'text/plain') => {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            }, 100);
         }
-    },
+    };
 
-    calculateDaysOpen: (dateString) => {
-        const start = new Date(dateString);
-        const today = new Date('2025-01-23 22:55:44');
-        const diffTime = Math.abs(today - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
-    },
+    class NoteManager {
+        constructor() {
+            this.notes = {};
+            this.currentUser = 'VictorCainj';
+            this.currentDateTime = '2025-01-23 22:56:23';
+            this.loadFromLocalStorage();
+            this.cleanInvalidNotes();
+            this.initializeEventListeners();
+        }
 
-    getCurrentDateTime: () => {
-        return '2025-01-23 22:55:44';
-    },
+        cleanInvalidNotes() {
+            const validNotes = {};
+            Object.entries(this.notes).forEach(([key, note]) => {
+                if (note && note.contractNumber) {
+                    validNotes[key] = note;
+                }
+            });
+            this.notes = validNotes;
+            this.saveToLocalStorage();
+        }
 
-    downloadFile: (content, filename, type = 'text/plain') => {
-        const blob = new Blob([content], { type });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        }, 100);
-    }
-};
+        initializeEventListeners() {
+            // Event Listeners para os botões principais
+            document.getElementById('createNoteBtn').addEventListener('click', () => {
+                document.getElementById('noteModal').classList.remove('hidden');
+                document.getElementById('contractNumber').focus();
+            });
 
-class NoteManager {
-    constructor() {
-        this.notes = {};
-        this.currentUser = 'VictorCainj';
-        this.currentDateTime = '2025-01-23 22:56:23';
-        this.loadFromLocalStorage();
-        this.cleanInvalidNotes();
-        this.initializeEventListeners();
-    }
+            document.getElementById('cancelBtn').addEventListener('click', () => {
+                document.getElementById('noteModal').classList.add('hidden');
+                document.getElementById('noteForm').reset();
+            });
 
-    cleanInvalidNotes() {
-        const validNotes = {};
-        Object.entries(this.notes).forEach(([key, note]) => {
-            if (note && note.contractNumber) {
-                validNotes[key] = note;
-            }
-        });
-        this.notes = validNotes;
-        this.saveToLocalStorage();
-    }
-
-    initializeEventListeners() {
-        // Event Listeners para os botões principais
-        document.getElementById('createNoteBtn').addEventListener('click', () => {
-            document.getElementById('noteModal').classList.remove('hidden');
-            document.getElementById('contractNumber').focus();
-        });
-
-        document.getElementById('cancelBtn').addEventListener('click', () => {
-            document.getElementById('noteModal').classList.add('hidden');
-            document.getElementById('noteForm').reset();
-        });
-
-        document.getElementById('noteForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleFormSubmit();
-        });
-
-        // Event Listeners para busca e filtros
-        document.getElementById('searchInput').addEventListener('input', 
-            (e) => this.handleSearch(e.target.value)
-        );
-
-        document.getElementById('dateSort').addEventListener('change', () => this.sortNotes());
-        document.getElementById('statusFilter').addEventListener('change', () => this.filterNotes());
-
-        // Event Listeners para importação/exportação
-        document.getElementById('importNotesBtn').addEventListener('click', () => {
-            document.getElementById('fileInput').click();
-        });
-
-        document.getElementById('fileInput').addEventListener('change', (e) => {
-            this.handleFileImport(e);
-        });
-
-        document.getElementById('downloadNotesBtn').addEventListener('click', () => {
-            this.exportNotes();
-        });
-
-        // Event Listeners para comentários e detalhes
-        document.getElementById('commentForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleCommentSubmit();
-        });
-
-        document.getElementById('commentText').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            document.getElementById('noteForm').addEventListener('submit', (e) => {
                 e.preventDefault();
-                document.getElementById('commentForm').dispatchEvent(new Event('submit'));
-            }
-        });
+                this.handleFormSubmit();
+            });
 
-        document.getElementById('closeDetailsBtn').addEventListener('click', () => {
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-        });
+            // Event Listeners para busca e filtros
+            document.getElementById('searchInput').addEventListener('input', 
+                (e) => this.handleSearch(e.target.value)
+            );
 
-        // Event Listeners para ações nos detalhes
-        document.getElementById('copyDetailsBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.copyNoteDetails(noteKey);
-        });
+            document.getElementById('dateSort').addEventListener('change', () => this.sortNotes());
+            document.getElementById('statusFilter').addEventListener('change', () => this.filterNotes());
 
-        document.getElementById('downloadContractBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.downloadSingleContract(noteKey);
-        });
+            // Event Listeners para importação/exportação
+            document.getElementById('importNotesBtn').addEventListener('click', () => {
+                document.getElementById('fileInput').click();
+            });
 
-        document.getElementById('toggleStatusBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.toggleNoteStatus(noteKey);
-        });
+            document.getElementById('fileInput').addEventListener('change', (e) => {
+                this.handleFileImport(e);
+            });
 
-document.getElementById('deleteNoteBtn').addEventListener('click', () => {
+            document.getElementById('downloadNotesBtn').addEventListener('click', () => {
+                this.exportNotes();
+            });
+
+            // Event Listeners para comentários e detalhes
+            document.getElementById('commentForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleCommentSubmit();
+            });
+
+            document.getElementById('commentText').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+                }
+            });
+
+            document.getElementById('closeDetailsBtn').addEventListener('click', () => {
+                document.getElementById('noteDetailsModal').classList.add('hidden');
+            });
+
+            // Event Listeners para ações nos detalhes
+            document.getElementById('copyDetailsBtn').addEventListener('click', () => {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.copyNoteDetails(noteKey);
+            });
+
+            document.getElementById('downloadContractBtn').addEventListener('click', () => {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.downloadSingleContract(noteKey);
+            });
+
+            document.getElementById('toggleStatusBtn').addEventListener('click', () => {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.toggleNoteStatus(noteKey);
+            });
+
+            document.getElementById('deleteNoteBtn').addEventListener('click', () => {
                 const noteKey = document.getElementById('noteDetailsContent')
                     .querySelector('p strong + span').textContent;
                 this.deleteNote(noteKey);
@@ -435,7 +435,7 @@ document.getElementById('deleteNoteBtn').addEventListener('click', () => {
             });
         }
 
-        handleFileImport(event) {
+handleFileImport(event) {
             try {
                 utils.showLoading(true);
                 const file = event.target.files[0];
@@ -467,7 +467,6 @@ document.getElementById('deleteNoteBtn').addEventListener('click', () => {
                                     this.notes[noteKey] = {
                                         ...note,
                                         createdAt: note.createdAt || '2025-01-23 22:56:52',
-                                        createdBy: note.createdBy || 'VictorCainj',
                                         status: note.status || 'open',
                                         comments: Array.isArray(note.comments) ? note.comments : []
                                     };
@@ -558,7 +557,6 @@ document.getElementById('deleteNoteBtn').addEventListener('click', () => {
                         address: utils.sanitizeInput(note.address || 'Não especificado'),
                         status: note.status || 'open',
                         createdAt: note.createdAt || '2025-01-23 22:56:52',
-                        createdBy: note.createdBy || 'VictorCainj',
                         comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                             id: comment.id || Date.now().toString(),
                             text: utils.sanitizeInput(comment.text || ''),
@@ -633,8 +631,7 @@ document.getElementById('deleteNoteBtn').addEventListener('click', () => {
                     ...sanitizedData,
                     status: 'open',
                     comments: [],
-                    createdAt: '2025-01-23 22:57:38',
-                    createdBy: 'VictorCainj'
+                    createdAt: '2025-01-23 22:57:38'
                 };
 
                 this.renderNote(noteKey);
@@ -725,7 +722,6 @@ document.getElementById('deleteNoteBtn').addEventListener('click', () => {
                                 (note.status === 'scheduled' ? 'Em agendamento' : 
                                 (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
                             </span></p>
-                            <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy || 'VictorCainj')}</span></p>
                             <p><strong>Criado em:</strong> <span>${note.createdAt || '2025-01-23 22:58:21'}</span></p>
                             ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${note.closedAt}</span></p>` : ''}
                         </div>
@@ -852,7 +848,7 @@ document.getElementById('deleteNoteBtn').addEventListener('click', () => {
             }
         }
 
-toggleNoteStatus(noteKey) {
+        toggleNoteStatus(noteKey) {
             try {
                 const note = this.notes[noteKey];
                 if (note.status === 'open') {
@@ -881,7 +877,7 @@ toggleNoteStatus(noteKey) {
             }
         }
 
-        deleteNote(noteKey) {
+deleteNote(noteKey) {
             try {
                 if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
                     return;
