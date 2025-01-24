@@ -37,8 +37,8 @@
         }
 
         .note-card {
-            @apply bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer;
-            @apply border border-gray-200;
+            @apply bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer border border-gray-200;
+            @apply h-40 flex flex-col justify-between;
         }
 
         .comment-box {
@@ -68,7 +68,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen p-4">
     <!-- Container Principal -->
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-6xl mx-auto">
         <h1 class="text-3xl font-bold text-center mb-8">Sistema de Anotações de Contratos</h1>
         
         <!-- Barra de Ferramentas -->
@@ -110,7 +110,7 @@
         </div>
 
         <!-- Container de Notas -->
-        <div id="notesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div id="notesContainer" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <!-- As notas serão inseridas aqui dinamicamente -->
         </div>
 
@@ -393,10 +393,12 @@
                         <h3 class="font-semibold text-lg">${utils.sanitizeInput(note.contractNumber)}</h3>
                         <i class="fas ${statusIcons[note.status]} ${statusColors[note.status]}"></i>
                     </div>
-                    <p class="text-sm text-gray-600 mb-1">${utils.sanitizeInput(note.locator)}</p>
-                    <p class="text-sm text-gray-600 mb-1">${utils.sanitizeInput(note.tenant)}</p>
-                    <p class="text-sm text-gray-500 truncate mb-2">${utils.sanitizeInput(note.address)}</p>
-                    <div class="text-xs text-gray-400">
+                    <div class="flex-grow">
+                        <p class="text-sm text-gray-600 mb-1">${utils.sanitizeInput(note.locator)}</p>
+                        <p class="text-sm text-gray-600 mb-1">${utils.sanitizeInput(note.tenant)}</p>
+                        <p class="text-sm text-gray-500 truncate">${utils.sanitizeInput(note.address)}</p>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-2">
                         ${utils.formatDate(note.createdAt)}
                     </div>
                 `;
@@ -404,6 +406,7 @@
                 noteElement.addEventListener('click', () => this.showNoteDetails(noteKey));
                 container.appendChild(noteElement);
             }
+
             addNote(formData) {
                 const noteKey = `#${formData.contractNumber}`;
                 
@@ -459,11 +462,11 @@
                                 ${note.closedAt ? `<p class="text-gray-600"><b>Fechado em:</b> ${utils.formatDate(note.closedAt, true)}</p>` : ''}
                             </div>
 
-                            <div class="space-y-2">
-                                <p><b>Locador:</b> ${utils.sanitizeInput(note.locator)}</p>
-                                <p><b>Locatário:</b> ${utils.sanitizeInput(note.tenant)}</p>
-                                <p><b>Endereço:</b> ${utils.sanitizeInput(note.address)}</p>
-                            </div>
+<div class="space-y-2">
+    <p><b>Locador:</b> ${utils.sanitizeInput(note.locator)}</p>
+    <p><b>Locatário:</b> ${utils.sanitizeInput(note.tenant)}</p>
+    <p><b>Endereço:</b> ${utils.sanitizeInput(note.address)}</p>
+</div>
 
 <div class="col-span-full">
     <p class="font-semibold mb-2"><b>Problema:</b></p>
@@ -490,23 +493,21 @@
 ${note.status === 'scheduled' ? this.generateSchedulingSection(note) : ''}
 
 <!-- Seção de Comentários -->
-<div class="border-t pt-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-            <h3 class="text-lg font-semibold mb-4">Comentários</h3>
-            <form id="commentForm" class="mb-4">
-                <textarea id="commentText" 
-                          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
-                          placeholder="Adicione um comentário..."></textarea>
-                <div class="flex justify-end mt-2">
-                    <button type="submit" class="btn btn-blue">
-                        <i class="fas fa-comment mr-2"></i>Comentar
-                    </button>
-                </div>
-            </form>
-            <div id="commentsContainer" class="space-y-4">
-                <!-- Comentários serão renderizados aqui -->
+<div class="border-t pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+        <h3 class="text-lg font-semibold mb-4">Comentários</h3>
+        <form id="commentForm" class="mb-4">
+            <textarea id="commentText" 
+                      class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
+                      placeholder="Adicione um comentário..."></textarea>
+            <div class="flex justify-end mt-2">
+                <button type="submit" class="btn btn-blue">
+                    <i class="fas fa-comment mr-2"></i>Comentar
+                </button>
             </div>
+        </form>
+        <div id="commentsContainer" class="space-y-4">
+            <!-- Comentários serão renderizados aqui -->
         </div>
     </div>
 </div>
@@ -960,33 +961,6 @@ handleFileImport(event) {
                     skipCount++;
                     continue;
                 }
-
-                if (this.validateImportedNote(note)) {
-                    this.notes[key] = note;
-                    this.renderNote(key);
-                    importCount++;
-                } else {
-                    skipCount++;
-                }
-            }
-
-            this.saveToLocalStorage();
-            utils.showNotification(
-                `Importação concluída! ${importCount} notas importadas, ${skipCount} ignoradas.`,
-                'success'
-            );
-        } catch (error) {
-            utils.showNotification('Erro ao importar arquivo. Verifique o formato.', 'error');
-        }
-    };
-
-    reader.onerror = () => {
-        utils.showNotification('Erro ao ler arquivo.', 'error');
-    };
-
-    reader.readAsText(file);
-    event.target.value = '';
-}
 
 validateImportedNote(note) {
     const requiredFields = [
