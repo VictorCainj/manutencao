@@ -329,7 +329,7 @@ class NoteManager {
     constructor() {
         this.notes = {};
         this.currentUser = 'VictorCainj';
-        this.currentDateTime = '2025-01-24 03:10:09';
+        this.currentDateTime = '2025-01-24 03:15:40';
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
@@ -426,7 +426,7 @@ class NoteManager {
             this.deleteNote(noteKey);
         });
 
-        // Event Listener global para tecla ESC
+// Event Listener global para tecla ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.getElementById('noteModal').classList.add('hidden');
@@ -435,7 +435,7 @@ class NoteManager {
         });
     }
 
-handleFileImport(event) {
+    handleFileImport(event) {
         try {
             utils.showLoading(true);
             const file = event.target.files[0];
@@ -859,7 +859,10 @@ handleFileImport(event) {
                 return;
             }
 
+            // Remover a anotação do armazenamento local
             delete this.notes[noteKey];
+
+            // Remover o botão da anotação da interface do usuário
             const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
             if (noteButton) {
                 noteButton.remove();
@@ -874,7 +877,7 @@ handleFileImport(event) {
         }
     }
 
-    copyNoteDetails(noteKey) {
+copyNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const details = `
@@ -898,7 +901,7 @@ ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
         }
     }
 
-downloadSingleContract(noteKey) {
+    downloadSingleContract(noteKey) {
         try {
             const note = this.notes[noteKey];
             const exportData = {
@@ -998,5 +1001,5 @@ downloadSingleContract(noteKey) {
 // Inicializa a aplicação
 const noteManager = new NoteManager();
 </script>
-</body> 
+</body>
 </html>
