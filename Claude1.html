@@ -237,7 +237,7 @@
 <div id="fullCommentsModal" class="modal-overlay hidden">
     <div class="modal-content p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <h2 class="text-2xl font-semibold mb-4 text-center">Todos os Comentários</h2>
-        <div id="fullCommentsContainer" class="space-y-4"></div>
+        <div id="fullCommentsContainer" class="space-y-4 max-h-[70vh] overflow-y-auto pr-2"></div>
         
         <div class="mt-4 text-right">
             <button type="button" id="closeFullCommentsBtn" class="btn btn-gray">
@@ -420,7 +420,8 @@ class NoteManager {
             document.getElementById('noteDetailsModal').classList.add('hidden');
         });
 
-document.getElementById('copyDetailsBtn').addEventListener('click', () => {
+// Event Listeners para ações nos detalhes
+        document.getElementById('copyDetailsBtn').addEventListener('click', () => {
             const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
             this.copyNoteDetails(noteKey);
@@ -874,7 +875,7 @@ handleCommentSubmit() {
             const comment = {
                 id: Date.now().toString(),
                 text: utils.sanitizeInput(commentText),
-                dateTime: '23/01/2025 22:58:21',
+                dateTime: '2025-01-23 22:58:21',
                 author: 'VictorCainj'
             };
 
@@ -909,7 +910,7 @@ handleCommentSubmit() {
             const newText = prompt('Editar comentário:', comment.text);
             if (newText !== null && newText.trim() !== '') {
                 comment.text = utils.sanitizeInput(newText);
-                comment.editedAt = '23/01/2025 22:59:03';
+                comment.editedAt = '2025-01-23 22:59:03';
                 this.saveToLocalStorage();
                 this.renderComments(noteKey);
                 utils.showNotification('Comentário atualizado com sucesso!', 'success');
@@ -929,7 +930,7 @@ handleCommentSubmit() {
                 note.status = 'verified';
             } else if (note.status === 'verified') {
                 note.status = 'closed';
-                note.closedAt = '23/01/2025 22:59:03';
+                note.closedAt = '2025-01-23 22:59:03';
             } else {
                 note.status = 'open';
                 note.closedAt = null;
