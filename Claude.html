@@ -4,282 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Anotações de Contratos</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-        .btn {
-            @apply px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200;
-        }
-        .btn-blue {
-            @apply bg-blue-500 hover:bg-blue-700 focus:ring-blue-400;
-        }
-        .btn-green {
-            @apply bg-green-500 hover:bg-green-700 focus:ring-green-400;
-        }
-        .btn-yellow {
-            @apply bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400;
-        }
-        .btn-gray {
-            @apply bg-gray-500 hover:bg-gray-700 focus:ring-gray-400;
-        }
-        .btn-red {
-            @apply bg-red-500 hover:bg-red-700 focus:ring-red-400;
-        }
-        .btn-orange {
-            @apply bg-orange-500 hover:bg-orange-700 focus:ring-orange-400;
-        }
-        .notification {
-            @apply fixed top-4 right-4 p-4 rounded-md shadow-lg transform transition-all duration-300 ease-in-out z-50 font-semibold;
-            animation: slideIn 0.3s ease-out;
-        }
-        .notification-success {
-            @apply bg-green-500 text-white border-l-4 border-green-700;
-        }
-        .notification-error {
-            @apply bg-red-500 text-white border-l-4 border-red-700;
-        }
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        .modal-overlay {
-            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40;
-        }
-        .modal-content {
-            @apply bg-white rounded-lg shadow-lg transform transition-all duration-300;
-        }
-        .comment-box {
-            @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 mb-4;
-        }
-        .note-card {
-            @apply bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 mb-4 cursor-pointer;
-        }
-        .progress-bar {
-            @apply absolute bottom-0 left-0 h-2 bg-blue-500 transition-all duration-300;
-        }
-        .date-input {
-            @apply px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400;
-        }
-        .hidden {
-            display: none !important;
-        }
-    </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-    <!-- Notification Component -->
-    <div id="notification" class="notification hidden"></div>
-
-    <!-- Loading Spinner -->
-    <div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center hidden z-50">
-        <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-        <div class="w-64 h-2 mt-4 bg-gray-200 rounded-full overflow-hidden">
-            <div class="progress-bar" style="width: 0%"></div>
+<body class="bg-gray-100 min-h-screen p-4">
+    <!-- Container Principal -->
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-2xl font-bold text-center mb-8">Sistema de Anotações de Contratos</h1>
+        
+        <!-- Barra de Ferramentas -->
+        <div class="flex justify-center gap-4 mb-6">
+            <button id="createNoteBtn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                <i class="fas fa-plus mr-2"></i>Nova Anotação
+            </button>
+            <button id="importNotesBtn" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                <i class="fas fa-file-import mr-2"></i>Importar
+            </button>
+            <button id="downloadNotesBtn" class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600">
+                <i class="fas fa-download mr-2"></i>Exportar Todos
+            </button>
         </div>
-    </div>
 
-    <!-- Main Controls -->
-    <div class="mb-6 space-x-4">
-        <button id="createNoteBtn" class="btn btn-blue">
-            <i class="fas fa-plus mr-2"></i>Criar anotação
-        </button>
-        <button id="importNotesBtn" class="btn btn-green">
-            <i class="fas fa-file-import mr-2"></i>Importar Contratos
-        </button>
-        <button id="downloadNotesBtn" class="btn btn-yellow">
-            <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
-        </button>
-        <input type="file" id="fileInput" class="hidden" accept=".json">
-    </div>
-
-    <!-- Search and Filter Controls -->
-    <div class="mb-6 w-full max-w-4xl space-y-4">
-        <div class="relative">
+        <!-- Barra de Busca e Filtros -->
+        <div class="mb-6">
             <input type="text" 
                    id="searchInput" 
                    placeholder="Pesquisar contratos..." 
-                   class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                   aria-label="Pesquisar contratos">
-            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-        </div>
-
-        <div class="flex space-x-4 items-center">
-            <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <option value="newest">Mais recentes primeiro</option>
-                <option value="oldest">Mais antigos primeiro</option>
-            </select>
-            <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <option value="all">Todos os status</option>
-                <option value="open">Abertos</option>
-                <option value="scheduled">Em agendamento</option>
-                <option value="closed">Fechados</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Note Creation Modal -->
-    <div id="noteModal" class="modal-overlay hidden">
-        <div class="modal-content p-6 w-full max-w-md">
-            <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
-            <form id="noteForm" class="space-y-4">
-                <div>
-                    <label for="contractNumber" class="block text-gray-700">Número de Contrato: *</label>
-                    <input type="text" 
-                           id="contractNumber" 
-                           required
-                           pattern="[A-Za-z0-9-]+"
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                           placeholder="Digite o número do contrato">
-                </div>
-
-                <div>
-                    <label for="locator" class="block text-gray-700">Locador: *</label>
-                    <input type="text" 
-                           id="locator" 
-                           required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                           placeholder="Nome do locador">
-                </div>
-
-                <div>
-                    <label for="tenant" class="block text-gray-700">Locatário: *</label>
-                    <input type="text" 
-                           id="tenant" 
-                           required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                           placeholder="Nome do locatário">
-                </div>
-
-                <div>
-                    <label for="problem" class="block text-gray-700">Problema: *</label>
-                    <textarea id="problem" 
-                             required
-                             class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
-                             placeholder="Descreva o problema"></textarea>
-                </div>
-
-                <div>
-                    <label for="creationDate" class="block text-gray-700">Data de Criação: *</label>
-                    <input type="date" 
-                           id="creationDate" 
-                           required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                </div>
-
-                <div>
-                    <label for="address" class="block text-gray-700">Endereço: *</label>
-                    <input type="text" 
-                           id="address" 
-                           required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                           placeholder="Endereço completo">
-                </div>
-
-                <div class="flex justify-end space-x-2">
-                    <button type="button" id="cancelBtn" class="btn btn-gray">
-                        <i class="fas fa-times mr-2"></i>Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-blue">
-                        <i class="fas fa-save mr-2"></i>Salvar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- Note Details Modal -->
-    <div id="noteDetailsModal" class="modal-overlay hidden">
-        <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-            <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Coluna da esquerda - Detalhes -->
-                <div class="space-y-4">
-                    <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md"></div>
-                    
-                    <!-- Container para Agendamento -->
-                    <div id="schedulingContainer" class="hidden space-y-4">
-                        <div>
-                            <label for="scheduleDate" class="block text-gray-700 mb-2">Data de Agendamento:</label>
-                            <input type="date" 
-                                   id="scheduleDate" 
-                                   class="date-input w-full">
-                        </div>
-                        <div>
-                            <label for="serviceProvider" class="block text-gray-700 mb-2">Prestador de Serviço:</label>
-                            <input type="text" 
-                                   id="serviceProvider" 
-                                   class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                   placeholder="Nome do prestador de serviço">
-                        </div>
-                    </div>
-
-                    <!-- Status Buttons -->
-                    <div id="statusButtons" class="flex space-x-2">
-                        <button class="btn btn-blue flex-1 status-btn" data-status="open">
-                            <i class="fas fa-folder-open mr-2"></i>Aberto
-                        </button>
-                        <button class="btn btn-orange flex-1 status-btn" data-status="scheduled">
-                            <i class="fas fa-calendar-alt mr-2"></i>Agendar
-                        </button>
-                        <button class="btn btn-green flex-1 status-btn" data-status="closed">
-                            <i class="fas fa-check-circle mr-2"></i>Finalizar
-                        </button>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex space-x-2">
-                        <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
-                            <i class="fas fa-copy mr-2"></i>Copiar
-                        </button>
-                        <button type="button" id="downloadContractBtn" class="btn btn-yellow flex-1">
-                            <i class="fas fa-file-download mr-2"></i>Baixar
-                        </button>
-                        <button type="button" id="deleteNoteBtn" class="btn btn-red flex-1">
-                            <i class="fas fa-trash mr-2"></i>Excluir
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Coluna da direita - Comentários -->
-                <div class="space-y-4">
-                    <div class="bg-gray-50 p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-semibold mb-4">Comentários</h3>
-                        
-                        <form id="commentForm" class="mb-4">
-                            <textarea id="commentText" 
-                                     required
-                                     class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
-                                     placeholder="Digite seu comentário aqui..."
-                                     data-prevent-blur="true"></textarea>
-                            <button type="submit" class="btn btn-blue w-full mt-2">
-                                <i class="fas fa-comment mr-2"></i>Adicionar Comentário
-                            </button>
-                        </form>
-
-                        <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-4 text-right">
-                <button type="button" id="closeDetailsBtn" class="btn btn-gray">
-                    <i class="fas fa-times mr-2"></i>Fechar
-                </button>
+                   class="w-full p-2 border rounded mb-2">
+            <div class="flex gap-4">
+                <select id="dateSort" class="p-2 border rounded">
+                    <option value="newest">Mais recentes</option>
+                    <option value="oldest">Mais antigos</option>
+                </select>
+                <select id="statusFilter" class="p-2 border rounded">
+                    <option value="all">Todos os status</option>
+                    <option value="open">Abertos</option>
+                    <option value="scheduled">Agendados</option>
+                    <option value="closed">Fechados</option>
+                </select>
             </div>
         </div>
+
+        <!-- Container de Notas -->
+        <div id="notesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- As notas serão inseridas aqui dinamicamente -->
+        </div>
+
+        <!-- Modal de Nova Anotação -->
+        <div id="noteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+            <div class="bg-white p-6 rounded-lg max-w-md mx-auto mt-20">
+                <h2 class="text-xl font-bold mb-4">Nova Anotação</h2>
+                <form id="noteForm">
+                    <!-- Campos do formulário serão adicionados aqui -->
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal de Detalhes -->
+        <div id="noteDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+            <div class="bg-white p-6 rounded-lg max-w-4xl mx-auto mt-20">
+                <!-- Conteúdo dos detalhes será adicionado aqui -->
+            </div>
+        </div>
+
+        <!-- Input file oculto para importação -->
+        <input type="file" id="fileInput" class="hidden" accept=".json">
     </div>
 
-    <!-- Notes Container -->
-    <div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-    </div>
+    <!-- Notificação -->
+    <div id="notification" class="fixed top-4 right-4 hidden"></div>
 
+</body>
+</html>
+
+<!-- Adicionar logo após o título no head, antes do Tailwind CSS -->
+<style>
+    .btn {
+        @apply px-4 py-2 rounded-md transition-colors duration-200 flex items-center justify-center;
+    }
+    
+    .btn-blue {
+        @apply bg-blue-500 text-white hover:bg-blue-600;
+    }
+    
+    .btn-green {
+        @apply bg-green-500 text-white hover:bg-green-600;
+    }
+    
+    .btn-yellow {
+        @apply bg-yellow-500 text-white hover:bg-yellow-600;
+    }
+    
+    .btn-red {
+        @apply bg-red-500 text-white hover:bg-red-600;
+    }
+    
+    .btn-gray {
+        @apply bg-gray-500 text-white hover:bg-gray-600;
+    }
+
+    .note-card {
+        @apply bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer;
+    }
+
+    .comment-box {
+        @apply bg-gray-50 p-4 rounded-lg mb-4;
+    }
+
+    .modal-overlay {
+        @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+    }
+
+    .modal-content {
+        @apply bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto;
+    }
+
+    .notification {
+        @apply fixed top-4 right-4 px-6 py-3 rounded-md text-white z-50 transition-all duration-300 transform;
+    }
+
+    .notification-success {
+        @apply bg-green-500;
+    }
+
+    .notification-error {
+        @apply bg-red-500;
+    }
+
+    .progress-bar {
+        @apply h-full bg-blue-500 transition-all duration-300;
+    }
+</style>
+
+<!-- Adicionar logo antes do fechamento do body -->
 <script>
-// Utility Functions
+// Configuração inicial do Tailwind
+tailwind.config = {
+    theme: {
+        extend: {
+            zIndex: {
+                '100': '100',
+            }
+        }
+    }
+}
+
+// Utilitários básicos
 const utils = {
     formatDate: (date, includeTime = false) => {
         if (!date) return '';
@@ -290,73 +164,252 @@ const utils = {
         const dateStr = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
         
         if (!includeTime) return dateStr;
-        return `${dateStr} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-    },
-
-    parseDateInput: (dateStr) => {
-        if (!dateStr) return null;
-        const [year, month, day] = dateStr.split('-').map(Number);
-        return new Date(year, month - 1, day);
+        return `${dateStr} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
     },
 
     showNotification: (message, type = 'success') => {
         const notification = document.getElementById('notification');
-        notification.className = `notification ${type === 'success' ? 'notification-success' : 'notification-error'}`;
+        if (!notification) return;
+
         notification.textContent = message;
+        notification.className = `notification ${type === 'success' ? 'notification-success' : 'notification-error'}`;
         notification.classList.remove('hidden');
-        setTimeout(() => notification.classList.add('hidden'), 3000);
-    },
 
-    showLoading: (show = true, progress = 0) => {
-        const spinner = document.getElementById('loadingSpinner');
-        const progressBar = spinner.querySelector('.progress-bar');
-        spinner.classList.toggle('hidden', !show);
-        if (show && progressBar) {
-            progressBar.style.width = `${progress}%`;
-        }
-    },
-
-    sanitizeInput: (input) => {
-        if (typeof input !== 'string') return '';
-        return input.trim()
-                   .replace(/[<>]/g, '')
-                   .replace(/&/g, '&amp;')
-                   .replace(/"/g, '&quot;')
-                   .replace(/'/g, '&#39;');
+        setTimeout(() => {
+            notification.classList.add('hidden');
+        }, 3000);
     }
 };
-    class NoteManager {
+
+// Garantir que o DOM está carregado antes de inicializar
+document.addEventListener('DOMContentLoaded', () => {
+    // Teste inicial para verificar se os elementos estão sendo encontrados
+    const createNoteBtn = document.getElementById('createNoteBtn');
+    if (createNoteBtn) {
+        createNoteBtn.addEventListener('click', () => {
+            const modal = document.getElementById('noteModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                utils.showNotification('Modal aberto com sucesso!', 'success');
+            } else {
+                console.error('Modal não encontrado');
+            }
+        });
+    } else {
+        console.error('Botão de criar nota não encontrado');
+    }
+});
+</script>
+
+<!-- Atualizar o modal de nova anotação dentro do body -->
+<div id="noteModal" class="modal-overlay hidden">
+    <div class="modal-content p-6 w-full max-w-2xl">
+        <h2 class="text-2xl font-semibold mb-4">Nova Anotação</h2>
+        <form id="noteForm" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="contractNumber" class="block text-gray-700 mb-2">Número do Contrato*</label>
+                    <input type="text" 
+                           id="contractNumber" 
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                           required
+                           placeholder="Ex: CT12345">
+                </div>
+                <div>
+                    <label for="creationDate" class="block text-gray-700 mb-2">Data de Criação*</label>
+                    <input type="date" 
+                           id="creationDate" 
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                           required>
+                </div>
+                <div>
+                    <label for="locator" class="block text-gray-700 mb-2">Locador*</label>
+                    <input type="text" 
+                           id="locator" 
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                           required
+                           placeholder="Nome do locador">
+                </div>
+                <div>
+                    <label for="tenant" class="block text-gray-700 mb-2">Locatário*</label>
+                    <input type="text" 
+                           id="tenant" 
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                           required
+                           placeholder="Nome do locatário">
+                </div>
+                <div class="col-span-full">
+                    <label for="address" class="block text-gray-700 mb-2">Endereço*</label>
+                    <input type="text" 
+                           id="address" 
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                           required
+                           placeholder="Endereço completo">
+                </div>
+                <div class="col-span-full">
+                    <label for="problem" class="block text-gray-700 mb-2">Problema*</label>
+                    <textarea id="problem" 
+                              class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
+                              required
+                              placeholder="Descreva o problema"></textarea>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-2 mt-6">
+                <button type="button" 
+                        id="cancelBtn"
+                        class="btn btn-gray">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </button>
+                <button type="submit" 
+                        class="btn btn-blue">
+                    <i class="fas fa-save mr-2"></i>Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Adicionar antes do fechamento do body -->
+<script>
+// Inicialização do formulário
+document.addEventListener('DOMContentLoaded', () => {
+    const noteForm = document.getElementById('noteForm');
+    const noteModal = document.getElementById('noteModal');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const createNoteBtn = document.getElementById('createNoteBtn');
+    const creationDate = document.getElementById('creationDate');
+
+    // Configurar data atual no campo de data
+    const today = new Date().toISOString().split('T')[0];
+    if (creationDate) {
+        creationDate.value = today;
+        creationDate.max = today;
+    }
+
+    // Abrir modal
+    if (createNoteBtn) {
+        createNoteBtn.addEventListener('click', () => {
+            if (noteModal) {
+                noteModal.classList.remove('hidden');
+                document.getElementById('contractNumber')?.focus();
+            }
+        });
+    }
+
+    // Fechar modal
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            if (noteModal) {
+                noteModal.classList.add('hidden');
+                noteForm?.reset();
+            }
+        });
+    }
+
+    // Fechar modal com ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && noteModal) {
+            noteModal.classList.add('hidden');
+            noteForm?.reset();
+        }
+    });
+
+    // Submeter formulário
+    if (noteForm) {
+        noteForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Coletar dados do formulário
+            const formData = {
+                contractNumber: document.getElementById('contractNumber')?.value.trim(),
+                creationDate: document.getElementById('creationDate')?.value,
+                locator: document.getElementById('locator')?.value.trim(),
+                tenant: document.getElementById('tenant')?.value.trim(),
+                address: document.getElementById('address')?.value.trim(),
+                problem: document.getElementById('problem')?.value.trim()
+            };
+
+            // Validar dados
+            if (Object.values(formData).some(value => !value)) {
+                utils.showNotification('Por favor, preencha todos os campos obrigatórios.', 'error');
+                return;
+            }
+
+            // Salvar nota (temporário até implementarmos o NoteManager)
+            console.log('Dados do formulário:', formData);
+            utils.showNotification('Nota criada com sucesso!', 'success');
+            
+            // Fechar modal e limpar formulário
+            noteModal.classList.add('hidden');
+            noteForm.reset();
+        });
+    }
+});
+</script>
+
+// Adicionar antes do fechamento do body, após o script anterior
+<script>
+// Classe NoteManager - Gerenciamento das notas
+class NoteManager {
     constructor() {
+        // Singleton pattern
         if (window.noteManager) {
             return window.noteManager;
         }
 
         this.notes = {};
         this.currentUser = 'VictorCainj';
-        this.currentDateTime = '2025-01-24 00:52:17';
+        this.currentDateTime = '2025-01-24 01:03:14';
         
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.initialize());
-        } else {
-            this.initialize();
-        }
-
+        this.initialize();
         window.noteManager = this;
     }
 
     initialize() {
         this.loadFromLocalStorage();
-        this.cleanInvalidNotes();
         this.initializeEventListeners();
-        this.activeNoteKey = null;
         this.renderAllNotes();
+    }
+
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            this.notes = savedNotes ? JSON.parse(savedNotes) : {};
+        } catch (error) {
+            console.error('Erro ao carregar notas:', error);
+            this.notes = {};
+        }
+    }
+
+    saveToLocalStorage() {
+        try {
+            localStorage.setItem('notes', JSON.stringify(this.notes));
+        } catch (error) {
+            utils.showNotification('Erro ao salvar notas. Verifique o espaço disponível.', 'error');
+        }
     }
 
     renderAllNotes() {
         const container = document.getElementById('notesContainer');
+        if (!container) return;
+
         container.innerHTML = '';
         
-        Object.keys(this.notes).forEach(key => {
+        if (Object.keys(this.notes).length === 0) {
+            container.innerHTML = `
+                <div class="col-span-full text-center text-gray-500 py-8">
+                    Nenhuma anotação encontrada. Clique em "Nova Anotação" para começar!
+                </div>
+            `;
+            return;
+        }
+
+        // Ordenar notas por data de criação (mais recentes primeiro)
+        const sortedNotes = Object.entries(this.notes)
+            .sort(([, a], [, b]) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        sortedNotes.forEach(([key, note]) => {
             this.renderNote(key);
         });
     }
@@ -366,21 +419,11 @@ const utils = {
         if (!note) return;
 
         const container = document.getElementById('notesContainer');
-        const existingNote = document.querySelector(`[data-note-key="${noteKey}"]`);
-        
-        if (existingNote) {
-            existingNote.remove();
-        }
+        if (!container) return;
 
         const noteElement = document.createElement('div');
         noteElement.className = 'note-card';
         noteElement.setAttribute('data-note-key', noteKey);
-        noteElement.setAttribute('data-contract', note.contractNumber);
-        noteElement.setAttribute('data-locator', note.locator);
-        noteElement.setAttribute('data-tenant', note.tenant);
-        noteElement.setAttribute('data-address', note.address);
-        noteElement.setAttribute('data-status', note.status);
-        noteElement.setAttribute('data-date', note.createdAt);
 
         const statusColors = {
             'open': 'text-blue-600',
@@ -396,317 +439,291 @@ const utils = {
 
         noteElement.innerHTML = `
             <div class="flex justify-between items-start mb-2">
-                <h3 class="font-semibold">${utils.sanitizeInput(note.contractNumber)}</h3>
+                <h3 class="font-semibold text-lg">${utils.sanitizeInput(note.contractNumber)}</h3>
                 <i class="fas ${statusIcons[note.status]} ${statusColors[note.status]}"></i>
             </div>
-            <p class="text-sm text-gray-600 mb-2">${utils.sanitizeInput(note.locator)}</p>
-            <p class="text-sm text-gray-600 mb-2">${utils.sanitizeInput(note.tenant)}</p>
-            <p class="text-sm text-gray-500 truncate">${utils.sanitizeInput(note.address)}</p>
-            <div class="mt-2 text-xs text-gray-400">
+            <p class="text-sm text-gray-600 mb-1">${utils.sanitizeInput(note.locator)}</p>
+            <p class="text-sm text-gray-600 mb-1">${utils.sanitizeInput(note.tenant)}</p>
+            <p class="text-sm text-gray-500 truncate mb-2">${utils.sanitizeInput(note.address)}</p>
+            <div class="text-xs text-gray-400">
                 ${utils.formatDate(note.createdAt)}
             </div>
         `;
 
         noteElement.addEventListener('click', () => this.showNoteDetails(noteKey));
-        
-        if (existingNote) {
-            container.replaceChild(noteElement, existingNote);
-        } else {
-            container.appendChild(noteElement);
-        }
+        container.appendChild(noteElement);
     }
-        initializeEventListeners() {
-        const elementHandlers = {
-            'createNoteBtn': {
-                event: 'click',
-                handler: () => {
-                    const noteModal = document.getElementById('noteModal');
-                    const contractNumber = document.getElementById('contractNumber');
-                    const creationDate = document.getElementById('creationDate');
-                    
-                    noteModal.classList.remove('hidden');
-                    contractNumber.focus();
-                    creationDate.valueAsDate = new Date();
-                }
-            },
-            'cancelBtn': {
-                event: 'click',
-                handler: () => {
-                    document.getElementById('noteModal').classList.add('hidden');
-                    document.getElementById('noteForm').reset();
-                }
-            },
-            'noteForm': {
-                event: 'submit',
-                handler: (e) => {
-                    e.preventDefault();
-                    this.handleFormSubmit();
-                }
-            },
-            'searchInput': {
-                event: 'input',
-                handler: (e) => {
-                    this.handleSearch(e.target.value);
-                }
-            },
-            'dateSort': {
-                event: 'change',
-                handler: () => {
-                    this.filterAndSortNotes();
-                }
-            },
-            'statusFilter': {
-                event: 'change',
-                handler: () => {
-                    this.filterAndSortNotes();
-                }
-            },
-            'importNotesBtn': {
-                event: 'click',
-                handler: () => {
-                    document.getElementById('fileInput').click();
-                }
-            },
-            'fileInput': {
-                event: 'change',
-                handler: (e) => {
-                    this.handleFileImport(e);
-                }
-            },
-            'downloadNotesBtn': {
-                event: 'click',
-                handler: () => {
-                    this.exportAllNotes();
-                }
-            },
-            'closeDetailsBtn': {
-                event: 'click',
-                handler: () => {
-                    document.getElementById('noteDetailsModal').classList.add('hidden');
-                    this.activeNoteKey = null;
-                }
-            },
-            'copyDetailsBtn': {
-                event: 'click',
-                handler: () => {
-                    if (this.activeNoteKey) {
-                        this.copyNoteDetails(this.activeNoteKey);
-                    }
-                }
-            },
-            'downloadContractBtn': {
-                event: 'click',
-                handler: () => {
-                    if (this.activeNoteKey) {
-                        this.exportNote(this.activeNoteKey);
-                    }
-                }
-            },
-            'deleteNoteBtn': {
-                event: 'click',
-                handler: () => {
-                    if (this.activeNoteKey) {
-                        this.deleteNote(this.activeNoteKey);
-                    }
-                }
-            },
-            'commentForm': {
-                event: 'submit',
-                handler: (e) => {
-                    e.preventDefault();
-                    this.handleCommentSubmit();
-                }
-            }
+
+    addNote(formData) {
+        const noteKey = `#${formData.contractNumber}`;
+        
+        if (this.notes[noteKey]) {
+            utils.showNotification('Já existe uma anotação com este número de contrato.', 'error');
+            return false;
+        }
+
+        this.notes[noteKey] = {
+            ...formData,
+            status: 'open',
+            comments: [],
+            createdAt: new Date().toISOString(),
+            closedAt: null
         };
 
-        // Configuração dos event listeners
-        for (const [elementId, config] of Object.entries(elementHandlers)) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.addEventListener(config.event, config.handler);
-            }
-        }
+        this.saveToLocalStorage();
+        this.renderNote(noteKey);
+        utils.showNotification('Anotação criada com sucesso!', 'success');
+        return true;
+    }
 
-        // Event listeners para botões de status
-        document.querySelectorAll('.status-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                if (this.activeNoteKey) {
-                    this.updateNoteStatus(this.activeNoteKey, button.dataset.status);
-                }
-            });
-        });
+    // Função auxiliar para sanitizar input
+    static sanitizeInput(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+}
 
-        // Event listener global para ESC
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
+// Inicializar NoteManager
+document.addEventListener('DOMContentLoaded', () => {
+    // Atualizar manipulador de eventos do formulário
+    const noteForm = document.getElementById('noteForm');
+    if (noteForm) {
+        noteForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                contractNumber: document.getElementById('contractNumber').value.trim(),
+                locator: document.getElementById('locator').value.trim(),
+                tenant: document.getElementById('tenant').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                problem: document.getElementById('problem').value.trim(),
+                createdAt: new Date(document.getElementById('creationDate').value).toISOString()
+            };
+
+            const noteManager = new NoteManager();
+            if (noteManager.addNote(formData)) {
                 document.getElementById('noteModal').classList.add('hidden');
-                document.getElementById('noteDetailsModal').classList.add('hidden');
-                this.activeNoteKey = null;
+                noteForm.reset();
             }
         });
     }
-        handleSearch(searchTerm) {
-        const notes = document.querySelectorAll('.note-card');
-        let visibleCount = 0;
-        
-        notes.forEach(note => {
-            const searchData = [
-                note.dataset.contract,
-                note.dataset.locator,
-                note.dataset.tenant,
-                note.dataset.address
-            ].map(item => item.toLowerCase());
+});
+</script>
 
-            const isVisible = searchData.some(data => 
-                data.includes(searchTerm.toLowerCase())
-            );
-
-            note.classList.toggle('hidden', !isVisible);
-            if (isVisible) visibleCount++;
-        });
-
-        this.updateNoResultsMessage(visibleCount);
-    }
-
-    updateNoResultsMessage(visibleCount) {
-        const container = document.getElementById('notesContainer');
-        const existingMessage = container.querySelector('.no-results-message');
-        
-        if (existingMessage) {
-            existingMessage.remove();
-        }
-
-        if (visibleCount === 0) {
-            const message = document.createElement('div');
-            message.className = 'no-results-message col-span-full text-center text-gray-500 py-8';
-            message.textContent = 'Nenhuma anotação encontrada para os filtros selecionados.';
-            container.appendChild(message);
-        }
-    }
+// Adicionar antes do fechamento do body, após o script anterior
+<script>
+// Extensão da classe NoteManager com funcionalidades adicionais
+class NoteManager {
+    // ... (manter o código anterior da classe) ...
 
     showNoteDetails(noteKey) {
         const note = this.notes[noteKey];
         if (!note) return;
 
-        this.activeNoteKey = noteKey;
         const modal = document.getElementById('noteDetailsModal');
-        const detailsContent = document.getElementById('noteDetailsContent');
-        const schedulingContainer = document.getElementById('schedulingContainer');
-        
+        if (!modal) return;
+
+        this.activeNoteKey = noteKey;
+
         const statusText = {
             'open': 'Aberto',
-            'scheduled': note.scheduleDate ? 
-                `Agendado para ${utils.formatDate(note.scheduleDate)}${note.serviceProvider ? `\nPrestador: ${note.serviceProvider}` : ''}` : 
-                'Em agendamento',
+            'scheduled': 'Agendado',
             'closed': 'Finalizado'
         };
 
-        detailsContent.innerHTML = `
-            <div class="space-y-4">
-                <div class="flex justify-between items-start">
-                    <h3 class="text-xl font-bold">${utils.sanitizeInput(note.contractNumber)}</h3>
-                    <span class="font-semibold ${note.status === 'closed' ? 'text-green-600' : 
-                                               note.status === 'scheduled' ? 'text-orange-600' : 
-                                               'text-blue-600'}">
-                        ${statusText[note.status]}
-                    </span>
+        modal.innerHTML = `
+            <div class="modal-content p-6 w-full max-w-4xl mx-auto mt-20">
+                <div class="flex justify-between items-start mb-6">
+                    <h2 class="text-2xl font-semibold">Detalhes da Anotação</h2>
+                    <button id="closeDetailsBtn" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                        <p class="font-semibold">Locador:</p>
-                        <p>${utils.sanitizeInput(note.locator)}</p>
+                        <h3 class="font-semibold mb-2">Contrato: ${this.sanitizeInput(note.contractNumber)}</h3>
+                        <p class="text-gray-600">Status: <span class="font-semibold">${statusText[note.status]}</span></p>
+                        <p class="text-gray-600">Criado em: ${utils.formatDate(note.createdAt, true)}</p>
+                        ${note.closedAt ? `<p class="text-gray-600">Fechado em: ${utils.formatDate(note.closedAt, true)}</p>` : ''}
                     </div>
-                    <div>
-                        <p class="font-semibold">Locatário:</p>
-                        <p>${utils.sanitizeInput(note.tenant)}</p>
+
+                    <div class="space-y-2">
+                        <p><span class="font-semibold">Locador:</span> ${this.sanitizeInput(note.locator)}</p>
+                        <p><span class="font-semibold">Locatário:</span> ${this.sanitizeInput(note.tenant)}</p>
+                        <p><span class="font-semibold">Endereço:</span> ${this.sanitizeInput(note.address)}</p>
                     </div>
+
                     <div class="col-span-full">
-                        <p class="font-semibold">Endereço:</p>
-                        <p>${utils.sanitizeInput(note.address)}</p>
+                        <p class="font-semibold mb-2">Problema:</p>
+                        <p class="whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
+                            ${this.sanitizeInput(note.problem)}
+                        </p>
                     </div>
-                    <div class="col-span-full">
-                        <p class="font-semibold">Problema:</p>
-                        <p class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</p>
-                    </div>
-                    <div>
-                        <p class="font-semibold">Data de Criação:</p>
-                        <p>${utils.formatDate(note.createdAt)}</p>
-                    </div>
-                    ${note.closedAt ? `
-                        <div>
-                            <p class="font-semibold">Data de Fechamento:</p>
-                            <p>${utils.formatDate(note.closedAt)}</p>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    ${this.generateStatusButtons(note.status)}
+                    <button id="copyDetailsBtn" class="btn btn-gray">
+                        <i class="fas fa-copy mr-2"></i>Copiar Detalhes
+                    </button>
+                    <button id="downloadContractBtn" class="btn btn-blue">
+                        <i class="fas fa-download mr-2"></i>Exportar
+                    </button>
+                    <button id="deleteNoteBtn" class="btn btn-red">
+                        <i class="fas fa-trash mr-2"></i>Excluir
+                    </button>
+                </div>
+
+                <!-- Seção de Agendamento -->
+                ${note.status === 'scheduled' ? this.generateSchedulingSection(note) : ''}
+
+                <!-- Seção de Comentários -->
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-semibold mb-4">Comentários</h3>
+                    <form id="commentForm" class="mb-4">
+                        <textarea id="commentText" 
+                                  class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
+                                  placeholder="Adicione um comentário..."></textarea>
+                        <div class="flex justify-end mt-2">
+                            <button type="submit" class="btn btn-blue">
+                                <i class="fas fa-comment mr-2"></i>Comentar
+                            </button>
                         </div>
-                    ` : ''}
+                    </form>
+                    <div id="commentsContainer" class="space-y-4">
+                        <!-- Comentários serão renderizados aqui -->
+                    </div>
                 </div>
             </div>
         `;
 
-        // Configuração dos campos de agendamento
-        if (note.status === 'scheduled') {
-            schedulingContainer.classList.remove('hidden');
-            document.getElementById('scheduleDate').value = note.scheduleDate || '';
-            document.getElementById('serviceProvider').value = note.serviceProvider || '';
-        } else {
-            schedulingContainer.classList.add('hidden');
-        }
-
-        // Atualiza estado dos botões de status
-        document.querySelectorAll('.status-btn').forEach(button => {
-            const isCurrentStatus = button.dataset.status === note.status;
-            button.disabled = isCurrentStatus;
-            button.classList.toggle('opacity-50', isCurrentStatus);
-        });
-
+        // Mostrar modal
         modal.classList.remove('hidden');
+
+        // Configurar event listeners
+        this.setupDetailsEventListeners(noteKey);
         this.renderComments(noteKey);
     }
-        handleFormSubmit() {
-        const formData = {
-            contractNumber: document.getElementById('contractNumber').value.trim(),
-            locator: document.getElementById('locator').value.trim(),
-            tenant: document.getElementById('tenant').value.trim(),
-            problem: document.getElementById('problem').value.trim(),
-            address: document.getElementById('address').value.trim(),
-            createdAt: utils.parseDateInput(document.getElementById('creationDate').value)
-        };
 
-        // Validação básica
-        if (!formData.contractNumber || !formData.locator || !formData.tenant || 
-            !formData.problem || !formData.address || !formData.createdAt) {
-            utils.showNotification('Por favor, preencha todos os campos obrigatórios.', 'error');
-            return;
-        }
+    generateStatusButtons(currentStatus) {
+        const buttons = [
+            { status: 'open', text: 'Reabrir', icon: 'folder-open', color: 'blue' },
+            { status: 'scheduled', text: 'Agendar', icon: 'calendar-alt', color: 'orange' },
+            { status: 'closed', text: 'Finalizar', icon: 'check-circle', color: 'green' }
+        ];
 
-        try {
-            const noteKey = `#${formData.contractNumber}`;
-            
-            if (this.notes[noteKey]) {
-                utils.showNotification('Já existe uma anotação com este número de contrato.', 'error');
-                return;
-            }
+        return buttons
+            .filter(btn => btn.status !== currentStatus)
+            .map(btn => `
+                <button class="btn btn-${btn.color} status-btn" data-status="${btn.status}">
+                    <i class="fas fa-${btn.icon} mr-2"></i>${btn.text}
+                </button>
+            `).join('');
+    }
 
-            this.notes[noteKey] = {
-                ...formData,
-                status: 'open',
-                comments: [],
-                createdAt: formData.createdAt.toISOString(),
-                closedAt: null
+    generateSchedulingSection(note) {
+        return `
+            <div id="schedulingContainer" class="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h3 class="font-semibold mb-3">Informações de Agendamento</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2">Data do Agendamento</label>
+                        <input type="date" 
+                               id="scheduleDate" 
+                               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                               value="${note.scheduleDate || ''}">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2">Prestador de Serviço</label>
+                        <input type="text" 
+                               id="serviceProvider" 
+                               class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                               value="${note.serviceProvider || ''}"
+                               placeholder="Nome do prestador">
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    setupDetailsEventListeners(noteKey) {
+        // ... (continuará na próxima parte)
+    }
+}
+</script>
+
+// Continuação da classe NoteManager
+class NoteManager {
+    // ... (manter o código anterior da classe) ...
+
+    setupDetailsEventListeners(noteKey) {
+        const modal = document.getElementById('noteDetailsModal');
+        const note = this.notes[noteKey];
+
+        // Fechar modal
+        document.getElementById('closeDetailsBtn')?.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            this.activeNoteKey = null;
+        });
+
+        // Botões de status
+        document.querySelectorAll('.status-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.updateNoteStatus(noteKey, btn.dataset.status);
+            });
+        });
+
+        // Formulário de comentários
+        document.getElementById('commentForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.addComment(noteKey);
+        });
+
+        // Copiar detalhes
+        document.getElementById('copyDetailsBtn')?.addEventListener('click', () => {
+            this.copyNoteDetails(noteKey);
+        });
+
+        // Exportar nota
+        document.getElementById('downloadContractBtn')?.addEventListener('click', () => {
+            this.exportNote(noteKey);
+        });
+
+        // Excluir nota
+        document.getElementById('deleteNoteBtn')?.addEventListener('click', () => {
+            this.deleteNote(noteKey);
+        });
+
+        // Atualizar informações de agendamento
+        if (note.status === 'scheduled') {
+            const scheduleDate = document.getElementById('scheduleDate');
+            const serviceProvider = document.getElementById('serviceProvider');
+
+            const updateScheduling = () => {
+                this.updateSchedulingInfo(noteKey, 
+                    scheduleDate.value,
+                    serviceProvider.value.trim()
+                );
             };
 
-            this.saveToLocalStorage();
-            this.renderNote(noteKey);
-            
-            document.getElementById('noteModal').classList.add('hidden');
-            document.getElementById('noteForm').reset();
-            
-            utils.showNotification('Anotação criada com sucesso!', 'success');
-            
-            // Atualiza a visualização se houver filtros ativos
-            this.filterAndSortNotes();
-        } catch (error) {
-            utils.showNotification('Erro ao criar anotação. Tente novamente.', 'error');
+            scheduleDate?.addEventListener('change', updateScheduling);
+            serviceProvider?.addEventListener('blur', updateScheduling);
         }
+
+        // Fechar com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+                this.activeNoteKey = null;
+            }
+        });
     }
 
     updateNoteStatus(noteKey, newStatus) {
@@ -725,7 +742,6 @@ const utils = {
 
             case 'scheduled':
                 note.closedAt = null;
-                // Mantém as informações de agendamento se já existirem
                 break;
 
             case 'closed':
@@ -744,92 +760,56 @@ const utils = {
         };
 
         utils.showNotification(statusMessages[newStatus], 'success');
-
-        if (newStatus === 'scheduled' && oldStatus !== 'scheduled') {
-            document.getElementById('scheduleDate').focus();
-        }
     }
 
-    deleteNote(noteKey) {
-        if (!confirm('Tem certeza que deseja excluir esta anotação? Esta ação não pode ser desfeita.')) {
-            return;
-        }
+    updateSchedulingInfo(noteKey, scheduleDate, serviceProvider) {
+        const note = this.notes[noteKey];
+        if (!note || note.status !== 'scheduled') return;
 
-        try {
-            delete this.notes[noteKey];
-            this.saveToLocalStorage();
-            
-            document.querySelector(`[data-note-key="${noteKey}"]`)?.remove();
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-            this.activeNoteKey = null;
-            
-            utils.showNotification('Anotação excluída com sucesso!', 'success');
-            
-            // Atualiza a mensagem de "nenhum resultado" se necessário
-            this.updateNoResultsMessage(Object.keys(this.notes).length);
-        } catch (error) {
-            utils.showNotification('Erro ao excluir anotação. Tente novamente.', 'error');
-        }
+        note.scheduleDate = scheduleDate;
+        note.serviceProvider = serviceProvider;
+
+        this.saveToLocalStorage();
+        this.renderNote(noteKey);
+
+        utils.showNotification('Informações de agendamento atualizadas!', 'success');
     }
 
-    saveToLocalStorage() {
-        try {
-            localStorage.setItem('notes', JSON.stringify(this.notes));
-        } catch (error) {
-            utils.showNotification('Erro ao salvar dados. Verifique o espaço disponível.', 'error');
-        }
-    }
-
-    loadFromLocalStorage() {
-        try {
-            const savedNotes = localStorage.getItem('notes');
-            this.notes = savedNotes ? JSON.parse(savedNotes) : {};
-        } catch (error) {
-            this.notes = {};
-            utils.showNotification('Erro ao carregar dados salvos.', 'error');
-        }
-    }
-        handleCommentSubmit() {
-        if (!this.activeNoteKey) return;
-
-        const commentText = document.getElementById('commentText').value.trim();
+    addComment(noteKey) {
+        const commentText = document.getElementById('commentText')?.value.trim();
         if (!commentText) {
             utils.showNotification('O comentário não pode estar vazio.', 'error');
             return;
         }
 
-        try {
-            const note = this.notes[this.activeNoteKey];
-            if (!note.comments) note.comments = [];
+        const note = this.notes[noteKey];
+        if (!note.comments) note.comments = [];
 
-            const newComment = {
-                text: commentText,
-                dateTime: new Date().toISOString(),
-                editedAt: null,
-                id: Date.now().toString()
-            };
+        const newComment = {
+            id: Date.now().toString(),
+            text: commentText,
+            dateTime: new Date().toISOString(),
+            editedAt: null
+        };
 
-            note.comments.push(newComment);
-            this.saveToLocalStorage();
-            this.renderComments(this.activeNoteKey);
-            
-            document.getElementById('commentForm').reset();
-            utils.showNotification('Comentário adicionado com sucesso!', 'success');
-        } catch (error) {
-            utils.showNotification('Erro ao adicionar comentário.', 'error');
-        }
+        note.comments.push(newComment);
+        this.saveToLocalStorage();
+        this.renderComments(noteKey);
+
+        document.getElementById('commentForm')?.reset();
+        utils.showNotification('Comentário adicionado com sucesso!', 'success');
     }
 
     renderComments(noteKey) {
-        const commentsContainer = document.getElementById('commentsContainer');
+        const container = document.getElementById('commentsContainer');
         const note = this.notes[noteKey];
         
-        if (!note || !commentsContainer) return;
+        if (!container || !note) return;
 
-        commentsContainer.innerHTML = '';
+        container.innerHTML = '';
 
         if (!note.comments || note.comments.length === 0) {
-            commentsContainer.innerHTML = `
+            container.innerHTML = `
                 <div class="text-center text-gray-500 py-4">
                     Nenhum comentário ainda. Seja o primeiro a comentar!
                 </div>
@@ -838,80 +818,94 @@ const utils = {
         }
 
         note.comments.slice().reverse().forEach(comment => {
-            const commentElement = document.createElement('div');
-            commentElement.className = 'comment-box';
-            commentElement.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
-                    <div class="text-xs text-gray-500">
-                        ${utils.formatDate(comment.dateTime, true)}
-                        ${comment.editedAt ? ' (editado)' : ''}
-                    </div>
-                    <div class="flex space-x-2">
-                        <button class="text-blue-500 hover:text-blue-700 edit-comment-btn" 
-                                data-comment-id="${comment.id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700 delete-comment-btn" 
-                                data-comment-id="${comment.id}">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="comment-text whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</div>
-                <div class="edit-comment-form hidden mt-2">
-                    <textarea class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]">${comment.text}</textarea>
-                    <div class="flex justify-end space-x-2 mt-2">
-                        <button class="btn btn-gray cancel-edit-btn">Cancelar</button>
-                        <button class="btn btn-blue save-edit-btn">Salvar</button>
-                    </div>
-                </div>
-            `;
-
-            // Event listeners para edição e exclusão
-            const editBtn = commentElement.querySelector('.edit-comment-btn');
-            const deleteBtn = commentElement.querySelector('.delete-comment-btn');
-            const editForm = commentElement.querySelector('.edit-comment-form');
-            const cancelEditBtn = commentElement.querySelector('.cancel-edit-btn');
-            const saveEditBtn = commentElement.querySelector('.save-edit-btn');
-
-            editBtn.addEventListener('click', () => {
-                editForm.classList.remove('hidden');
-                commentElement.querySelector('.comment-text').classList.add('hidden');
-            });
-
-            cancelEditBtn.addEventListener('click', () => {
-                editForm.classList.add('hidden');
-                commentElement.querySelector('.comment-text').classList.remove('hidden');
-            });
-
-            saveEditBtn.addEventListener('click', () => {
-                const newText = editForm.querySelector('textarea').value.trim();
-                if (newText && newText !== comment.text) {
-                    this.editComment(noteKey, comment.id, newText);
-                }
-            });
-
-            deleteBtn.addEventListener('click', () => {
-                this.deleteComment(noteKey, comment.id);
-            });
-
-            commentsContainer.appendChild(commentElement);
+            const commentElement = this.createCommentElement(comment, noteKey);
+            container.appendChild(commentElement);
         });
     }
-        editComment(noteKey, commentId, newText) {
-        try {
-            const note = this.notes[noteKey];
-            const comment = note.comments.find(c => c.id === commentId);
-            
-            if (comment) {
-                comment.text = newText;
-                comment.editedAt = new Date().toISOString();
-                this.saveToLocalStorage();
-                this.renderComments(noteKey);
-                utils.showNotification('Comentário atualizado com sucesso!', 'success');
+
+    createCommentElement(comment, noteKey) {
+        const div = document.createElement('div');
+        div.className = 'comment-box';
+        div.innerHTML = `
+            <div class="flex justify-between items-start mb-2">
+                <div class="text-xs text-gray-500">
+                    ${utils.formatDate(comment.dateTime, true)}
+                    ${comment.editedAt ? ' (editado)' : ''}
+                </div>
+                <div class="flex space-x-2">
+                    <button class="text-blue-500 hover:text-blue-700 edit-comment-btn" 
+                            data-comment-id="${comment.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="text-red-500 hover:text-red-700 delete-comment-btn" 
+                            data-comment-id="${comment.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="comment-text whitespace-pre-wrap">${this.sanitizeInput(comment.text)}</div>
+            <div class="edit-form hidden mt-2">
+                <textarea class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">${comment.text}</textarea>
+                <div class="flex justify-end space-x-2 mt-2">
+                    <button class="btn btn-gray cancel-edit-btn">Cancelar</button>
+                    <button class="btn btn-blue save-edit-btn">Salvar</button>
+                </div>
+            </div>
+        `;
+
+        this.setupCommentEventListeners(div, noteKey, comment.id);
+        return div;
+    }
+
+    // ... (continuará na próxima parte)
+}
+</script>
+
+// Continuação da classe NoteManager
+class NoteManager {
+    // ... (manter o código anterior da classe) ...
+
+    setupCommentEventListeners(commentElement, noteKey, commentId) {
+        // Editar comentário
+        commentElement.querySelector('.edit-comment-btn')?.addEventListener('click', () => {
+            const editForm = commentElement.querySelector('.edit-form');
+            const commentText = commentElement.querySelector('.comment-text');
+            editForm.classList.remove('hidden');
+            commentText.classList.add('hidden');
+        });
+
+        // Cancelar edição
+        commentElement.querySelector('.cancel-edit-btn')?.addEventListener('click', () => {
+            const editForm = commentElement.querySelector('.edit-form');
+            const commentText = commentElement.querySelector('.comment-text');
+            editForm.classList.add('hidden');
+            commentText.classList.remove('hidden');
+        });
+
+        // Salvar edição
+        commentElement.querySelector('.save-edit-btn')?.addEventListener('click', () => {
+            const newText = commentElement.querySelector('textarea').value.trim();
+            if (newText) {
+                this.editComment(noteKey, commentId, newText);
             }
-        } catch (error) {
-            utils.showNotification('Erro ao editar comentário.', 'error');
+        });
+
+        // Excluir comentário
+        commentElement.querySelector('.delete-comment-btn')?.addEventListener('click', () => {
+            this.deleteComment(noteKey, commentId);
+        });
+    }
+
+    editComment(noteKey, commentId, newText) {
+        const note = this.notes[noteKey];
+        const comment = note.comments.find(c => c.id === commentId);
+        
+        if (comment && newText !== comment.text) {
+            comment.text = newText;
+            comment.editedAt = new Date().toISOString();
+            this.saveToLocalStorage();
+            this.renderComments(noteKey);
+            utils.showNotification('Comentário atualizado com sucesso!', 'success');
         }
     }
 
@@ -920,118 +914,65 @@ const utils = {
             return;
         }
 
-        try {
-            const note = this.notes[noteKey];
-            const commentIndex = note.comments.findIndex(c => c.id === commentId);
-            
-            if (commentIndex !== -1) {
-                note.comments.splice(commentIndex, 1);
-                this.saveToLocalStorage();
-                this.renderComments(noteKey);
-                utils.showNotification('Comentário excluído com sucesso!', 'success');
-            }
-        } catch (error) {
-            utils.showNotification('Erro ao excluir comentário.', 'error');
-        }
-    }
-
-    filterAndSortNotes() {
-        const statusFilter = document.getElementById('statusFilter').value;
-        const dateSort = document.getElementById('dateSort').value;
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-
-        const notes = document.querySelectorAll('.note-card');
-        let visibleCount = 0;
-
-        // Converter NodeList para Array para permitir ordenação
-        const notesArray = Array.from(notes);
-
-        // Ordenar notas
-        notesArray.sort((a, b) => {
-            const dateA = new Date(a.getAttribute('data-date'));
-            const dateB = new Date(b.getAttribute('data-date'));
-            return dateSort === 'newest' ? dateB - dateA : dateA - dateB;
-        });
-
-        // Aplicar filtros e reordenar no DOM
-        notesArray.forEach(note => {
-            const matchesStatus = statusFilter === 'all' || note.getAttribute('data-status') === statusFilter;
-            const matchesSearch = searchTerm === '' || [
-                note.getAttribute('data-contract'),
-                note.getAttribute('data-locator'),
-                note.getAttribute('data-tenant'),
-                note.getAttribute('data-address')
-            ].some(attr => attr.toLowerCase().includes(searchTerm));
-
-            const isVisible = matchesStatus && matchesSearch;
-            note.classList.toggle('hidden', !isVisible);
-            
-            if (isVisible) {
-                visibleCount++;
-                document.getElementById('notesContainer').appendChild(note);
-            }
-        });
-
-        this.updateNoResultsMessage(visibleCount);
-    }
-
-    updateSchedulingInfo(noteKey) {
         const note = this.notes[noteKey];
-        if (!note || note.status !== 'scheduled') return;
-
-        const scheduleDate = document.getElementById('scheduleDate').value;
-        const serviceProvider = document.getElementById('serviceProvider').value.trim();
-
-        note.scheduleDate = scheduleDate;
-        note.serviceProvider = serviceProvider;
-
-        this.saveToLocalStorage();
-        this.renderNote(noteKey);
-        this.showNoteDetails(noteKey);
-
-        utils.showNotification('Informações de agendamento atualizadas!', 'success');
-    }
-        exportAllNotes() {
-        try {
-            const dataStr = JSON.stringify(this.notes, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `contratos_export_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            utils.showNotification('Dados exportados com sucesso!', 'success');
-        } catch (error) {
-            utils.showNotification('Erro ao exportar dados.', 'error');
+        const commentIndex = note.comments.findIndex(c => c.id === commentId);
+        
+        if (commentIndex !== -1) {
+            note.comments.splice(commentIndex, 1);
+            this.saveToLocalStorage();
+            this.renderComments(noteKey);
+            utils.showNotification('Comentário excluído com sucesso!', 'success');
         }
+    }
+
+    deleteNote(noteKey) {
+        if (!confirm('Tem certeza que deseja excluir esta anotação? Esta ação não pode ser desfeita.')) {
+            return;
+        }
+
+        delete this.notes[noteKey];
+        this.saveToLocalStorage();
+        
+        document.querySelector(`[data-note-key="${noteKey}"]`)?.remove();
+        document.getElementById('noteDetailsModal').classList.add('hidden');
+        this.activeNoteKey = null;
+        
+        utils.showNotification('Anotação excluída com sucesso!', 'success');
     }
 
     exportNote(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            if (!note) return;
+        const note = this.notes[noteKey];
+        if (!note) return;
 
-            const dataStr = JSON.stringify({ [noteKey]: note }, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `contrato_${note.contractNumber}_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+        const dataStr = JSON.stringify({ [noteKey]: note }, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `contrato_${note.contractNumber}_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
 
-            utils.showNotification('Contrato exportado com sucesso!', 'success');
-        } catch (error) {
-            utils.showNotification('Erro ao exportar contrato.', 'error');
-        }
+        utils.showNotification('Contrato exportado com sucesso!', 'success');
+    }
+
+    exportAllNotes() {
+        const dataStr = JSON.stringify(this.notes, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `contratos_export_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        utils.showNotification('Dados exportados com sucesso!', 'success');
     }
 
     handleFileImport(event) {
@@ -1089,52 +1030,46 @@ const utils = {
             'status'
         ];
 
-        const isValid = requiredFields.every(field => {
-            return note.hasOwnProperty(field) && note[field] !== null && note[field] !== undefined;
-        });
-
-        return isValid && ['open', 'scheduled', 'closed'].includes(note.status);
+        return requiredFields.every(field => 
+            note.hasOwnProperty(field) && 
+            note[field] !== null && 
+            note[field] !== undefined
+        ) && ['open', 'scheduled', 'closed'].includes(note.status);
     }
 
-    copyNoteDetails(noteKey) {
-        const note = this.notes[noteKey];
-        if (!note) return;
+    // Inicialização dos event listeners globais
+    initializeEventListeners() {
+        // Botão de exportar todos
+        document.getElementById('downloadNotesBtn')?.addEventListener('click', () => {
+            this.exportAllNotes();
+        });
 
-        const statusText = {
-            'open': 'Aberto',
-            'scheduled': 'Agendado',
-            'closed': 'Finalizado'
-        };
+        // Input de importação
+        const fileInput = document.getElementById('fileInput');
+        document.getElementById('importNotesBtn')?.addEventListener('click', () => {
+            fileInput?.click();
+        });
 
-        const details = `
-Contrato: ${note.contractNumber}
-Status: ${statusText[note.status]}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Endereço: ${note.address}
-Problema: ${note.problem}
-Data de Criação: ${utils.formatDate(note.createdAt)}
-${note.closedAt ? `Data de Fechamento: ${utils.formatDate(note.closedAt)}` : ''}
-${note.scheduleDate ? `Data de Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
-${note.serviceProvider ? `Prestador de Serviço: ${note.serviceProvider}` : ''}`.trim();
+        fileInput?.addEventListener('change', (e) => {
+            this.handleFileImport(e);
+        });
 
-        navigator.clipboard.writeText(details)
-            .then(() => utils.showNotification('Detalhes copiados para a área de transferência!', 'success'))
-            .catch(() => utils.showNotification('Erro ao copiar detalhes.', 'error'));
+        // Filtros e busca
+        ['statusFilter', 'dateSort', 'searchInput'].forEach(id => {
+            document.getElementById(id)?.addEventListener('change', () => {
+                this.filterAndSortNotes();
+            });
+        });
+
+        document.getElementById('searchInput')?.addEventListener('input', () => {
+            this.filterAndSortNotes();
+        });
     }
 }
 
-// Inicialização da aplicação
+// Inicialização global
 document.addEventListener('DOMContentLoaded', () => {
     window.noteManager = new NoteManager();
 });
-
-// Garantia de inicialização
-setTimeout(() => {
-    if (!window.noteManager) {
-        window.noteManager = new NoteManager();
-    }
-}, 1000);
 </script>
-</body>
-</html>
+
