@@ -37,7 +37,7 @@
         }
 
         .note-card {
-            @apply bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer;
+            @apply bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer border border-gray-200;
         }
 
         .comment-box {
@@ -67,7 +67,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen p-4">
     <!-- Container Principal -->
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-4xl mx-auto">
         <h1 class="text-2xl font-bold text-center mb-8">Sistema de Anotações de Contratos</h1>
         
         <!-- Barra de Ferramentas -->
@@ -115,12 +115,12 @@
 
         <!-- Modal de Nova Anotação -->
         <div id="noteModal" class="modal-overlay hidden">
-            <div class="modal-content p-6 w-full max-w-2xl">
-                <h2 class="text-2xl font-semibold mb-4">Nova Anotação</h2>
+            <div class="modal-content p-6 w-full max-w-md mx-auto">
+                <h2 class="text-2xl font-semibold mb-4 text-center">Nova Anotação</h2>
                 <form id="noteForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4">
                         <div>
-                            <label for="contractNumber" class="block text-gray-700 mb-2">Número do Contrato*</label>
+                            <label for="contractNumber" class="block text-gray-700 mb-2"><b>Número do Contrato*</b></label>
                             <input type="text" 
                                    id="contractNumber" 
                                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -128,14 +128,14 @@
                                    placeholder="Ex: CT12345">
                         </div>
                         <div>
-                            <label for="creationDate" class="block text-gray-700 mb-2">Data de Criação*</label>
+                            <label for="creationDate" class="block text-gray-700 mb-2"><b>Data de Criação*</b></label>
                             <input type="date" 
                                    id="creationDate" 
                                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                                    required>
                         </div>
                         <div>
-                            <label for="locator" class="block text-gray-700 mb-2">Locador*</label>
+                            <label for="locator" class="block text-gray-700 mb-2"><b>Locador*</b></label>
                             <input type="text" 
                                    id="locator" 
                                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -143,23 +143,23 @@
                                    placeholder="Nome do locador">
                         </div>
                         <div>
-                            <label for="tenant" class="block text-gray-700 mb-2">Locatário*</label>
+                            <label for="tenant" class="block text-gray-700 mb-2"><b>Locatário*</b></label>
                             <input type="text" 
                                    id="tenant" 
                                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                                    required
                                    placeholder="Nome do locatário">
                         </div>
-                        <div class="col-span-full">
-                            <label for="address" class="block text-gray-700 mb-2">Endereço*</label>
+                        <div>
+                            <label for="address" class="block text-gray-700 mb-2"><b>Endereço*</b></label>
                             <input type="text" 
                                    id="address" 
                                    class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                                    required
                                    placeholder="Endereço completo">
                         </div>
-                        <div class="col-span-full">
-                            <label for="problem" class="block text-gray-700 mb-2">Problema*</label>
+                        <div>
+                            <label for="problem" class="block text-gray-700 mb-2"><b>Problema*</b></label>
                             <textarea id="problem" 
                                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
                                       required
@@ -167,7 +167,7 @@
                         </div>
                     </div>
                     
-                    <div class="flex justify-end space-x-2 mt-6">
+                    <div class="flex justify-center space-x-2 mt-6">
                         <button type="button" 
                                 id="cancelBtn"
                                 class="btn btn-gray">
@@ -320,14 +320,6 @@
                         document.getElementById('noteDetailsContainer')?.classList.add('hidden');
                     }
                 });
-
-                // Confirmar comentários com Enter
-                document.getElementById('commentText')?.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        document.getElementById('commentForm')?.requestSubmit();
-                    }
-                });
             }
 
             loadFromLocalStorage() {
@@ -460,24 +452,23 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <div>
-                                <h3 class="font-semibold mb-2">Contrato: ${utils.sanitizeInput(note.contractNumber)}</h3>
-                                <p class="text-gray-600">Status: <span class="font-semibold">${statusText[note.status]}</span></p>
-                                <p class="text-gray-600">Criado em: ${utils.formatDate(note.createdAt, true)}</p>
-                                ${note.closedAt ? `<p class="text-gray-600">Fechado em: ${utils.formatDate(note.closedAt, true)}</p>` : ''}
+                                <h3 class="font-semibold mb-2"><b>Contrato:</b> ${utils.sanitizeInput(note.contractNumber)}</h3>
+                                <p class="text-gray-600"><b>Status:</b> <span class="font-semibold">${statusText[note.status]}</span></p>
+                                <p class="text-gray-600"><b>Criado em:</b> ${utils.formatDate(note.createdAt, true)}</p>
+                                ${note.closedAt ? `<p class="text-gray-600"><b>Fechado em:</b> ${utils.formatDate(note.closedAt, true)}</p>` : ''}
                             </div>
 
-<div class="space-y-2">
-    <p><span class="font-semibold">Locador:</span> ${utils.sanitizeInput(note.locator)}</p>
-    <p><span class="font-semibold">Locatário:</span> ${utils.sanitizeInput(note.tenant)}</p>
-    <p><span class="font-semibold">Endereço:</span> ${utils.sanitizeInput(note.address)}</p>
-</div>
+                            <div class="space-y-2">
+                                <p><b>Locador:</b> ${utils.sanitizeInput(note.locator)}</p>
+                                <p><b>Locatário:</b> ${utils.sanitizeInput(note.tenant)}</p>
+                                <p><b>Endereço:</b> ${utils.sanitizeInput(note.address)}</p>
+                            </div>
 
 <div class="col-span-full">
-    <p class="font-semibold mb-2">Problema:</p>
+    <p class="font-semibold mb-2"><b>Problema:</b></p>
     <p class="whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
         ${utils.sanitizeInput(note.problem)}
     </p>
-</div>
 </div>
 
 <!-- Botões de Ação -->
@@ -498,20 +489,22 @@
 ${note.status === 'scheduled' ? this.generateSchedulingSection(note) : ''}
 
 <!-- Seção de Comentários -->
-<div class="border-t pt-6">
-    <h3 class="text-lg font-semibold mb-4">Comentários</h3>
-    <form id="commentForm" class="mb-4">
-        <textarea id="commentText" 
-                  class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
-                  placeholder="Adicione um comentário..."></textarea>
-        <div class="flex justify-end mt-2">
-            <button type="submit" class="btn btn-blue">
-                <i class="fas fa-comment mr-2"></i>Comentar
-            </button>
+<div class="border-t pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+        <h3 class="text-lg font-semibold mb-4">Comentários</h3>
+        <form id="commentForm" class="mb-4">
+            <textarea id="commentText" 
+                      class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
+                      placeholder="Adicione um comentário..."></textarea>
+            <div class="flex justify-end mt-2">
+                <button type="submit" class="btn btn-blue">
+                    <i class="fas fa-comment mr-2"></i>Comentar
+                </button>
+            </div>
+        </form>
+        <div id="commentsContainer" class="space-y-4">
+            <!-- Comentários serão renderizados aqui -->
         </div>
-    </form>
-    <div id="commentsContainer" class="space-y-4">
-        <!-- Comentários serão renderizados aqui -->
     </div>
 </div>
 </div>
