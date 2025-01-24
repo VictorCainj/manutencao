@@ -63,7 +63,7 @@
     </style>
 </head>
 
-    <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
 
 <!-- Notification Component -->
 <div id="notification" class="notification hidden"></div>
@@ -171,7 +171,7 @@
     </div>
 </div>
 
-        <!-- Note Details Modal -->
+<!-- Note Details Modal -->
 <div id="noteDetailsModal" class="modal-overlay hidden">
     <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
@@ -323,7 +323,7 @@ const utils = {
     }
 };
 
-    class NoteManager {
+class NoteManager {
     constructor() {
         this.notes = {};
         this.currentUser = 'VictorCainj';
@@ -433,7 +433,7 @@ const utils = {
         });
     }
 
-    handleFileImport(event) {
+handleFileImport(event) {
         try {
             utils.showLoading(true);
             const file = event.target.files[0];
@@ -662,7 +662,6 @@ const utils = {
                 <span class="block font-bold">${utils.sanitizeInput(noteKey)}</span>
                 <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
                 <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-                <span class="block text-xs mt-1">${utils.formatDate(note.createdAt)}</span>
                 <span class="block text-xs mt-1">
                     ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 'Finalizado'}
                 </span>
@@ -713,7 +712,6 @@ const utils = {
                             ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 'Finalizado'}
                         </span></p>
                         <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy || 'VictorCainj')}</span></p>
-                        <p><strong>Criado em:</strong> <span>${note.createdAt || '2025-01-23 22:58:21'}</span></p>
                         ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${note.closedAt}</span></p>` : ''}
                     </div>
                 </div>
@@ -882,7 +880,7 @@ Locatário: ${note.tenant}
 Problema: ${note.problem}
 Endereço: ${note.address}
 Status: ${note.status === 'open' ? 'Aberto' : 'Finalizado'}
-Criado em: ${note.createdAt}
+Criado por: ${note.createdBy || 'VictorCainj'}
 ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
             `.trim();
 
@@ -895,7 +893,7 @@ ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
         }
     }
 
-    downloadSingleContract(noteKey) {
+downloadSingleContract(noteKey) {
         try {
             const note = this.notes[noteKey];
             const exportData = {
@@ -904,7 +902,7 @@ ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
                     comments: note.comments || []
                 }
             };
-            
+
             const notesJson = JSON.stringify(exportData, null, 2);
             const filename = `contrato_${noteKey}_${this.currentDateTime.split(' ')[0]}.json`;
             utils.downloadFile(notesJson, filename, 'application/json');
@@ -946,12 +944,12 @@ ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
     filterNotes() {
         const statusFilter = document.getElementById('statusFilter').value;
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        
+
         const notes = document.querySelectorAll('.note-button');
         notes.forEach(noteBtn => {
             const noteKey = noteBtn.dataset.contract;
             const note = this.notes[noteKey];
-            
+
             const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
             const matchesSearch = [
                 noteKey,
@@ -959,7 +957,7 @@ ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
                 noteBtn.dataset.tenant,
                 noteBtn.dataset.address
             ].join(' ').toLowerCase().includes(searchTerm);
-            
+
             noteBtn.classList.toggle('hidden', !(matchesStatus && matchesSearch));
         });
     }
@@ -967,7 +965,7 @@ ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
     sortNotes() {
         const container = document.getElementById('notesContainer');
         const sortOrder = document.getElementById('dateSort').value;
-        
+
         const notes = Array.from(container.children);
         notes.sort((a, b) => {
             const dateA = new Date(a.dataset.date);
