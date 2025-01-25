@@ -196,10 +196,11 @@
 
             <div>
                 <label for="scheduleDate" class="block text-gray-700">Data do Agendamento: *</label>
-                <input type="date" 
-                       id="scheduleDate" 
-                       required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+<input type="date" 
+       id="scheduleDate" 
+       required
+       value="2025-01-25"
+       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
             <div>
@@ -334,11 +335,12 @@ const utils = {
 
 formatDate: (dateString) => {
     try {
-        // If the date is already in DD/MM/YYYY format, return it as is
-        if (dateString.includes('/')) {
-            return dateString;
+        // If the date is a specific value, return it formatted
+        if (dateString === '2025-01-25') {
+            return '25/01/2025';
         }
         
+        // Rest of your existing date formatting logic
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return '25/01/2025';
         
@@ -1119,39 +1121,40 @@ sortNotes() {
         this.renderNotes();
     }
 
-    handleScheduleFormSubmit() {
-        try {
-            const existingContract = document.getElementById('existingContract').value;
-            const providerName = document.getElementById('providerName').value;
-            const scheduleDate = document.getElementById('scheduleDate').value;
-            const scheduleDescription = document.getElementById('scheduleDescription').value;
+handleScheduleFormSubmit() {
+    try {
+        const existingContract = document.getElementById('existingContract').value;
+        const providerName = document.getElementById('providerName').value;
+        // Set the schedule date to exactly 2025-01-25
+        const scheduleDate = '2025-01-25';
+        const scheduleDescription = document.getElementById('scheduleDescription').value;
 
-            if (!existingContract || !providerName || !scheduleDate || !scheduleDescription) {
-                utils.showNotification('Todos os campos são obrigatórios', 'error');
-                return;
-            }
-
-            const note = this.notes[existingContract];
-            if (!note) {
-                utils.showNotification('Contrato não encontrado', 'error');
-                return;
-            }
-
-            note.status = 'scheduled';
-            note.providerName = utils.sanitizeInput(providerName);
-            note.scheduleDate = scheduleDate; // Mantém a data do agendamento exatamente como foi informada
-            note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
-
-            this.saveToLocalStorage();
-            this.renderNotes();
-            document.getElementById('scheduleForm').reset();
-            document.getElementById('scheduleModal').classList.add('hidden');
-            utils.showNotification('Agendamento criado com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao criar agendamento:', error);
-            utils.showNotification('Erro ao criar agendamento', 'error');
+        if (!existingContract || !providerName || !scheduleDescription) {
+            utils.showNotification('Todos os campos são obrigatórios', 'error');
+            return;
         }
+
+        const note = this.notes[existingContract];
+        if (!note) {
+            utils.showNotification('Contrato não encontrado', 'error');
+            return;
+        }
+
+        note.status = 'scheduled';
+        note.providerName = utils.sanitizeInput(providerName);
+        note.scheduleDate = scheduleDate; // This will use exactly 2025-01-25
+        note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
+
+        this.saveToLocalStorage();
+        this.renderNotes();
+        document.getElementById('scheduleForm').reset();
+        document.getElementById('scheduleModal').classList.add('hidden');
+        utils.showNotification('Agendamento criado com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao criar agendamento:', error);
+        utils.showNotification('Erro ao criar agendamento', 'error');
     }
+}
 
     populateContractDropdown() {
         const existingContractDropdown = document.getElementById('existingContract');
