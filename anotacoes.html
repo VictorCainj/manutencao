@@ -238,6 +238,9 @@
                     <button type="button" id="downloadContractBtn" class="btn btn-yellow flex-1">
                         <i class="fas fa-file-download mr-2"></i>Baixar
                     </button>
+                    <button type="button" id="cancelScheduleBtn" class="btn btn-red flex-1">
+                        <i class="fas fa-calendar-times mr-2"></i>Cancelar Agendamento
+                    </button>
                     <button type="button" id="deleteNoteBtn" class="btn btn-red flex-1">
                         <i class="fas fa-trash mr-2"></i>Excluir
                     </button>
@@ -359,7 +362,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T20:45:47'); // Data de hoje
+        const today = new Date('2025-01-25T20:55:14'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -501,6 +504,12 @@ initializeEventListeners() {
             const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
             this.downloadSingleContract(noteKey);
+        });
+
+        document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.cancelSchedule(noteKey);
         });
 
         document.getElementById('deleteNoteBtn').addEventListener('click', () => {
@@ -685,6 +694,14 @@ initializeEventListeners() {
                 </div>
             `;
 
+            // Mostrar/ocultar botão "Cancelar Agendamento" com base no status
+            const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
+            if (note.status === 'scheduled') {
+                cancelScheduleBtn.style.display = 'flex';
+            } else {
+                cancelScheduleBtn.style.display = 'none';
+            }
+
             this.renderComments(noteKey);
             document.getElementById('noteDetailsModal').classList.remove('hidden');
             document.getElementById('commentText').focus();
@@ -775,7 +792,7 @@ initializeEventListeners() {
         }
     }
 
-editComment(noteKey, commentId) {
+    editComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -834,7 +851,7 @@ editComment(noteKey, commentId) {
                 }
             });
 
-            // Handle form submit
+// Handle form submit
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const newText = textarea.value.trim();
@@ -856,6 +873,27 @@ editComment(noteKey, commentId) {
         } catch (error) {
             console.error('Erro ao editar comentário:', error);
             utils.showNotification('Erro ao editar comentário', 'error');
+        }
+    }
+
+    cancelSchedule(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            if (note.status === 'scheduled') {
+                note.status = 'open';
+                note.providerName = '';
+                note.scheduleDate = '';
+                note.scheduleDescription = '';
+                this.saveToLocalStorage();
+                this.renderNotes();
+                this.showNoteDetails(noteKey);
+                utils.showNotification('Agendamento cancelado e status alterado para aberto!', 'success');
+            } else {
+                utils.showNotification('A nota não está em status de agendamento.', 'alert');
+            }
+        } catch (error) {
+            console.error('Erro ao cancelar agendamento:', error);
+            utils.showNotification('Erro ao cancelar agendamento', 'error');
         }
     }
 
@@ -1100,7 +1138,7 @@ ${comments}
 
         Object.keys(this.notes).forEach(noteKey => {
             const note = this.notes[noteKey];
-            if (note.status === 'open') {
+            if (note.status === 'open' || note.status === 'verified') {
                 const option = document.createElement('option');
                 option.value = noteKey;
                 option.textContent = noteKey;
