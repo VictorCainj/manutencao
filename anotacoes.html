@@ -63,6 +63,10 @@
         .progress-bar {
             @apply absolute bottom-0 left-0 h-2 bg-blue-500 transition-all duration-300;
         }
+        .show-more {
+            color: blue;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -269,6 +273,7 @@
                     </form>
 
                     <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+                    <button id="showMoreCommentsBtn" class="show-more">Mostrar Mais Comentários</button>
                 </div>
             </div>
         </div>
@@ -408,6 +413,7 @@ class NoteManager {
         this.notesPerPage = 8;
         this.currentUser = 'VictorCainj';
         this.currentDateTime = utils.getCurrentDateTime();
+        this.commentsPerPage = 3;  // Número de comentários por página
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
@@ -537,6 +543,12 @@ class NoteManager {
             const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
             this.reopenNote(noteKey);
+        });
+
+        document.getElementById('showMoreCommentsBtn').addEventListener('click', () => {
+            this.currentCommentPage++;
+            this.renderComments(document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent);
         });
 
         // Event Listener global para tecla ESC
@@ -734,6 +746,8 @@ class NoteManager {
                 cancelScheduleBtn.style.display = 'none';
             }
 
+            // Inicialize a página atual de comentários
+            this.currentCommentPage = 1;
             this.renderComments(noteKey);
             document.getElementById('noteDetailsModal').classList.remove('hidden');
             document.getElementById('commentText').focus();
@@ -753,7 +767,11 @@ class NoteManager {
                 note.comments = [];
             }
 
-            note.comments.forEach((comment) => {
+            const start = (this.currentCommentPage - 1) * this.commentsPerPage;
+            const end = start + this.commentsPerPage;
+            const commentsToShow = note.comments.slice(start, end);
+
+            commentsToShow.forEach((comment) => {
                 const commentElement = document.createElement('div');
                 commentElement.className = 'comment-box';
                 
@@ -782,13 +800,21 @@ class NoteManager {
                     this.editComment(noteKey, comment.id);
                 });
             });
+
+            // Mostrar/ocultar botão "Mostrar Mais Comentários"
+            const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
+            if (end >= note.comments.length) {
+                showMoreCommentsBtn.style.display = 'none';
+            } else {
+                showMoreCommentsBtn.style.display = 'block';
+            }
         } catch (error) {
             console.error('Erro ao renderizar comentários:', error);
             utils.showNotification('Erro ao carregar comentários', 'error');
         }
     }
 
-    handleCommentSubmit() {
+handleCommentSubmit() {
         try {
             const commentText = document.getElementById('commentText').value;
             if (!commentText.trim()) {
@@ -829,7 +855,7 @@ class NoteManager {
         }
     }
 
-editComment(noteKey, commentId) {
+    editComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1232,7 +1258,7 @@ ${comments}
         });
     }
 
-    handleFileImport(event) {
+handleFileImport(event) {
         try {
             const file = event.target.files[0];
             if (!file) {
@@ -1332,7 +1358,7 @@ ${comments}
         }
     }
 
-exportNotes() {
+    exportNotes() {
         try {
             if (Object.keys(this.notes).length === 0) {
                 utils.showNotification('Não há contratos para exportar', 'error');
