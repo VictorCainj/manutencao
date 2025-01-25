@@ -244,6 +244,9 @@
                     <button type="button" id="deleteNoteBtn" class="btn btn-red flex-1">
                         <i class="fas fa-trash mr-2"></i>Excluir
                     </button>
+                    <button type="button" id="finalizeNoteBtn" class="btn btn-green flex-1">
+                        <i class="fas fa-check mr-2"></i>Finalizar
+                    </button>
                 </div>
             </div>
 
@@ -284,6 +287,8 @@
     <button id="prevPageBtn" class="btn btn-blue"><i class="fas fa-chevron-left"></i></button>
     <button id="nextPageBtn" class="btn btn-blue"><i class="fas fa-chevron-right"></i></button>
 </div>
+
+<!-- Parte anterior do código -->
 
 <script>
 // Utility Functions
@@ -416,7 +421,7 @@ class NoteManager {
         this.saveToLocalStorage();
     }
 
-initializeEventListeners() {
+    initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             document.getElementById('noteModal').classList.remove('hidden');
@@ -516,6 +521,12 @@ initializeEventListeners() {
             const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
             this.deleteNote(noteKey);
+        });
+
+        document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.finalizeNote(noteKey);
         });
 
         // Event Listener global para tecla ESC
@@ -711,7 +722,7 @@ initializeEventListeners() {
         }
     }
 
-    renderComments(noteKey) {
+renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -853,7 +864,7 @@ initializeEventListeners() {
                 }
             });
 
-// Handle form submit
+            // Handle form submit
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const newText = textarea.value.trim();
@@ -975,6 +986,25 @@ ${comments}
         } catch (error) {
             console.error('Erro ao baixar contrato:', error);
             utils.showNotification('Erro ao baixar contrato', 'error');
+        }
+    }
+
+    finalizeNote(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            if (note.status !== 'closed') {
+                note.status = 'closed';
+                note.closedAt = utils.getCurrentDateTime();
+                this.saveToLocalStorage();
+                this.renderNotes();
+                this.showNoteDetails(noteKey);
+                utils.showNotification('Nota finalizada com sucesso!', 'success');
+            } else {
+                utils.showNotification('A nota já está finalizada.', 'alert');
+            }
+        } catch (error) {
+            console.error('Erro ao finalizar nota:', error);
+            utils.showNotification('Erro ao finalizar nota', 'error');
         }
     }
 
@@ -1159,7 +1189,7 @@ ${comments}
         });
     }
 
-    handleFileImport(event) {
+handleFileImport(event) {
         try {
             const file = event.target.files[0];
             if (!file) {
