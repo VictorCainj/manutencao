@@ -368,7 +368,7 @@ class NoteManager {
     constructor() {
         this.notes = {};
         this.currentUser = 'VictorCainj';
-        this.currentDateTime = '2025-01-23 22:56:23';
+        this.currentDateTime = '2025-01-25 02:29:04';
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
@@ -409,7 +409,7 @@ class NoteManager {
             document.getElementById('existingContract').focus();
         });
 
-document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
+        document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
             document.getElementById('scheduleModal').classList.add('hidden');
             document.getElementById('scheduleForm').reset();
         });
@@ -419,7 +419,7 @@ document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
             this.handleScheduleFormSubmit();
         });
 
-        document.getElementById('searchContract').addEventListener('input', (e) => {
+document.getElementById('searchContract').addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
             this.filterContractDropdown(searchTerm);
         });
@@ -587,6 +587,8 @@ document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
                                     createdAt: note.createdAt || '2025-01-23 22:56:52',
                                     createdBy: note.createdBy || 'VictorCainj',
                                     status: note.status || 'open',
+                                    providerName: note.providerName || '',
+                                    scheduleDate: note.scheduleDate || '',
                                     comments: Array.isArray(note.comments) ? note.comments : []
                                 };
                                 this.renderNote(noteKey);
@@ -673,6 +675,8 @@ document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
                     status: note.status || 'open',
                     createdAt: note.createdAt || '2025-01-23 22:56:52',
                     createdBy: note.createdBy || 'VictorCainj',
+                    providerName: note.providerName || '',
+                    scheduleDate: note.scheduleDate || '',
                     comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
