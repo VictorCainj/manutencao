@@ -229,7 +229,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Coluna da esquerda - Detalhes -->
             <div class="space-y-4">
-                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md"></div>
+                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative">
+                    <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDateMinimal(note.createdAt)}</div>
+                </div>
                 
                 <div class="flex space-x-2">
                     <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
@@ -330,23 +332,39 @@ const utils = {
     formatDate: (dateString) => {
         try {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return '2025-01-23 22:55:44';
-            return dateString;
+            if (isNaN(date.getTime())) return '25/01/2025';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
         } catch (e) {
-            return '2025-01-23 22:55:44';
+            return '25/01/2025';
+        }
+    },
+
+    formatDateMinimal: (dateString) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return '25/01/2025';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        } catch (e) {
+            return '25/01/2025';
         }
     },
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25 02:42:24');
+        const today = new Date('2025-01-25 02:55:44');
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
     },
 
     getCurrentDateTime: () => {
-        return '2025-01-25 02:42:24';
+        return '25/01/2025';
     },
 
     downloadFile: (content, filename, type = 'text/plain') => {
@@ -397,7 +415,7 @@ class NoteManager {
             document.getElementById('noteForm').reset();
         });
 
-        document.getElementById('noteForm').addEventListener('submit', (e) => {
+document.getElementById('noteForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleFormSubmit();
         });
@@ -419,7 +437,7 @@ class NoteManager {
             this.handleScheduleFormSubmit();
         });
 
-document.getElementById('searchContract').addEventListener('input', (e) => {
+        document.getElementById('searchContract').addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
             this.filterContractDropdown(searchTerm);
         });
@@ -584,7 +602,7 @@ document.getElementById('searchContract').addEventListener('input', (e) => {
                             if (!this.notes[noteKey] && this.validateImportedNote(note, noteKey)) {
                                 this.notes[noteKey] = {
                                     ...note,
-                                    createdAt: note.createdAt || '2025-01-23 22:56:52',
+                                    createdAt: note.createdAt || utils.getCurrentDateTime(),
                                     createdBy: note.createdBy || 'VictorCainj',
                                     status: note.status || 'open',
                                     providerName: note.providerName || '',
@@ -641,7 +659,7 @@ document.getElementById('searchContract').addEventListener('input', (e) => {
             note.comments = note.comments.map(comment => ({
                 id: comment.id || Date.now().toString(),
                 text: utils.sanitizeInput(comment.text || ''),
-                dateTime: comment.dateTime || '2025-01-23 22:56:52',
+                dateTime: comment.dateTime || utils.getCurrentDateTime(),
                 author: comment.author || 'VictorCainj',
                 editedAt: comment.editedAt || null
             }));
@@ -673,14 +691,14 @@ document.getElementById('searchContract').addEventListener('input', (e) => {
                     problem: utils.sanitizeInput(note.problem || 'Não especificado'),
                     address: utils.sanitizeInput(note.address || 'Não especificado'),
                     status: note.status || 'open',
-                    createdAt: note.createdAt || '2025-01-23 22:56:52',
+                    createdAt: note.createdAt || utils.getCurrentDateTime(),
                     createdBy: note.createdBy || 'VictorCainj',
                     providerName: note.providerName || '',
                     scheduleDate: note.scheduleDate || '',
                     comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
-                        dateTime: comment.dateTime || '2025-01-23 22:56:52',
+                        dateTime: comment.dateTime || utils.getCurrentDateTime(),
                         author: comment.author || 'VictorCainj',
                         editedAt: comment.editedAt || null
                     })) : []
@@ -749,7 +767,7 @@ document.getElementById('searchContract').addEventListener('input', (e) => {
                 ...sanitizedData,
                 status: 'open',
                 comments: [],
-                createdAt: '2025-01-23 22:57:38',
+                createdAt: utils.getCurrentDateTime(),
                 createdBy: 'VictorCainj'
             };
 
@@ -841,9 +859,8 @@ document.getElementById('searchContract').addEventListener('input', (e) => {
                             (note.status === 'scheduled' ? 'Em agendamento' : 
                             (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
                         </span></p>
-                        <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy || 'VictorCainj')}</span></p>
-                        <p><strong>Criado em:</strong> <span>${note.createdAt || '2025-01-23 22:58:21'}</span></p>
-                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${note.closedAt}</span></p>` : ''}
+                        <p><strong>Criado em:</strong> <span>${utils.formatDate(note.createdAt)}</span></p>
+                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
                         ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
                         ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
                     </div>
@@ -892,8 +909,8 @@ const toggleBtn = document.getElementById('toggleStatusBtn');
                         <div class="flex-grow">
                             <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
                             <div class="mt-2 text-sm text-gray-500">
-                                <span>${comment.dateTime || '2025-01-23 22:58:21'}</span>
-                                ${comment.editedAt ? ` <span class="italic">(editado em ${comment.editedAt})</span>` : ''}
+                                <span>${utils.formatDate(comment.dateTime)}</span>
+                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
                             </div>
                         </div>
                         <button class="ml-2 text-blue-500 hover:text-blue-700" 
@@ -1024,7 +1041,7 @@ const toggleBtn = document.getElementById('toggleStatusBtn');
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment => 
-                `${comment.dateTime}: ${comment.text}`).join('\n');
+                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
             const details = `
 Número do Contrato: ${noteKey}
 Locador: ${note.locator}
@@ -1034,8 +1051,8 @@ Endereço: ${note.address}
 Status: ${note.status === 'open' ? 'Aberto' : 
             (note.status === 'scheduled' ? 'Em agendamento' : 
             (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-Criado em: ${note.createdAt}
-${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
+Criado em: ${utils.formatDate(note.createdAt)}
+${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
 ${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
 ${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
 Comentários:
