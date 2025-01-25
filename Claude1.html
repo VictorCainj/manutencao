@@ -436,71 +436,68 @@ class NoteManager {
     }
 
 handleFileImport(event) {
-        try {
-            utils.showLoading(true);
-            const file = event.target.files[0];
-            if (!file) {
-                utils.showNotification('Nenhum arquivo selecionado', 'error');
-                return;
-            }
-
-            if (!file.name.endsWith('.json')) {
-                utils.showNotification('Por favor, selecione um arquivo JSON válido', 'error');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                try {
-                    const importedNotes = JSON.parse(e.target.result);
-                    
-                    if (!importedNotes || typeof importedNotes !== 'object') {
-                        throw new Error('Formato de arquivo inválido');
-                    }
-
-                    let importCount = 0;
-                    const totalNotes = Object.keys(importedNotes).length;
-
-                    for (const [noteKey, note] of Object.entries(importedNotes)) {
-                        try {
-                            if (!this.notes[noteKey] && this.validateImportedNote(note, noteKey)) {
-                                this.notes[noteKey] = {
-                                    ...note,
-                                    createdAt: note.createdAt || '2025-01-23 22:56:52',
-                                    createdBy: note.createdBy || 'VictorCainj',
-                                    status: note.status || 'open',
-                                    comments: Array.isArray(note.comments) ? note.comments : []
-                                };
-                                this.renderNote(noteKey);
-                                importCount++;
-                            }
-                            utils.showLoading(true, (importCount / totalNotes) * 100);
-                        } catch (error) {
-                            console.warn(`Erro ao importar nota ${noteKey}:`, error);
-                        }
-                    }
-
-                    this.saveToLocalStorage();
-                    utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
-                } catch (error) {
-                    console.error('Erro ao processar arquivo:', error);
-                    utils.showNotification(`Erro ao processar arquivo: ${error.message}`, 'error');
-                }
-            };
-
-            reader.onerror = () => {
-                utils.showNotification('Erro ao ler o arquivo', 'error');
-            };
-
-            reader.readAsText(file);
-        } catch (error) {
-            console.error('Erro na importação:', error);
-            utils.showNotification(`Erro ao importar arquivo: ${error.message}`, 'error');
-        } finally {
-            utils.showLoading(false);
-            event.target.value = '';
+    try {
+        const file = event.target.files[0];
+        if (!file) {
+            utils.showNotification('Nenhum arquivo selecionado', 'error');
+            return;
         }
+
+        if (!file.name.endsWith('.json')) {
+            utils.showNotification('Por favor, selecione um arquivo JSON válido', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const importedNotes = JSON.parse(e.target.result);
+                
+                if (!importedNotes || typeof importedNotes !== 'object') {
+                    throw new Error('Formato de arquivo inválido');
+                }
+
+                let importCount = 0;
+                const totalNotes = Object.keys(importedNotes).length;
+
+                for (const [noteKey, note] of Object.entries(importedNotes)) {
+                    try {
+                        if (!this.notes[noteKey] && this.validateImportedNote(note, noteKey)) {
+                            this.notes[noteKey] = {
+                                ...note,
+                                createdAt: note.createdAt || '2025-01-23 22:56:52',
+                                createdBy: note.createdBy || 'VictorCainj',
+                                status: note.status || 'open',
+                                comments: Array.isArray(note.comments) ? note.comments : []
+                            };
+                            this.renderNote(noteKey);
+                            importCount++;
+                        }
+                    } catch (error) {
+                        console.warn(`Erro ao importar nota ${noteKey}:`, error);
+                    }
+                }
+
+                this.saveToLocalStorage();
+                utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
+            } catch (error) {
+                console.error('Erro ao processar arquivo:', error);
+                utils.showNotification(`Erro ao processar arquivo: ${error.message}`, 'error');
+            }
+        };
+
+        reader.onerror = () => {
+            utils.showNotification('Erro ao ler o arquivo', 'error');
+        };
+
+        reader.readAsText(file);
+    } catch (error) {
+        console.error('Erro na importação:', error);
+        utils.showNotification(`Erro ao importar arquivo: ${error.message}`, 'error');
+    } finally {
+        event.target.value = '';
     }
+}
 
     validateImportedNote(note, noteKey) {
         try {
