@@ -374,27 +374,14 @@ const utils = {
         return diffDays;
     },
 
-convertToBrasiliaTime: (utcDateString) => {
-        const utcDate = new Date(utcDateString);
-        utcDate.setHours(utcDate.getHours() - 3); // Subtrai 3 horas para converter para BRT
-        const day = String(utcDate.getDate()).padStart(2, '0');
-        const month = String(utcDate.getMonth() + 1).padStart(2, '0');
-        const year = utcDate.getFullYear();
-        const hours = String(utcDate.getHours()).padStart(2, '0');
-        const minutes = String(utcDate.getMinutes()).padStart(2, '0');
-        const seconds = String(utcDate.getSeconds()).padStart(2, '0');
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    },
-
     getCurrentDateTime: () => {
         const now = new Date();
-        const brtNow = new Date(now.setHours(now.getHours() - 3)); // Ajusta para o horário de Brasília
-        const day = String(brtNow.getDate()).padStart(2, '0');
-        const month = String(brtNow.getMonth() + 1).padStart(2, '0');
-        const year = brtNow.getFullYear();
-        const hours = String(brtNow.getHours()).padStart(2, '0');
-        const minutes = String(brtNow.getMinutes()).padStart(2, '0');
-        const seconds = String(brtNow.getSeconds()).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     },
 
@@ -427,7 +414,7 @@ class NoteManager {
         this.updateVerifiedNotes();
     }
 
-cleanInvalidNotes() {
+    cleanInvalidNotes() {
         const validNotes = {};
         Object.entries(this.notes).forEach(([key, note]) => {
             if (note && note.contractNumber) {
@@ -479,7 +466,7 @@ cleanInvalidNotes() {
 
         // Event Listeners para busca e filtros
         document.getElementById('searchInput').addEventListener('input', 
-            (e) => this.filterNotes()
+            () => this.filterNotes()
         );
 
         document.getElementById('dateSort').addEventListener('change', () => this.sortNotes());
@@ -647,7 +634,7 @@ cleanInvalidNotes() {
             key,
             ...this.notes[key]
         }));
-        const start = this.currentPage;
+        const start = this.currentPage * this.notesPerPage;
         const end = start + this.notesPerPage;
         const notesToDisplay = notesArray.slice(start, end);
 
@@ -756,7 +743,7 @@ cleanInvalidNotes() {
         }
     }
 
-renderComments(noteKey) {
+    renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -778,8 +765,8 @@ renderComments(noteKey) {
                         <div class="flex-grow">
                             <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
                             <div class="mt-2 text-sm text-gray-500">
-                                <span>${utils.convertToBrasiliaTime(comment.dateTime)}</span>
-                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.convertToBrasiliaTime(comment.editedAt)})</span>` : ''}
+                                <span>${utils.formatDate(comment.dateTime)}</span>
+                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
                             </div>
                         </div>
                         <button id="${editButtonId}" class="ml-2 text-blue-500 hover:text-blue-700">
@@ -842,7 +829,7 @@ renderComments(noteKey) {
         }
     }
 
-    editComment(noteKey, commentId) {
+editComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -968,7 +955,7 @@ renderComments(noteKey) {
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment => 
-                `Comentário de ${comment.author} em ${utils.convertToBrasiliaTime(comment.dateTime)}: ${comment.text}`).join('\n');
+                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
             const details = `
 Número do Contrato: ${noteKey}
 Locador: ${note.locator}
@@ -978,9 +965,9 @@ Endereço: ${note.address}
 Status: ${note.status === 'open' ? 'Aberto' : 
                 (note.status === 'scheduled' ? 'Em agendamento' : 
                 (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-${note.closedAt ? `Finalizado em: ${utils.convertToBrasiliaTime(note.closedAt)}` : ''}
+${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
 ${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
-${note.status === 'scheduled' ? `Data do Agendamento: ${utils.convertToBrasiliaTime(note.scheduleDate)}` : ''}
+${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
 ${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
 Comentários:
 ${comments}
@@ -999,7 +986,7 @@ ${comments}
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment => 
-                `Comentário de ${comment.author} em ${utils.convertToBrasiliaTime(comment.dateTime)}: ${comment.text}`).join('\n');
+                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
             const details = `
 Número do Contrato: ${noteKey}
 Locador: ${note.locator}
@@ -1009,9 +996,9 @@ Endereço: ${note.address}
 Status: ${note.status === 'open' ? 'Aberto' : 
                 (note.status === 'scheduled' ? 'Em agendamento' : 
                 (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-${note.closedAt ? `Finalizado em: ${utils.convertToBrasiliaTime(note.closedAt)}` : ''}
+${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
 ${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
-${note.status === 'scheduled' ? `Data do Agendamento: ${utils.convertToBrasiliaTime(note.scheduleDate)}` : ''}
+${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
 ${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
 Comentários:
 ${comments}
@@ -1245,7 +1232,7 @@ ${comments}
         });
     }
 
-handleFileImport(event) {
+    handleFileImport(event) {
         try {
             const file = event.target.files[0];
             if (!file) {
@@ -1345,7 +1332,7 @@ handleFileImport(event) {
         }
     }
 
-    exportNotes() {
+exportNotes() {
         try {
             if (Object.keys(this.notes).length === 0) {
                 utils.showNotification('Não há contratos para exportar', 'error');
