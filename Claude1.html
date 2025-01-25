@@ -928,7 +928,10 @@ editComment(noteKey, commentId) {
         }
 
         const comment = note.comments.find(c => c.id === commentId);
-        if (!comment) return;
+        if (!comment) {
+            utils.showNotification('Comentário não encontrado.', 'error');
+            return;
+        }
 
         const newText = prompt('Editar comentário:', comment.text);
         if (newText !== null && newText.trim() !== '') {
