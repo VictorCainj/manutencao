@@ -225,12 +225,12 @@
 <div id="noteDetailsModal" class="modal-overlay hidden">
     <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-
+        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Coluna da esquerda - Detalhes -->
             <div class="space-y-4">
                 <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative"></div>
-
+                
                 <div class="flex space-x-2">
                     <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
                         <i class="fas fa-copy mr-2"></i>Copiar
@@ -251,7 +251,7 @@
             <div class="space-y-4">
                 <div class="bg-gray-50 p-4 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-4">Comentários</h3>
-
+                    
                     <form id="commentForm" class="mb-4">
                         <textarea id="commentText" 
                                  required
@@ -307,11 +307,11 @@ const utils = {
 
     validateForm: (formData) => {
         const errors = [];
-
+        
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
             errors.push('Número de contrato inválido - use apenas letras, números e hífen');
         }
-
+        
         if (formData.locator.length < 3) {
             errors.push('Nome do Locador deve ter ao menos 3 caracteres');
         }
@@ -319,15 +319,15 @@ const utils = {
         if (formData.tenant.length < 3) {
             errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
         }
-
+        
         if (formData.problem.length < 10) {
             errors.push('Problema deve ter ao menos 10 caracteres');
         }
-
+        
         if (formData.address.length < 5) {
             errors.push('Endereço deve ter ao menos 5 caracteres');
         }
-
+        
         return errors;
     },
 
@@ -335,11 +335,11 @@ const utils = {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Data inválida';
-
+            
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
-
+            
             return `${day}/${month}/${year}`;
         } catch (e) {
             console.error('Error formatting date:', e);
@@ -362,7 +362,6 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T21:03:01'); // Data de hoje
         const today = new Date(); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -406,7 +405,6 @@ class NoteManager {
         this.updateVerifiedNotes();
     }
 
-cleanInvalidNotes() {
     cleanInvalidNotes() {
         const validNotes = {};
         Object.entries(this.notes).forEach(([key, note]) => {
@@ -418,7 +416,6 @@ cleanInvalidNotes() {
         this.saveToLocalStorage();
     }
 
-    initializeEventListeners() {
 initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
@@ -585,7 +582,7 @@ initializeEventListeners() {
 
             const existingNotes = Object.keys(this.notes).filter(key => 
                 key.startsWith(sanitizedData.contractNumber + '#'));
-
+            
             const sequence = existingNotes.length + 1;
             const noteKey = `${sanitizedData.contractNumber}#${sequence}`;
 
@@ -622,7 +619,7 @@ initializeEventListeners() {
 
         notesToDisplay.forEach(note => {
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
-
+            
             const noteButton = document.createElement('button');
             noteButton.className = `note-button w-full px-4 py-3 ${
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
@@ -727,10 +724,10 @@ initializeEventListeners() {
             note.comments.forEach((comment) => {
                 const commentElement = document.createElement('div');
                 commentElement.className = 'comment-box';
-
+                
                 // Create unique IDs for the edit button using the comment ID
                 const editButtonId = `edit-comment-${comment.id}`;
-
+                
                 commentElement.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="flex-grow">
@@ -745,9 +742,9 @@ initializeEventListeners() {
                         </button>
                     </div>
                 `;
-
+                
                 commentsContainer.appendChild(commentElement);
-
+                
                 // Add click event listener after the element is added to the DOM
                 document.getElementById(editButtonId).addEventListener('click', () => {
                     this.editComment(noteKey, comment.id);
@@ -782,7 +779,6 @@ initializeEventListeners() {
             }
 
             this.notes[noteKey].comments.unshift(comment);
-            this.notes[noteKey].status = 'verified';
             if (this.notes[noteKey].status !== 'scheduled') {
                 this.notes[noteKey].status = 'verified';
             }
@@ -849,7 +845,6 @@ initializeEventListeners() {
                 document.body.removeChild(editModal);
             });
 
-// Handle ESC key
             // Handle ESC key
             document.addEventListener('keydown', function escListener(e) {
                 if (e.key === 'Escape') {
@@ -858,12 +853,11 @@ initializeEventListeners() {
                 }
             });
 
-            // Handle form submit
 // Handle form submit
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const newText = textarea.value.trim();
-
+                
                 if (newText) {
                     note.comments[commentIndex].text = utils.sanitizeInput(newText);
                     note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
@@ -1059,11 +1053,9 @@ ${comments}
         const notes = Array.from(container.children);
         notes.sort((a, b) => {
             // Parse the dates correctly from the dataset
-            const dateA = new Date(a.dataset.date.split('/').reverse().join('-'));
-            const dateB = new Date(b.dataset.date.split('/').reverse().join('-'));
             const dateA = new Date(a.dataset.date);
             const dateB = new Date(b.dataset.date);
-
+            
             // Return comparison based on sort order
             return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
         });
@@ -1184,7 +1176,7 @@ ${comments}
             reader.onload = async (e) => {
                 try {
                     const importedNotes = JSON.parse(e.target.result);
-
+                    
                     if (!importedNotes || typeof importedNotes !== 'object') {
                         throw new Error('Formato de arquivo inválido');
                     }
@@ -1242,7 +1234,7 @@ ${comments}
 
             const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
             const missingFields = requiredFields.filter(field => !note[field]);
-
+            
             if (missingFields.length > 0) {
                 throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
             }
