@@ -52,10 +52,10 @@
             @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40;
         }
         .modal-content {
-            @apply bg-white dark:bg-gray-800 rounded-lg shadow-lg transform transition-all duration-300;
+            @apply bg-white rounded-lg shadow-lg transform transition-all duration-300;
         }
         .comment-box {
-            @apply bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
+            @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
         }
         .note-card {
             @apply transition-all duration-200 transform hover:scale-102;
@@ -63,81 +63,10 @@
         .progress-bar {
             @apply absolute bottom-0 left-0 h-2 bg-blue-500 transition-all duration-300;
         }
-
-        /* Dark mode styles */
-        .dark-mode {
-            @apply bg-gray-900 text-white;
-        }
-        .dark-mode .btn {
-            @apply text-white;
-        }
-        .dark-mode .btn-blue {
-            @apply bg-blue-400 hover:bg-blue-600;
-        }
-        .dark-mode .btn-green {
-            @apply bg-green-400 hover:bg-green-600;
-        }
-        .dark-mode .btn-yellow {
-            @apply bg-yellow-400 hover:bg-yellow-600;
-        }
-        .dark-mode .btn-gray {
-            @apply bg-gray-400 hover:bg-gray-600;
-        }
-        .dark-mode .btn-red {
-            @apply bg-red-400 hover:bg-red-600;
-        }
-        .dark-mode .notification {
-            @apply bg-gray-700 text-white;
-        }
-        .dark-mode .notification-success {
-            @apply bg-green-700 text-white border-green-500;
-        }
-        .dark-mode .notification-error {
-            @apply bg-red-700 text-white border-red-500;
-        }
-        .dark-mode .notification-alert {
-            @apply bg-yellow-700 text-black border-yellow-500;
-        }
-
-        /* Additional styles for dark mode */
-        .dark-mode .text-gray-700 {
-            color: #e5e7eb;
-        }
-        .dark-mode .text-gray-300 {
-            color: #d1d5db;
-        }
-        .dark-mode .text-gray-500 {
-            color: #9ca3af;
-        }
-        .dark-mode .text-gray-400 {
-            color: #9ca3af;
-        }
-        .dark-mode .border-gray-200 {
-            border-color: #4b5563;
-        }
-        .dark-mode .border-gray-600 {
-            border-color: #4b5563;
-        }
-        .dark-mode .bg-gray-50 {
-            background-color: #1f2937;
-        }
-        .dark-mode .bg-gray-700 {
-            background-color: #374151;
-        }
-        .dark-mode .bg-gray-800 {
-            background-color: #1f2937;
-        }
     </style>
 </head>
 
-<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
-
-<!-- Toggle Dark Mode Button -->
-<div class="mb-6">
-    <button id="toggleDarkModeBtn" class="btn btn-gray">
-        <i class="fas fa-moon mr-2"></i>Alternar Modo Claro/Escuro
-    </button>
-</div>
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
 
 <!-- Main Controls -->
 <div class="mb-6 space-x-4">
@@ -162,17 +91,17 @@
         <input type="text" 
                id="searchInput" 
                placeholder="Pesquisar contratos..." 
-               class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white"
+               class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                aria-label="Pesquisar contratos">
-        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-200"></i>
+        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
     </div>
 
     <div class="flex space-x-4 items-center">
-        <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white">
+        <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             <option value="newest">Mais recentes primeiro</option>
             <option value="oldest">Mais antigos primeiro</option>
         </select>
-        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white">
+        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             <option value="all">Todos os status</option>
             <option value="open">Abertos</option>
             <option value="closed">Fechados</option>
@@ -185,48 +114,48 @@
 <!-- Note Creation Modal -->
 <div id="noteModal" class="modal-overlay hidden">
     <div class="modal-content p-6 w-full max-w-md">
-        <h2 class="text-xl font-semibold mb-4 text-center dark:text-white">Criar Anotação</h2>
+        <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
         <form id="noteForm" class="space-y-4">
             <div>
-                <label for="contractNumber" class="block text-gray-700 dark:text-gray-300">Número de Contrato: *</label>
+                <label for="contractNumber" class="block text-gray-700">Número de Contrato: *</label>
                 <input type="text" 
                        id="contractNumber" 
                        required
                        pattern="[A-Za-z0-9-]+"
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white">
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
             <div class="flex space-x-4">
                 <div class="w-1/2">
-                    <label for="locator" class="block text-gray-700 dark:text-gray-300">Locador: *</label>
+                    <label for="locator" class="block text-gray-700">Locador: *</label>
                     <input type="text" 
                            id="locator" 
                            required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white">
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
 
                 <div class="w-1/2">
-                    <label for="tenant" class="block text-gray-700 dark:text-gray-300">Locatário: *</label>
+                    <label for="tenant" class="block text-gray-700">Locatário: *</label>
                     <input type="text" 
                            id="tenant" 
                            required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white">
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
             </div>
 
             <div>
-                <label for="address" class="block text-gray-700 dark:text-gray-300">Endereço: *</label>
+                <label for="address" class="block text-gray-700">Endereço: *</label>
                 <input type="text" 
                        id="address" 
                        required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white">
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
             <div>
-                <label for="problem" class="block text-gray-700 dark:text-gray-300">Problema: *</label>
+                <label for="problem" class="block text-gray-700">Problema: *</label>
                 <textarea id="problem" 
                          required
-                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white min-h-[100px]"></textarea>
+                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
             </div>
 
             <div class="flex justify-end space-x-2">
@@ -244,40 +173,40 @@
 <!-- Schedule Creation Modal -->
 <div id="scheduleModal" class="modal-overlay hidden">
     <div class="modal-content p-6 w-full max-w-md">
-        <h2 class="text-xl font-semibold mb-4 text-center dark:text-white">Criar Agendamento</h2>
+        <h2 class="text-xl font-semibold mb-4 text-center">Criar Agendamento</h2>
         <form id="scheduleForm" class="space-y-4">
             <div>
-                <label for="searchContract" class="block text-gray-700 dark:text-gray-300">Pesquisar Contrato:</label>
-                <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white" placeholder="Buscar contrato...">
+                <label for="searchContract" class="block text-gray-700">Pesquisar Contrato:</label>
+                <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Buscar contrato...">
             </div>
             <div>
-                <label for="existingContract" class="block text-gray-700 dark:text-gray-300">Selecionar Contrato: *</label>
-                <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white">
+                <label for="existingContract" class="block text-gray-700">Selecionar Contrato: *</label>
+                <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
                     <option value="">Selecione um contrato...</option>
                 </select>
             </div>
 
             <div>
-                <label for="providerName" class="block text-gray-700 dark:text-gray-300">Nome do Prestador: *</label>
+                <label for="providerName" class="block text-gray-700">Nome do Prestador: *</label>
                 <input type="text" 
                        id="providerName" 
                        required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white">
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
             <div>
-                <label for="scheduleDate" class="block text-gray-700 dark:text-gray-300">Data do Agendamento: *</label>
+                <label for="scheduleDate" class="block text-gray-700">Data do Agendamento: *</label>
                 <input type="date" 
                        id="scheduleDate" 
                        required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white">
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
             <div>
-                <label for="scheduleDescription" class="block text-gray-700 dark:text-gray-300">Descrição do Agendamento: *</label>
+                <label for="scheduleDescription" class="block text-gray-700">Descrição do Agendamento: *</label>
                 <textarea id="scheduleDescription" 
                           required
-                          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white min-h-[100px]"></textarea>
+                          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
             </div>
 
             <div class="flex justify-end space-x-2">
@@ -295,12 +224,12 @@
 <!-- Note Details Modal -->
 <div id="noteDetailsModal" class="modal-overlay hidden">
     <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-        <h2 class="text-2xl font-semibold mb-4 text-center dark:text-white">Detalhes da Anotação</h2>
+        <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Coluna da esquerda - Detalhes -->
             <div class="space-y-4">
-                <div id="noteDetailsContent" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md relative"></div>
+                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative"></div>
                 
                 <div class="flex space-x-2">
                     <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
@@ -321,13 +250,13 @@
 
             <!-- Coluna da direita - Comentários -->
             <div class="space-y-4">
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow-md">
-                    <h3 class="text-lg font-semibold mb-4 dark:text-white">Comentários</h3>
+                <div class="bg-gray-50 p-4 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">Comentários</h3>
                     
                     <form id="commentForm" class="mb-4">
                         <textarea id="commentText" 
                                  required
-                                 class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-white min-h-[80px]"
+                                 class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]"
                                  placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
                         <button type="submit" class="btn btn-blue w-full mt-2">
                             <i class="fas fa-comment mr-2"></i>Adicionar Comentário
@@ -377,7 +306,7 @@ const utils = {
                    .replace(/'/g, '&#39;');
     },
 
-validateForm: (formData) => {
+    validateForm: (formData) => {
         const errors = [];
         
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
@@ -471,10 +400,9 @@ class NoteManager {
         this.cleanInvalidNotes();
         this.initializeEventListeners();
         this.updateVerifiedNotes();
-        this.applyTheme();
     }
 
-    cleanInvalidNotes() {
+cleanInvalidNotes() {
         const validNotes = {};
         Object.entries(this.notes).forEach(([key, note]) => {
             if (note && note.contractNumber) {
@@ -610,11 +538,6 @@ class NoteManager {
 
         document.getElementById('nextPageBtn').addEventListener('click', () => {
             this.nextPage();
-        });
-
-        // Event Listener para alternar modo claro/escuro
-        document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
-            this.toggleDarkMode();
         });
     }
 
@@ -850,7 +773,7 @@ class NoteManager {
         }
     }
 
-addNote(formData) {
+    addNote(formData) {
         try {
             const sanitizedData = {
                 contractNumber: utils.sanitizeInput(formData.contractNumber),
@@ -910,7 +833,7 @@ addNote(formData) {
                 (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
                 (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
                 'bg-blue-500 hover:bg-blue-700'))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 dark:text-white`;
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
             
             noteButton.innerHTML = `
                 <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
@@ -940,7 +863,7 @@ addNote(formData) {
         this.sortNotes();
     }
 
-    showNoteDetails(noteKey) {
+showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -948,20 +871,20 @@ addNote(formData) {
 
             detailsContent.innerHTML = `
                 <div class="space-y-3">
-                    <div class="pb-2 border-b border-gray-200 dark:border-gray-600">
-                        <h3 class="text-lg font-semibold dark:text-white">Informações do Contrato</h3>
+                    <div class="pb-2 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold">Informações do Contrato</h3>
                     </div>
                     <div class="grid grid-cols-1 gap-2">
-                        <div class="absolute top-2 right-2 text-gray-500 text-sm dark:text-gray-300">${utils.formatDateMinimal(note.createdAt)}</div>
+                        <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDateMinimal(note.createdAt)}</div>
                         <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
                         <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
                         <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
                         <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
                         <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
                         <p><strong>Status:</strong> <span class="font-semibold ${
-                            note.status === 'open' ? 'text-blue-600 dark:text-blue-400' :
-                            (note.status === 'scheduled' ? 'text-yellow-600 dark:text-yellow-400' :
-                            (note.status === 'verified' ? 'text-purple-600 dark:text-purple-400' : 'text-green-600 dark:text-green-400'))
+                            note.status === 'open' ? 'text-blue-600' :
+                            (note.status === 'scheduled' ? 'text-yellow-600' :
+                            (note.status === 'verified' ? 'text-purple-600' : 'text-green-600'))
                         }">
                             ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
                             (note.status === 'scheduled' ? 'Em agendamento' : 
@@ -1015,13 +938,13 @@ addNote(formData) {
                 commentElement.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="flex-grow">
-                            <p class="text-gray-800 dark:text-gray-300 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
-                            <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
+                            <div class="mt-2 text-sm text-gray-500">
                                 <span>${utils.formatDate(comment.dateTime)}</span>
                                 ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
                             </div>
                         </div>
-                        <button class="ml-2 text-blue-500 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-500" 
+                        <button class="ml-2 text-blue-500 hover:text-blue-700" 
                                 onclick="noteManager.editComment('${noteKey}', '${comment.id}')">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -1287,7 +1210,7 @@ ${comments}
         notes.forEach(note => container.appendChild(note));
     }
 
-updateNoteButton(noteKey) {
+    updateNoteButton(noteKey) {
         const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
         if (noteButton) {
             const note = this.notes[noteKey];
@@ -1302,7 +1225,7 @@ updateNoteButton(noteKey) {
                 (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
                 (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
                 'bg-blue-500 hover:bg-blue-700'))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 dark:text-white`;
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
         }
     }
 
@@ -1320,27 +1243,6 @@ updateNoteButton(noteKey) {
 
         this.currentPage = (this.currentPage - 1 + totalPages) % totalPages;
         this.renderNotes();
-    }
-
-    toggleDarkMode() {
-        const body = document.body;
-        body.classList.toggle('dark-mode');
-
-        // Save the theme preference to localStorage
-        if (body.classList.contains('dark-mode')) {
-            localStorage.setItem('theme', 'dark');
-        } else {
-            localStorage.setItem('theme', 'light');
-        }
-    }
-
-    applyTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
     }
 }
 
