@@ -229,9 +229,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Coluna da esquerda - Detalhes -->
             <div class="space-y-4">
-                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative">
-                    <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDateMinimal(note.createdAt)}</div>
-                </div>
+                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative"></div>
                 
                 <div class="flex space-x-2">
                     <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
@@ -357,14 +355,18 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25 02:55:44');
+        const today = new Date('2025-01-25 03:05:01');
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
     },
 
     getCurrentDateTime: () => {
-        return '25/01/2025';
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        return `${day}/${month}/${year}`;
     },
 
     downloadFile: (content, filename, type = 'text/plain') => {
@@ -403,7 +405,7 @@ class NoteManager {
         this.saveToLocalStorage();
     }
 
-    initializeEventListeners() {
+initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             document.getElementById('noteModal').classList.remove('hidden');
@@ -415,7 +417,7 @@ class NoteManager {
             document.getElementById('noteForm').reset();
         });
 
-document.getElementById('noteForm').addEventListener('submit', (e) => {
+        document.getElementById('noteForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleFormSubmit();
         });
@@ -534,7 +536,7 @@ document.getElementById('noteForm').addEventListener('submit', (e) => {
 
             note.status = 'scheduled';
             note.providerName = utils.sanitizeInput(providerName);
-            note.scheduleDate = scheduleDate;
+            note.scheduleDate = utils.formatDate(scheduleDate);
 
             this.saveToLocalStorage();
             this.renderNote(existingContract);
@@ -606,7 +608,7 @@ document.getElementById('noteForm').addEventListener('submit', (e) => {
                                     createdBy: note.createdBy || 'VictorCainj',
                                     status: note.status || 'open',
                                     providerName: note.providerName || '',
-                                    scheduleDate: note.scheduleDate || '',
+                                    scheduleDate: note.scheduleDate ? utils.formatDate(note.scheduleDate) : '',
                                     comments: Array.isArray(note.comments) ? note.comments : []
                                 };
                                 this.renderNote(noteKey);
@@ -661,7 +663,7 @@ document.getElementById('noteForm').addEventListener('submit', (e) => {
                 text: utils.sanitizeInput(comment.text || ''),
                 dateTime: comment.dateTime || utils.getCurrentDateTime(),
                 author: comment.author || 'VictorCainj',
-                editedAt: comment.editedAt || null
+                editedAt: comment.editedAt ? utils.formatDate(comment.editedAt) : null
             }));
 
             return true;
@@ -694,18 +696,18 @@ document.getElementById('noteForm').addEventListener('submit', (e) => {
                     createdAt: note.createdAt || utils.getCurrentDateTime(),
                     createdBy: note.createdBy || 'VictorCainj',
                     providerName: note.providerName || '',
-                    scheduleDate: note.scheduleDate || '',
+                    scheduleDate: note.scheduleDate ? utils.formatDate(note.scheduleDate) : '',
                     comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
                         dateTime: comment.dateTime || utils.getCurrentDateTime(),
                         author: comment.author || 'VictorCainj',
-                        editedAt: comment.editedAt || null
+                        editedAt: comment.editedAt ? utils.formatDate(comment.editedAt) : null
                     })) : []
                 };
 
                 if (note.closedAt) {
-                    cleanedNote.closedAt = note.closedAt;
+                    cleanedNote.closedAt = utils.formatDate(note.closedAt);
                 }
 
                 exportData[key] = cleanedNote;
@@ -833,7 +835,7 @@ document.getElementById('noteForm').addEventListener('submit', (e) => {
         }
     }
 
-    showNoteDetails(noteKey) {
+showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -845,6 +847,7 @@ document.getElementById('noteForm').addEventListener('submit', (e) => {
                         <h3 class="text-lg font-semibold">Informações do Contrato</h3>
                     </div>
                     <div class="grid grid-cols-1 gap-2">
+                        <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDateMinimal(note.createdAt)}</div>
                         <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
                         <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
                         <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
@@ -867,7 +870,7 @@ document.getElementById('noteForm').addEventListener('submit', (e) => {
                 </div>
             `;
 
-const toggleBtn = document.getElementById('toggleStatusBtn');
+            const toggleBtn = document.getElementById('toggleStatusBtn');
             if (note.status === 'closed') {
                 toggleBtn.className = 'btn btn-blue flex-1';
                 toggleBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Reabrir Chamado';
@@ -1041,6 +1044,37 @@ const toggleBtn = document.getElementById('toggleStatusBtn');
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment => 
+                `**Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}**: ${comment.text}`).join('\n');
+            const details = `
+**Número do Contrato**: ${noteKey}
+**Locador**: ${note.locator}
+**Locatário**: ${note.tenant}
+**Problema**: ${note.problem}
+**Endereço**: ${note.address}
+**Status**: ${note.status === 'open' ? 'Aberto' : 
+            (note.status === 'scheduled' ? 'Em agendamento' : 
+            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+**Criado em**: ${utils.formatDate(note.createdAt)}
+${note.closedAt ? `**Finalizado em**: ${utils.formatDate(note.closedAt)}` : ''}
+${note.status === 'scheduled' ? `**Prestador**: ${note.providerName}` : ''}
+${note.status === 'scheduled' ? `**Data do Agendamento**: ${utils.formatDate(note.scheduleDate)}` : ''}
+**Comentários**:
+${comments}
+            `.trim();
+
+            navigator.clipboard.writeText(details).then(() => {
+                utils.showNotification('Detalhes copiados para a área de transferência!', 'success');
+            });
+        } catch (error) {
+            console.error('Erro ao copiar detalhes:', error);
+            utils.showNotification('Erro ao copiar detalhes', 'error');
+        }
+    }
+
+    downloadSingleContract(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            const comments = note.comments.map(comment => 
                 `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
             const details = `
 Número do Contrato: ${noteKey}
@@ -1059,28 +1093,8 @@ Comentários:
 ${comments}
             `.trim();
 
-            navigator.clipboard.writeText(details).then(() => {
-                utils.showNotification('Detalhes copiados para a área de transferência!', 'success');
-            });
-        } catch (error) {
-            console.error('Erro ao copiar detalhes:', error);
-            utils.showNotification('Erro ao copiar detalhes', 'error');
-        }
-    }
-
-    downloadSingleContract(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            const exportData = {
-                [noteKey]: {
-                    ...note,
-                    comments: note.comments || []
-                }
-            };
-            
-            const notesJson = JSON.stringify(exportData, null, 2);
-            const filename = `contrato_${noteKey}_${this.currentDateTime.split(' ')[0]}.json`;
-            utils.downloadFile(notesJson, filename, 'application/json');
+            const filename = `${noteKey}.txt`;
+            utils.downloadFile(details, filename, 'text/plain');
             utils.showNotification('Contrato exportado com sucesso!', 'success');
         } catch (error) {
             console.error('Erro ao baixar contrato:', error);
