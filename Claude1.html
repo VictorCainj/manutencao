@@ -1024,7 +1024,7 @@ const toggleBtn = document.getElementById('toggleStatusBtn');
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment => 
-                `Comentário de ${comment.author} em ${comment.dateTime}: ${comment.text}`).join('\n');
+                `${comment.dateTime}: ${comment.text}`).join('\n');
             const details = `
 Número do Contrato: ${noteKey}
 Locador: ${note.locator}
