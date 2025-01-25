@@ -35,6 +35,9 @@
         .notification-error {
             @apply bg-red-500 text-white border-l-4 border-red-700;
         }
+        .notification-alert {
+            @apply bg-yellow-500 text-black border-l-4 border-yellow-700;
+        }
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -286,10 +289,10 @@
 const utils = {
     showNotification: (message, type = 'success') => {
         const notification = document.getElementById('notification');
-        notification.className = `notification ${type === 'success' ? 'notification-success' : 'notification-error'}`;
+        notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
         notification.textContent = message;
         notification.classList.remove('hidden');
-        setTimeout(() => notification.classList.add('hidden'), 3000);
+        setTimeout(() => notification.classList.add('hidden'), 5000);
     },
 
     sanitizeInput: (input) => {
@@ -355,7 +358,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25 16:07:36');
+        const today = new Date('2025-01-25 16:20:02');
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -392,6 +395,7 @@ class NoteManager {
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
+        this.checkForAlerts();
     }
 
     cleanInvalidNotes() {
@@ -1117,6 +1121,7 @@ ${comments}
                     this.renderNote(noteKey);
                 });
             }
+            this.checkForAlerts();
         } catch (error) {
             console.error('Erro ao carregar do localStorage:', error);
             utils.showNotification('Erro ao carregar dados locais', 'error');
@@ -1172,6 +1177,37 @@ ${comments}
             if (commentCountSpan) {
                 commentCountSpan.textContent = `${commentCount} comentário(s)`;
             }
+        }
+    }
+
+    checkForAlerts() {
+        const today = new Date('2025-01-25T16:23:28'); // Data de hoje
+        const oneDayBefore = new Date(today);
+        oneDayBefore.setDate(today.getDate() - 1);
+
+        const todayStr = today.toISOString().split('T')[0];
+        const oneDayBeforeStr = oneDayBefore.toISOString().split('T')[0];
+
+        const alerts = { today: [], oneDayBefore: [] };
+
+        Object.values(this.notes).forEach(note => {
+            if (note.status === 'scheduled') {
+                if (note.scheduleDate === todayStr) {
+                    alerts.today.push(note);
+                } else if (note.scheduleDate === oneDayBeforeStr) {
+                    alerts.oneDayBefore.push(note);
+                }
+            }
+        });
+
+        if (alerts.today.length > 0) {
+            const message = `Agendamentos para hoje: ${alerts.today.map(note => `${note.contractNumber} (Prestador: ${note.providerName})`).join(', ')}`;
+            utils.showNotification(message, 'alert');
+        }
+
+        if (alerts.oneDayBefore.length > 0) {
+            const message = `Agendamentos para amanhã: ${alerts.oneDayBefore.map(note => `${note.contractNumber} (Prestador: ${note.providerName})`).join(', ')}`;
+            utils.showNotification(message, 'alert');
         }
     }
 }
