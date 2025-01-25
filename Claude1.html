@@ -98,6 +98,35 @@
         .dark-mode .notification-alert {
             @apply bg-yellow-700 text-black border-yellow-500;
         }
+
+        /* Additional styles for dark mode */
+        .dark-mode .text-gray-700 {
+            color: #e5e7eb;
+        }
+        .dark-mode .text-gray-300 {
+            color: #d1d5db;
+        }
+        .dark-mode .text-gray-500 {
+            color: #9ca3af;
+        }
+        .dark-mode .text-gray-400 {
+            color: #9ca3af;
+        }
+        .dark-mode .border-gray-200 {
+            border-color: #4b5563;
+        }
+        .dark-mode .border-gray-600 {
+            border-color: #4b5563;
+        }
+        .dark-mode .bg-gray-50 {
+            background-color: #1f2937;
+        }
+        .dark-mode .bg-gray-700 {
+            background-color: #374151;
+        }
+        .dark-mode .bg-gray-800 {
+            background-color: #1f2937;
+        }
     </style>
 </head>
 
@@ -328,7 +357,6 @@
     <button id="nextPageBtn" class="btn btn-blue"><i class="fas fa-chevron-right"></i></button>
 </div>
 
-<!-- Início do JavaScript -->
 <script>
 // Utility Functions
 const utils = {
@@ -388,7 +416,7 @@ const utils = {
         }
     },
 
-formatDateMinimal: (dateString) => {
+    formatDateMinimal: (dateString) => {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return '25/01/2025';
@@ -403,7 +431,7 @@ formatDateMinimal: (dateString) => {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T18:34:27'); // Data de hoje
+        const today = new Date('2025-01-25T19:06:43'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -822,7 +850,7 @@ class NoteManager {
         }
     }
 
-    addNote(formData) {
+addNote(formData) {
         try {
             const sanitizedData = {
                 contractNumber: utils.sanitizeInput(formData.contractNumber),
@@ -861,7 +889,7 @@ class NoteManager {
         }
     }
 
-renderNotes() {
+    renderNotes() {
         const container = document.getElementById('notesContainer');
         container.innerHTML = '';
 
@@ -1244,7 +1272,7 @@ ${comments}
         this.sortNotes();
     }
 
-    sortNotes() {
+sortNotes() {
         const container = document.getElementById('notesContainer');
         const sortOrder = document.getElementById('dateSort').value;
 
@@ -1278,7 +1306,7 @@ ${comments}
         }
     }
 
-nextPage() {
+    nextPage() {
         const totalNotes = Object.keys(this.notes).length;
         const totalPages = Math.ceil(totalNotes / this.notesPerPage);
 
@@ -1312,372 +1340,6 @@ nextPage() {
             document.body.classList.add('dark-mode');
         } else {
             document.body.classList.remove('dark-mode');
-        }
-    }
-
-    showNoteDetails(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
-            const detailsContent = document.getElementById('noteDetailsContent');
-
-            detailsContent.innerHTML = `
-                <div class="space-y-3">
-                    <div class="pb-2 border-b border-gray-200 dark:border-gray-600">
-                        <h3 class="text-lg font-semibold dark:text-white">Informações do Contrato</h3>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2">
-                        <div class="absolute top-2 right-2 text-gray-500 text-sm dark:text-gray-300">${utils.formatDateMinimal(note.createdAt)}</div>
-                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
-                        <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
-                        <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
-                        <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
-                        <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
-                        <p><strong>Status:</strong> <span class="font-semibold ${
-                            note.status === 'open' ? 'text-blue-600 dark:text-blue-400' :
-                            (note.status === 'scheduled' ? 'text-yellow-600 dark:text-yellow-400' :
-                            (note.status === 'verified' ? 'text-purple-600 dark:text-purple-400' : 'text-green-600 dark:text-green-400'))
-                        }">
-                            ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
-                            (note.status === 'scheduled' ? 'Em agendamento' : 
-                            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-                        </span></p>
-                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
-                        ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
-                        ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
-                        ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
-                    </div>
-                </div>
-            `;
-
-            const toggleBtn = document.getElementById('toggleStatusBtn');
-            if (note.status === 'closed') {
-                toggleBtn.className = 'btn btn-blue flex-1';
-                toggleBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Reabrir Chamado';
-            } else if (note.status === 'scheduled') {
-                toggleBtn.className = 'btn btn-purple flex-1';
-                toggleBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Verificar Hoje';
-            } else if (note.status === 'verified') {
-                toggleBtn.className = 'btn btn-green flex-1';
-                toggleBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Finalizar Chamado';
-            } else {
-                toggleBtn.className = 'btn btn-yellow flex-1';
-                toggleBtn.innerHTML = '<i class="fas fa-calendar-alt mr-2"></i>Agendar';
-            }
-
-            this.renderComments(noteKey);
-            document.getElementById('noteDetailsModal').classList.remove('hidden');
-            document.getElementById('commentText').focus();
-        } catch (error) {
-            console.error('Erro ao exibir detalhes da nota:', error);
-            utils.showNotification('Erro ao carregar detalhes', 'error');
-        }
-    }
-
-    renderComments(noteKey) {
-        try {
-            const commentsContainer = document.getElementById('commentsContainer');
-            commentsContainer.innerHTML = '';
-
-            const note = this.notes[noteKey];
-            if (!Array.isArray(note.comments)) {
-                note.comments = [];
-            }
-
-            note.comments.forEach(comment => {
-                const commentElement = document.createElement('div');
-                commentElement.className = 'comment-box';
-                commentElement.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex-grow">
-                            <p class="text-gray-800 dark:text-gray-300 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
-                            <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                <span>${utils.formatDate(comment.dateTime)}</span>
-                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
-                            </div>
-                        </div>
-                        <button class="ml-2 text-blue-500 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-500" 
-                                onclick="noteManager.editComment('${noteKey}', '${comment.id}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </div>
-                `;
-                commentsContainer.appendChild(commentElement);
-            });
-        } catch (error) {
-            console.error('Erro ao renderizar comentários:', error);
-            utils.showNotification('Erro ao carregar comentários', 'error');
-        }
-    }
-
-    handleCommentSubmit() {
-        try {
-            const commentText = document.getElementById('commentText').value;
-            if (!commentText.trim()) {
-                utils.showNotification('Comentário não pode estar vazio', 'error');
-                return;
-            }
-
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-
-            const comment = {
-                id: Date.now().toString(),
-                text: utils.sanitizeInput(commentText),
-                dateTime: utils.getCurrentDateTime(),
-                author: this.currentUser
-            };
-
-            if (!Array.isArray(this.notes[noteKey].comments)) {
-                this.notes[noteKey].comments = [];
-            }
-
-            this.notes[noteKey].comments.unshift(comment);
-            this.notes[noteKey].status = 'verified';
-            this.saveToLocalStorage();
-            this.renderComments(noteKey);
-            this.updateNoteButton(noteKey);
-            document.getElementById('commentForm').reset();
-            document.getElementById('commentText').focus();
-            utils.showNotification('Comentário adicionado com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao adicionar comentário:', error);
-            utils.showNotification('Erro ao adicionar comentário', 'error');
-        }
-    }
-
-    editComment(noteKey, commentId) {
-        try {
-            const note = this.notes[noteKey];
-            if (!Array.isArray(note.comments)) {
-                note.comments = [];
-                return;
-            }
-
-            const comment = note.comments.find(c => c.id === commentId);
-            if (!comment) return;
-
-            const newText = prompt('Editar comentário:', comment.text);
-            if (newText !== null && newText.trim() !== '') {
-                comment.text = utils.sanitizeInput(newText);
-                comment.editedAt = utils.getCurrentDateTime();
-                this.saveToLocalStorage();
-                this.renderComments(noteKey);
-                utils.showNotification('Comentário atualizado com sucesso!', 'success');
-            }
-        } catch (error) {
-            console.error('Erro ao editar comentário:', error);
-            utils.showNotification('Erro ao editar comentário', 'error');
-        }
-    }
-
-    toggleNoteStatus(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            if (note.status === 'open') {
-                note.status = 'scheduled';
-            } else if (note.status === 'scheduled') {
-                note.status = 'verified';
-            } else if (note.status === 'verified') {
-                note.status = 'closed';
-                note.closedAt = utils.getCurrentDateTime();
-            } else {
-                note.status = 'open';
-                note.closedAt = null;
-            }
-
-            this.saveToLocalStorage();
-            this.renderNotes();
-            this.showNoteDetails(noteKey);
-
-            const status = note.status === 'open' ? 'reaberto' : 
-                (note.status === 'scheduled' ? 'em agendamento' : 
-                (note.status === 'verified' ? 'verificado hoje' : 'finalizado'));
-            utils.showNotification(`Chamado ${status} com sucesso!`, 'success');
-        } catch (error) {
-            console.error('Erro ao alterar status:', error);
-            utils.showNotification('Erro ao alterar status do chamado', 'error');
-        }
-    }
-
-    deleteNote(noteKey) {
-        try {
-            if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
-                return;
-            }
-
-            delete this.notes[noteKey];
-            this.saveToLocalStorage();
-            this.renderNotes();
-            document.getElementById('noteDetailsModal').classList.add('hidden');
-            utils.showNotification('Anotação excluída com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao excluir nota:', error);
-            utils.showNotification('Erro ao excluir anotação', 'error');
-        }
-    }
-
-    copyNoteDetails(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            const comments = note.comments.map(comment => 
-                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
-            const details = `
-Número do Contrato: ${noteKey}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Problema: ${note.problem}
-Endereço: ${note.address}
-Status: ${note.status === 'open' ? 'Aberto' : 
-            (note.status === 'scheduled' ? 'Em agendamento' : 
-            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
-${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
-${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
-${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
-Comentários:
-${comments}
-            `.trim();
-
-            navigator.clipboard.writeText(details).then(() => {
-                utils.showNotification('Detalhes copiados para a área de transferência!', 'success');
-            });
-        } catch (error) {
-            console.error('Erro ao copiar detalhes:', error);
-            utils.showNotification('Erro ao copiar detalhes', 'error');
-        }
-    }
-
-    downloadSingleContract(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            const comments = note.comments.map(comment => 
-                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
-            const details = `
-Número do Contrato: ${noteKey}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Problema: ${note.problem}
-Endereço: ${note.address}
-Status: ${note.status === 'open' ? 'Aberto' : 
-            (note.status === 'scheduled' ? 'Em agendamento' : 
-            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
-${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
-${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
-${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
-Comentários:
-${comments}
-            `.trim();
-
-            const filename = `${noteKey}.txt`;
-            utils.downloadFile(details, filename, 'text/plain');
-            utils.showNotification('Contrato exportado com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao baixar contrato:', error);
-            utils.showNotification('Erro ao baixar contrato', 'error');
-        }
-    }
-
-    saveToLocalStorage() {
-        try {
-            localStorage.setItem('notes', JSON.stringify(this.notes));
-        } catch (error) {
-            console.error('Erro ao salvar no localStorage:', error);
-            utils.showNotification('Erro ao salvar dados localmente', 'error');
-        }
-    }
-
-    loadFromLocalStorage() {
-        try {
-            const savedNotes = localStorage.getItem('notes');
-            if (savedNotes) {
-                this.notes = JSON.parse(savedNotes);
-                this.renderNotes();
-            }
-            this.updateVerifiedNotes();
-        } catch (error) {
-            console.error('Erro ao carregar do localStorage:', error);
-            utils.showNotification('Erro ao carregar dados locais', 'error');
-        }
-    }
-
-    updateVerifiedNotes() {
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
-
-        Object.values(this.notes).forEach(note => {
-            if (note.status === 'verified') {
-                const noteDate = new Date(note.createdAt);
-                const noteDateStr = noteDate.toISOString().split('T')[0];
-                if (noteDateStr !== todayStr) {
-                    note.status = 'open';
-                }
-            }
-        });
-
-        this.saveToLocalStorage();
-        this.renderNotes();
-    }
-
-    handleSearch(searchTerm) {
-        this.filterNotes();
-    }
-
-    filterNotes() {
-        const statusFilter = document.getElementById('statusFilter').value;
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-
-        const notes = document.querySelectorAll('.note-button');
-        notes.forEach(noteBtn => {
-            const noteKey = noteBtn.dataset.contract;
-            const note = this.notes[noteKey];
-
-            const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
-            const matchesSearch = [
-                noteKey,
-                noteBtn.dataset.locator,
-                noteBtn.dataset.tenant,
-                noteBtn.dataset.address
-            ].join(' ').toLowerCase().includes(searchTerm);
-
-            noteBtn.classList.toggle('hidden', !(matchesStatus && matchesSearch));
-        });
-
-        this.sortNotes();
-    }
-
-    sortNotes() {
-        const container = document.getElementById('notesContainer');
-        const sortOrder = document.getElementById('dateSort').value;
-
-        const notes = Array.from(container.children);
-        notes.sort((a, b) => {
-            const dateA = new Date(a.dataset.date);
-            const dateB = new Date(b.dataset.date);
-            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-        });
-
-        container.innerHTML = '';
-        notes.forEach(note => container.appendChild(note));
-    }
-
-    updateNoteButton(noteKey) {
-        const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
-        if (noteButton) {
-            const note = this.notes[noteKey];
-            const commentCount = Array.isArray(note.comments) ? note.comments.length : 0;
-            const commentCountSpan = noteButton.querySelector('span:last-child');
-            if (commentCountSpan) {
-                commentCountSpan.textContent = `${commentCount} comentário(s)`;
-            }
-
-            noteButton.className = `note-button w-full px-4 py-3 ${
-                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
-                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
-                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
-                'bg-blue-500 hover:bg-blue-700'))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 dark:text-white`;
         }
     }
 }
