@@ -183,6 +183,10 @@
         <h2 class="text-xl font-semibold mb-4 text-center">Criar Agendamento</h2>
         <form id="scheduleForm" class="space-y-4">
             <div>
+                <label for="searchContract" class="block text-gray-700">Pesquisar Contrato:</label>
+                <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Buscar contrato...">
+            </div>
+            <div>
                 <label for="existingContract" class="block text-gray-700">Selecionar Contrato: *</label>
                 <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
                     <option value="">Selecione um contrato...</option>
@@ -405,7 +409,7 @@ class NoteManager {
             document.getElementById('existingContract').focus();
         });
 
-        document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
+document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
             document.getElementById('scheduleModal').classList.add('hidden');
             document.getElementById('scheduleForm').reset();
         });
@@ -415,7 +419,12 @@ class NoteManager {
             this.handleScheduleFormSubmit();
         });
 
-// Event Listeners para busca e filtros
+        document.getElementById('searchContract').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            this.filterContractDropdown(searchTerm);
+        });
+
+        // Event Listeners para busca e filtros
         document.getElementById('searchInput').addEventListener('input', 
             (e) => this.handleSearch(e.target.value)
         );
@@ -532,6 +541,16 @@ class NoteManager {
                 option.textContent = noteKey;
                 existingContractDropdown.appendChild(option);
             }
+        });
+    }
+
+    filterContractDropdown(searchTerm) {
+        const existingContractDropdown = document.getElementById('existingContract');
+        const options = existingContractDropdown.querySelectorAll('option');
+
+        options.forEach(option => {
+            const isVisible = option.value.includes(searchTerm) || option.textContent.toLowerCase().includes(searchTerm);
+            option.style.display = isVisible ? '' : 'none';
         });
     }
 
@@ -821,11 +840,13 @@ class NoteManager {
                         <p><strong>Criado por:</strong> <span>${utils.sanitizeInput(note.createdBy || 'VictorCainj')}</span></p>
                         <p><strong>Criado em:</strong> <span>${note.createdAt || '2025-01-23 22:58:21'}</span></p>
                         ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${note.closedAt}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
                     </div>
                 </div>
             `;
 
-            const toggleBtn = document.getElementById('toggleStatusBtn');
+const toggleBtn = document.getElementById('toggleStatusBtn');
             if (note.status === 'closed') {
                 toggleBtn.className = 'btn btn-blue flex-1';
                 toggleBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Reabrir Chamado';
@@ -849,7 +870,7 @@ class NoteManager {
         }
     }
 
-renderComments(noteKey) {
+    renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -1009,6 +1030,8 @@ Status: ${note.status === 'open' ? 'Aberto' :
             (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
 Criado em: ${note.createdAt}
 ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
+${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
+${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
             `.trim();
 
             navigator.clipboard.writeText(details).then(() => {
