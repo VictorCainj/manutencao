@@ -332,18 +332,26 @@ const utils = {
         return errors;
     },
 
-    formatDate: (dateString) => {
-        try {
-            const date = new Date(dateString + 'T00:00:00'); // Adiciona tempo para evitar fusos horários
-            if (isNaN(date.getTime())) return '25/01/2025';
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
-        } catch (e) {
-            return '25/01/2025';
+formatDate: (dateString) => {
+    try {
+        // If the date is already in DD/MM/YYYY format, return it as is
+        if (dateString.includes('/')) {
+            return dateString;
         }
-    },
+        
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '25/01/2025';
+        
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        
+        return `${day}/${month}/${year}`;
+    } catch (e) {
+        console.error('Error formatting date:', e);
+        return '25/01/2025';
+    }
+}
 
     formatDateMinimal: (dateString) => {
         try {
@@ -603,56 +611,57 @@ initializeEventListeners() {
         }
     }
 
-    renderNotes() {
-        const container = document.getElementById('notesContainer');
-        container.innerHTML = '';
+renderNotes() {
+    const container = document.getElementById('notesContainer');
+    container.innerHTML = '';
 
-        const notesArray = Object.keys(this.notes).map(key => ({
-            key,
-            ...this.notes[key]
-        }));
-        const start = this.currentPage * this.notesPerPage;
-        const end = start + this.notesPerPage;
-        const notesToDisplay = notesArray.slice(start, end);
+    const notesArray = Object.keys(this.notes).map(key => ({
+        key,
+        ...this.notes[key]
+    }));
+    const start = this.currentPage * this.notesPerPage;
+    const end = start + this.notesPerPage;
+    const notesToDisplay = notesArray.slice(start, end);
 
-        notesToDisplay.forEach(note => {
-            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
-            
-            const noteButton = document.createElement('button');
-            noteButton.className = `note-button w-full px-4 py-3 ${
-                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
-                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
-                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
-                'bg-blue-500 hover:bg-blue-700'))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
-            
-            noteButton.innerHTML = `
-                <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
-                <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
-                <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-                <span class="block text-xs mt-1">${utils.formatDate(note.createdAt)}</span>
-                <span class="block text-xs mt-1">
-                    ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
-                    (note.status === 'scheduled' ? 'Em agendamento' : 
-                    (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-                </span>
-                <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
-            `;
+    notesToDisplay.forEach(note => {
+        const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
+        
+        const noteButton = document.createElement('button');
+        noteButton.className = `note-button w-full px-4 py-3 ${
+            note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+            (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+            (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
+            'bg-blue-500 hover:bg-blue-700'))
+        } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
+        
+        noteButton.innerHTML = `
+            <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
+            <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
+            <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
+            <span class="block text-xs mt-1">${utils.formatDate(note.createdAt)}</span>
+            <span class="block text-xs mt-1">
+                ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
+                (note.status === 'scheduled' ? 'Em agendamento' : 
+                (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+            </span>
+            <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
+        `;
 
-            noteButton.dataset.contract = note.key;
-            noteButton.dataset.locator = note.locator.toLowerCase();
-            noteButton.dataset.tenant = note.tenant.toLowerCase();
-            noteButton.dataset.address = note.address.toLowerCase();
-            noteButton.dataset.date = note.createdAt;
-            noteButton.dataset.status = note.status;
+        noteButton.dataset.contract = note.key;
+        noteButton.dataset.locator = note.locator.toLowerCase();
+        noteButton.dataset.tenant = note.tenant.toLowerCase();
+        noteButton.dataset.address = note.address.toLowerCase();
+        // Store the date in a consistent format for sorting
+        noteButton.dataset.date = note.createdAt;
+        noteButton.dataset.status = note.status;
 
-            noteButton.addEventListener('click', () => this.showNoteDetails(note.key));
+        noteButton.addEventListener('click', () => this.showNoteDetails(note.key));
 
-            container.appendChild(noteButton);
-        });
+        container.appendChild(noteButton);
+    });
 
-        this.sortNotes();
-    }
+    this.sortNotes(); // Apply initial sorting
+}
 
     showNoteDetails(noteKey) {
         try {
@@ -1054,20 +1063,24 @@ ${comments}
         this.sortNotes();
     }
 
-    sortNotes() {
-        const container = document.getElementById('notesContainer');
-        const sortOrder = document.getElementById('dateSort').value;
+sortNotes() {
+    const container = document.getElementById('notesContainer');
+    const sortOrder = document.getElementById('dateSort').value;
 
-        const notes = Array.from(container.children);
-        notes.sort((a, b) => {
-            const dateA = new Date(a.dataset.date);
-            const dateB = new Date(b.dataset.date);
-            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-        });
+    const notes = Array.from(container.children);
+    notes.sort((a, b) => {
+        // Parse the dates correctly from the dataset
+        const dateA = new Date(a.dataset.date.split('/').reverse().join('-'));
+        const dateB = new Date(b.dataset.date.split('/').reverse().join('-'));
+        
+        // Return comparison based on sort order
+        return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
 
-        container.innerHTML = '';
-        notes.forEach(note => container.appendChild(note));
-    }
+    // Clear and re-append sorted notes
+    container.innerHTML = '';
+    notes.forEach(note => container.appendChild(note));
+}
 
     updateNoteButton(noteKey) {
         const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
