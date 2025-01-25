@@ -339,14 +339,14 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-23 22:55:44');
+        const today = new Date('2025-01-25 02:42:24');
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
     },
 
     getCurrentDateTime: () => {
-        return '2025-01-23 22:55:44';
+        return '2025-01-25 02:42:24';
     },
 
     downloadFile: (content, filename, type = 'text/plain') => {
@@ -368,7 +368,7 @@ class NoteManager {
     constructor() {
         this.notes = {};
         this.currentUser = 'VictorCainj';
-        this.currentDateTime = '2025-01-25 02:29:04';
+        this.currentDateTime = utils.getCurrentDateTime();
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
@@ -924,8 +924,8 @@ const toggleBtn = document.getElementById('toggleStatusBtn');
             const comment = {
                 id: Date.now().toString(),
                 text: utils.sanitizeInput(commentText),
-                dateTime: '2025-01-23 22:58:21',
-                author: 'VictorCainj'
+                dateTime: utils.getCurrentDateTime(),
+                author: this.currentUser
             };
 
             if (!Array.isArray(this.notes[noteKey].comments)) {
@@ -959,7 +959,7 @@ const toggleBtn = document.getElementById('toggleStatusBtn');
             const newText = prompt('Editar comentário:', comment.text);
             if (newText !== null && newText.trim() !== '') {
                 comment.text = utils.sanitizeInput(newText);
-                comment.editedAt = '2025-01-23 22:59:03';
+                comment.editedAt = utils.getCurrentDateTime();
                 this.saveToLocalStorage();
                 this.renderComments(noteKey);
                 utils.showNotification('Comentário atualizado com sucesso!', 'success');
@@ -979,7 +979,7 @@ const toggleBtn = document.getElementById('toggleStatusBtn');
                 note.status = 'verified';
             } else if (note.status === 'verified') {
                 note.status = 'closed';
-                note.closedAt = '2025-01-23 22:59:03';
+                note.closedAt = utils.getCurrentDateTime();
             } else {
                 note.status = 'open';
                 note.closedAt = null;
@@ -1023,6 +1023,8 @@ const toggleBtn = document.getElementById('toggleStatusBtn');
     copyNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
+            const comments = note.comments.map(comment => 
+                `Comentário de ${comment.author} em ${comment.dateTime}: ${comment.text}`).join('\n');
             const details = `
 Número do Contrato: ${noteKey}
 Locador: ${note.locator}
@@ -1036,6 +1038,8 @@ Criado em: ${note.createdAt}
 ${note.closedAt ? `Finalizado em: ${note.closedAt}` : ''}
 ${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
 ${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+Comentários:
+${comments}
             `.trim();
 
             navigator.clipboard.writeText(details).then(() => {
