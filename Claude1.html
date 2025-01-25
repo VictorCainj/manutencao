@@ -373,7 +373,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T16:45:51'); // Data de hoje
+        const today = new Date('2025-01-25T16:52:52'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -387,7 +387,7 @@ const utils = {
         return `${day}/${month}/${year}`;
     },
 
-downloadFile: (content, filename, type = 'text/plain') => {
+    downloadFile: (content, filename, type = 'text/plain') => {
         const blob = new Blob([content], { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1206,7 +1206,7 @@ ${comments}
     }
 
     checkForAlerts() {
-        const today = new Date('2025-01-25T16:48:26'); // Data de hoje
+        const today = new Date('2025-01-25T16:55:19'); // Data de hoje
         const oneDayBefore = new Date(today);
         oneDayBefore.setDate(today.getDate() - 1);
 
