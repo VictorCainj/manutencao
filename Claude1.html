@@ -380,7 +380,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T17:23:14'); // Data de hoje
+        const today = new Date('2025-01-25T17:45:36'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -1230,7 +1230,7 @@ ${comments}
     }
 
 checkForAlerts() {
-        const today = new Date('2025-01-25T17:38:47'); // Data de hoje
+        const today = new Date('2025-01-25T17:49:28'); // Data de hoje
         const oneDayBefore = new Date(today);
         oneDayBefore.setDate(today.getDate() - 1);
 
