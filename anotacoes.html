@@ -274,6 +274,7 @@
 
                     <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
                     <button id="showMoreCommentsBtn" class="show-more">Mostrar Mais Comentários</button>
+                    <button id="backToTopBtn" class="show-more hidden">Voltar ao Início dos Comentários</button>
                 </div>
             </div>
         </div>
@@ -551,6 +552,12 @@ class NoteManager {
                 .querySelector('p strong + span').textContent);
         });
 
+        document.getElementById('backToTopBtn').addEventListener('click', () => {
+            this.currentCommentPage = 1;
+            this.renderComments(document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent);
+        });
+
         // Event Listener global para tecla ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -803,10 +810,17 @@ class NoteManager {
 
             // Mostrar/ocultar botão "Mostrar Mais Comentários"
             const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
+            const backToTopBtn = document.getElementById('backToTopBtn');
             if (end >= note.comments.length) {
                 showMoreCommentsBtn.style.display = 'none';
+                if (this.currentCommentPage > 1) {
+                    backToTopBtn.style.display = 'block';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
             } else {
                 showMoreCommentsBtn.style.display = 'block';
+                backToTopBtn.style.display = 'none';
             }
         } catch (error) {
             console.error('Erro ao renderizar comentários:', error);
