@@ -68,16 +68,25 @@
 
 <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
 
-<!-- Notification Component -->
-<div id="notification" class="notification hidden"></div>
+<!-- Notification Icon -->
+<div id="notificationIcon" class="hidden fixed top-4 left-4 z-50">
+    <i class="fas fa-bell text-yellow-500 animate-bounce text-3xl cursor-pointer"></i>
+</div>
 
-<!-- Loading Spinner with Progress Bar -->
-<div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center hidden z-50">
-    <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-    <div class="w-64 h-2 mt-4 bg-gray-200 rounded-full overflow-hidden">
-        <div class="progress-bar" style="width: 0%"></div>
+<!-- Notification List Modal -->
+<div id="notificationModal" class="modal-overlay hidden">
+    <div class="modal-content p-6 w-full max-w-md">
+        <h2 class="text-xl font-semibold mb-4 text-center">Agendamentos</h2>
+        <ul id="notificationList" class="space-y-2">
+        </ul>
+        <div class="mt-4 text-right">
+            <button type="button" id="closeNotificationBtn" class="btn btn-gray">
+                <i class="fas fa-times mr-2"></i>Fechar
+            </button>
+        </div>
     </div>
 </div>
+
 <!-- Main Controls -->
 <div class="mb-6 space-x-4">
     <button id="createNoteBtn" class="btn btn-blue">
@@ -358,7 +367,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25 16:20:02');
+        const today = new Date('2025-01-25T16:33:30'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -398,7 +407,7 @@ class NoteManager {
         this.checkForAlerts();
     }
 
-    cleanInvalidNotes() {
+cleanInvalidNotes() {
         const validNotes = {};
         Object.entries(this.notes).forEach(([key, note]) => {
             if (note && note.contractNumber) {
@@ -409,7 +418,7 @@ class NoteManager {
         this.saveToLocalStorage();
     }
 
-initializeEventListeners() {
+    initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             document.getElementById('noteModal').classList.remove('hidden');
@@ -518,6 +527,15 @@ initializeEventListeners() {
                 document.getElementById('noteDetailsModal').classList.add('hidden');
                 document.getElementById('scheduleModal').classList.add('hidden');
             }
+        });
+
+        // Event Listener para o ícone de notificação
+        document.getElementById('notificationIcon').addEventListener('click', () => {
+            document.getElementById('notificationModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeNotificationBtn').addEventListener('click', () => {
+            document.getElementById('notificationModal').classList.add('hidden');
         });
     }
 
@@ -1181,7 +1199,7 @@ ${comments}
     }
 
     checkForAlerts() {
-        const today = new Date('2025-01-25T16:23:28'); // Data de hoje
+        const today = new Date('2025-01-25T16:36:05'); // Data de hoje
         const oneDayBefore = new Date(today);
         oneDayBefore.setDate(today.getDate() - 1);
 
@@ -1200,14 +1218,26 @@ ${comments}
             }
         });
 
-        if (alerts.today.length > 0) {
-            const message = `Agendamentos para hoje: ${alerts.today.map(note => `${note.contractNumber} (Prestador: ${note.providerName})`).join(', ')}`;
-            utils.showNotification(message, 'alert');
-        }
+        const notificationIcon = document.getElementById('notificationIcon');
+        const notificationList = document.getElementById('notificationList');
+        notificationList.innerHTML = '';
 
-        if (alerts.oneDayBefore.length > 0) {
-            const message = `Agendamentos para amanhã: ${alerts.oneDayBefore.map(note => `${note.contractNumber} (Prestador: ${note.providerName})`).join(', ')}`;
-            utils.showNotification(message, 'alert');
+        if (alerts.today.length > 0 || alerts.oneDayBefore.length > 0) {
+            notificationIcon.classList.remove('hidden');
+
+            const allAlerts = [...alerts.today, ...alerts.oneDayBefore];
+            allAlerts.forEach(note => {
+                const listItem = document.createElement('li');
+                listItem.className = 'border-b border-gray-200 py-2';
+                listItem.innerHTML = `
+                    <strong>Contrato:</strong> ${note.contractNumber} <br>
+                    <strong>Prestador:</strong> ${note.providerName} <br>
+                    <strong>Data do Agendamento:</strong> ${utils.formatDate(note.scheduleDate)}
+                `;
+                notificationList.appendChild(listItem);
+            });
+        } else {
+            notificationIcon.classList.add('hidden');
         }
     }
 }
