@@ -196,11 +196,10 @@
 
             <div>
                 <label for="scheduleDate" class="block text-gray-700">Data do Agendamento: *</label>
-<input type="date" 
-       id="scheduleDate" 
-       required
-       value="2025-01-25"
-       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="date" 
+                       id="scheduleDate" 
+                       required
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
             <div>
@@ -238,10 +237,6 @@
                     </button>
                     <button type="button" id="downloadContractBtn" class="btn btn-yellow flex-1">
                         <i class="fas fa-file-download mr-2"></i>Baixar
-                    </button>
-                    <button type="button" id="toggleStatusBtn" class="btn flex-1">
-                        <i class="fas mr-2"></i>
-                        <span>Carregando...</span>
                     </button>
                     <button type="button" id="deleteNoteBtn" class="btn btn-red flex-1">
                         <i class="fas fa-trash mr-2"></i>Excluir
@@ -333,44 +328,38 @@ const utils = {
         return errors;
     },
 
-formatDate: (dateString) => {
-    try {
-        // If the date is a specific value, return it formatted
-        if (dateString === '2025-01-25') {
-            return '25/01/2025';
+    formatDate: (dateString) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Data inválida';
+            
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            
+            return `${day}/${month}/${year}`;
+        } catch (e) {
+            console.error('Error formatting date:', e);
+            return 'Data inválida';
         }
-        
-        // Rest of your existing date formatting logic
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return '25/01/2025';
-        
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        
-        return `${day}/${month}/${year}`;
-    } catch (e) {
-        console.error('Error formatting date:', e);
-        return '25/01/2025';
-    }
-},
+    },
 
     formatDateMinimal: (dateString) => {
         try {
             const date = new Date(dateString);
-            if (isNaN(date.getTime())) return '25/01/2025';
+            if (isNaN(date.getTime())) return 'Data inválida';
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
             return `${day}/${month}/${year}`;
         } catch (e) {
-            return '25/01/2025';
+            return 'Data inválida';
         }
     },
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T19:06:43'); // Data de hoje
+        const today = new Date('2025-01-25T20:45:47'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -514,12 +503,6 @@ initializeEventListeners() {
             this.downloadSingleContract(noteKey);
         });
 
-        document.getElementById('toggleStatusBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.toggleNoteStatus(noteKey);
-        });
-
         document.getElementById('deleteNoteBtn').addEventListener('click', () => {
             const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
@@ -613,59 +596,59 @@ initializeEventListeners() {
         }
     }
 
-renderNotes() {
-    const container = document.getElementById('notesContainer');
-    container.innerHTML = '';
+    renderNotes() {
+        const container = document.getElementById('notesContainer');
+        container.innerHTML = '';
 
-    const notesArray = Object.keys(this.notes).map(key => ({
-        key,
-        ...this.notes[key]
-    }));
-    const start = this.currentPage * this.notesPerPage;
-    const end = start + this.notesPerPage;
-    const notesToDisplay = notesArray.slice(start, end);
+        const notesArray = Object.keys(this.notes).map(key => ({
+            key,
+            ...this.notes[key]
+        }));
+        const start = this.currentPage * this.notesPerPage;
+        const end = start + this.notesPerPage;
+        const notesToDisplay = notesArray.slice(start, end);
 
-    notesToDisplay.forEach(note => {
-        const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
-        
-        const noteButton = document.createElement('button');
-        noteButton.className = `note-button w-full px-4 py-3 ${
-            note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
-            (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
-            (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
-            'bg-blue-500 hover:bg-blue-700'))
-        } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
+        notesToDisplay.forEach(note => {
+            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
+            
+            const noteButton = document.createElement('button');
+            noteButton.className = `note-button w-full px-4 py-3 ${
+                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
+                'bg-blue-500 hover:bg-blue-700'))
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
 
-        const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
+            const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
-        noteButton.innerHTML = `
-            <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
-            <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
-            <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-            <span class="block text-xs mt-1">${displayDate}</span>
-            <span class="block text-xs mt-1">
-                ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
-                (note.status === 'scheduled' ? 'Em agendamento' : 
-                (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-            </span>
-            <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
-        `;
+            noteButton.innerHTML = `
+                <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
+                <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
+                <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
+                <span class="block text-xs mt-1">${displayDate}</span>
+                <span class="block text-xs mt-1">
+                    ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
+                    (note.status === 'scheduled' ? 'Em agendamento' : 
+                    (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+                </span>
+                <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
+            `;
 
-        noteButton.dataset.contract = note.key;
-        noteButton.dataset.locator = note.locator.toLowerCase();
-        noteButton.dataset.tenant = note.tenant.toLowerCase();
-        noteButton.dataset.address = note.address.toLowerCase();
-        // Store the date in a consistent format for sorting
-        noteButton.dataset.date = note.createdAt;
-        noteButton.dataset.status = note.status;
+            noteButton.dataset.contract = note.key;
+            noteButton.dataset.locator = note.locator.toLowerCase();
+            noteButton.dataset.tenant = note.tenant.toLowerCase();
+            noteButton.dataset.address = note.address.toLowerCase();
+            // Store the date in a consistent format for sorting
+            noteButton.dataset.date = note.createdAt;
+            noteButton.dataset.status = note.status;
 
-        noteButton.addEventListener('click', () => this.showNoteDetails(note.key));
+            noteButton.addEventListener('click', () => this.showNoteDetails(note.key));
 
-        container.appendChild(noteButton);
-    });
+            container.appendChild(noteButton);
+        });
 
-    this.sortNotes(); // Apply initial sorting
-}
+        this.sortNotes(); // Apply initial sorting
+    }
 
     showNoteDetails(noteKey) {
         try {
@@ -702,21 +685,6 @@ renderNotes() {
                 </div>
             `;
 
-            const toggleBtn = document.getElementById('toggleStatusBtn');
-            if (note.status === 'closed') {
-                toggleBtn.className = 'btn btn-blue flex-1';
-                toggleBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Reabrir Chamado';
-            } else if (note.status === 'scheduled') {
-                toggleBtn.className = 'btn btn-purple flex-1';
-                toggleBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Verificar Hoje';
-            } else if (note.status === 'verified') {
-                toggleBtn.className = 'btn btn-green flex-1';
-                toggleBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Finalizar Chamado';
-            } else {
-                toggleBtn.className = 'btn btn-yellow flex-1';
-                toggleBtn.innerHTML = '<i class="fas fa-calendar-alt mr-2"></i>Agendar';
-            }
-
             this.renderComments(noteKey);
             document.getElementById('noteDetailsModal').classList.remove('hidden');
             document.getElementById('commentText').focus();
@@ -726,50 +694,50 @@ renderNotes() {
         }
     }
 
-renderComments(noteKey) {
-    try {
-        const commentsContainer = document.getElementById('commentsContainer');
-        commentsContainer.innerHTML = '';
+    renderComments(noteKey) {
+        try {
+            const commentsContainer = document.getElementById('commentsContainer');
+            commentsContainer.innerHTML = '';
 
-        const note = this.notes[noteKey];
-        if (!Array.isArray(note.comments)) {
-            note.comments = [];
-        }
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+            }
 
-        note.comments.forEach((comment) => {
-            const commentElement = document.createElement('div');
-            commentElement.className = 'comment-box';
-            
-            // Create unique IDs for the edit button using the comment ID
-            const editButtonId = `edit-comment-${comment.id}`;
-            
-            commentElement.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <div class="flex-grow">
-                        <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
-                        <div class="mt-2 text-sm text-gray-500">
-                            <span>${utils.formatDate(comment.dateTime)}</span>
-                            ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+            note.comments.forEach((comment) => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment-box';
+                
+                // Create unique IDs for the edit button using the comment ID
+                const editButtonId = `edit-comment-${comment.id}`;
+                
+                commentElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
+                            <div class="mt-2 text-sm text-gray-500">
+                                <span>${utils.formatDate(comment.dateTime)}</span>
+                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+                            </div>
                         </div>
+                        <button id="${editButtonId}" class="ml-2 text-blue-500 hover:text-blue-700">
+                            <i class="fas fa-edit"></i>
+                        </button>
                     </div>
-                    <button id="${editButtonId}" class="ml-2 text-blue-500 hover:text-blue-700">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </div>
-            `;
-            
-            commentsContainer.appendChild(commentElement);
-            
-            // Add click event listener after the element is added to the DOM
-            document.getElementById(editButtonId).addEventListener('click', () => {
-                this.editComment(noteKey, comment.id);
+                `;
+                
+                commentsContainer.appendChild(commentElement);
+                
+                // Add click event listener after the element is added to the DOM
+                document.getElementById(editButtonId).addEventListener('click', () => {
+                    this.editComment(noteKey, comment.id);
+                });
             });
-        });
-    } catch (error) {
-        console.error('Erro ao renderizar comentários:', error);
-        utils.showNotification('Erro ao carregar comentários', 'error');
+        } catch (error) {
+            console.error('Erro ao renderizar comentários:', error);
+            utils.showNotification('Erro ao carregar comentários', 'error');
+        }
     }
-}
 
     handleCommentSubmit() {
         try {
@@ -808,119 +776,90 @@ renderComments(noteKey) {
     }
 
 editComment(noteKey, commentId) {
-    try {
-        const note = this.notes[noteKey];
-        if (!Array.isArray(note.comments)) {
-            note.comments = [];
-            return;
-        }
-
-        const commentIndex = note.comments.findIndex(c => c.id === commentId);
-        if (commentIndex === -1) {
-            utils.showNotification('Comentário não encontrado.', 'error');
-            return;
-        }
-
-        // Create edit modal
-        const editModal = document.createElement('div');
-        editModal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        editModal.innerHTML = `
-            <div class="modal-content bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-                <h3 class="text-lg font-semibold mb-4">Editar Comentário</h3>
-                <form id="editCommentForm" class="space-y-4">
-                    <textarea 
-                        id="editCommentText" 
-                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
-                        required
-                    >${note.comments[commentIndex].text}</textarea>
-                    <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancelEditComment" class="btn btn-gray">
-                            <i class="fas fa-times mr-2"></i>Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-blue">
-                            <i class="fas fa-save mr-2"></i>Salvar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        `;
-
-        // Add modal to the document
-        document.body.appendChild(editModal);
-
-        // Get form elements
-        const form = document.getElementById('editCommentForm');
-        const cancelBtn = document.getElementById('cancelEditComment');
-        const textarea = document.getElementById('editCommentText');
-
-        // Handle cancel
-        cancelBtn.addEventListener('click', () => {
-            document.body.removeChild(editModal);
-        });
-
-        // Handle ESC key
-        document.addEventListener('keydown', function escListener(e) {
-            if (e.key === 'Escape') {
-                document.body.removeChild(editModal);
-                document.removeEventListener('keydown', escListener);
-            }
-        });
-
-        // Handle form submit
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const newText = textarea.value.trim();
-            
-            if (newText) {
-                note.comments[commentIndex].text = utils.sanitizeInput(newText);
-                note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
-                this.saveToLocalStorage();
-                this.renderComments(noteKey);
-                document.body.removeChild(editModal);
-                utils.showNotification('Comentário atualizado com sucesso!', 'success');
-            } else {
-                utils.showNotification('O comentário não pode estar vazio.', 'error');
-            }
-        });
-
-        // Focus on textarea
-        textarea.focus();
-    } catch (error) {
-        console.error('Erro ao editar comentário:', error);
-        utils.showNotification('Erro ao editar comentário', 'error');
-    }
-}
-
-    toggleNoteStatus(noteKey) {
         try {
             const note = this.notes[noteKey];
-            if (note.status === 'open') {
-                note.status = 'scheduled';
-            } else if (note.status === 'scheduled') {
-                note.status = 'verified';
-            } else if (note.status === 'verified') {
-                note.status = 'closed';
-                note.closedAt = utils.getCurrentDateTime();
-            } else {
-                note.status = 'open';
-                note.closedAt = null;
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+                return;
             }
 
-            this.saveToLocalStorage();
-            this.renderNotes();
-            this.showNoteDetails(noteKey);
+            const commentIndex = note.comments.findIndex(c => c.id === commentId);
+            if (commentIndex === -1) {
+                utils.showNotification('Comentário não encontrado.', 'error');
+                return;
+            }
 
-            const status = note.status === 'open' ? 'reaberto' : 
-                (note.status === 'scheduled' ? 'em agendamento' : 
-                (note.status === 'verified' ? 'verificado hoje' : 'finalizado'));
-            utils.showNotification(`Chamado ${status} com sucesso!`, 'success');
+            // Create edit modal
+            const editModal = document.createElement('div');
+            editModal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            editModal.innerHTML = `
+                <div class="modal-content bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                    <h3 class="text-lg font-semibold mb-4">Editar Comentário</h3>
+                    <form id="editCommentForm" class="space-y-4">
+                        <textarea 
+                            id="editCommentText" 
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
+                            required
+                        >${note.comments[commentIndex].text}</textarea>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancelEditComment" class="btn btn-gray">
+                                <i class="fas fa-times mr-2"></i>Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-blue">
+                                <i class="fas fa-save mr-2"></i>Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            // Add modal to the document
+            document.body.appendChild(editModal);
+
+            // Get form elements
+            const form = document.getElementById('editCommentForm');
+            const cancelBtn = document.getElementById('cancelEditComment');
+            const textarea = document.getElementById('editCommentText');
+
+            // Handle cancel
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(editModal);
+            });
+
+            // Handle ESC key
+            document.addEventListener('keydown', function escListener(e) {
+                if (e.key === 'Escape') {
+                    document.body.removeChild(editModal);
+                    document.removeEventListener('keydown', escListener);
+                }
+            });
+
+            // Handle form submit
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newText = textarea.value.trim();
+                
+                if (newText) {
+                    note.comments[commentIndex].text = utils.sanitizeInput(newText);
+                    note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
+                    this.saveToLocalStorage();
+                    this.renderComments(noteKey);
+                    document.body.removeChild(editModal);
+                    utils.showNotification('Comentário atualizado com sucesso!', 'success');
+                } else {
+                    utils.showNotification('O comentário não pode estar vazio.', 'error');
+                }
+            });
+
+            // Focus on textarea
+            textarea.focus();
         } catch (error) {
-            console.error('Erro ao alterar status:', error);
-            utils.showNotification('Erro ao alterar status do chamado', 'error');
+            console.error('Erro ao editar comentário:', error);
+            utils.showNotification('Erro ao editar comentário', 'error');
         }
     }
 
-deleteNote(noteKey) {
+    deleteNote(noteKey) {
         try {
             if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
                 return;
@@ -1067,24 +1006,24 @@ ${comments}
         this.sortNotes();
     }
 
-sortNotes() {
-    const container = document.getElementById('notesContainer');
-    const sortOrder = document.getElementById('dateSort').value;
+    sortNotes() {
+        const container = document.getElementById('notesContainer');
+        const sortOrder = document.getElementById('dateSort').value;
 
-    const notes = Array.from(container.children);
-    notes.sort((a, b) => {
-        // Parse the dates correctly from the dataset
-        const dateA = new Date(a.dataset.date.split('/').reverse().join('-'));
-        const dateB = new Date(b.dataset.date.split('/').reverse().join('-'));
-        
-        // Return comparison based on sort order
-        return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-    });
+        const notes = Array.from(container.children);
+        notes.sort((a, b) => {
+            // Parse the dates correctly from the dataset
+            const dateA = new Date(a.dataset.date.split('/').reverse().join('-'));
+            const dateB = new Date(b.dataset.date.split('/').reverse().join('-'));
+            
+            // Return comparison based on sort order
+            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+        });
 
-    // Clear and re-append sorted notes
-    container.innerHTML = '';
-    notes.forEach(note => container.appendChild(note));
-}
+        // Clear and re-append sorted notes
+        container.innerHTML = '';
+        notes.forEach(note => container.appendChild(note));
+    }
 
     updateNoteButton(noteKey) {
         const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
@@ -1121,40 +1060,39 @@ sortNotes() {
         this.renderNotes();
     }
 
-handleScheduleFormSubmit() {
-    try {
-        const existingContract = document.getElementById('existingContract').value;
-        const providerName = document.getElementById('providerName').value;
-        // Set the schedule date to exactly 2025-01-25
-        const scheduleDate = '2025-01-25';
-        const scheduleDescription = document.getElementById('scheduleDescription').value;
+    handleScheduleFormSubmit() {
+        try {
+            const existingContract = document.getElementById('existingContract').value;
+            const providerName = document.getElementById('providerName').value;
+            const scheduleDate = document.getElementById('scheduleDate').value; // Utilize a data informada pelo usuário
+            const scheduleDescription = document.getElementById('scheduleDescription').value;
 
-        if (!existingContract || !providerName || !scheduleDescription) {
-            utils.showNotification('Todos os campos são obrigatórios', 'error');
-            return;
+            if (!existingContract || !providerName || !scheduleDescription) {
+                utils.showNotification('Todos os campos são obrigatórios', 'error');
+                return;
+            }
+
+            const note = this.notes[existingContract];
+            if (!note) {
+                utils.showNotification('Contrato não encontrado', 'error');
+                return;
+            }
+
+            note.status = 'scheduled';
+            note.providerName = utils.sanitizeInput(providerName);
+            note.scheduleDate = scheduleDate; // Use a data informada pelo usuário
+            note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
+
+            this.saveToLocalStorage();
+            this.renderNotes();
+            document.getElementById('scheduleForm').reset();
+            document.getElementById('scheduleModal').classList.add('hidden');
+            utils.showNotification('Agendamento criado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao criar agendamento:', error);
+            utils.showNotification('Erro ao criar agendamento', 'error');
         }
-
-        const note = this.notes[existingContract];
-        if (!note) {
-            utils.showNotification('Contrato não encontrado', 'error');
-            return;
-        }
-
-        note.status = 'scheduled';
-        note.providerName = utils.sanitizeInput(providerName);
-        note.scheduleDate = scheduleDate; // This will use exactly 2025-01-25
-        note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
-
-        this.saveToLocalStorage();
-        this.renderNotes();
-        document.getElementById('scheduleForm').reset();
-        document.getElementById('scheduleModal').classList.add('hidden');
-        utils.showNotification('Agendamento criado com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro ao criar agendamento:', error);
-        utils.showNotification('Erro ao criar agendamento', 'error');
     }
-}
 
     populateContractDropdown() {
         const existingContractDropdown = document.getElementById('existingContract');
