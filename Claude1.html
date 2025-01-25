@@ -75,10 +75,10 @@
 
 <!-- Notification List Modal -->
 <div id="notificationModal" class="modal-overlay hidden">
-    <div class="modal-content p-6 w-full max-w-md">
+    <div class="modal-content p-6 w-full max-w-4xl">
         <h2 class="text-xl font-semibold mb-4 text-center">Agendamentos</h2>
-        <ul id="notificationList" class="space-y-2">
-        </ul>
+        <div id="notificationList" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        </div>
         <div class="mt-4 text-right">
             <button type="button" id="closeNotificationBtn" class="btn btn-gray">
                 <i class="fas fa-times mr-2"></i>Fechar
@@ -289,7 +289,13 @@
 </div>
 
 <!-- Notes Container -->
-<div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+<div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+</div>
+
+<!-- Pagination Controls -->
+<div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
+    <button id="prevPageBtn" class="btn btn-blue"><i class="fas fa-chevron-left"></i></button>
+    <button id="nextPageBtn" class="btn btn-blue"><i class="fas fa-chevron-right"></i></button>
 </div>
 
 <!-- Início do JavaScript -->
@@ -367,7 +373,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T16:33:30'); // Data de hoje
+        const today = new Date('2025-01-25T16:45:51'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -381,7 +387,7 @@ const utils = {
         return `${day}/${month}/${year}`;
     },
 
-    downloadFile: (content, filename, type = 'text/plain') => {
+downloadFile: (content, filename, type = 'text/plain') => {
         const blob = new Blob([content], { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -399,6 +405,8 @@ const utils = {
 class NoteManager {
     constructor() {
         this.notes = {};
+        this.currentPage = 0;
+        this.notesPerPage = 8;
         this.currentUser = 'VictorCainj';
         this.currentDateTime = utils.getCurrentDateTime();
         this.loadFromLocalStorage();
@@ -407,7 +415,7 @@ class NoteManager {
         this.checkForAlerts();
     }
 
-cleanInvalidNotes() {
+    cleanInvalidNotes() {
         const validNotes = {};
         Object.entries(this.notes).forEach(([key, note]) => {
             if (note && note.contractNumber) {
@@ -526,6 +534,7 @@ cleanInvalidNotes() {
                 document.getElementById('noteModal').classList.add('hidden');
                 document.getElementById('noteDetailsModal').classList.add('hidden');
                 document.getElementById('scheduleModal').classList.add('hidden');
+                document.getElementById('notificationModal').classList.add('hidden');
             }
         });
 
@@ -536,6 +545,15 @@ cleanInvalidNotes() {
 
         document.getElementById('closeNotificationBtn').addEventListener('click', () => {
             document.getElementById('notificationModal').classList.add('hidden');
+        });
+
+        // Event Listeners para paginação
+        document.getElementById('prevPageBtn').addEventListener('click', () => {
+            this.prevPage();
+        });
+
+        document.getElementById('nextPageBtn').addEventListener('click', () => {
+            this.nextPage();
         });
     }
 
@@ -561,7 +579,7 @@ cleanInvalidNotes() {
             note.scheduleDate = scheduleDate; // Mantém a data do agendamento exatamente como foi informada
 
             this.saveToLocalStorage();
-            this.renderNote(existingContract);
+            this.renderNotes();
             document.getElementById('scheduleForm').reset();
             document.getElementById('scheduleModal').classList.add('hidden');
             utils.showNotification('Agendamento criado com sucesso!', 'success');
@@ -633,7 +651,6 @@ cleanInvalidNotes() {
                                     scheduleDate: note.scheduleDate || '',
                                     comments: Array.isArray(note.comments) ? note.comments : []
                                 };
-                                this.renderNote(noteKey);
                                 importCount++;
                             }
                         } catch (error) {
@@ -642,6 +659,7 @@ cleanInvalidNotes() {
                     }
 
                     this.saveToLocalStorage();
+                    this.renderNotes();
                     utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
                 } catch (error) {
                     console.error('Erro ao processar arquivo:', error);
@@ -795,7 +813,7 @@ cleanInvalidNotes() {
                 createdBy: 'VictorCainj'
             };
 
-            this.renderNote(noteKey);
+            this.renderNotes();
             this.saveToLocalStorage();
             utils.showNotification('Anotação criada com sucesso!', 'success');
             return true;
@@ -806,11 +824,16 @@ cleanInvalidNotes() {
         }
     }
 
-    renderNote(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            if (!note) return;
+    renderNotes() {
+        const container = document.getElementById('notesContainer');
+        container.innerHTML = '';
 
+        const notesArray = Object.keys(this.notes).map(key => this.notes[key]);
+        const start = this.currentPage * this.notesPerPage;
+        const end = start + this.notesPerPage;
+        const notesToDisplay = notesArray.slice(start, end);
+
+        notesToDisplay.forEach(note => {
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
             
             const noteButton = document.createElement('button');
@@ -822,7 +845,7 @@ cleanInvalidNotes() {
             } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
             
             noteButton.innerHTML = `
-                <span class="block font-bold">${utils.sanitizeInput(noteKey)}</span>
+                <span class="block font-bold">${utils.sanitizeInput(note.contractNumber)}</span>
                 <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
                 <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
                 <span class="block text-xs mt-1">${utils.formatDate(note.createdAt)}</span>
@@ -834,27 +857,17 @@ cleanInvalidNotes() {
                 <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
             `;
 
-            noteButton.dataset.contract = noteKey;
+            noteButton.dataset.contract = note.contractNumber;
             noteButton.dataset.locator = note.locator.toLowerCase();
             noteButton.dataset.tenant = note.tenant.toLowerCase();
             noteButton.dataset.address = note.address.toLowerCase();
             noteButton.dataset.date = note.createdAt;
             noteButton.dataset.status = note.status;
 
-            noteButton.addEventListener('click', () => this.showNoteDetails(noteKey));
+            noteButton.addEventListener('click', () => this.showNoteDetails(note.contractNumber));
 
-            const existingButton = document.querySelector(`[data-contract="${noteKey}"]`);
-            if (existingButton) {
-                existingButton.replaceWith(noteButton);
-            } else {
-                document.getElementById('notesContainer').appendChild(noteButton);
-            }
-
-            this.sortNotes();
-        } catch (error) {
-            console.error('Erro ao renderizar nota:', error);
-            utils.showNotification('Erro ao exibir nota', 'error');
-        }
+            container.appendChild(noteButton);
+        });
     }
 
 showNoteDetails(noteKey) {
@@ -1027,7 +1040,7 @@ showNoteDetails(noteKey) {
             }
 
             this.saveToLocalStorage();
-            this.renderNote(noteKey);
+            this.renderNotes();
             this.showNoteDetails(noteKey);
             
             const status = note.status === 'open' ? 'reaberto' : 
@@ -1047,12 +1060,8 @@ showNoteDetails(noteKey) {
             }
 
             delete this.notes[noteKey];
-            const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
-            if (noteButton) {
-                noteButton.remove();
-            }
-
             this.saveToLocalStorage();
+            this.renderNotes();
             document.getElementById('noteDetailsModal').classList.add('hidden');
             utils.showNotification('Anotação excluída com sucesso!', 'success');
         } catch (error) {
@@ -1135,9 +1144,7 @@ ${comments}
             const savedNotes = localStorage.getItem('notes');
             if (savedNotes) {
                 this.notes = JSON.parse(savedNotes);
-                Object.keys(this.notes).forEach(noteKey => {
-                    this.renderNote(noteKey);
-                });
+                this.renderNotes();
             }
             this.checkForAlerts();
         } catch (error) {
@@ -1199,7 +1206,7 @@ ${comments}
     }
 
     checkForAlerts() {
-        const today = new Date('2025-01-25T16:36:05'); // Data de hoje
+        const today = new Date('2025-01-25T16:48:26'); // Data de hoje
         const oneDayBefore = new Date(today);
         oneDayBefore.setDate(today.getDate() - 1);
 
@@ -1227,18 +1234,49 @@ ${comments}
 
             const allAlerts = [...alerts.today, ...alerts.oneDayBefore];
             allAlerts.forEach(note => {
-                const listItem = document.createElement('li');
-                listItem.className = 'border-b border-gray-200 py-2';
+                const listItem = document.createElement('button');
+                listItem.className = `note-button w-full px-4 py-3 ${
+                    note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+                    (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+                    (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
+                    'bg-blue-500 hover:bg-blue-700'))
+                } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
+                
                 listItem.innerHTML = `
-                    <strong>Contrato:</strong> ${note.contractNumber} <br>
-                    <strong>Prestador:</strong> ${note.providerName} <br>
-                    <strong>Data do Agendamento:</strong> ${utils.formatDate(note.scheduleDate)}
+                    <span class="block font-bold">${utils.sanitizeInput(note.contractNumber)}</span>
+                    <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
+                    <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
+                    <span class="block text-xs mt-1">${utils.formatDate(note.createdAt)}</span>
+                    <span class="block text-xs mt-1">
+                        ${note.status === 'open' ? `Aberto há ${utils.calculateDaysOpen(note.createdAt)} dias` : 
+                        (note.status === 'scheduled' ? 'Em agendamento' : 
+                        (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+                    </span>
+                    <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
                 `;
+
+                listItem.addEventListener('click', () => this.showNoteDetails(note.contractNumber));
                 notificationList.appendChild(listItem);
             });
         } else {
             notificationIcon.classList.add('hidden');
         }
+    }
+
+    nextPage() {
+        const totalNotes = Object.keys(this.notes).length;
+        const totalPages = Math.ceil(totalNotes / this.notesPerPage);
+
+        this.currentPage = (this.currentPage + 1) % totalPages;
+        this.renderNotes();
+    }
+
+    prevPage() {
+        const totalNotes = Object.keys(this.notes).length;
+        const totalPages = Math.ceil(totalNotes / this.notesPerPage);
+
+        this.currentPage = (this.currentPage - 1 + totalPages) % totalPages;
+        this.renderNotes();
     }
 }
 
