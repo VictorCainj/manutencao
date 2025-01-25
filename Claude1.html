@@ -713,41 +713,50 @@ initializeEventListeners() {
         }
     }
 
-    renderComments(noteKey) {
-        try {
-            const commentsContainer = document.getElementById('commentsContainer');
-            commentsContainer.innerHTML = '';
+renderComments(noteKey) {
+    try {
+        const commentsContainer = document.getElementById('commentsContainer');
+        commentsContainer.innerHTML = '';
 
-            const note = this.notes[noteKey];
-            if (!Array.isArray(note.comments)) {
-                note.comments = [];
-            }
-
-            note.comments.forEach(comment => {
-                const commentElement = document.createElement('div');
-                commentElement.className = 'comment-box';
-                commentElement.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex-grow">
-                            <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
-                            <div class="mt-2 text-sm text-gray-500">
-                                <span>${utils.formatDate(comment.dateTime)}</span>
-                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
-                            </div>
-                        </div>
-                        <button class="ml-2 text-blue-500 hover:text-blue-700" 
-                                onclick="noteManager.editComment('${noteKey}', '${comment.id}')">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    </div>
-                `;
-                commentsContainer.appendChild(commentElement);
-            });
-        } catch (error) {
-            console.error('Erro ao renderizar comentários:', error);
-            utils.showNotification('Erro ao carregar comentários', 'error');
+        const note = this.notes[noteKey];
+        if (!Array.isArray(note.comments)) {
+            note.comments = [];
         }
+
+        note.comments.forEach((comment) => {
+            const commentElement = document.createElement('div');
+            commentElement.className = 'comment-box';
+            
+            // Create unique IDs for the edit button using the comment ID
+            const editButtonId = `edit-comment-${comment.id}`;
+            
+            commentElement.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex-grow">
+                        <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
+                        <div class="mt-2 text-sm text-gray-500">
+                            <span>${utils.formatDate(comment.dateTime)}</span>
+                            ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+                        </div>
+                    </div>
+                    <button id="${editButtonId}" class="ml-2 text-blue-500 hover:text-blue-700">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            `;
+            
+            commentsContainer.appendChild(commentElement);
+            
+            // Add click event listener after the element is added to the DOM
+            document.getElementById(editButtonId).addEventListener('click', () => {
+                this.editComment(noteKey, comment.id);
+            });
+        });
+    } catch (error) {
+        console.error('Erro ao renderizar comentários:', error);
+        utils.showNotification('Erro ao carregar comentários', 'error');
     }
+}
 
     handleCommentSubmit() {
         try {
@@ -799,11 +808,11 @@ editComment(noteKey, commentId) {
             return;
         }
 
-        // Criar um modal temporário para edição
+        // Create edit modal
         const editModal = document.createElement('div');
-        editModal.className = 'modal-overlay';
+        editModal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
         editModal.innerHTML = `
-            <div class="modal-content p-6 w-full max-w-md">
+            <div class="modal-content bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
                 <h3 class="text-lg font-semibold mb-4">Editar Comentário</h3>
                 <form id="editCommentForm" class="space-y-4">
                     <textarea 
@@ -823,19 +832,31 @@ editComment(noteKey, commentId) {
             </div>
         `;
 
+        // Add modal to the document
         document.body.appendChild(editModal);
 
-        // Configurar event listeners
+        // Get form elements
         const form = document.getElementById('editCommentForm');
         const cancelBtn = document.getElementById('cancelEditComment');
+        const textarea = document.getElementById('editCommentText');
 
+        // Handle cancel
         cancelBtn.addEventListener('click', () => {
             document.body.removeChild(editModal);
         });
 
+        // Handle ESC key
+        document.addEventListener('keydown', function escListener(e) {
+            if (e.key === 'Escape') {
+                document.body.removeChild(editModal);
+                document.removeEventListener('keydown', escListener);
+            }
+        });
+
+        // Handle form submit
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            const newText = document.getElementById('editCommentText').value.trim();
+            const newText = textarea.value.trim();
             
             if (newText) {
                 note.comments[commentIndex].text = utils.sanitizeInput(newText);
@@ -849,8 +870,8 @@ editComment(noteKey, commentId) {
             }
         });
 
-        // Focar no textarea
-        document.getElementById('editCommentText').focus();
+        // Focus on textarea
+        textarea.focus();
     } catch (error) {
         console.error('Erro ao editar comentário:', error);
         utils.showNotification('Erro ao editar comentário', 'error');
