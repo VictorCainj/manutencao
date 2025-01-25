@@ -52,10 +52,10 @@
             @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40;
         }
         .modal-content {
-            @apply bg-white rounded-lg shadow-lg transform transition-all duration-300;
+            @apply bg-white dark:bg-gray-800 rounded-lg shadow-lg transform transition-all duration-300;
         }
         .comment-box {
-            @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
+            @apply bg-white dark:bg-gray-700 p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
         }
         .note-card {
             @apply transition-all duration-200 transform hover:scale-102;
@@ -63,10 +63,52 @@
         .progress-bar {
             @apply absolute bottom-0 left-0 h-2 bg-blue-500 transition-all duration-300;
         }
+
+        /* Dark mode styles */
+        .dark-mode {
+            @apply bg-gray-900 text-white;
+        }
+        .dark-mode .btn {
+            @apply text-gray-800;
+        }
+        .dark-mode .btn-blue {
+            @apply bg-blue-400 hover:bg-blue-600;
+        }
+        .dark-mode .btn-green {
+            @apply bg-green-400 hover:bg-green-600;
+        }
+        .dark-mode .btn-yellow {
+            @apply bg-yellow-400 hover:bg-yellow-600;
+        }
+        .dark-mode .btn-gray {
+            @apply bg-gray-400 hover:bg-gray-600;
+        }
+        .dark-mode .btn-red {
+            @apply bg-red-400 hover:bg-red-600;
+        }
+        .dark-mode .notification {
+            @apply bg-gray-700 text-white;
+        }
+        .dark-mode .notification-success {
+            @apply bg-green-700 text-white border-green-500;
+        }
+        .dark-mode .notification-error {
+            @apply bg-red-700 text-white border-red-500;
+        }
+        .dark-mode .notification-alert {
+            @apply bg-yellow-700 text-black border-yellow-500;
+        }
     </style>
 </head>
 
-<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
+
+<!-- Toggle Dark Mode Button -->
+<div class="mb-6">
+    <button id="toggleDarkModeBtn" class="btn btn-gray">
+        <i class="fas fa-moon mr-2"></i>Alternar Modo Claro/Escuro
+    </button>
+</div>
 
 <!-- Main Controls -->
 <div class="mb-6 space-x-4">
@@ -117,7 +159,7 @@
         <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
         <form id="noteForm" class="space-y-4">
             <div>
-                <label for="contractNumber" class="block text-gray-700">Número de Contrato: *</label>
+                <label for="contractNumber" class="block text-gray-700 dark:text-gray-300">Número de Contrato: *</label>
                 <input type="text" 
                        id="contractNumber" 
                        required
@@ -127,7 +169,7 @@
 
             <div class="flex space-x-4">
                 <div class="w-1/2">
-                    <label for="locator" class="block text-gray-700">Locador: *</label>
+                    <label for="locator" class="block text-gray-700 dark:text-gray-300">Locador: *</label>
                     <input type="text" 
                            id="locator" 
                            required
@@ -135,7 +177,7 @@
                 </div>
 
                 <div class="w-1/2">
-                    <label for="tenant" class="block text-gray-700">Locatário: *</label>
+                    <label for="tenant" class="block text-gray-700 dark:text-gray-300">Locatário: *</label>
                     <input type="text" 
                            id="tenant" 
                            required
@@ -144,7 +186,7 @@
             </div>
 
             <div>
-                <label for="address" class="block text-gray-700">Endereço: *</label>
+                <label for="address" class="block text-gray-700 dark:text-gray-300">Endereço: *</label>
                 <input type="text" 
                        id="address" 
                        required
@@ -152,7 +194,7 @@
             </div>
 
             <div>
-                <label for="problem" class="block text-gray-700">Problema: *</label>
+                <label for="problem" class="block text-gray-700 dark:text-gray-300">Problema: *</label>
                 <textarea id="problem" 
                          required
                          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
@@ -176,18 +218,18 @@
         <h2 class="text-xl font-semibold mb-4 text-center">Criar Agendamento</h2>
         <form id="scheduleForm" class="space-y-4">
             <div>
-                <label for="searchContract" class="block text-gray-700">Pesquisar Contrato:</label>
+                <label for="searchContract" class="block text-gray-700 dark:text-gray-300">Pesquisar Contrato:</label>
                 <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Buscar contrato...">
             </div>
             <div>
-                <label for="existingContract" class="block text-gray-700">Selecionar Contrato: *</label>
+                <label for="existingContract" class="block text-gray-700 dark:text-gray-300">Selecionar Contrato: *</label>
                 <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
                     <option value="">Selecione um contrato...</option>
                 </select>
             </div>
 
             <div>
-                <label for="providerName" class="block text-gray-700">Nome do Prestador: *</label>
+                <label for="providerName" class="block text-gray-700 dark:text-gray-300">Nome do Prestador: *</label>
                 <input type="text" 
                        id="providerName" 
                        required
@@ -195,7 +237,7 @@
             </div>
 
             <div>
-                <label for="scheduleDate" class="block text-gray-700">Data do Agendamento: *</label>
+                <label for="scheduleDate" class="block text-gray-700 dark:text-gray-300">Data do Agendamento: *</label>
                 <input type="date" 
                        id="scheduleDate" 
                        required
@@ -203,7 +245,7 @@
             </div>
 
             <div>
-                <label for="scheduleDescription" class="block text-gray-700">Descrição do Agendamento: *</label>
+                <label for="scheduleDescription" class="block text-gray-700 dark:text-gray-300">Descrição do Agendamento: *</label>
                 <textarea id="scheduleDescription" 
                           required
                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
@@ -229,7 +271,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Coluna da esquerda - Detalhes -->
             <div class="space-y-4">
-                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative"></div>
+                <div id="noteDetailsContent" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md relative"></div>
                 
                 <div class="flex space-x-2">
                     <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
@@ -250,7 +292,7 @@
 
             <!-- Coluna da direita - Comentários -->
             <div class="space-y-4">
-                <div class="bg-gray-50 p-4 rounded-lg shadow-md">
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-4">Comentários</h3>
                     
                     <form id="commentForm" class="mb-4">
@@ -359,9 +401,9 @@ const utils = {
         }
     },
 
-    calculateDaysOpen: (dateString) => {
+calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T18:12:44'); // Data de hoje
+        const today = new Date('2025-01-25T18:23:14'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -401,9 +443,10 @@ class NoteManager {
         this.cleanInvalidNotes();
         this.initializeEventListeners();
         this.updateVerifiedNotes();
+        this.applyTheme();
     }
 
-cleanInvalidNotes() {
+    cleanInvalidNotes() {
         const validNotes = {};
         Object.entries(this.notes).forEach(([key, note]) => {
             if (note && note.contractNumber) {
@@ -539,6 +582,11 @@ cleanInvalidNotes() {
 
         document.getElementById('nextPageBtn').addEventListener('click', () => {
             this.nextPage();
+        });
+
+        // Event Listener para alternar modo claro/escuro
+        document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
+            this.toggleDarkMode();
         });
     }
 
@@ -813,7 +861,7 @@ cleanInvalidNotes() {
         }
     }
 
-    renderNotes() {
+renderNotes() {
         const container = document.getElementById('notesContainer');
         container.innerHTML = '';
 
@@ -860,9 +908,11 @@ cleanInvalidNotes() {
 
             container.appendChild(noteButton);
         });
+
+        this.sortNotes();
     }
 
-showNoteDetails(noteKey) {
+    showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -1190,6 +1240,411 @@ ${comments}
 
             noteBtn.classList.toggle('hidden', !(matchesStatus && matchesSearch));
         });
+
+        this.sortNotes();
+    }
+
+    sortNotes() {
+        const container = document.getElementById('notesContainer');
+        const sortOrder = document.getElementById('dateSort').value;
+
+        const notes = Array.from(container.children);
+        notes.sort((a, b) => {
+            const dateA = new Date(a.dataset.date);
+            const dateB = new Date(b.dataset.date);
+            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+
+        container.innerHTML = '';
+        notes.forEach(note => container.appendChild(note));
+    }
+
+    updateNoteButton(noteKey) {
+        const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
+        if (noteButton) {
+            const note = this.notes[noteKey];
+            const commentCount = Array.isArray(note.comments) ? note.comments.length : 0;
+            const commentCountSpan = noteButton.querySelector('span:last-child');
+            if (commentCountSpan) {
+                commentCountSpan.textContent = `${commentCount} comentário(s)`;
+            }
+
+            noteButton.className = `note-button w-full px-4 py-3 ${
+                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
+                'bg-blue-500 hover:bg-blue-700'))
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
+        }
+    }
+
+    nextPage() {
+        const totalNotes = Object.keys(this.notes).length;
+        const totalPages = Math.ceil(totalNotes / this.notesPerPage);
+
+        this.currentPage = (this.currentPage + 1) % totalPages;
+        this.renderNotes();
+    }
+
+prevPage() {
+        const totalNotes = Object.keys(this.notes).length;
+        const totalPages = Math.ceil(totalNotes / this.notesPerPage);
+
+        this.currentPage = (this.currentPage - 1 + totalPages) % totalPages;
+        this.renderNotes();
+    }
+
+    toggleDarkMode() {
+        const body = document.body;
+        body.classList.toggle('dark-mode');
+
+        // Save the theme preference to localStorage
+        if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+        } else {
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    applyTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+    }
+
+    showNoteDetails(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
+            const detailsContent = document.getElementById('noteDetailsContent');
+
+            detailsContent.innerHTML = `
+                <div class="space-y-3">
+                    <div class="pb-2 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold">Informações do Contrato</h3>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDateMinimal(note.createdAt)}</div>
+                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
+                        <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
+                        <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
+                        <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
+                        <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
+                        <p><strong>Status:</strong> <span class="font-semibold ${
+                            note.status === 'open' ? 'text-blue-600' :
+                            (note.status === 'scheduled' ? 'text-yellow-600' :
+                            (note.status === 'verified' ? 'text-purple-600' : 'text-green-600'))
+                        }">
+                            ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
+                            (note.status === 'scheduled' ? 'Em agendamento' : 
+                            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+                        </span></p>
+                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
+                    </div>
+                </div>
+            `;
+
+            const toggleBtn = document.getElementById('toggleStatusBtn');
+            if (note.status === 'closed') {
+                toggleBtn.className = 'btn btn-blue flex-1';
+                toggleBtn.innerHTML = '<i class="fas fa-redo mr-2"></i>Reabrir Chamado';
+            } else if (note.status === 'scheduled') {
+                toggleBtn.className = 'btn btn-purple flex-1';
+                toggleBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Verificar Hoje';
+            } else if (note.status === 'verified') {
+                toggleBtn.className = 'btn btn-green flex-1';
+                toggleBtn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Finalizar Chamado';
+            } else {
+                toggleBtn.className = 'btn btn-yellow flex-1';
+                toggleBtn.innerHTML = '<i class="fas fa-calendar-alt mr-2"></i>Agendar';
+            }
+
+            this.renderComments(noteKey);
+            document.getElementById('noteDetailsModal').classList.remove('hidden');
+            document.getElementById('commentText').focus();
+        } catch (error) {
+            console.error('Erro ao exibir detalhes da nota:', error);
+            utils.showNotification('Erro ao carregar detalhes', 'error');
+        }
+    }
+
+    renderComments(noteKey) {
+        try {
+            const commentsContainer = document.getElementById('commentsContainer');
+            commentsContainer.innerHTML = '';
+
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+            }
+
+            note.comments.forEach(comment => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment-box';
+                commentElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
+                            <div class="mt-2 text-sm text-gray-500">
+                                <span>${utils.formatDate(comment.dateTime)}</span>
+                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+                            </div>
+                        </div>
+                        <button class="ml-2 text-blue-500 hover:text-blue-700" 
+                                onclick="noteManager.editComment('${noteKey}', '${comment.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                `;
+                commentsContainer.appendChild(commentElement);
+            });
+        } catch (error) {
+            console.error('Erro ao renderizar comentários:', error);
+            utils.showNotification('Erro ao carregar comentários', 'error');
+        }
+    }
+
+    handleCommentSubmit() {
+        try {
+            const commentText = document.getElementById('commentText').value;
+            if (!commentText.trim()) {
+                utils.showNotification('Comentário não pode estar vazio', 'error');
+                return;
+            }
+
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+
+            const comment = {
+                id: Date.now().toString(),
+                text: utils.sanitizeInput(commentText),
+                dateTime: utils.getCurrentDateTime(),
+                author: this.currentUser
+            };
+
+            if (!Array.isArray(this.notes[noteKey].comments)) {
+                this.notes[noteKey].comments = [];
+            }
+
+            this.notes[noteKey].comments.unshift(comment);
+            this.notes[noteKey].status = 'verified';
+            this.saveToLocalStorage();
+            this.renderComments(noteKey);
+            this.updateNoteButton(noteKey);
+            document.getElementById('commentForm').reset();
+            document.getElementById('commentText').focus();
+            utils.showNotification('Comentário adicionado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao adicionar comentário:', error);
+            utils.showNotification('Erro ao adicionar comentário', 'error');
+        }
+    }
+
+    editComment(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+                return;
+            }
+
+            const comment = note.comments.find(c => c.id === commentId);
+            if (!comment) return;
+
+            const newText = prompt('Editar comentário:', comment.text);
+            if (newText !== null && newText.trim() !== '') {
+                comment.text = utils.sanitizeInput(newText);
+                comment.editedAt = utils.getCurrentDateTime();
+                this.saveToLocalStorage();
+                this.renderComments(noteKey);
+                utils.showNotification('Comentário atualizado com sucesso!', 'success');
+            }
+        } catch (error) {
+            console.error('Erro ao editar comentário:', error);
+            utils.showNotification('Erro ao editar comentário', 'error');
+        }
+    }
+
+    toggleNoteStatus(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            if (note.status === 'open') {
+                note.status = 'scheduled';
+            } else if (note.status === 'scheduled') {
+                note.status = 'verified';
+            } else if (note.status === 'verified') {
+                note.status = 'closed';
+                note.closedAt = utils.getCurrentDateTime();
+            } else {
+                note.status = 'open';
+                note.closedAt = null;
+            }
+
+            this.saveToLocalStorage();
+            this.renderNotes();
+            this.showNoteDetails(noteKey);
+
+            const status = note.status === 'open' ? 'reaberto' : 
+                (note.status === 'scheduled' ? 'em agendamento' : 
+                (note.status === 'verified' ? 'verificado hoje' : 'finalizado'));
+            utils.showNotification(`Chamado ${status} com sucesso!`, 'success');
+        } catch (error) {
+            console.error('Erro ao alterar status:', error);
+            utils.showNotification('Erro ao alterar status do chamado', 'error');
+        }
+    }
+
+    deleteNote(noteKey) {
+        try {
+            if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
+                return;
+            }
+
+            delete this.notes[noteKey];
+            this.saveToLocalStorage();
+            this.renderNotes();
+            document.getElementById('noteDetailsModal').classList.add('hidden');
+            utils.showNotification('Anotação excluída com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao excluir nota:', error);
+            utils.showNotification('Erro ao excluir anotação', 'error');
+        }
+    }
+
+    copyNoteDetails(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            const comments = note.comments.map(comment => 
+                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
+            const details = `
+Número do Contrato: ${noteKey}
+Locador: ${note.locator}
+Locatário: ${note.tenant}
+Problema: ${note.problem}
+Endereço: ${note.address}
+Status: ${note.status === 'open' ? 'Aberto' : 
+            (note.status === 'scheduled' ? 'Em agendamento' : 
+            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
+${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
+${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
+Comentários:
+${comments}
+            `.trim();
+
+            navigator.clipboard.writeText(details).then(() => {
+                utils.showNotification('Detalhes copiados para a área de transferência!', 'success');
+            });
+        } catch (error) {
+            console.error('Erro ao copiar detalhes:', error);
+            utils.showNotification('Erro ao copiar detalhes', 'error');
+        }
+    }
+
+    downloadSingleContract(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            const comments = note.comments.map(comment => 
+                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
+            const details = `
+Número do Contrato: ${noteKey}
+Locador: ${note.locator}
+Locatário: ${note.tenant}
+Problema: ${note.problem}
+Endereço: ${note.address}
+Status: ${note.status === 'open' ? 'Aberto' : 
+            (note.status === 'scheduled' ? 'Em agendamento' : 
+            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
+${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
+${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
+Comentários:
+${comments}
+            `.trim();
+
+            const filename = `${noteKey}.txt`;
+            utils.downloadFile(details, filename, 'text/plain');
+            utils.showNotification('Contrato exportado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao baixar contrato:', error);
+            utils.showNotification('Erro ao baixar contrato', 'error');
+        }
+    }
+
+    saveToLocalStorage() {
+        try {
+            localStorage.setItem('notes', JSON.stringify(this.notes));
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+            utils.showNotification('Erro ao salvar dados localmente', 'error');
+        }
+    }
+
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            if (savedNotes) {
+                this.notes = JSON.parse(savedNotes);
+                this.renderNotes();
+            }
+            this.updateVerifiedNotes();
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            utils.showNotification('Erro ao carregar dados locais', 'error');
+        }
+    }
+
+    updateVerifiedNotes() {
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+
+        Object.values(this.notes).forEach(note => {
+            if (note.status === 'verified') {
+                const noteDate = new Date(note.createdAt);
+                const noteDateStr = noteDate.toISOString().split('T')[0];
+                if (noteDateStr !== todayStr) {
+                    note.status = 'open';
+                }
+            }
+        });
+
+        this.saveToLocalStorage();
+        this.renderNotes();
+    }
+
+    handleSearch(searchTerm) {
+        this.filterNotes();
+    }
+
+    filterNotes() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+        const notes = document.querySelectorAll('.note-button');
+        notes.forEach(noteBtn => {
+            const noteKey = noteBtn.dataset.contract;
+            const note = this.notes[noteKey];
+
+            const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
+            const matchesSearch = [
+                noteKey,
+                noteBtn.dataset.locator,
+                noteBtn.dataset.tenant,
+                noteBtn.dataset.address
+            ].join(' ').toLowerCase().includes(searchTerm);
+
+            noteBtn.classList.toggle('hidden', !(matchesStatus && matchesSearch));
+        });
+
+        this.sortNotes();
     }
 
     sortNotes() {
@@ -1240,6 +1695,27 @@ ${comments}
 
         this.currentPage = (this.currentPage - 1 + totalPages) % totalPages;
         this.renderNotes();
+    }
+
+    toggleDarkMode() {
+        const body = document.body;
+        body.classList.toggle('dark-mode');
+
+        // Save the theme preference to localStorage
+        if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+        } else {
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    applyTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
     }
 }
 
