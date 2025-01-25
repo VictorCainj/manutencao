@@ -210,7 +210,7 @@
             </div>
 
             <div class="flex justify-end space-x-2">
-                <button type="button" id="cancelScheduleBtn" class="btn btn-gray">
+                <button type="button" id="cancelScheduleModalBtn" class="btn btn-gray">
                     <i class="fas fa-times mr-2"></i>Cancelar
                 </button>
                 <button type="submit" class="btn btn-blue">
@@ -362,7 +362,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T20:55:14'); // Data de hoje
+        const today = new Date('2025-01-25T21:03:01'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -373,7 +373,7 @@ const utils = {
         const day = String(now.getDate()).padStart(2, '0');
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const year = now.getFullYear();
-        return `${day}/${month}/${year}`;
+        return `${year}-${month}-${day}`;
     },
 
     downloadFile: (content, filename, type = 'text/plain') => {
@@ -405,7 +405,7 @@ class NoteManager {
         this.updateVerifiedNotes();
     }
 
-    cleanInvalidNotes() {
+cleanInvalidNotes() {
         const validNotes = {};
         Object.entries(this.notes).forEach(([key, note]) => {
             if (note && note.contractNumber) {
@@ -416,7 +416,7 @@ class NoteManager {
         this.saveToLocalStorage();
     }
 
-initializeEventListeners() {
+    initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             document.getElementById('noteModal').classList.remove('hidden');
@@ -440,7 +440,7 @@ initializeEventListeners() {
             document.getElementById('existingContract').focus();
         });
 
-        document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
+        document.getElementById('cancelScheduleModalBtn').addEventListener('click', () => {
             document.getElementById('scheduleModal').classList.add('hidden');
             document.getElementById('scheduleForm').reset();
         });
@@ -843,7 +843,7 @@ initializeEventListeners() {
                 document.body.removeChild(editModal);
             });
 
-            // Handle ESC key
+// Handle ESC key
             document.addEventListener('keydown', function escListener(e) {
                 if (e.key === 'Escape') {
                     document.body.removeChild(editModal);
@@ -851,7 +851,7 @@ initializeEventListeners() {
                 }
             });
 
-// Handle form submit
+            // Handle form submit
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const newText = textarea.value.trim();
@@ -1299,7 +1299,7 @@ ${comments}
             });
 
             const notesJson = JSON.stringify(exportData, null, 2);
-            const filename = `contratos_${this.currentDateTime.split(' ')[0]}.json`;
+            const filename = `contratos_${this.currentDateTime}.json`;
             utils.downloadFile(notesJson, filename, 'application/json');
             utils.showNotification('Contratos exportados com sucesso!', 'success');
         } catch (error) {
