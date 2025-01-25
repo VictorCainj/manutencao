@@ -68,25 +68,6 @@
 
 <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
 
-<!-- Notification Icon -->
-<div id="notificationIcon" class="hidden fixed top-4 left-4 z-50">
-    <i class="fas fa-bell text-yellow-500 animate-bounce text-3xl cursor-pointer"></i>
-</div>
-
-<!-- Notification List Modal -->
-<div id="notificationModal" class="modal-overlay hidden">
-    <div class="modal-content p-6 w-full max-w-4xl">
-        <h2 class="text-xl font-semibold mb-4 text-center">Agendamentos</h2>
-        <div id="notificationList" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        </div>
-        <div class="mt-4 text-right">
-            <button type="button" id="closeNotificationBtn" class="btn btn-gray">
-                <i class="fas fa-times mr-2"></i>Fechar
-            </button>
-        </div>
-    </div>
-</div>
-
 <!-- Main Controls -->
 <div class="mb-6 space-x-4">
     <button id="createNoteBtn" class="btn btn-blue">
@@ -310,11 +291,11 @@
 // Utility Functions
 const utils = {
     showNotification: (message, type = 'success') => {
-        const notification = document.getElementById('notification');
+        const notification = document.createElement('div');
         notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
         notification.textContent = message;
-        notification.classList.remove('hidden');
-        setTimeout(() => notification.classList.add('hidden'), 5000);
+        document.body.appendChild(notification);
+        setTimeout(() => document.body.removeChild(notification), 5000);
     },
 
     sanitizeInput: (input) => {
@@ -380,7 +361,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T17:45:36'); // Data de hoje
+        const today = new Date('2025-01-25T17:58:17'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -394,7 +375,7 @@ const utils = {
         return `${day}/${month}/${year}`;
     },
 
-downloadFile: (content, filename, type = 'text/plain') => {
+    downloadFile: (content, filename, type = 'text/plain') => {
         const blob = new Blob([content], { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -419,10 +400,10 @@ class NoteManager {
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
-        this.checkForAlerts();
+        this.updateVerifiedNotes();
     }
 
-    cleanInvalidNotes() {
+cleanInvalidNotes() {
         const validNotes = {};
         Object.entries(this.notes).forEach(([key, note]) => {
             if (note && note.contractNumber) {
@@ -541,7 +522,6 @@ class NoteManager {
                 document.getElementById('noteModal').classList.add('hidden');
                 document.getElementById('noteDetailsModal').classList.add('hidden');
                 document.getElementById('scheduleModal').classList.add('hidden');
-                document.getElementById('notificationModal').classList.add('hidden');
             }
 
             // Navegação por setas do teclado
@@ -550,15 +530,6 @@ class NoteManager {
             } else if (e.key === 'ArrowRight') {
                 this.nextPage();
             }
-        });
-
-        // Event Listener para o ícone de notificação
-        document.getElementById('notificationIcon').addEventListener('click', () => {
-            document.getElementById('notificationModal').classList.remove('hidden');
-        });
-
-        document.getElementById('closeNotificationBtn').addEventListener('click', () => {
-            document.getElementById('notificationModal').classList.add('hidden');
         });
 
         // Event Listeners para paginação
@@ -842,7 +813,7 @@ class NoteManager {
         }
     }
 
-renderNotes() {
+    renderNotes() {
         const container = document.getElementById('notesContainer');
         container.innerHTML = '';
 
@@ -891,12 +862,12 @@ renderNotes() {
         });
     }
 
-    showNoteDetails(noteKey) {
+showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
             const detailsContent = document.getElementById('noteDetailsContent');
-            
+
             detailsContent.innerHTML = `
                 <div class="space-y-3">
                     <div class="pb-2 border-b border-gray-200">
@@ -954,7 +925,7 @@ renderNotes() {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
-            
+
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
                 note.comments = [];
@@ -1009,6 +980,7 @@ renderNotes() {
             }
 
             this.notes[noteKey].comments.unshift(comment);
+            this.notes[noteKey].status = 'verified';
             this.saveToLocalStorage();
             this.renderComments(noteKey);
             this.updateNoteButton(noteKey);
@@ -1031,7 +1003,7 @@ renderNotes() {
 
             const comment = note.comments.find(c => c.id === commentId);
             if (!comment) return;
-            
+
             const newText = prompt('Editar comentário:', comment.text);
             if (newText !== null && newText.trim() !== '') {
                 comment.text = utils.sanitizeInput(newText);
@@ -1064,7 +1036,7 @@ renderNotes() {
             this.saveToLocalStorage();
             this.renderNotes();
             this.showNoteDetails(noteKey);
-            
+
             const status = note.status === 'open' ? 'reaberto' : 
                 (note.status === 'scheduled' ? 'em agendamento' : 
                 (note.status === 'verified' ? 'verificado hoje' : 'finalizado'));
@@ -1170,11 +1142,29 @@ ${comments}
                 this.notes = JSON.parse(savedNotes);
                 this.renderNotes();
             }
-            this.checkForAlerts();
+            this.updateVerifiedNotes();
         } catch (error) {
             console.error('Erro ao carregar do localStorage:', error);
             utils.showNotification('Erro ao carregar dados locais', 'error');
         }
+    }
+
+    updateVerifiedNotes() {
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+
+        Object.values(this.notes).forEach(note => {
+            if (note.status === 'verified') {
+                const noteDate = new Date(note.createdAt);
+                const noteDateStr = noteDate.toISOString().split('T')[0];
+                if (noteDateStr !== todayStr) {
+                    note.status = 'open';
+                }
+            }
+        });
+
+        this.saveToLocalStorage();
+        this.renderNotes();
     }
 
     handleSearch(searchTerm) {
@@ -1184,12 +1174,12 @@ ${comments}
     filterNotes() {
         const statusFilter = document.getElementById('statusFilter').value;
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        
+
         const notes = document.querySelectorAll('.note-button');
         notes.forEach(noteBtn => {
             const noteKey = noteBtn.dataset.contract;
             const note = this.notes[noteKey];
-            
+
             const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
             const matchesSearch = [
                 noteKey,
@@ -1197,7 +1187,7 @@ ${comments}
                 noteBtn.dataset.tenant,
                 noteBtn.dataset.address
             ].join(' ').toLowerCase().includes(searchTerm);
-            
+
             noteBtn.classList.toggle('hidden', !(matchesStatus && matchesSearch));
         });
     }
@@ -1205,7 +1195,7 @@ ${comments}
     sortNotes() {
         const container = document.getElementById('notesContainer');
         const sortOrder = document.getElementById('dateSort').value;
-        
+
         const notes = Array.from(container.children);
         notes.sort((a, b) => {
             const dateA = new Date(a.dataset.date);
@@ -1226,64 +1216,6 @@ ${comments}
             if (commentCountSpan) {
                 commentCountSpan.textContent = `${commentCount} comentário(s)`;
             }
-        }
-    }
-
-checkForAlerts() {
-        const today = new Date('2025-01-25T17:49:28'); // Data de hoje
-        const oneDayBefore = new Date(today);
-        oneDayBefore.setDate(today.getDate() - 1);
-
-        const todayStr = today.toISOString().split('T')[0];
-        const oneDayBeforeStr = oneDayBefore.toISOString().split('T')[0];
-
-        const alerts = { today: [], oneDayBefore: [] };
-
-        Object.values(this.notes).forEach(note => {
-            if (note.status === 'scheduled') {
-                if (note.scheduleDate === todayStr) {
-                    alerts.today.push(note);
-                } else if (note.scheduleDate === oneDayBeforeStr) {
-                    alerts.oneDayBefore.push(note);
-                }
-            }
-        });
-
-        const notificationIcon = document.getElementById('notificationIcon');
-        const notificationList = document.getElementById('notificationList');
-        notificationList.innerHTML = '';
-
-        if (alerts.today.length > 0 || alerts.oneDayBefore.length > 0) {
-            notificationIcon.classList.remove('hidden');
-
-            const allAlerts = [...alerts.today, ...alerts.oneDayBefore];
-            allAlerts.forEach(note => {
-                const listItem = document.createElement('button');
-                listItem.className = `note-button w-full px-4 py-3 ${
-                    note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
-                    (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
-                    (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
-                    'bg-blue-500 hover:bg-blue-700'))
-                } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
-                
-                listItem.innerHTML = `
-                    <span class="block font-bold">${utils.sanitizeInput(note.contractNumber)}</span>
-                    <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
-                    <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-                    <span class="block text-xs mt-1">${utils.formatDate(note.createdAt)}</span>
-                    <span class="block text-xs mt-1">
-                        ${note.status === 'open' ? `Aberto há ${utils.calculateDaysOpen(note.createdAt)} dias` : 
-                        (note.status === 'scheduled' ? 'Em agendamento' : 
-                        (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-                    </span>
-                    <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
-                `;
-
-                listItem.addEventListener('click', () => this.showNoteDetails(note.contractNumber));
-                notificationList.appendChild(listItem);
-            });
-        } else {
-            notificationIcon.classList.add('hidden');
         }
     }
 
