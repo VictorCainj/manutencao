@@ -377,7 +377,7 @@ const utils = {
                    .replace(/'/g, '&#39;');
     },
 
-    validateForm: (formData) => {
+validateForm: (formData) => {
         const errors = [];
         
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
@@ -1272,7 +1272,7 @@ ${comments}
         this.sortNotes();
     }
 
-sortNotes() {
+    sortNotes() {
         const container = document.getElementById('notesContainer');
         const sortOrder = document.getElementById('dateSort').value;
 
@@ -1287,7 +1287,7 @@ sortNotes() {
         notes.forEach(note => container.appendChild(note));
     }
 
-    updateNoteButton(noteKey) {
+updateNoteButton(noteKey) {
         const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
         if (noteButton) {
             const note = this.notes[noteKey];
