@@ -785,33 +785,77 @@ initializeEventListeners() {
         }
     }
 
-    editComment(noteKey, commentId) {
-        try {
-            const note = this.notes[noteKey];
-            if (!Array.isArray(note.comments)) {
-                note.comments = [];
-                return;
-            }
+editComment(noteKey, commentId) {
+    try {
+        const note = this.notes[noteKey];
+        if (!Array.isArray(note.comments)) {
+            note.comments = [];
+            return;
+        }
 
-            const comment = note.comments.find(c => c.id === commentId);
-            if (!comment) {
-                utils.showNotification('Comentário não encontrado.', 'error');
-                return;
-            }
+        const commentIndex = note.comments.findIndex(c => c.id === commentId);
+        if (commentIndex === -1) {
+            utils.showNotification('Comentário não encontrado.', 'error');
+            return;
+        }
 
-            const newText = prompt('Editar comentário:', comment.text);
-            if (newText !== null && newText.trim() !== '') {
-                comment.text = utils.sanitizeInput(newText);
-                comment.editedAt = utils.getCurrentDateTime();
+        // Criar um modal temporário para edição
+        const editModal = document.createElement('div');
+        editModal.className = 'modal-overlay';
+        editModal.innerHTML = `
+            <div class="modal-content p-6 w-full max-w-md">
+                <h3 class="text-lg font-semibold mb-4">Editar Comentário</h3>
+                <form id="editCommentForm" class="space-y-4">
+                    <textarea 
+                        id="editCommentText" 
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
+                        required
+                    >${note.comments[commentIndex].text}</textarea>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" id="cancelEditComment" class="btn btn-gray">
+                            <i class="fas fa-times mr-2"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-blue">
+                            <i class="fas fa-save mr-2"></i>Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        document.body.appendChild(editModal);
+
+        // Configurar event listeners
+        const form = document.getElementById('editCommentForm');
+        const cancelBtn = document.getElementById('cancelEditComment');
+
+        cancelBtn.addEventListener('click', () => {
+            document.body.removeChild(editModal);
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newText = document.getElementById('editCommentText').value.trim();
+            
+            if (newText) {
+                note.comments[commentIndex].text = utils.sanitizeInput(newText);
+                note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
                 this.saveToLocalStorage();
                 this.renderComments(noteKey);
+                document.body.removeChild(editModal);
                 utils.showNotification('Comentário atualizado com sucesso!', 'success');
+            } else {
+                utils.showNotification('O comentário não pode estar vazio.', 'error');
             }
-        } catch (error) {
-            console.error('Erro ao editar comentário:', error);
-            utils.showNotification('Erro ao editar comentário', 'error');
-        }
+        });
+
+        // Focar no textarea
+        document.getElementById('editCommentText').focus();
+    } catch (error) {
+        console.error('Erro ao editar comentário:', error);
+        utils.showNotification('Erro ao editar comentário', 'error');
     }
+}
 
     toggleNoteStatus(noteKey) {
         try {
