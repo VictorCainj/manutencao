@@ -244,8 +244,11 @@
                     <button type="button" id="deleteNoteBtn" class="btn btn-red flex-1">
                         <i class="fas fa-trash mr-2"></i>Excluir
                     </button>
-                    <button type="button" id="finalizeNoteBtn" class="btn btn-green flex-1">
+                    <button type="button" id="finalizeNoteBtn" class="btn btn-green flex-1 hidden">
                         <i class="fas fa-check mr-2"></i>Finalizar
+                    </button>
+                    <button type="button" id="reopenNoteBtn" class="btn btn-blue flex-1 hidden">
+                        <i class="fas fa-undo mr-2"></i>Reabrir
                     </button>
                 </div>
             </div>
@@ -287,8 +290,6 @@
     <button id="prevPageBtn" class="btn btn-blue"><i class="fas fa-chevron-left"></i></button>
     <button id="nextPageBtn" class="btn btn-blue"><i class="fas fa-chevron-right"></i></button>
 </div>
-
-<!-- Parte anterior do código -->
 
 <script>
 // Utility Functions
@@ -410,7 +411,7 @@ class NoteManager {
         this.updateVerifiedNotes();
     }
 
-    cleanInvalidNotes() {
+cleanInvalidNotes() {
         const validNotes = {};
         Object.entries(this.notes).forEach(([key, note]) => {
             if (note && note.contractNumber) {
@@ -527,6 +528,12 @@ class NoteManager {
             const noteKey = document.getElementById('noteDetailsContent')
                 .querySelector('p strong + span').textContent;
             this.finalizeNote(noteKey);
+        });
+
+        document.getElementById('reopenNoteBtn').addEventListener('click', () => {
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.reopenNote(noteKey);
         });
 
         // Event Listener global para tecla ESC
@@ -705,6 +712,17 @@ class NoteManager {
                 </div>
             `;
 
+            // Mostrar/ocultar botões "Finalizar" e "Reabrir" com base no status
+            const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
+            const reopenNoteBtn = document.getElementById('reopenNoteBtn');
+            if (note.status === 'closed') {
+                finalizeNoteBtn.classList.add('hidden');
+                reopenNoteBtn.classList.remove('hidden');
+            } else {
+                finalizeNoteBtn.classList.remove('hidden');
+                reopenNoteBtn.classList.add('hidden');
+            }
+
             // Mostrar/ocultar botão "Cancelar Agendamento" com base no status
             const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
             if (note.status === 'scheduled') {
@@ -722,7 +740,7 @@ class NoteManager {
         }
     }
 
-renderComments(noteKey) {
+    renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -805,7 +823,7 @@ renderComments(noteKey) {
         }
     }
 
-    editComment(noteKey, commentId) {
+editComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1008,6 +1026,25 @@ ${comments}
         }
     }
 
+    reopenNote(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            if (note.status === 'closed') {
+                note.status = 'open';
+                delete note.closedAt;
+                this.saveToLocalStorage();
+                this.renderNotes();
+                this.showNoteDetails(noteKey);
+                utils.showNotification('Nota reaberta com sucesso!', 'success');
+            } else {
+                utils.showNotification('A nota não está finalizada.', 'alert');
+            }
+        } catch (error) {
+            console.error('Erro ao reabrir nota:', error);
+            utils.showNotification('Erro ao reabrir nota', 'error');
+        }
+    }
+
     saveToLocalStorage() {
         try {
             localStorage.setItem('notes', JSON.stringify(this.notes));
@@ -1189,7 +1226,7 @@ ${comments}
         });
     }
 
-handleFileImport(event) {
+    handleFileImport(event) {
         try {
             const file = event.target.files[0];
             if (!file) {
@@ -1289,7 +1326,7 @@ handleFileImport(event) {
         }
     }
 
-    exportNotes() {
+exportNotes() {
         try {
             if (Object.keys(this.notes).length === 0) {
                 utils.showNotification('Não há contratos para exportar', 'error');
