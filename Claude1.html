@@ -329,7 +329,7 @@ const utils = {
 
     formatDate: (dateString) => {
         try {
-            const date = new Date(dateString);
+            const date = new Date(dateString + 'T00:00:00'); // Adiciona tempo para evitar fusos horários
             if (isNaN(date.getTime())) return '25/01/2025';
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -355,7 +355,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25 03:05:01');
+        const today = new Date('2025-01-25 03:15:21');
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -862,7 +862,6 @@ showNoteDetails(noteKey) {
                             (note.status === 'scheduled' ? 'Em agendamento' : 
                             (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
                         </span></p>
-                        <p><strong>Criado em:</strong> <span>${utils.formatDate(note.createdAt)}</span></p>
                         ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
                         ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
                         ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
@@ -1044,21 +1043,20 @@ showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment => 
-                `**Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}**: ${comment.text}`).join('\n');
+                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
             const details = `
-**Número do Contrato**: ${noteKey}
-**Locador**: ${note.locator}
-**Locatário**: ${note.tenant}
-**Problema**: ${note.problem}
-**Endereço**: ${note.address}
-**Status**: ${note.status === 'open' ? 'Aberto' : 
+Número do Contrato: ${noteKey}
+Locador: ${note.locator}
+Locatário: ${note.tenant}
+Problema: ${note.problem}
+Endereço: ${note.address}
+Status: ${note.status === 'open' ? 'Aberto' : 
             (note.status === 'scheduled' ? 'Em agendamento' : 
             (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-**Criado em**: ${utils.formatDate(note.createdAt)}
-${note.closedAt ? `**Finalizado em**: ${utils.formatDate(note.closedAt)}` : ''}
-${note.status === 'scheduled' ? `**Prestador**: ${note.providerName}` : ''}
-${note.status === 'scheduled' ? `**Data do Agendamento**: ${utils.formatDate(note.scheduleDate)}` : ''}
-**Comentários**:
+${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
+${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
+${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+Comentários:
 ${comments}
             `.trim();
 
@@ -1085,7 +1083,6 @@ Endereço: ${note.address}
 Status: ${note.status === 'open' ? 'Aberto' : 
             (note.status === 'scheduled' ? 'Em agendamento' : 
             (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-Criado em: ${utils.formatDate(note.createdAt)}
 ${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
 ${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
 ${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
