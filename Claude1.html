@@ -361,7 +361,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T17:58:17'); // Data de hoje
+        const today = new Date('2025-01-25T18:12:44'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -1216,6 +1216,13 @@ ${comments}
             if (commentCountSpan) {
                 commentCountSpan.textContent = `${commentCount} comentário(s)`;
             }
+
+            noteButton.className = `note-button w-full px-4 py-3 ${
+                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
+                'bg-blue-500 hover:bg-blue-700'))
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
         }
     }
 
