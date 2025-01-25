@@ -355,7 +355,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25 03:15:21');
+        const today = new Date('2025-01-25 16:07:36');
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -536,7 +536,7 @@ initializeEventListeners() {
 
             note.status = 'scheduled';
             note.providerName = utils.sanitizeInput(providerName);
-            note.scheduleDate = utils.formatDate(scheduleDate);
+            note.scheduleDate = scheduleDate; // Mantém a data do agendamento exatamente como foi informada
 
             this.saveToLocalStorage();
             this.renderNote(existingContract);
@@ -608,7 +608,7 @@ initializeEventListeners() {
                                     createdBy: note.createdBy || 'VictorCainj',
                                     status: note.status || 'open',
                                     providerName: note.providerName || '',
-                                    scheduleDate: note.scheduleDate ? utils.formatDate(note.scheduleDate) : '',
+                                    scheduleDate: note.scheduleDate || '',
                                     comments: Array.isArray(note.comments) ? note.comments : []
                                 };
                                 this.renderNote(noteKey);
@@ -663,7 +663,7 @@ initializeEventListeners() {
                 text: utils.sanitizeInput(comment.text || ''),
                 dateTime: comment.dateTime || utils.getCurrentDateTime(),
                 author: comment.author || 'VictorCainj',
-                editedAt: comment.editedAt ? utils.formatDate(comment.editedAt) : null
+                editedAt: comment.editedAt || null
             }));
 
             return true;
@@ -696,18 +696,18 @@ initializeEventListeners() {
                     createdAt: note.createdAt || utils.getCurrentDateTime(),
                     createdBy: note.createdBy || 'VictorCainj',
                     providerName: note.providerName || '',
-                    scheduleDate: note.scheduleDate ? utils.formatDate(note.scheduleDate) : '',
+                    scheduleDate: note.scheduleDate || '',
                     comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
                         dateTime: comment.dateTime || utils.getCurrentDateTime(),
                         author: comment.author || 'VictorCainj',
-                        editedAt: comment.editedAt ? utils.formatDate(comment.editedAt) : null
+                        editedAt: comment.editedAt || null
                     })) : []
                 };
 
                 if (note.closedAt) {
-                    cleanedNote.closedAt = utils.formatDate(note.closedAt);
+                    cleanedNote.closedAt = note.closedAt;
                 }
 
                 exportData[key] = cleanedNote;
