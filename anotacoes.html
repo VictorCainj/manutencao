@@ -633,12 +633,14 @@ renderNotes() {
             (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
             'bg-blue-500 hover:bg-blue-700'))
         } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
-        
+
+        const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
+
         noteButton.innerHTML = `
             <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
             <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
             <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-            <span class="block text-xs mt-1">${utils.formatDate(note.createdAt)}</span>
+            <span class="block text-xs mt-1">${displayDate}</span>
             <span class="block text-xs mt-1">
                 ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
                 (note.status === 'scheduled' ? 'Em agendamento' : 
