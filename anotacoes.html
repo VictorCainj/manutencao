@@ -362,7 +362,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T21:03:01'); // Data de hoje
+        const today = new Date(); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -405,7 +405,7 @@ class NoteManager {
         this.updateVerifiedNotes();
     }
 
-cleanInvalidNotes() {
+    cleanInvalidNotes() {
         const validNotes = {};
         Object.entries(this.notes).forEach(([key, note]) => {
             if (note && note.contractNumber) {
@@ -416,7 +416,7 @@ cleanInvalidNotes() {
         this.saveToLocalStorage();
     }
 
-    initializeEventListeners() {
+initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             document.getElementById('noteModal').classList.remove('hidden');
@@ -779,7 +779,9 @@ cleanInvalidNotes() {
             }
 
             this.notes[noteKey].comments.unshift(comment);
-            this.notes[noteKey].status = 'verified';
+            if (this.notes[noteKey].status !== 'scheduled') {
+                this.notes[noteKey].status = 'verified';
+            }
             this.saveToLocalStorage();
             this.renderComments(noteKey);
             this.updateNoteButton(noteKey);
@@ -843,7 +845,7 @@ cleanInvalidNotes() {
                 document.body.removeChild(editModal);
             });
 
-// Handle ESC key
+            // Handle ESC key
             document.addEventListener('keydown', function escListener(e) {
                 if (e.key === 'Escape') {
                     document.body.removeChild(editModal);
@@ -851,7 +853,7 @@ cleanInvalidNotes() {
                 }
             });
 
-            // Handle form submit
+// Handle form submit
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const newText = textarea.value.trim();
@@ -1051,8 +1053,8 @@ ${comments}
         const notes = Array.from(container.children);
         notes.sort((a, b) => {
             // Parse the dates correctly from the dataset
-            const dateA = new Date(a.dataset.date.split('/').reverse().join('-'));
-            const dateB = new Date(b.dataset.date.split('/').reverse().join('-'));
+            const dateA = new Date(a.dataset.date);
+            const dateB = new Date(b.dataset.date);
             
             // Return comparison based on sort order
             return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
