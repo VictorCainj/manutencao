@@ -808,9 +808,12 @@ cleanInvalidNotes() {
             }
 
             this.notes[noteKey].comments.unshift(comment);
-            if (this.notes[noteKey].status !== 'scheduled') {
+
+            // Do not change status if the note is scheduled or closed
+            if (this.notes[noteKey].status !== 'scheduled' && this.notes[noteKey].status !== 'closed') {
                 this.notes[noteKey].status = 'verified';
             }
+
             this.saveToLocalStorage();
             this.renderComments(noteKey);
             this.updateNoteButton(noteKey);
