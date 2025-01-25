@@ -221,6 +221,13 @@
                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
+            <div>
+                <label for="scheduleDescription" class="block text-gray-700">Descrição do Agendamento: *</label>
+                <textarea id="scheduleDescription" 
+                          required
+                          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
+            </div>
+
             <div class="flex justify-end space-x-2">
                 <button type="button" id="cancelScheduleBtn" class="btn btn-gray">
                     <i class="fas fa-times mr-2"></i>Cancelar
@@ -373,7 +380,7 @@ const utils = {
 
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
-        const today = new Date('2025-01-25T17:08:19'); // Data de hoje
+        const today = new Date('2025-01-25T17:17:36'); // Data de hoje
         const diffTime = Math.abs(today - start);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
@@ -387,7 +394,7 @@ const utils = {
         return `${day}/${month}/${year}`;
     },
 
-    downloadFile: (content, filename, type = 'text/plain') => {
+downloadFile: (content, filename, type = 'text/plain') => {
         const blob = new Blob([content], { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -536,6 +543,13 @@ class NoteManager {
                 document.getElementById('scheduleModal').classList.add('hidden');
                 document.getElementById('notificationModal').classList.add('hidden');
             }
+
+            // Navegação por setas do teclado
+            if (e.key === 'ArrowLeft') {
+                this.prevPage();
+            } else if (e.key === 'ArrowRight') {
+                this.nextPage();
+            }
         });
 
         // Event Listener para o ícone de notificação
@@ -562,8 +576,9 @@ class NoteManager {
             const existingContract = document.getElementById('existingContract').value;
             const providerName = document.getElementById('providerName').value;
             const scheduleDate = document.getElementById('scheduleDate').value;
+            const scheduleDescription = document.getElementById('scheduleDescription').value;
 
-            if (!existingContract || !providerName || !scheduleDate) {
+            if (!existingContract || !providerName || !scheduleDate || !scheduleDescription) {
                 utils.showNotification('Todos os campos são obrigatórios', 'error');
                 return;
             }
@@ -577,6 +592,7 @@ class NoteManager {
             note.status = 'scheduled';
             note.providerName = utils.sanitizeInput(providerName);
             note.scheduleDate = scheduleDate; // Mantém a data do agendamento exatamente como foi informada
+            note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
 
             this.saveToLocalStorage();
             this.renderNotes();
@@ -649,6 +665,7 @@ class NoteManager {
                                     status: note.status || 'open',
                                     providerName: note.providerName || '',
                                     scheduleDate: note.scheduleDate || '',
+                                    scheduleDescription: note.scheduleDescription || '',
                                     comments: Array.isArray(note.comments) ? note.comments : []
                                 };
                                 importCount++;
@@ -737,6 +754,7 @@ class NoteManager {
                     createdBy: note.createdBy || 'VictorCainj',
                     providerName: note.providerName || '',
                     scheduleDate: note.scheduleDate || '',
+                    scheduleDescription: note.scheduleDescription || '',
                     comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
@@ -824,7 +842,7 @@ class NoteManager {
         }
     }
 
-    renderNotes() {
+renderNotes() {
         const container = document.getElementById('notesContainer');
         container.innerHTML = '';
 
@@ -873,7 +891,7 @@ class NoteManager {
         });
     }
 
-showNoteDetails(noteKey) {
+    showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -903,6 +921,7 @@ showNoteDetails(noteKey) {
                         ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
                         ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
                         ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
                     </div>
                 </div>
             `;
@@ -1090,6 +1109,7 @@ Status: ${note.status === 'open' ? 'Aberto' :
 ${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
 ${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
 ${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
 Comentários:
 ${comments}
             `.trim();
@@ -1120,6 +1140,7 @@ Status: ${note.status === 'open' ? 'Aberto' :
 ${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
 ${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
 ${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
 Comentários:
 ${comments}
             `.trim();
@@ -1208,8 +1229,8 @@ ${comments}
         }
     }
 
-    checkForAlerts() {
-        const today = new Date('2025-01-25T17:11:01'); // Data de hoje
+checkForAlerts() {
+        const today = new Date('2025-01-25T17:23:14'); // Data de hoje
         const oneDayBefore = new Date(today);
         oneDayBefore.setDate(today.getDate() - 1);
 
