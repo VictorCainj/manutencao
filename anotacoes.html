@@ -390,7 +390,7 @@ const utils = {
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     },
 
-    downloadFile: (content, filename, type = 'text/plain') => {
+downloadFile: (content, filename, type = 'text/plain') => {
         const blob = new Blob([content], { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -413,7 +413,7 @@ class NoteManager {
         this.notesPerPage = 8;
         this.currentUser = 'VictorCainj';
         this.currentDateTime = utils.getCurrentDateTime();
-        this.commentsPerPage = 3;  // Número de comentários por página
+        this.commentsPerPage = 4;  // Número de comentários por vez
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
