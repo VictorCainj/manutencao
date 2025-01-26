@@ -11,20 +11,11 @@
         .btn {
             @apply px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200;
         }
-        .btn-blue {
-            @apply bg-blue-500 hover:bg-blue-700 focus:ring-blue-400;
-        }
-        .btn-green {
-            @apply bg-green-500 hover:bg-green-700 focus:ring-green-400;
-        }
-        .btn-yellow {
-            @apply bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400;
+        .btn-wine-red {
+            @apply bg-red-900 hover:bg-red-700 focus:ring-red-400;
         }
         .btn-gray {
             @apply bg-gray-500 hover:bg-gray-700 focus:ring-gray-400;
-        }
-        .btn-red {
-            @apply bg-red-500 hover:bg-red-700 focus:ring-red-400;
         }
         .notification {
             @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded-md shadow-lg transition-all duration-300 ease-in-out z-50 font-semibold;
@@ -92,7 +83,7 @@
     </style>
 </head>
 
-<body class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 via-green-500 to-purple-500 p-4 text-white">
+<body class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 p-4 text-black">
 
 <!-- Logo Section -->
 <div class="mb-6">
@@ -101,10 +92,10 @@
 
 <!-- Main Controls -->
 <div class="mb-6 space-x-4">
-    <button id="createNoteBtn" class="btn btn-blue">
+    <button id="createNoteBtn" class="btn btn-wine-red">
         <i class="fas fa-plus mr-2"></i>Criar anotação
     </button>
-    <button id="createScheduleBtn" class="btn btn-blue">
+    <button id="createScheduleBtn" class="btn btn-wine-red">
         <i class="fas fa-calendar-alt mr-2"></i>Criar Agendamento
     </button>
     <button id="importNotesBtn" class="btn btn-gray">
@@ -113,7 +104,7 @@
     <button id="downloadNotesBtn" class="btn btn-gray">
         <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
     </button>
-    <button id="showDashboardBtn" class="btn btn-blue">
+    <button id="showDashboardBtn" class="btn btn-wine-red">
         <i class="fas fa-chart-bar mr-2"></i>Dashboard
     </button>
     <input type="file" id="fileInput" class="hidden" accept=".json">
@@ -127,7 +118,7 @@
     <h2 class="text-2xl font-semibold mb-4 text-black">Dashboard</h2>
     <div class="grid grid-cols-2 gap-4 mb-4">
         <div class="dashboard-info">
-            <i class="fas fa-folder-open text-blue-500"></i>
+            <i class="fas fa-folder-open text-red-900"></i>
             <p id="openCount">Abertos: 0</p>
         </div>
         <div class="dashboard-info">
@@ -154,17 +145,17 @@
         <input type="text" 
                id="searchInput" 
                placeholder="Pesquisar contratos..." 
-               class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black"
+               class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
                aria-label="Pesquisar contratos">
         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
     </div>
 
     <div class="flex space-x-4 items-center">
-        <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black">
+        <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
             <option value="newest">Mais recentes primeiro</option>
             <option value="oldest">Mais antigos primeiro</option>
         </select>
-        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black">
+        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
             <option value="all">Todos os status</option>
             <option value="open">Abertos</option>
             <option value="closed">Fechados</option>
@@ -185,7 +176,7 @@
                        id="contractNumber" 
                        required
                        pattern="[A-Za-z0-9-]+"
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black">
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
             </div>
 
             <div class="flex space-x-4">
@@ -194,7 +185,7 @@
                     <input type="text" 
                            id="locator" 
                            required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black">
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
                 </div>
 
                 <div class="w-1/2">
@@ -202,7 +193,7 @@
                     <input type="text" 
                            id="tenant" 
                            required
-                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black">
+                           class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
                 </div>
             </div>
 
@@ -211,21 +202,21 @@
                 <input type="text" 
                        id="address" 
                        required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black">
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
             </div>
 
             <div>
                 <label for="problem" class="block text-gray-700">Problema: *</label>
                 <textarea id="problem" 
                          required
-                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px] text-black"></textarea>
+                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px] text-black"></textarea>
             </div>
 
             <div class="flex justify-end space-x-2">
                 <button type="button" id="cancelBtn" class="btn btn-gray">
                     <i class="fas fa-times mr-2"></i>Cancelar
                 </button>
-                <button type="submit" class="btn btn-blue">
+                <button type="submit" class="btn btn-wine-red">
                     <i class="fas fa-save mr-2"></i>Salvar
                 </button>
             </div>
@@ -240,11 +231,11 @@
         <form id="scheduleForm" class="space-y-4">
             <div>
                 <label for="searchContract" class="block text-gray-700">Pesquisar Contrato:</label>
-                <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black" placeholder="Buscar contrato...">
+                <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black" placeholder="Buscar contrato...">
             </div>
             <div>
                 <label for="existingContract" class="block text-gray-700">Selecionar Contrato: *</label>
-                <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black">
+                <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
                     <option value="">Selecione um contrato...</option>
                 </select>
             </div>
@@ -254,7 +245,7 @@
                 <input type="text" 
                        id="providerName" 
                        required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black">
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
             </div>
 
             <div>
@@ -262,21 +253,21 @@
                 <input type="date" 
                        id="scheduleDate" 
                        required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-black">
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
             </div>
 
             <div>
                 <label for="scheduleDescription" class="block text-gray-700">Descrição do Agendamento: *</label>
                 <textarea id="scheduleDescription" 
                           required
-                          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px] text-black"></textarea>
+                          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px] text-black"></textarea>
             </div>
 
             <div class="flex justify-end space-x-2">
                 <button type="button" id="cancelScheduleModalBtn" class="btn btn-gray">
                     <i class="fas fa-times mr-2"></i>Cancelar
                 </button>
-                <button type="submit" class="btn btn-blue">
+                <button type="submit" class="btn btn-wine-red">
                     <i class="fas fa-save mr-2"></i>Salvar
                 </button>
             </div>
@@ -310,7 +301,7 @@
                     <button type="button" id="finalizeNoteBtn" class="btn btn-green flex-1 hidden">
                         <i class="fas fa-check mr-2"></i>Finalizar
                     </button>
-                    <button type="button" id="reopenNoteBtn" class="btn btn-blue flex-1 hidden">
+                    <button type="button" id="reopenNoteBtn" class="btn btn-wine-red flex-1 hidden">
                         <i class="fas fa-undo mr-2"></i>Reabrir
                     </button>
                 </div>
@@ -324,9 +315,9 @@
                     <form id="commentForm" class="mb-4">
                         <textarea id="commentText" 
                                  required
-                                 class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px] text-black"
+                                 class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[80px] text-black"
                                  placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
-                        <button type="submit" class="btn btn-blue w-full mt-2">
+                        <button type="submit" class="btn btn-wine-red w-full mt-2">
                             <i class="fas fa-comment mr-2"></i>Adicionar Comentário
                         </button>
                     </form>
@@ -352,8 +343,8 @@
 
 <!-- Pagination Controls -->
 <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
-    <button id="prevPageBtn" class="btn btn-blue"><i class="fas fa-chevron-left"></i></button>
-    <button id="nextPageBtn" class="btn btn-blue"><i class="fas fa-chevron-right"></i></button>
+    <button id="prevPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-left"></i></button>
+    <button id="nextPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-right"></i></button>
 </div>
 
 <script>
@@ -738,8 +729,8 @@ class NoteManager {
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
                 (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
                 (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
-                'bg-blue-500 hover:bg-blue-700'))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
+                'bg-red-900 hover:bg-red-700'))
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
 
             const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
@@ -772,7 +763,7 @@ class NoteManager {
         this.sortNotes(); // Apply initial sorting
     }
 
-showNoteDetails(noteKey) {
+    showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -791,7 +782,7 @@ showNoteDetails(noteKey) {
                         <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
                         <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
                         <p><strong>Status:</strong> <span class="font-semibold ${
-                            note.status === 'open' ? 'text-blue-600' :
+                            note.status === 'open' ? 'text-red-900' :
                             (note.status === 'scheduled' ? 'text-yellow-600' :
                             (note.status === 'verified' ? 'text-purple-600' : 'text-green-600'))
                         }">
@@ -962,14 +953,14 @@ showNoteDetails(noteKey) {
                     <form id="editCommentForm" class="space-y-4">
                         <textarea 
                             id="editCommentText" 
-                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"
                             required
                         >${note.comments[commentIndex].text}</textarea>
                         <div class="flex justify-end space-x-2">
                             <button type="button" id="cancelEditComment" class="btn btn-gray">
                                 <i class="fas fa-times mr-2"></i>Cancelar
                             </button>
-                            <button type="submit" class="btn btn-blue">
+                            <button type="submit" class="btn btn-wine-red">
                                 <i class="fas fa-save mr-2"></i>Salvar
                             </button>
                         </div>
@@ -1229,7 +1220,7 @@ ${comments}
         this.sortNotes();
     }
 
-sortNotes() {
+    sortNotes() {
         const container = document.getElementById('notesContainer');
         const sortOrder = document.getElementById('dateSort').value;
 
@@ -1262,8 +1253,8 @@ sortNotes() {
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
                 (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
                 (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
-                'bg-blue-500 hover:bg-blue-700'))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
+                'bg-red-900 hover:bg-red-700'))
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
         }
     }
 
@@ -1518,8 +1509,8 @@ handleScheduleFormSubmit() {
                 datasets: [{
                     label: 'Quantidade de Chamados',
                     data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified],
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
-                    borderColor: ['#1e40af', '#047857', '#b45309', '#6d28d9'],
+                    backgroundColor: ['#8B0000', '#006400', '#FFD700', '#800080'],
+                    borderColor: ['#5B0000', '#004400', '#CCAC00', '#660066'],
                     borderWidth: 1
                 }]
             },
