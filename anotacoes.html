@@ -345,7 +345,7 @@ const utils = {
                    .replace(/'/g, '&#39;');
     },
 
-validateForm: (formData) => {
+    validateForm: (formData) => {
         const errors = [];
         
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
@@ -523,6 +523,7 @@ class NoteManager {
         });
 
         document.getElementById('showDashboardBtn').addEventListener('click', () => {
+            this.renderDashboard();
             this.toggleDashboard();
         });
 
@@ -1500,7 +1501,10 @@ populateContractDropdown() {
                 responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0 // Ensure ticks are integer values
+                        }
                     }
                 }
             }
@@ -1519,7 +1523,6 @@ populateContractDropdown() {
         const dashboard = document.getElementById('dashboard');
         if (dashboard.classList.contains('hidden')) {
             dashboard.classList.remove('hidden');
-            this.renderDashboard();
         } else {
             dashboard.classList.add('hidden');
         }
