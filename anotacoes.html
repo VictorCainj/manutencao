@@ -79,37 +79,10 @@
         .dropdown-item {
             @apply block px-4 py-2 text-gray-800 hover:bg-gray-200 transition-colors duration-200;
         }
-        .sidebar {
-            @apply fixed left-0 top-0 h-full w-16 flex flex-col items-center bg-gray-800 text-white shadow-lg;
-        }
-        .sidebar-item {
-            @apply flex items-center justify-center w-full h-16 hover:bg-gray-700 cursor-pointer transition-colors duration-200;
-        }
-        .sidebar-item-content {
-            @apply hidden flex-col items-center space-y-2;
-        }
-        .sidebar-item:hover .sidebar-item-content {
-            @apply flex;
-        }
     </style>
 </head>
 
 <body class="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-
-<!-- Sidebar -->
-<div class="sidebar">
-    <div class="sidebar-item">
-        <i class="fas fa-bars text-2xl"></i>
-        <div class="sidebar-item-content">
-            <button id="importNotesBtn" class="dropdown-item">
-                <i class="fas fa-file-import mr-2"></i>Importar Contratos
-            </button>
-            <button id="downloadNotesBtn" class="dropdown-item">
-                <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
-            </button>
-        </div>
-    </div>
-</div>
 
 <!-- Main Controls -->
 <div class="mb-6 space-x-4">
@@ -118,6 +91,12 @@
     </button>
     <button id="createScheduleBtn" class="btn btn-blue">
         <i class="fas fa-calendar-alt mr-2"></i>Criar Agendamento
+    </button>
+    <button id="importNotesBtn" class="btn btn-gray">
+        <i class="fas fa-file-import mr-2"></i>Importar Contratos
+    </button>
+    <button id="downloadNotesBtn" class="btn btn-gray">
+        <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
     </button>
     <input type="file" id="fileInput" class="hidden" accept=".json">
 </div>
@@ -353,7 +332,7 @@ const utils = {
                    .replace(/'/g, '&#39;');
     },
 
-    validateForm: (formData) => {
+validateForm: (formData) => {
         const errors = [];
         
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
@@ -395,7 +374,7 @@ const utils = {
         }
     },
 
-formatDateMinimal: (dateString) => {
+    formatDateMinimal: (dateString) => {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Data inválida';
@@ -789,7 +768,7 @@ class NoteManager {
                 cancelScheduleBtn.style.display = 'none';
             }
 
-            // Inicialize a página atual de comentários
+// Inicialize a página atual de comentários
             this.currentCommentPage = 1;
             this.renderComments(noteKey);
             document.getElementById('noteDetailsModal').classList.remove('hidden');
@@ -800,7 +779,7 @@ class NoteManager {
         }
     }
 
-renderComments(noteKey) {
+    renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
