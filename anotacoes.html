@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;">
     <style>
         .btn {
             @apply px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200;
@@ -101,19 +102,19 @@
 
 <!-- Main Controls -->
 <div class="mb-6 space-x-4">
-    <button id="createNoteBtn" class="btn btn-blue">
+    <button id="createNoteBtn" class="btn btn-blue" aria-label="Criar anotação">
         <i class="fas fa-plus mr-2"></i>Criar anotação
     </button>
-    <button id="createScheduleBtn" class="btn btn-blue">
+    <button id="createScheduleBtn" class="btn btn-blue" aria-label="Criar Agendamento">
         <i class="fas fa-calendar-alt mr-2"></i>Criar Agendamento
     </button>
-    <button id="importNotesBtn" class="btn btn-gray">
+    <button id="importNotesBtn" class="btn btn-gray" aria-label="Importar Contratos">
         <i class="fas fa-file-import mr-2"></i>Importar Contratos
     </button>
-    <button id="downloadNotesBtn" class="btn btn-gray">
+    <button id="downloadNotesBtn" class="btn btn-gray" aria-label="Baixar Todos os Contratos">
         <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
     </button>
-    <button id="showDashboardBtn" class="btn btn-blue">
+    <button id="showDashboardBtn" class="btn btn-blue" aria-label="Dashboard">
         <i class="fas fa-chart-bar mr-2"></i>Dashboard
     </button>
     <input type="file" id="fileInput" class="hidden" accept=".json">
@@ -160,11 +161,11 @@
     </div>
 
     <div class="flex space-x-4 items-center">
-        <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" aria-label="Ordenar por data">
             <option value="newest">Mais recentes primeiro</option>
             <option value="oldest">Mais antigos primeiro</option>
         </select>
-        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" aria-label="Filtrar por status">
             <option value="all">Todos os status</option>
             <option value="open">Abertos</option>
             <option value="closed">Fechados</option>
@@ -356,6 +357,7 @@
     <button id="nextPageBtn" class="btn btn-blue"><i class="fas fa-chevron-right"></i></button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.4/dist/purify.min.js"></script>
 <script>
 // Utility Functions
 const utils = {
@@ -368,40 +370,39 @@ const utils = {
     },
 
     sanitizeInput: (input) => {
-        if (typeof input !== 'string') return '';
-        return input.trim()
-                   .replace(/[<>]/g, '')
-                   .replace(/&/g, '&amp;')
-                   .replace(/"/g, '&quot;')
-                   .replace(/'/g, '&#39;');
+        return DOMPurify.sanitize(input);
     },
 
 validateForm: (formData) => {
         const errors = [];
         
+        // Verifica o formato do número de contrato (letras, números e hífen)
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
             errors.push('Número de contrato inválido - use apenas letras, números e hífen');
         }
         
+        // Verifica se o nome do locador tem pelo menos 3 caracteres
         if (formData.locator.length < 3) {
             errors.push('Nome do Locador deve ter ao menos 3 caracteres');
         }
 
+        // Verifica se o nome do locatário tem pelo menos 3 caracteres
         if (formData.tenant.length < 3) {
             errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
         }
         
+        // Verifica se a descrição do problema tem pelo menos 10 caracteres
         if (formData.problem.length < 10) {
             errors.push('Problema deve ter ao menos 10 caracteres');
         }
         
+        // Verifica se o endereço tem pelo menos 5 caracteres
         if (formData.address.length < 5) {
             errors.push('Endereço deve ter ao menos 5 caracteres');
         }
         
         return errors;
     },
-
     formatDate: (dateString) => {
         try {
             const date = new Date(dateString);
@@ -760,7 +761,6 @@ class NoteManager {
             noteButton.dataset.locator = note.locator.toLowerCase();
             noteButton.dataset.tenant = note.tenant.toLowerCase();
             noteButton.dataset.address = note.address.toLowerCase();
-            // Store the date in a consistent format for sorting
             noteButton.dataset.date = note.createdAt;
             noteButton.dataset.status = note.status;
 
@@ -1238,7 +1238,7 @@ sortNotes() {
 
         const notes = Array.from(container.children);
         notes.sort((a, b) => {
-            // Parse the dates correctly from the dataset
+            // Parse the dates corretamente from the dataset
             const dateA = new Date(a.dataset.date);
             const dateB = new Date(b.dataset.date);
             
