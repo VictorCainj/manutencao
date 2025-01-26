@@ -109,16 +109,12 @@
 <div id="notificationArea" class="w-full max-w-4xl mb-4"></div>
 
 <!-- Dashboard Section -->
-<div id="dashboard" class="w-full max-w-4xl mb-6 hidden">
-    <h2 class="text-2xl font-semibold mb-4 text-center">Dashboard</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="relative w-full h-96">
-            <canvas id="statusChart"></canvas>
-        </div>
-        <div class="relative w-full h-96">
-            <canvas id="nameFrequencyChart"></canvas>
-        </div>
+<div id="dashboard" class="w-full max-w-2xl mb-6 hidden text-center">
+    <h2 class="text-2xl font-semibold mb-4">Dashboard</h2>
+    <div class="relative w-full h-96 mx-auto">
+        <canvas id="statusChart"></canvas>
     </div>
+    <div id="statusNumbers" class="mt-4 text-lg"></div>
 </div>
 
 <!-- Search and Filter Controls -->
@@ -452,7 +448,7 @@ class NoteManager {
         this.cleanInvalidNotes();
         this.initializeEventListeners();
         this.updateVerifiedNotes();
-        this.renderDashboard();
+        this.chart = null; // Add this line to keep track of the chart instance
     }
 
     cleanInvalidNotes() {
@@ -1003,8 +999,8 @@ renderComments(noteKey) {
                 note.scheduleDescription = '';
                 this.saveToLocalStorage();
                 this.renderNotes();
-                this.showNoteDetails(noteKey);
                 this.renderDashboard();
+                this.showNoteDetails(noteKey);
                 utils.showNotification('Agendamento cancelado e status alterado para aberto!', 'success');
             } else {
                 utils.showNotification('A nota não está em status de agendamento.', 'alert');
@@ -1150,7 +1146,6 @@ ${comments}
             if (savedNotes) {
                 this.notes = JSON.parse(savedNotes);
                 this.renderNotes();
-                this.renderDashboard();
             }
             this.updateVerifiedNotes();
         } catch (error) {
@@ -1479,21 +1474,17 @@ populateContractDropdown() {
             verified: 0
         };
 
-        const nameFrequency = {};
-
         Object.values(this.notes).forEach(note => {
             statusData[note.status] = (statusData[note.status] || 0) + 1;
-
-            const names = [note.locator, note.tenant];
-            names.forEach(name => {
-                if (name) {
-                    nameFrequency[name] = (nameFrequency[name] || 0) + 1;
-                }
-            });
         });
 
+        // Destroy the existing chart instance if it exists
+        if (this.chart) {
+            this.chart.destroy();
+        }
+
         const statusChartCtx = document.getElementById('statusChart').getContext('2d');
-        new Chart(statusChartCtx, {
+        this.chart = new Chart(statusChartCtx, {
             type: 'bar',
             data: {
                 labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje'],
@@ -1515,33 +1506,13 @@ populateContractDropdown() {
             }
         });
 
-        const nameFrequencyChartCtx = document.getElementById('nameFrequencyChart').getContext('2d');
-        new Chart(nameFrequencyChartCtx, {
-            type: 'doughnut',
-            data: {
-                labels: Object.keys(nameFrequency),
-                datasets: [{
-                    label: 'Frequência de Nomes',
-                    data: Object.values(nameFrequency),
-                    backgroundColor: Object.keys(nameFrequency).map(() => `#${Math.floor(Math.random()*16777215).toString(16)}`)
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return `${tooltipItem.label}: ${tooltipItem.raw}`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
+        const statusNumbers = `
+            <p>Abertos: ${statusData.open}</p>
+            <p>Fechados: ${statusData.closed}</p>
+            <p>Em Agendamento: ${statusData.scheduled}</p>
+            <p>Verificados Hoje: ${statusData.verified}</p>
+        `;
+        document.getElementById('statusNumbers').innerHTML = statusNumbers;
     }
 
     toggleDashboard() {
