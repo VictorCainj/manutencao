@@ -330,6 +330,21 @@
 
     <!-- Notes Section -->
     <div class="w-1/4 p-4">
+        <!-- Filter Controls -->
+        <div class="mb-4 flex flex-col space-y-2">
+            <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
+                <option value="all">Todos os Chamados</option>
+                <option value="open">Abertos</option>
+                <option value="scheduled">Em Agendamento</option>
+                <option value="verified">Verificados Hoje</option>
+                <option value="closed">Fechados</option>
+            </select>
+            <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
+                <option value="newest">Mais Recentes</option>
+                <option value="oldest">Mais Antigos</option>
+            </select>
+        </div>
+
         <!-- Search and Filter Controls -->
         <div class="mb-4">
             <div class="relative">
@@ -376,7 +391,7 @@ const utils = {
                    .replace(/'/g, '&#39;');
     },
 
-validateForm: (formData) => {
+    validateForm: (formData) => {
         const errors = [];
         
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
@@ -536,6 +551,14 @@ class NoteManager {
         document.getElementById('searchInput').addEventListener('input', 
             () => this.filterNotes()
         );
+
+        document.getElementById('statusFilter').addEventListener('change', () => {
+            this.filterNotes();
+        });
+
+        document.getElementById('dateFilter').addEventListener('change', () => {
+            this.sortNotes();
+        });
 
         // Event Listeners para importação/exportação
         document.getElementById('importNotesBtn').addEventListener('click', () => {
@@ -723,9 +746,17 @@ class NoteManager {
             key,
             ...this.notes[key]
         }));
+
+        // Filter notes based on status
+        const statusFilter = document.getElementById('statusFilter').value;
+        let filteredNotes = notesArray;
+        if (statusFilter !== 'all') {
+            filteredNotes = notesArray.filter(note => note.status === statusFilter);
+        }
+
         const start = this.currentPage * this.notesPerPage;
         const end = start + this.notesPerPage;
-        const notesToDisplay = notesArray.slice(start, end);
+        const notesToDisplay = filteredNotes.slice(start, end);
 
         notesToDisplay.forEach(note => {
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -1228,13 +1259,17 @@ sortNotes() {
         const container = document.getElementById('notesContainer');
 
         const notes = Array.from(container.children);
+        const dateFilter = document.getElementById('dateFilter').value;
+
         notes.sort((a, b) => {
-            // Parse the dates correctly from the dataset
             const dateA = new Date(a.dataset.date);
             const dateB = new Date(b.dataset.date);
             
-            // Return comparison based on sort order (newest first)
-            return dateB - dateA;
+            if (dateFilter === 'newest') {
+                return dateB - dateA;
+            } else {
+                return dateA - dateB;
+            }
         });
 
         // Clear and re-append sorted notes
