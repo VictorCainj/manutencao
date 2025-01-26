@@ -99,6 +99,9 @@
     <button id="downloadNotesBtn" class="btn btn-gray">
         <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
     </button>
+    <button id="showDashboardBtn" class="btn btn-blue">
+        <i class="fas fa-chart-bar mr-2"></i>Dashboard
+    </button>
     <input type="file" id="fileInput" class="hidden" accept=".json">
 </div>
 
@@ -106,11 +109,15 @@
 <div id="notificationArea" class="w-full max-w-4xl mb-4"></div>
 
 <!-- Dashboard Section -->
-<div id="dashboard" class="w-full max-w-4xl mb-6">
+<div id="dashboard" class="w-full max-w-4xl mb-6 hidden">
     <h2 class="text-2xl font-semibold mb-4 text-center">Dashboard</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <canvas id="statusChart"></canvas>
-        <canvas id="nameFrequencyChart"></canvas>
+        <div class="relative w-full h-96">
+            <canvas id="statusChart"></canvas>
+        </div>
+        <div class="relative w-full h-96">
+            <canvas id="nameFrequencyChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -519,6 +526,10 @@ class NoteManager {
             this.exportNotes();
         });
 
+        document.getElementById('showDashboardBtn').addEventListener('click', () => {
+            this.toggleDashboard();
+        });
+
         // Event Listeners para comentários e detalhes
         document.getElementById('commentForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -591,6 +602,7 @@ class NoteManager {
                 document.getElementById('noteModal').classList.add('hidden');
                 document.getElementById('noteDetailsModal').classList.add('hidden');
                 document.getElementById('scheduleModal').classList.add('hidden');
+                document.getElementById('dashboard').classList.add('hidden');
             }
 
             // Navegação por setas do teclado
@@ -992,6 +1004,7 @@ renderComments(noteKey) {
                 this.saveToLocalStorage();
                 this.renderNotes();
                 this.showNoteDetails(noteKey);
+                this.renderDashboard();
                 utils.showNotification('Agendamento cancelado e status alterado para aberto!', 'success');
             } else {
                 utils.showNotification('A nota não está em status de agendamento.', 'alert');
@@ -1529,6 +1542,16 @@ populateContractDropdown() {
                 }
             }
         });
+    }
+
+    toggleDashboard() {
+        const dashboard = document.getElementById('dashboard');
+        if (dashboard.classList.contains('hidden')) {
+            dashboard.classList.remove('hidden');
+            this.renderDashboard();
+        } else {
+            dashboard.classList.add('hidden');
+        }
     }
 }
 
