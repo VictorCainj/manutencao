@@ -1522,6 +1522,7 @@ populateContractDropdown() {
     toggleDashboard() {
         const dashboard = document.getElementById('dashboard');
         if (dashboard.classList.contains('hidden')) {
+            this.renderDashboard(); // Ensure the dashboard is rendered before showing it
             dashboard.classList.remove('hidden');
         } else {
             dashboard.classList.add('hidden');
