@@ -548,9 +548,9 @@ class NoteManager {
         });
 
         // Event Listeners para busca e filtros
-        document.getElementById('searchInput').addEventListener('input', 
-            () => this.filterNotes()
-        );
+        document.getElementById('searchInput').addEventListener('input', () => {
+            this.filterNotes();
+        });
 
         document.getElementById('statusFilter').addEventListener('change', () => {
             this.renderNotes();
@@ -1582,10 +1582,38 @@ sortNotes() {
             dashboard.classList.add('hidden');
         }
     }
+
+    searchAllContracts(query) {
+        const searchTerm = query.toLowerCase();
+        const matches = Object.keys(this.notes).filter(key => {
+            const note = this.notes[key];
+            return key.toLowerCase().includes(searchTerm) ||
+                   note.locator.toLowerCase().includes(searchTerm) ||
+                   note.tenant.toLowerCase().includes(searchTerm) ||
+                   note.address.toLowerCase().includes(searchTerm);
+        });
+
+        return matches;
+    }
 }
 
 // Inicializa a aplicação
 const noteManager = new NoteManager();
+
+// Event listener for global search
+document.getElementById('searchInput').addEventListener('input', () => {
+    const searchQuery = document.getElementById('searchInput').value;
+    const results = noteManager.searchAllContracts(searchQuery);
+    if (results.length > 0) {
+        noteManager.currentPage = 0;
+        noteManager.renderNotes();
+        results.forEach(key => {
+            noteManager.showNoteDetails(key);
+        });
+    } else {
+        utils.showNotification('Nenhum contrato encontrado.', 'alert');
+    }
+});
 </script>
 </body>
 </html>
