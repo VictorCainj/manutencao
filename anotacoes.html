@@ -1259,7 +1259,7 @@ ${comments}
         try {
             const existingContract = document.getElementById('existingContract').value;
             const providerName = document.getElementById('providerName').value;
-            const scheduleDate = document.getElementById('scheduleDate').value; // Utilize a data informada pelo usuário
+            const scheduleDate = document.getElementById('scheduleDate').value;
             const scheduleDescription = document.getElementById('scheduleDescription').value;
 
             if (!existingContract || !providerName || !scheduleDescription) {
@@ -1275,7 +1275,7 @@ ${comments}
 
             note.status = 'scheduled';
             note.providerName = utils.sanitizeInput(providerName);
-            note.scheduleDate = scheduleDate; // Use a data informada pelo usuário
+            note.scheduleDate = scheduleDate;
             note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
 
             this.saveToLocalStorage();
