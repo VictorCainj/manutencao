@@ -364,7 +364,7 @@ const utils = {
                    .replace(/'/g, '&#39;');
     },
 
-    validateForm: (formData) => {
+validateForm: (formData) => {
         const errors = [];
         
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
@@ -390,7 +390,7 @@ const utils = {
         return errors;
     },
 
-formatDate: (dateString) => {
+    formatDate: (dateString) => {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Data inválida';
@@ -524,9 +524,6 @@ class NoteManager {
         document.getElementById('searchInput').addEventListener('input', 
             () => this.filterNotes()
         );
-
-        document.getElementById('dateSort').addEventListener('change', () => this.sortNotes());
-        document.getElementById('statusFilter').addEventListener('change', () => this.filterNotes());
 
         // Event Listeners para importação/exportação
         document.getElementById('importNotesBtn').addEventListener('click', () => {
