@@ -382,103 +382,103 @@ const utils = {
         setTimeout(() => notificationArea.removeChild(notification), 5000);
     },
 
-sanitizeInput: (input) => {
-    if (typeof input !== 'string') return '';
-    return input.trim()
-               .replace(/[<>]/g, '')
-               .replace(/&/g, '&amp;')
-               .replace(/"/g, '&quot;')
-               .replace(/'/g, '&#39;');
-},
+    sanitizeInput: (input) => {
+        if (typeof input !== 'string') return '';
+        return input.trim()
+                   .replace(/[<>]/g, '')
+                   .replace(/&/g, '&amp;')
+                   .replace(/"/g, '&quot;')
+                   .replace(/'/g, '&#39;');
+    },
 
-validateForm: (formData) => {
-    const errors = [];
-    
-    if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
-        errors.push('Número de contrato inválido - use apenas letras, números e hífen');
-    }
-    
-    if (formData.locator.length < 3) {
-        errors.push('Nome do Locador deve ter ao menos 3 caracteres');
-    }
-
-    if (formData.tenant.length < 3) {
-        errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
-    }
-    
-    if (formData.problem.length < 10) {
-        errors.push('Problema deve ter ao menos 10 caracteres');
-    }
-    
-    if (formData.address.length < 5) {
-        errors.push('Endereço deve ter ao menos 5 caracteres');
-    }
-    
-    return errors;
-},
-
-formatDate: (dateString) => {
-    try {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Data inválida';
+    validateForm: (formData) => {
+        const errors = [];
         
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
+        if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
+            errors.push('Número de contrato inválido - use apenas letras, números e hífen');
+        }
         
-        return `${day}/${month}/${year}`;
-    } catch (e) {
-        console.error('Error formatting date:', e);
-        return 'Data inválida';
+        if (formData.locator.length < 3) {
+            errors.push('Nome do Locador deve ter ao menos 3 caracteres');
+        }
+
+        if (formData.tenant.length < 3) {
+            errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
+        }
+        
+        if (formData.problem.length < 10) {
+            errors.push('Problema deve ter ao menos 10 caracteres');
+        }
+        
+        if (formData.address.length < 5) {
+            errors.push('Endereço deve ter ao menos 5 caracteres');
+        }
+        
+        return errors;
+    },
+
+    formatDate: (dateString) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Data inválida';
+            
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            
+            return `${day}/${month}/${year}`;
+        } catch (e) {
+            console.error('Error formatting date:', e);
+            return 'Data inválida';
+        }
+    },
+
+    formatDateMinimal: (dateString) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Data inválida';
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        } catch (e) {
+            console.error('Error formatting date:', e);
+            return 'Data inválida';
+        }
+    },
+
+    calculateDaysOpen: (dateString) => {
+        const start = new Date(dateString);
+        const today = new Date();
+        const diffTime = Math.abs(today - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    },
+
+    getCurrentDateTime: () => {
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    },
+
+    downloadFile: (content, filename, type = 'text/plain') => {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }, 100);
     }
-},
-
-formatDateMinimal: (dateString) => {
-    try {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return 'Data inválida';
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    } catch (e) {
-        console.error('Error formatting date:', e);
-        return 'Data inválida';
-    }
-},
-
-calculateDaysOpen: (dateString) => {
-    const start = new Date(dateString);
-    const today = new Date();
-    const diffTime = Math.abs(today - start);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-},
-
-getCurrentDateTime: () => {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-},
-
-downloadFile: (content, filename, type = 'text/plain') => {
-    const blob = new Blob([content], { type });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-        URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-    }, 100);
-}
 };
 
 // Note Manager Class
