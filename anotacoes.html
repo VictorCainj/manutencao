@@ -67,6 +67,18 @@
             color: blue;
             cursor: pointer;
         }
+        .dropdown {
+            @apply relative inline-block;
+        }
+        .dropdown-content {
+            @apply hidden absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-50;
+        }
+        .dropdown:hover .dropdown-content {
+            @apply block;
+        }
+        .dropdown-item {
+            @apply block px-4 py-2 text-gray-800 hover:bg-gray-200 transition-colors duration-200;
+        }
     </style>
 </head>
 
@@ -80,14 +92,24 @@
     <button id="createScheduleBtn" class="btn btn-blue">
         <i class="fas fa-calendar-alt mr-2"></i>Criar Agendamento
     </button>
-    <button id="importNotesBtn" class="btn btn-green">
-        <i class="fas fa-file-import mr-2"></i>Importar Contratos
-    </button>
-    <button id="downloadNotesBtn" class="btn btn-yellow">
-        <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
-    </button>
+    <div class="dropdown">
+        <button class="btn btn-gray">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="dropdown-content">
+            <button id="importNotesBtn" class="dropdown-item">
+                <i class="fas fa-file-import mr-2"></i>Importar Contratos
+            </button>
+            <button id="downloadNotesBtn" class="dropdown-item">
+                <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
+            </button>
+        </div>
+    </div>
     <input type="file" id="fileInput" class="hidden" accept=".json">
 </div>
+
+<!-- Notification Area -->
+<div id="notificationArea" class="w-full max-w-4xl mb-4"></div>
 
 <!-- Search and Filter Controls -->
 <div class="mb-6 w-full max-w-4xl space-y-4">
@@ -304,8 +326,8 @@ const utils = {
         const notification = document.createElement('div');
         notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
         notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => document.body.removeChild(notification), 5000);
+        document.getElementById('notificationArea').appendChild(notification);
+        setTimeout(() => document.getElementById('notificationArea').removeChild(notification), 5000);
     },
 
     sanitizeInput: (input) => {
@@ -380,7 +402,7 @@ const utils = {
         return diffDays;
     },
 
-    getCurrentDateTime: () => {
+getCurrentDateTime: () => {
         const now = new Date();
         const day = String(now.getDate()).padStart(2, '0');
         const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -391,7 +413,7 @@ const utils = {
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     },
 
-downloadFile: (content, filename, type = 'text/plain') => {
+    downloadFile: (content, filename, type = 'text/plain') => {
         const blob = new Blob([content], { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -808,7 +830,7 @@ class NoteManager {
                 });
             });
 
-            // Mostrar/ocultar botão "Mostrar Mais Comentários"
+// Mostrar/ocultar botão "Mostrar Mais Comentários"
             const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
             const backToTopBtn = document.getElementById('backToTopBtn');
             if (end >= note.comments.length) {
@@ -828,7 +850,7 @@ class NoteManager {
         }
     }
 
-handleCommentSubmit() {
+    handleCommentSubmit() {
         try {
             const commentText = document.getElementById('commentText').value;
             if (!commentText.trim()) {
