@@ -459,7 +459,7 @@ class NoteManager {
     constructor() {
         this.notes = {};
         this.currentPage = 0;
-        this.notesPerPage = 8;
+        this.notesPerPage = 6;
         this.currentUser = 'VictorCainj';
         this.currentDateTime = utils.getCurrentDateTime();
         this.commentsPerPage = 8;  // Número de comentários por vez
@@ -1195,7 +1195,6 @@ ${comments}
     }
 
     filterNotes() {
-        const statusFilter = document.getElementById('statusFilter').value;
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
         const notes = document.querySelectorAll('.note-button');
@@ -1203,7 +1202,6 @@ ${comments}
             const noteKey = noteBtn.dataset.contract;
             const note = this.notes[noteKey];
 
-            const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
             const matchesSearch = [
                 noteKey,
                 noteBtn.dataset.locator,
@@ -1211,7 +1209,7 @@ ${comments}
                 noteBtn.dataset.address
             ].join(' ').toLowerCase().includes(searchTerm);
 
-            noteBtn.classList.toggle('hidden', !(matchesStatus && matchesSearch));
+            noteBtn.classList.toggle('hidden', !matchesSearch);
         });
 
         this.sortNotes();
@@ -1219,7 +1217,6 @@ ${comments}
 
 sortNotes() {
         const container = document.getElementById('notesContainer');
-        const sortOrder = document.getElementById('dateSort').value;
 
         const notes = Array.from(container.children);
         notes.sort((a, b) => {
@@ -1227,8 +1224,8 @@ sortNotes() {
             const dateA = new Date(a.dataset.date);
             const dateB = new Date(b.dataset.date);
             
-            // Return comparison based on sort order
-            return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+            // Return comparison based on sort order (newest first)
+            return dateB - dateA;
         });
 
         // Clear and re-append sorted notes
@@ -1259,16 +1256,17 @@ sortNotes() {
         const totalNotes = Object.keys(this.notes).length;
         const totalPages = Math.ceil(totalNotes / this.notesPerPage);
 
-        this.currentPage = (this.currentPage + 1) % totalPages;
-        this.renderNotes();
+        if (this.currentPage < totalPages - 1) {
+            this.currentPage++;
+            this.renderNotes();
+        }
     }
 
     prevPage() {
-        const totalNotes = Object.keys(this.notes).length;
-        const totalPages = Math.ceil(totalNotes / this.notesPerPage);
-
-        this.currentPage = (this.currentPage - 1 + totalPages) % totalPages;
-        this.renderNotes();
+        if (this.currentPage > 0) {
+            this.currentPage--;
+            this.renderNotes();
+        }
     }
 
     handleScheduleFormSubmit() {
