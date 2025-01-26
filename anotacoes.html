@@ -83,86 +83,107 @@
     </style>
 </head>
 
-<body class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 p-4 text-black">
+<body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 text-black">
 
 <!-- Logo Section -->
 <div class="mb-6">
     <img src="https://i.ibb.co/R3dKTYr/Madia-Im-veis-40-anos.webp" alt="Logo" class="mx-auto h-24">
 </div>
 
-<!-- Main Controls -->
-<div class="mb-6 space-x-4">
-    <button id="createNoteBtn" class="btn btn-wine-red">
-        <i class="fas fa-plus mr-2"></i>Criar anotação
-    </button>
-    <button id="createScheduleBtn" class="btn btn-wine-red">
-        <i class="fas fa-calendar-alt mr-2"></i>Criar Agendamento
-    </button>
-    <button id="importNotesBtn" class="btn btn-gray">
-        <i class="fas fa-file-import mr-2"></i>Importar Contratos
-    </button>
-    <button id="downloadNotesBtn" class="btn btn-gray">
-        <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
-    </button>
-    <button id="showDashboardBtn" class="btn btn-wine-red">
-        <i class="fas fa-chart-bar mr-2"></i>Dashboard
-    </button>
-    <input type="file" id="fileInput" class="hidden" accept=".json">
-</div>
+<!-- Main Layout -->
+<div class="flex flex-1 w-full">
 
-<!-- Notification Area -->
-<div id="notificationArea" class="w-full max-w-4xl mb-4"></div>
+    <!-- Main Controls -->
+    <div class="w-1/4 p-4">
+        <div class="mb-6 space-y-4">
+            <button id="createNoteBtn" class="btn btn-wine-red w-full">
+                <i class="fas fa-plus mr-2"></i>Criar anotação
+            </button>
+            <button id="createScheduleBtn" class="btn btn-wine-red w-full">
+                <i class="fas fa-calendar-alt mr-2"></i>Criar Agendamento
+            </button>
+            <button id="importNotesBtn" class="btn btn-gray w-full">
+                <i class="fas fa-file-import mr-2"></i>Importar Contratos
+            </button>
+            <button id="downloadNotesBtn" class="btn btn-gray w-full">
+                <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
+            </button>
+            <button id="showDashboardBtn" class="btn btn-wine-red w-full">
+                <i class="fas fa-chart-bar mr-2"></i>Dashboard
+            </button>
+            <input type="file" id="fileInput" class="hidden" accept=".json">
+        </div>
 
-<!-- Dashboard Section -->
-<div id="dashboard" class="w-full max-w-2xl mb-6 hidden text-center bg-white p-6 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-semibold mb-4 text-black">Dashboard</h2>
-    <div class="grid grid-cols-2 gap-4 mb-4">
-        <div class="dashboard-info">
-            <i class="fas fa-folder-open text-red-900"></i>
-            <p id="openCount">Abertos: 0</p>
-        </div>
-        <div class="dashboard-info">
-            <i class="fas fa-check text-green-500"></i>
-            <p id="closedCount">Fechados: 0</p>
-        </div>
-        <div class="dashboard-info">
-            <i class="fas fa-calendar-alt text-yellow-500"></i>
-            <p id="scheduledCount">Em Agendamento: 0</p>
-        </div>
-        <div class="dashboard-info">
-            <i class="fas fa-check-double text-purple-500"></i>
-            <p id="verifiedCount">Verificados Hoje: 0</p>
+        <!-- Search and Filter Controls -->
+        <div class="mb-6 space-y-4">
+            <div class="relative">
+                <input type="text" 
+                       id="searchInput" 
+                       placeholder="Pesquisar contratos..." 
+                       class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
+                       aria-label="Pesquisar contratos">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+
+            <div class="space-y-2">
+                <select id="dateSort" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
+                    <option value="newest">Mais recentes primeiro</option>
+                    <option value="oldest">Mais antigos primeiro</option>
+                </select>
+                <select id="statusFilter" class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
+                    <option value="all">Todos os status</option>
+                    <option value="open">Abertos</option>
+                    <option value="closed">Fechados</option>
+                    <option value="scheduled">Em agendamento</option>
+                    <option value="verified">Verificado Hoje</option>
+                </select>
+            </div>
         </div>
     </div>
-    <div class="relative w-full h-96 mx-auto">
-        <canvas id="statusChart"></canvas>
-    </div>
-</div>
 
-<!-- Search and Filter Controls -->
-<div class="mb-6 w-full max-w-4xl space-y-4">
-    <div class="relative">
-        <input type="text" 
-               id="searchInput" 
-               placeholder="Pesquisar contratos..." 
-               class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
-               aria-label="Pesquisar contratos">
-        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+    <!-- Notes Section -->
+    <div class="flex-1 p-4">
+        <!-- Notification Area -->
+        <div id="notificationArea" class="w-full max-w-4xl mb-4"></div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="w-full max-w-2xl mb-6 hidden text-center bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold mb-4 text-black">Dashboard</h2>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="dashboard-info">
+                    <i class="fas fa-folder-open text-red-900"></i>
+                    <p id="openCount">Abertos: 0</p>
+                </div>
+                <div class="dashboard-info">
+                    <i class="fas fa-check text-green-500"></i>
+                    <p id="closedCount">Fechados: 0</p>
+                </div>
+                <div class="dashboard-info">
+                    <i class="fas fa-calendar-alt text-yellow-500"></i>
+                    <p id="scheduledCount">Em Agendamento: 0</p>
+                </div>
+                <div class="dashboard-info">
+                    <i class="fas fa-check-double text-purple-500"></i>
+                    <p id="verifiedCount">Verificados Hoje: 0</p>
+                </div>
+            </div>
+            <div class="relative w-full h-96 mx-auto">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
     </div>
 
-    <div class="flex space-x-4 items-center">
-        <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
-            <option value="newest">Mais recentes primeiro</option>
-            <option value="oldest">Mais antigos primeiro</option>
-        </select>
-        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
-            <option value="all">Todos os status</option>
-            <option value="open">Abertos</option>
-            <option value="closed">Fechados</option>
-            <option value="scheduled">Em agendamento</option>
-            <option value="verified">Verificado Hoje</option>
-        </select>
+    <!-- Notes Container -->
+    <div class="w-1/4 p-4">
+        <div id="notesContainer" class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+        <!-- Pagination Controls -->
+        <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
+            <button id="prevPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-left"></i></button>
+            <button id="nextPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-right"></i></button>
+        </div>
     </div>
+
 </div>
 
 <!-- Note Creation Modal -->
@@ -335,16 +356,6 @@
             </button>
         </div>
     </div>
-</div>
-
-<!-- Notes Container -->
-<div id="notesContainer" class="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-</div>
-
-<!-- Pagination Controls -->
-<div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
-    <button id="prevPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-left"></i></button>
-    <button id="nextPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-right"></i></button>
 </div>
 
 <script>
