@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Anotações de Contratos</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         .btn {
@@ -103,6 +104,15 @@
 
 <!-- Notification Area -->
 <div id="notificationArea" class="w-full max-w-4xl mb-4"></div>
+
+<!-- Dashboard Section -->
+<div id="dashboard" class="w-full max-w-4xl mb-6">
+    <h2 class="text-2xl font-semibold mb-4 text-center">Dashboard</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <canvas id="statusChart"></canvas>
+        <canvas id="nameFrequencyChart"></canvas>
+    </div>
+</div>
 
 <!-- Search and Filter Controls -->
 <div class="mb-6 w-full max-w-4xl space-y-4">
@@ -374,7 +384,7 @@ validateForm: (formData) => {
         }
     },
 
-    formatDateMinimal: (dateString) => {
+formatDateMinimal: (dateString) => {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Data inválida';
@@ -383,11 +393,12 @@ validateForm: (formData) => {
             const year = date.getFullYear();
             return `${day}/${month}/${year}`;
         } catch (e) {
+            console.error('Error formatting date:', e);
             return 'Data inválida';
         }
     },
 
-calculateDaysOpen: (dateString) => {
+    calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
         const today = new Date();
         const diffTime = Math.abs(today - start);
@@ -434,6 +445,7 @@ class NoteManager {
         this.cleanInvalidNotes();
         this.initializeEventListeners();
         this.updateVerifiedNotes();
+        this.renderDashboard();
     }
 
     cleanInvalidNotes() {
@@ -651,6 +663,7 @@ class NoteManager {
 
             this.renderNotes();
             this.saveToLocalStorage();
+            this.renderDashboard();
             utils.showNotification('Anotação criada com sucesso!', 'success');
             return true;
         } catch (error) {
@@ -768,7 +781,7 @@ class NoteManager {
                 cancelScheduleBtn.style.display = 'none';
             }
 
-// Inicialize a página atual de comentários
+            // Inicialize a página atual de comentários
             this.currentCommentPage = 1;
             this.renderComments(noteKey);
             document.getElementById('noteDetailsModal').classList.remove('hidden');
@@ -779,7 +792,7 @@ class NoteManager {
         }
     }
 
-    renderComments(noteKey) {
+renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -796,10 +809,10 @@ class NoteManager {
             commentsToShow.forEach((comment) => {
                 const commentElement = document.createElement('div');
                 commentElement.className = 'comment-box';
-                
+
                 // Create unique IDs for the edit button using the comment ID
                 const editButtonId = `edit-comment-${comment.id}`;
-                
+
                 commentElement.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="flex-grow">
@@ -814,11 +827,11 @@ class NoteManager {
                         </button>
                     </div>
                 `;
-                
+
                 commentsContainer.appendChild(commentElement);
-                
+
                 // Add click event listener after the element is added to the DOM
-document.getElementById(editButtonId).addEventListener('click', () => {
+                document.getElementById(editButtonId).addEventListener('click', () => {
                     this.editComment(noteKey, comment.id);
                 });
             });
@@ -998,6 +1011,7 @@ document.getElementById(editButtonId).addEventListener('click', () => {
             delete this.notes[noteKey];
             this.saveToLocalStorage();
             this.renderNotes();
+            this.renderDashboard();
             document.getElementById('noteDetailsModal').classList.add('hidden');
             utils.showNotification('Anotação excluída com sucesso!', 'success');
         } catch (error) {
@@ -1076,6 +1090,7 @@ ${comments}
                 note.closedAt = utils.getCurrentDateTime();
                 this.saveToLocalStorage();
                 this.renderNotes();
+                this.renderDashboard();
                 this.showNoteDetails(noteKey);
                 utils.showNotification('Nota finalizada com sucesso!', 'success');
             } else {
@@ -1095,6 +1110,7 @@ ${comments}
                 delete note.closedAt;
                 this.saveToLocalStorage();
                 this.renderNotes();
+                this.renderDashboard();
                 this.showNoteDetails(noteKey);
                 utils.showNotification('Nota reaberta com sucesso!', 'success');
             } else {
@@ -1121,6 +1137,7 @@ ${comments}
             if (savedNotes) {
                 this.notes = JSON.parse(savedNotes);
                 this.renderNotes();
+                this.renderDashboard();
             }
             this.updateVerifiedNotes();
         } catch (error) {
@@ -1145,6 +1162,7 @@ ${comments}
 
         this.saveToLocalStorage();
         this.renderNotes();
+        this.renderDashboard();
     }
 
     handleSearch(searchTerm) {
@@ -1253,6 +1271,7 @@ ${comments}
 
             this.saveToLocalStorage();
             this.renderNotes();
+            this.renderDashboard();
             document.getElementById('scheduleForm').reset();
             document.getElementById('scheduleModal').classList.add('hidden');
             utils.showNotification('Agendamento criado com sucesso!', 'success');
@@ -1262,7 +1281,7 @@ ${comments}
         }
     }
 
-    populateContractDropdown() {
+populateContractDropdown() {
         const existingContractDropdown = document.getElementById('existingContract');
         existingContractDropdown.innerHTML = '<option value="">Selecione um contrato...</option>';
 
@@ -1287,7 +1306,7 @@ ${comments}
         });
     }
 
-handleFileImport(event) {
+    handleFileImport(event) {
         try {
             const file = event.target.files[0];
             if (!file) {
@@ -1334,6 +1353,7 @@ handleFileImport(event) {
 
                     this.saveToLocalStorage();
                     this.renderNotes();
+                    this.renderDashboard();
                     utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
                 } catch (error) {
                     console.error('Erro ao processar arquivo:', error);
@@ -1436,6 +1456,79 @@ handleFileImport(event) {
             console.error('Erro na exportação:', error);
             utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
         }
+    }
+
+    renderDashboard() {
+        const statusData = {
+            open: 0,
+            closed: 0,
+            scheduled: 0,
+            verified: 0
+        };
+
+        const nameFrequency = {};
+
+        Object.values(this.notes).forEach(note => {
+            statusData[note.status] = (statusData[note.status] || 0) + 1;
+
+            const names = [note.locator, note.tenant];
+            names.forEach(name => {
+                if (name) {
+                    nameFrequency[name] = (nameFrequency[name] || 0) + 1;
+                }
+            });
+        });
+
+        const statusChartCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusChartCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje'],
+                datasets: [{
+                    label: 'Quantidade de Chamados',
+                    data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified],
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'],
+                    borderColor: ['#1e40af', '#047857', '#b45309', '#6d28d9'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const nameFrequencyChartCtx = document.getElementById('nameFrequencyChart').getContext('2d');
+        new Chart(nameFrequencyChartCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(nameFrequency),
+                datasets: [{
+                    label: 'Frequência de Nomes',
+                    data: Object.values(nameFrequency),
+                    backgroundColor: Object.keys(nameFrequency).map(() => `#${Math.floor(Math.random()*16777215).toString(16)}`)
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `${tooltipItem.label}: ${tooltipItem.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 }
 
