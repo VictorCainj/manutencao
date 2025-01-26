@@ -523,7 +523,6 @@ class NoteManager {
         });
 
         document.getElementById('showDashboardBtn').addEventListener('click', () => {
-            this.renderDashboard();
             this.toggleDashboard();
         });
 
@@ -672,7 +671,6 @@ class NoteManager {
 
             this.renderNotes();
             this.saveToLocalStorage();
-            this.renderDashboard();
             utils.showNotification('Anotação criada com sucesso!', 'success');
             return true;
         } catch (error) {
@@ -1000,7 +998,6 @@ renderComments(noteKey) {
                 note.scheduleDescription = '';
                 this.saveToLocalStorage();
                 this.renderNotes();
-                this.renderDashboard();
                 this.showNoteDetails(noteKey);
                 utils.showNotification('Agendamento cancelado e status alterado para aberto!', 'success');
             } else {
@@ -1021,7 +1018,6 @@ renderComments(noteKey) {
             delete this.notes[noteKey];
             this.saveToLocalStorage();
             this.renderNotes();
-            this.renderDashboard();
             document.getElementById('noteDetailsModal').classList.add('hidden');
             utils.showNotification('Anotação excluída com sucesso!', 'success');
         } catch (error) {
@@ -1100,7 +1096,6 @@ ${comments}
                 note.closedAt = utils.getCurrentDateTime();
                 this.saveToLocalStorage();
                 this.renderNotes();
-                this.renderDashboard();
                 this.showNoteDetails(noteKey);
                 utils.showNotification('Nota finalizada com sucesso!', 'success');
             } else {
@@ -1120,7 +1115,6 @@ ${comments}
                 delete note.closedAt;
                 this.saveToLocalStorage();
                 this.renderNotes();
-                this.renderDashboard();
                 this.showNoteDetails(noteKey);
                 utils.showNotification('Nota reaberta com sucesso!', 'success');
             } else {
@@ -1171,7 +1165,6 @@ ${comments}
 
         this.saveToLocalStorage();
         this.renderNotes();
-        this.renderDashboard();
     }
 
     handleSearch(searchTerm) {
@@ -1280,7 +1273,6 @@ ${comments}
 
             this.saveToLocalStorage();
             this.renderNotes();
-            this.renderDashboard();
             document.getElementById('scheduleForm').reset();
             document.getElementById('scheduleModal').classList.add('hidden');
             utils.showNotification('Agendamento criado com sucesso!', 'success');
@@ -1290,7 +1282,7 @@ ${comments}
         }
     }
 
-populateContractDropdown() {
+    populateContractDropdown() {
         const existingContractDropdown = document.getElementById('existingContract');
         existingContractDropdown.innerHTML = '<option value="">Selecione um contrato...</option>';
 
@@ -1305,7 +1297,7 @@ populateContractDropdown() {
         });
     }
 
-    filterContractDropdown(searchTerm) {
+filterContractDropdown(searchTerm) {
         const existingContractDropdown = document.getElementById('existingContract');
         const options = existingContractDropdown.querySelectorAll('option');
 
@@ -1362,7 +1354,6 @@ populateContractDropdown() {
 
                     this.saveToLocalStorage();
                     this.renderNotes();
-                    this.renderDashboard();
                     utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
                 } catch (error) {
                     console.error('Erro ao processar arquivo:', error);
