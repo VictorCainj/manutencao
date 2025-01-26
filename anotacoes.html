@@ -348,11 +348,14 @@
 // Utility Functions
 const utils = {
     showNotification: (message, type = 'success') => {
+        const notificationArea = document.getElementById('notificationArea');
+        notificationArea.innerHTML = ''; // Clear existing notifications
+
         const notification = document.createElement('div');
         notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
         notification.textContent = message;
-        document.getElementById('notificationArea').appendChild(notification);
-        setTimeout(() => document.getElementById('notificationArea').removeChild(notification), 5000);
+        notificationArea.appendChild(notification);
+        setTimeout(() => notificationArea.removeChild(notification), 5000);
     },
 
     sanitizeInput: (input) => {
@@ -364,7 +367,7 @@ const utils = {
                    .replace(/'/g, '&#39;');
     },
 
-validateForm: (formData) => {
+    validateForm: (formData) => {
         const errors = [];
         
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
@@ -390,7 +393,7 @@ validateForm: (formData) => {
         return errors;
     },
 
-    formatDate: (dateString) => {
+formatDate: (dateString) => {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Data inválida';
@@ -460,9 +463,9 @@ class NoteManager {
         this.notes = {};
         this.currentPage = 0;
         this.notesPerPage = 6;
+        this.commentsPerPage = 4;  // Número de comentários por vez
         this.currentUser = 'VictorCainj';
         this.currentDateTime = utils.getCurrentDateTime();
-        this.commentsPerPage = 8;  // Número de comentários por vez
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
@@ -757,7 +760,7 @@ class NoteManager {
         this.sortNotes(); // Apply initial sorting
     }
 
-showNoteDetails(noteKey) {
+    showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -822,7 +825,7 @@ showNoteDetails(noteKey) {
         }
     }
 
-    renderComments(noteKey) {
+renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -1212,7 +1215,7 @@ ${comments}
         this.sortNotes();
     }
 
-sortNotes() {
+    sortNotes() {
         const container = document.getElementById('notesContainer');
 
         const notes = Array.from(container.children);
@@ -1325,7 +1328,7 @@ sortNotes() {
         });
     }
 
-    handleFileImport(event) {
+handleFileImport(event) {
         try {
             const file = event.target.files[0];
             if (!file) {
