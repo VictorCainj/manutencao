@@ -1604,11 +1604,13 @@ const noteManager = new NoteManager();
 document.getElementById('searchInput').addEventListener('input', () => {
     const searchQuery = document.getElementById('searchInput').value;
     const results = noteManager.searchAllContracts(searchQuery);
+    noteManager.currentPage = 0;
+    noteManager.renderNotes();
     if (results.length > 0) {
-        noteManager.currentPage = 0;
-        noteManager.renderNotes();
-        results.forEach(key => {
-            noteManager.showNoteDetails(key);
+        const notes = document.querySelectorAll('.note-button');
+        notes.forEach(noteBtn => {
+            const noteKey = noteBtn.dataset.contract;
+            noteBtn.classList.toggle('hidden', !results.includes(noteKey));
         });
     } else {
         utils.showNotification('Nenhum contrato encontrado.', 'alert');
