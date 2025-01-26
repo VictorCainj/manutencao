@@ -18,7 +18,7 @@
             @apply bg-gray-500 hover:bg-gray-700 focus:ring-gray-400;
         }
         .notification {
-            @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded-md shadow-lg transition-all duration-300 ease-in-out z-50 font-semibold;
+            @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded-md shadow-lg transition-all duration-300 ease-in-out z-50 font-semibold text-center;
             animation: slideIn 0.3s ease-out;
         }
         .notification-success {
@@ -79,6 +79,9 @@
         }
         .dashboard-info p {
             @apply text-lg font-semibold;
+        }
+        .separator {
+            @apply my-4 border-t-2 border-gray-300;
         }
     </style>
 </head>
@@ -145,6 +148,8 @@
             </div>
         </div>
 
+        <div class="separator"></div>
+
         <!-- Note Creation Modal -->
         <div id="noteModal" class="modal-overlay hidden">
             <div class="modal-content p-6 w-full max-w-md">
@@ -204,6 +209,8 @@
             </div>
         </div>
 
+        <div class="separator"></div>
+
         <!-- Schedule Creation Modal -->
         <div id="scheduleModal" class="modal-overlay hidden">
             <div class="modal-content p-6 w-full max-w-md">
@@ -254,6 +261,8 @@
                 </form>
             </div>
         </div>
+
+        <div class="separator"></div>
 
         <!-- Note Details Modal -->
         <div id="noteDetailsModal" class="modal-overlay hidden">
@@ -367,7 +376,7 @@ const utils = {
                    .replace(/'/g, '&#39;');
     },
 
-    validateForm: (formData) => {
+validateForm: (formData) => {
         const errors = [];
         
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
@@ -393,7 +402,7 @@ const utils = {
         return errors;
     },
 
-formatDate: (dateString) => {
+    formatDate: (dateString) => {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Data inválida';
@@ -760,7 +769,7 @@ class NoteManager {
         this.sortNotes(); // Apply initial sorting
     }
 
-    showNoteDetails(noteKey) {
+showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -825,7 +834,7 @@ class NoteManager {
         }
     }
 
-renderComments(noteKey) {
+    renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -1215,7 +1224,7 @@ ${comments}
         this.sortNotes();
     }
 
-    sortNotes() {
+sortNotes() {
         const container = document.getElementById('notesContainer');
 
         const notes = Array.from(container.children);
@@ -1328,7 +1337,7 @@ ${comments}
         });
     }
 
-handleFileImport(event) {
+    handleFileImport(event) {
         try {
             const file = event.target.files[0];
             if (!file) {
