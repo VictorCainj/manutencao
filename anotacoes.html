@@ -97,49 +97,23 @@
     <div class="flex-1 flex flex-col items-center p-4">
 
         <!-- Main Controls -->
-        <div class="mb-6 space-y-4 w-full max-w-2xl text-center">
-            <button id="createNoteBtn" class="btn btn-wine-red w-full">
+        <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
+            <button id="createNoteBtn" class="btn btn-wine-red">
                 <i class="fas fa-plus mr-2"></i>Criar anotação
             </button>
-            <button id="createScheduleBtn" class="btn btn-wine-red w-full">
+            <button id="createScheduleBtn" class="btn btn-wine-red">
                 <i class="fas fa-calendar-alt mr-2"></i>Criar Agendamento
             </button>
-            <button id="importNotesBtn" class="btn btn-gray w-full">
+            <button id="importNotesBtn" class="btn btn-gray">
                 <i class="fas fa-file-import mr-2"></i>Importar Contratos
             </button>
-            <button id="downloadNotesBtn" class="btn btn-gray w-full">
+            <button id="downloadNotesBtn" class="btn btn-gray">
                 <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
             </button>
-            <button id="showDashboardBtn" class="btn btn-wine-red w-full">
+            <button id="showDashboardBtn" class="btn btn-wine-red">
                 <i class="fas fa-chart-bar mr-2"></i>Dashboard
             </button>
             <input type="file" id="fileInput" class="hidden" accept=".json">
-        </div>
-
-        <!-- Search and Filter Controls -->
-        <div class="mb-6 space-y-4 w-full max-w-2xl">
-            <div class="relative">
-                <input type="text" 
-                       id="searchInput" 
-                       placeholder="Pesquisar contratos..." 
-                       class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
-                       aria-label="Pesquisar contratos">
-                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            </div>
-
-            <div class="flex space-x-4 items-center justify-center">
-                <select id="dateSort" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
-                    <option value="newest">Mais recentes primeiro</option>
-                    <option value="oldest">Mais antigos primeiro</option>
-                </select>
-                <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
-                    <option value="all">Todos os status</option>
-                    <option value="open">Abertos</option>
-                    <option value="closed">Fechados</option>
-                    <option value="scheduled">Em agendamento</option>
-                    <option value="verified">Verificado Hoje</option>
-                </select>
-            </div>
         </div>
 
         <!-- Notification Area -->
@@ -347,6 +321,18 @@
 
     <!-- Notes Section -->
     <div class="w-1/4 p-4">
+        <!-- Search and Filter Controls -->
+        <div class="mb-4">
+            <div class="relative">
+                <input type="text" 
+                       id="searchInput" 
+                       placeholder="Pesquisar contratos..." 
+                       class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
+                       aria-label="Pesquisar contratos">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+        </div>
+
         <div id="notesContainer" class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
 
         <!-- Pagination Controls -->
@@ -378,7 +364,7 @@ const utils = {
                    .replace(/'/g, '&#39;');
     },
 
-validateForm: (formData) => {
+    validateForm: (formData) => {
         const errors = [];
         
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
@@ -404,7 +390,7 @@ validateForm: (formData) => {
         return errors;
     },
 
-    formatDate: (dateString) => {
+formatDate: (dateString) => {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Data inválida';
@@ -476,7 +462,7 @@ class NoteManager {
         this.notesPerPage = 8;
         this.currentUser = 'VictorCainj';
         this.currentDateTime = utils.getCurrentDateTime();
-        this.commentsPerPage = 4;  // Número de comentários por vez
+        this.commentsPerPage = 8;  // Número de comentários por vez
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
@@ -774,7 +760,7 @@ class NoteManager {
         this.sortNotes(); // Apply initial sorting
     }
 
-    showNoteDetails(noteKey) {
+showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -809,7 +795,7 @@ class NoteManager {
                 </div>
             `;
 
-// Mostrar/ocultar botões "Finalizar" e "Reabrir" com base no status
+            // Mostrar/ocultar botões "Finalizar" e "Reabrir" com base no status
             const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
             const reopenNoteBtn = document.getElementById('reopenNoteBtn');
             if (note.status === 'closed') {
@@ -1231,7 +1217,7 @@ ${comments}
         this.sortNotes();
     }
 
-    sortNotes() {
+sortNotes() {
         const container = document.getElementById('notesContainer');
         const sortOrder = document.getElementById('dateSort').value;
 
@@ -1285,7 +1271,7 @@ ${comments}
         this.renderNotes();
     }
 
-handleScheduleFormSubmit() {
+    handleScheduleFormSubmit() {
         try {
             const existingContract = document.getElementById('existingContract').value;
             const providerName = document.getElementById('providerName').value;
