@@ -80,6 +80,15 @@
         .dropdown-item {
             @apply block px-4 py-2 text-gray-800 hover:bg-gray-200 transition-colors duration-200;
         }
+        .dashboard-info {
+            @apply bg-white rounded-lg shadow-md p-4 text-center flex flex-col items-center justify-center transition-all duration-300;
+        }
+        .dashboard-info i {
+            @apply text-4xl mb-2;
+        }
+        .dashboard-info p {
+            @apply text-lg font-semibold;
+        }
     </style>
 </head>
 
@@ -111,10 +120,27 @@
 <!-- Dashboard Section -->
 <div id="dashboard" class="w-full max-w-2xl mb-6 hidden text-center">
     <h2 class="text-2xl font-semibold mb-4">Dashboard</h2>
+    <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="dashboard-info">
+            <i class="fas fa-folder-open text-blue-500"></i>
+            <p id="openCount">Abertos: 0</p>
+        </div>
+        <div class="dashboard-info">
+            <i class="fas fa-check text-green-500"></i>
+            <p id="closedCount">Fechados: 0</p>
+        </div>
+        <div class="dashboard-info">
+            <i class="fas fa-calendar-alt text-yellow-500"></i>
+            <p id="scheduledCount">Em Agendamento: 0</p>
+        </div>
+        <div class="dashboard-info">
+            <i class="fas fa-check-double text-purple-500"></i>
+            <p id="verifiedCount">Verificados Hoje: 0</p>
+        </div>
+    </div>
     <div class="relative w-full h-96 mx-auto">
         <canvas id="statusChart"></canvas>
     </div>
-    <div id="statusNumbers" class="mt-4 text-lg"></div>
 </div>
 
 <!-- Search and Filter Controls -->
@@ -345,7 +371,7 @@ const utils = {
                    .replace(/'/g, '&#39;');
     },
 
-    validateForm: (formData) => {
+validateForm: (formData) => {
         const errors = [];
         
         if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
@@ -387,7 +413,7 @@ const utils = {
         }
     },
 
-formatDateMinimal: (dateString) => {
+    formatDateMinimal: (dateString) => {
         try {
             const date = new Date(dateString);
             if (isNaN(date.getTime())) return 'Data inválida';
@@ -592,7 +618,7 @@ class NoteManager {
                 .querySelector('p strong + span').textContent);
         });
 
-        // Event Listener global para tecla ESC
+        // Event Listener global para tecla ESC e Delete
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.getElementById('noteModal').classList.add('hidden');
@@ -606,6 +632,13 @@ class NoteManager {
                 this.prevPage();
             } else if (e.key === 'ArrowRight') {
                 this.nextPage();
+            }
+
+            // Excluir anotação ao pressionar Delete
+            if (e.key === 'Delete' && !document.getElementById('noteDetailsModal').classList.contains('hidden')) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.deleteNote(noteKey);
             }
         });
 
@@ -734,7 +767,7 @@ class NoteManager {
         this.sortNotes(); // Apply initial sorting
     }
 
-    showNoteDetails(noteKey) {
+showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -799,7 +832,7 @@ class NoteManager {
         }
     }
 
-renderComments(noteKey) {
+    renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -1194,7 +1227,7 @@ ${comments}
         this.sortNotes();
     }
 
-    sortNotes() {
+sortNotes() {
         const container = document.getElementById('notesContainer');
         const sortOrder = document.getElementById('dateSort').value;
 
@@ -1297,7 +1330,7 @@ ${comments}
         });
     }
 
-filterContractDropdown(searchTerm) {
+    filterContractDropdown(searchTerm) {
         const existingContractDropdown = document.getElementById('existingContract');
         const options = existingContractDropdown.querySelectorAll('option');
 
@@ -1501,13 +1534,11 @@ filterContractDropdown(searchTerm) {
             }
         });
 
-        const statusNumbers = `
-            <p>Abertos: ${statusData.open}</p>
-            <p>Fechados: ${statusData.closed}</p>
-            <p>Em Agendamento: ${statusData.scheduled}</p>
-            <p>Verificados Hoje: ${statusData.verified}</p>
-        `;
-        document.getElementById('statusNumbers').innerHTML = statusNumbers;
+        // Update the dashboard info
+        document.getElementById('openCount').textContent = `Abertos: ${statusData.open}`;
+        document.getElementById('closedCount').textContent = `Fechados: ${statusData.closed}`;
+        document.getElementById('scheduledCount').textContent = `Em Agendamento: ${statusData.scheduled}`;
+        document.getElementById('verifiedCount').textContent = `Verificados Hoje: ${statusData.verified}`;
     }
 
     toggleDashboard() {
