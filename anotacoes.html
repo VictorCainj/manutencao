@@ -204,7 +204,7 @@
                     </div>
 
                     <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancelBtn" class="btn btn-gray">
+                        <button type="button" id="cancelNoteBtn" class="btn btn-gray">
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
                         <button type="submit" class="btn btn-wine-red">
@@ -517,12 +517,12 @@ class NoteManager {
     initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
-            document.getElementById('noteModal').classList.remove('hidden');
+            this.toggleModal('noteModal');
             document.getElementById('contractNumber').focus();
         });
 
-        document.getElementById('cancelBtn').addEventListener('click', () => {
-            document.getElementById('noteModal').classList.add('hidden');
+        document.getElementById('cancelNoteBtn').addEventListener('click', () => {
+            this.toggleModal('noteModal');
             document.getElementById('noteForm').reset();
         });
 
@@ -534,12 +534,12 @@ class NoteManager {
         // Event Listeners para criar agendamento
         document.getElementById('createScheduleBtn').addEventListener('click', () => {
             this.populateContractDropdown();
-            document.getElementById('scheduleModal').classList.remove('hidden');
+            this.toggleModal('scheduleModal');
             document.getElementById('existingContract').focus();
         });
 
         document.getElementById('cancelScheduleModalBtn').addEventListener('click', () => {
-            document.getElementById('scheduleModal').classList.add('hidden');
+            this.toggleModal('scheduleModal');
             document.getElementById('scheduleForm').reset();
         });
 
@@ -597,7 +597,7 @@ class NoteManager {
         });
 
         document.getElementById('closeDetailsBtn').addEventListener('click', () => {
-            document.getElementById('noteDetailsModal').classList.add('hidden');
+            this.toggleModal('noteDetailsModal');
         });
 
         // Event Listeners para ações nos detalhes
@@ -652,10 +652,7 @@ class NoteManager {
         // Event Listener global para tecla ESC e Delete
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                document.getElementById('noteModal').classList.add('hidden');
-                document.getElementById('noteDetailsModal').classList.add('hidden');
-                document.getElementById('scheduleModal').classList.add('hidden');
-                document.getElementById('dashboard').classList.add('hidden');
+                this.closeAllModals();
             }
 
             // Navegação por setas do teclado
@@ -681,12 +678,22 @@ class NoteManager {
         document.getElementById('nextPageBtn').addEventListener('click', () => {
             this.nextPage();
         });
+    }
 
-        // Event Listener for category toggling
-        document.querySelectorAll('.category').forEach(category => {
-            category.addEventListener('click', () => {
-                this.toggleCategory(category);
-            });
+    toggleModal(modalId) {
+        // Close all modals
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.classList.add('hidden');
+        });
+
+        // Open the selected modal
+        document.getElementById(modalId).classList.toggle('hidden');
+    }
+
+    closeAllModals() {
+        // Close all modals
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.classList.add('hidden');
         });
     }
 
@@ -708,7 +715,7 @@ class NoteManager {
         const success = this.addNote(formData);
         if (success) {
             document.getElementById('noteForm').reset();
-            document.getElementById('noteModal').classList.add('hidden');
+            this.toggleModal('noteModal');
         }
     }
 
@@ -875,7 +882,7 @@ showNoteDetails(noteKey) {
             // Inicialize a página atual de comentários
             this.currentCommentPage = 1;
             this.renderComments(noteKey);
-            document.getElementById('noteDetailsModal').classList.remove('hidden');
+            this.toggleModal('noteDetailsModal');
             document.getElementById('commentText').focus();
         } catch (error) {
             console.error('Erro ao exibir detalhes da nota:', error);
@@ -1099,7 +1106,7 @@ showNoteDetails(noteKey) {
             delete this.notes[noteKey];
             this.saveToLocalStorage();
             this.renderNotes();
-            document.getElementById('noteDetailsModal').classList.add('hidden');
+            this.toggleModal('noteDetailsModal');
             utils.showNotification('Anotação excluída com sucesso!', 'success');
         } catch (error) {
             console.error('Erro ao excluir nota:', error);
@@ -1357,7 +1364,7 @@ sortNotes() {
             this.saveToLocalStorage();
             this.renderNotes();
             document.getElementById('scheduleForm').reset();
-            document.getElementById('scheduleModal').classList.add('hidden');
+            this.toggleModal('scheduleModal');
             utils.showNotification('Agendamento criado com sucesso!', 'success');
         } catch (error) {
             console.error('Erro ao criar agendamento:', error);
@@ -1612,19 +1619,6 @@ sortNotes() {
         });
 
         return matches;
-    }
-
-    toggleCategory(category) {
-        // Close all categories
-        document.querySelectorAll('.category-content').forEach(content => {
-            content.style.display = 'none';
-        });
-
-        // Open the clicked category
-        const content = category.nextElementSibling;
-        if (content) {
-            content.style.display = 'block';
-        }
     }
 }
 
