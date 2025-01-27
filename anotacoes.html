@@ -1603,7 +1603,12 @@ sortNotes() {
 
     toggleDashboard() {
         const dashboard = document.getElementById('dashboard');
-        this.toggleModal('dashboard');
+        if (dashboard.classList.contains('hidden')) {
+            this.renderDashboard(); // Ensure the dashboard is rendered before showing it
+            dashboard.classList.remove('hidden');
+        } else {
+            dashboard.classList.add('hidden');
+        }
     }
 
     searchAllContracts(query) {
@@ -1617,19 +1622,6 @@ sortNotes() {
         });
 
         return matches;
-    }
-
-    toggleCategory(category) {
-        // Close all categories
-        document.querySelectorAll('.category-content').forEach(content => {
-            content.style.display = 'none';
-        });
-
-        // Open the clicked category
-        const content = category.nextElementSibling;
-        if (content) {
-            content.style.display = 'block';
-        }
     }
 }
 
