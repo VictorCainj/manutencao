@@ -439,20 +439,6 @@ const utils = {
         }
     },
 
-    formatDateMinimal: (dateString) => {
-        try {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) return 'Data inválida';
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            return `${day}/${month}/${year}`;
-        } catch (e) {
-            console.error('Error formatting date:', e);
-            return 'Data inválida';
-        }
-    },
-
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
         const today = new Date();
@@ -517,6 +503,7 @@ class NoteManager {
     initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
+            this.closeAllModals();
             this.toggleModal('noteModal');
             document.getElementById('contractNumber').focus();
         });
@@ -533,6 +520,7 @@ class NoteManager {
 
         // Event Listeners para criar agendamento
         document.getElementById('createScheduleBtn').addEventListener('click', () => {
+            this.closeAllModals();
             this.populateContractDropdown();
             this.toggleModal('scheduleModal');
             document.getElementById('existingContract').focus();
@@ -580,6 +568,7 @@ class NoteManager {
         });
 
         document.getElementById('showDashboardBtn').addEventListener('click', () => {
+            this.closeAllModals();
             this.toggleDashboard();
         });
 
@@ -837,7 +826,7 @@ showNoteDetails(noteKey) {
                         <h3 class="text-lg font-semibold">Informações do Contrato</h3>
                     </div>
                     <div class="grid grid-cols-1 gap-2">
-                        <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDateMinimal(note.createdAt)}</div>
+                        <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDate(note.createdAt)}</div>
                         <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
                         <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
                         <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
