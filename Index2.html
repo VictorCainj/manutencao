@@ -129,12 +129,12 @@
 </div>
 
 <!-- Logo Section -->
-<div class="mb-6">
+<div id="logoSection" class="mb-6 hidden">
     <img src="https://i.ibb.co/R3dKTYr/Madia-Im-veis-40-anos.webp" alt="Logo" class="mx-auto h-24">
 </div>
 
 <!-- Main Layout -->
-<div class="flex flex-1 w-full">
+<div id="mainLayout" class="flex flex-1 w-full hidden">
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col items-center p-4">
@@ -1290,7 +1290,7 @@ ${comments}
         this.sortNotes();
     }
 
-sortNotes() {
+    sortNotes() {
         const container = document.getElementById('notesContainer');
 
         const notes = Array.from(container.children);
@@ -1660,6 +1660,8 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
 
     if (email === 'manutencao@madia.com.br' && password === 'password123') {
         document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('logoSection').classList.remove('hidden');
+        document.getElementById('mainLayout').classList.remove('hidden');
         utils.showNotification('Login bem-sucedido!', 'success');
     } else {
         utils.showNotification('E-mail ou senha incorretos.', 'error');
