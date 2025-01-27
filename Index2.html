@@ -429,11 +429,7 @@ const utils = {
 
     sanitizeInput: (input) => {
         if (typeof input !== 'string') return '';
-        return input.trim()
-                   .replace(/[<>]/g, '')
-                   .replace(/&/g, '&amp;')
-                   .replace(/"/g, '&quot;')
-                   .replace(/'/g, '&#39;');
+        return input.trim().replace(/[<>]/g, '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     },
 
     validateForm: (formData) => {
@@ -1691,6 +1687,18 @@ reopenNote(noteKey) {
 
 // Inicializa a aplicação
 const noteManager = new NoteManager();
+
+// Verifica se o usuário está logado ao carregar a página
+window.addEventListener('load', () => {
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        noteManager.currentUser = JSON.parse(savedUser);
+        noteManager.updateUserInfo();
+        noteManager.showMainLayout();
+    } else {
+        noteManager.showLogin();
+    }
+});
 
 // Event listener for global search
 document.getElementById('searchInput').addEventListener('input', () => {
