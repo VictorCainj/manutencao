@@ -777,7 +777,7 @@ class NoteManager {
                 status: 'open',
                 comments: [],
                 createdAt: utils.getCurrentDateTime(),
-                createdBy: this.currentUser
+                createdBy: this.currentUser.email
             };
 
             this.renderNotes();
@@ -846,8 +846,7 @@ renderNotes(searchResults = null) {
             noteButton.dataset.locator = note.locator.toLowerCase();
             noteButton.dataset.tenant = note.tenant.toLowerCase();
             noteButton.dataset.address = note.address.toLowerCase();
-            // Store the date in a consistent format for sorting
-            noteButton.dataset.date = note.createdAt;
+            noteButton.dataset.date = note.createdAt; // Store the date in a consistent format for sorting
             noteButton.dataset.status = note.status;
 
             noteButton.addEventListener('click', () => this.showNoteDetails(note.key));
@@ -1002,7 +1001,7 @@ renderNotes(searchResults = null) {
                 id: Date.now().toString(),
                 text: utils.sanitizeInput(commentText),
                 dateTime: utils.getCurrentDateTime(),
-                author: this.currentUser
+                author: this.currentUser.email
             };
 
             if (!Array.isArray(this.notes[noteKey].comments)) {
@@ -1467,7 +1466,7 @@ reopenNote(noteKey) {
                                 this.notes[noteKey] = {
                                     ...note,
                                     createdAt: note.createdAt || utils.getCurrentDateTime(),
-                                    createdBy: this.currentUser,
+                                    createdBy: this.currentUser.email,
                                     status: note.status || 'open',
                                     providerName: note.providerName || '',
                                     scheduleDate: note.scheduleDate || '',
@@ -1525,7 +1524,7 @@ reopenNote(noteKey) {
                 id: comment.id || Date.now().toString(),
                 text: utils.sanitizeInput(comment.text || ''),
                 dateTime: comment.dateTime || utils.getCurrentDateTime(),
-                author: this.currentUser,
+                author: this.currentUser.email,
                 editedAt: comment.editedAt || null
             }));
 
@@ -1557,7 +1556,7 @@ reopenNote(noteKey) {
                     address: utils.sanitizeInput(note.address || 'Não especificado'),
                     status: note.status || 'open',
                     createdAt: note.createdAt || utils.getCurrentDateTime(),
-                    createdBy: note.createdBy || this.currentUser,
+                    createdBy: note.createdBy || this.currentUser.email,
                     providerName: note.providerName || '',
                     scheduleDate: note.scheduleDate || '',
                     scheduleDescription: note.scheduleDescription || '',
@@ -1565,7 +1564,7 @@ reopenNote(noteKey) {
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
                         dateTime: comment.dateTime || utils.getCurrentDateTime(),
-                        author: comment.author || this.currentUser,
+                        author: comment.author || this.currentUser.email,
                         editedAt: comment.editedAt || null
                     })) : []
                 };
