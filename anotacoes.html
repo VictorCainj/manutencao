@@ -681,18 +681,18 @@ class NoteManager {
     }
 
     toggleModal(modalId) {
-        // Close all modals
-        document.querySelectorAll('.modal-overlay').forEach(modal => {
+        // Close all modals and dashboard
+        document.querySelectorAll('.modal-overlay, #dashboard').forEach(modal => {
             modal.classList.add('hidden');
         });
 
-        // Open the selected modal
+        // Open the selected modal or dashboard
         document.getElementById(modalId).classList.toggle('hidden');
     }
 
     closeAllModals() {
-        // Close all modals
-        document.querySelectorAll('.modal-overlay').forEach(modal => {
+        // Close all modals and dashboard
+        document.querySelectorAll('.modal-overlay, #dashboard').forEach(modal => {
             modal.classList.add('hidden');
         });
     }
@@ -842,7 +842,10 @@ showNoteDetails(noteKey) {
                         <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
                         <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
                         <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
-                        <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span></p>
+                        <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
+                            <button class="ml-2 text-blue-500 hover:text-blue-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
+                                <i class="fas fa-search"></i>
+                            </button></p>
                         <p><strong>Status:</strong> <span class="font-semibold ${
                             note.status === 'open' ? 'text-red-900' :
                             (note.status === 'scheduled' ? 'text-yellow-600' :
@@ -1600,12 +1603,7 @@ sortNotes() {
 
     toggleDashboard() {
         const dashboard = document.getElementById('dashboard');
-        if (dashboard.classList.contains('hidden')) {
-            this.renderDashboard(); // Ensure the dashboard is rendered before showing it
-            dashboard.classList.remove('hidden');
-        } else {
-            dashboard.classList.add('hidden');
-        }
+        this.toggleModal('dashboard');
     }
 
     searchAllContracts(query) {
@@ -1619,6 +1617,19 @@ sortNotes() {
         });
 
         return matches;
+    }
+
+    toggleCategory(category) {
+        // Close all categories
+        document.querySelectorAll('.category-content').forEach(content => {
+            content.style.display = 'none';
+        });
+
+        // Open the clicked category
+        const content = category.nextElementSibling;
+        if (content) {
+            content.style.display = 'block';
+        }
     }
 }
 
