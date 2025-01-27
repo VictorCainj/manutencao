@@ -484,6 +484,11 @@ const utils = {
             URL.revokeObjectURL(url);
             document.body.removeChild(a);
         }, 100);
+    },
+
+    openFileExplorer: (path) => {
+        // This function should be implemented on the server side to handle opening file explorer
+        console.log(`Opening file explorer at path: ${path}`);
     }
 };
 
@@ -838,7 +843,11 @@ showNoteDetails(noteKey) {
                     </div>
                     <div class="grid grid-cols-1 gap-2">
                         <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDateMinimal(note.createdAt)}</div>
-                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
+                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span>
+                            <button class="ml-2 text-blue-500 hover:text-blue-700" onclick="utils.openFileExplorer('C:\\Users\\cainb\\Desktop\\GTA Private')">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                        </p>
                         <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
                         <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
                         <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
@@ -1262,7 +1271,7 @@ ${comments}
         this.filterNotes();
     }
 
-    filterNotes() {
+filterNotes() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
         const notes = document.querySelectorAll('.note-button');
@@ -1283,7 +1292,7 @@ ${comments}
         this.sortNotes();
     }
 
-sortNotes() {
+    sortNotes() {
         const container = document.getElementById('notesContainer');
 
         const notes = Array.from(container.children);
@@ -1602,6 +1611,9 @@ sortNotes() {
     }
 
     toggleDashboard() {
+        // Close modals if they are open
+        this.closeAllModals();
+
         const dashboard = document.getElementById('dashboard');
         if (dashboard.classList.contains('hidden')) {
             this.renderDashboard(); // Ensure the dashboard is rendered before showing it
