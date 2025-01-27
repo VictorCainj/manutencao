@@ -738,7 +738,7 @@ class NoteManager {
         }
     }
 
-    renderNotes() {
+    renderNotes(searchResults = null) {
         const container = document.getElementById('notesContainer');
         container.innerHTML = '';
 
@@ -752,6 +752,11 @@ class NoteManager {
         let filteredNotes = notesArray;
         if (statusFilter !== 'all') {
             filteredNotes = notesArray.filter(note => note.status === statusFilter);
+        }
+
+        // Apply search results if provided
+        if (searchResults) {
+            filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
         }
 
         const start = this.currentPage * this.notesPerPage;
@@ -1605,7 +1610,7 @@ document.getElementById('searchInput').addEventListener('input', () => {
     const searchQuery = document.getElementById('searchInput').value;
     const results = noteManager.searchAllContracts(searchQuery);
     noteManager.currentPage = 0;
-    noteManager.renderNotes();
+    noteManager.renderNotes(results);
     if (results.length > 0) {
         const notes = document.querySelectorAll('.note-button');
         notes.forEach(noteBtn => {
