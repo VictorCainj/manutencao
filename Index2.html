@@ -522,7 +522,6 @@ class NoteManager {
         this.initializeEventListeners();
         this.updateVerifiedNotes();
         this.chart = null; // Add this line to keep track of the chart instance
-        this.checkLogin();
     }
 
     cleanInvalidNotes() {
@@ -539,9 +538,11 @@ class NoteManager {
     initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
-            this.closeAllModals();
-            this.toggleModal('noteModal');
-            document.getElementById('contractNumber').focus();
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.toggleModal('noteModal');
+                document.getElementById('contractNumber').focus();
+            }
         });
 
         document.getElementById('cancelNoteBtn').addEventListener('click', () => {
@@ -551,15 +552,19 @@ class NoteManager {
 
         document.getElementById('noteForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.handleFormSubmit();
+            if (this.isAuthenticated()) {
+                this.handleFormSubmit();
+            }
         });
 
         // Event Listeners para criar agendamento
         document.getElementById('createScheduleBtn').addEventListener('click', () => {
-            this.closeAllModals();
-            this.populateContractDropdown();
-            this.toggleModal('scheduleModal');
-            document.getElementById('existingContract').focus();
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.populateContractDropdown();
+                this.toggleModal('scheduleModal');
+                document.getElementById('existingContract').focus();
+            }
         });
 
         document.getElementById('cancelScheduleModalBtn').addEventListener('click', () => {
@@ -569,7 +574,9 @@ class NoteManager {
 
         document.getElementById('scheduleForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.handleScheduleFormSubmit();
+            if (this.isAuthenticated()) {
+                this.handleScheduleFormSubmit();
+            }
         });
 
         document.getElementById('searchContract').addEventListener('input', (e) => {
@@ -579,33 +586,47 @@ class NoteManager {
 
         // Event Listeners para busca e filtros
         document.getElementById('searchInput').addEventListener('input', () => {
-            this.filterNotes();
+            if (this.isAuthenticated()) {
+                this.filterNotes();
+            }
         });
 
         document.getElementById('statusFilter').addEventListener('change', () => {
-            this.renderNotes();
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
         });
 
         document.getElementById('dateFilter').addEventListener('change', () => {
-            this.renderNotes();
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
         });
 
         // Event Listeners para importação/exportação
         document.getElementById('importNotesBtn').addEventListener('click', () => {
-            document.getElementById('fileInput').click();
+            if (this.isAuthenticated()) {
+                document.getElementById('fileInput').click();
+            }
         });
 
         document.getElementById('fileInput').addEventListener('change', (e) => {
-            this.handleFileImport(e);
+            if (this.isAuthenticated()) {
+                this.handleFileImport(e);
+            }
         });
 
         document.getElementById('downloadNotesBtn').addEventListener('click', () => {
-            this.exportNotes();
+            if (this.isAuthenticated()) {
+                this.exportNotes();
+            }
         });
 
         document.getElementById('showDashboardBtn').addEventListener('click', () => {
-            this.closeAllModals();
-            this.toggleDashboard();
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.toggleDashboard();
+            }
         });
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -615,13 +636,17 @@ class NoteManager {
         // Event Listeners para comentários e detalhes
         document.getElementById('commentForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.handleCommentSubmit();
+            if (this.isAuthenticated()) {
+                this.handleCommentSubmit();
+            }
         });
 
         document.getElementById('commentText').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+                if (this.isAuthenticated()) {
+                    document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+                }
             }
         });
 
@@ -631,51 +656,67 @@ class NoteManager {
 
         // Event Listeners para ações nos detalhes
         document.getElementById('copyDetailsBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.copyNoteDetails(noteKey);
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.copyNoteDetails(noteKey);
+            }
         });
 
         document.getElementById('downloadContractBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.downloadSingleContract(noteKey);
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.downloadSingleContract(noteKey);
+            }
         });
 
         document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.cancelSchedule(noteKey);
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.cancelSchedule(noteKey);
+            }
         });
 
         document.getElementById('deleteNoteBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.deleteNote(noteKey);
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.deleteNote(noteKey);
+            }
         });
 
         document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.finalizeNote(noteKey);
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.finalizeNote(noteKey);
+            }
         });
 
         document.getElementById('reopenNoteBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.reopenNote(noteKey);
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.reopenNote(noteKey);
+            }
         });
 
         document.getElementById('showMoreCommentsBtn').addEventListener('click', () => {
-            this.currentCommentPage++;
-            this.renderComments(document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent);
+            if (this.isAuthenticated()) {
+                this.currentCommentPage++;
+                this.renderComments(document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent);
+            }
         });
 
         document.getElementById('backToTopBtn').addEventListener('click', () => {
-            this.currentCommentPage = 1;
-            this.renderComments(document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent);
+            if (this.isAuthenticated()) {
+                this.currentCommentPage = 1;
+                this.renderComments(document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent);
+            }
         });
 
         // Event Listener global para tecla ESC e Delete
@@ -686,27 +727,45 @@ class NoteManager {
 
             // Navegação por setas do teclado
             if (e.key === 'ArrowLeft') {
-                this.prevPage();
+                if (this.isAuthenticated()) {
+                    this.prevPage();
+                }
             } else if (e.key === 'ArrowRight') {
-                this.nextPage();
+                if (this.isAuthenticated()) {
+                    this.nextPage();
+                }
             }
 
             // Excluir anotação ao pressionar Delete
             if (e.key === 'Delete' && !document.getElementById('noteDetailsModal').classList.contains('hidden')) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
-                this.deleteNote(noteKey);
+                if (this.isAuthenticated()) {
+                    const noteKey = document.getElementById('noteDetailsContent')
+                        .querySelector('p strong + span').textContent;
+                    this.deleteNote(noteKey);
+                }
             }
         });
 
         // Event Listeners para paginação
         document.getElementById('prevPageBtn').addEventListener('click', () => {
-            this.prevPage();
+            if (this.isAuthenticated()) {
+                this.prevPage();
+            }
         });
 
         document.getElementById('nextPageBtn').addEventListener('click', () => {
-            this.nextPage();
+            if (this.isAuthenticated()) {
+                this.nextPage();
+            }
         });
+    }
+
+    isAuthenticated() {
+        if (!this.currentUser) {
+            this.showLogin();
+            return false;
+        }
+        return true;
     }
 
     toggleModal(modalId) {
@@ -845,7 +904,11 @@ renderNotes(searchResults = null) {
             noteButton.dataset.date = note.createdAt; // Store the date in a consistent format for sorting
             noteButton.dataset.status = note.status;
 
-            noteButton.addEventListener('click', () => this.showNoteDetails(note.key));
+            noteButton.addEventListener('click', () => {
+                if (this.isAuthenticated()) {
+                    this.showNoteDetails(note.key);
+                }
+            });
 
             container.appendChild(noteButton);
         });
@@ -958,7 +1021,9 @@ renderNotes(searchResults = null) {
 
                 // Add click event listener for editing comments
                 document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
-                    this.editComment(noteKey, comment.id);
+                    if (this.isAuthenticated()) {
+                        this.editComment(noteKey, comment.id);
+                    }
                 });
             });
 
@@ -1655,17 +1720,6 @@ reopenNote(noteKey) {
         return matches;
     }
 
-    checkLogin() {
-        const savedUser = localStorage.getItem('currentUser');
-        if (savedUser) {
-            this.currentUser = JSON.parse(savedUser);
-            this.updateUserInfo();
-            this.showMainLayout();
-        } else {
-            this.showLogin();
-        }
-    }
-
     showMainLayout() {
         document.getElementById('loginModal').classList.add('hidden');
         document.getElementById('logoSection').classList.remove('hidden');
@@ -1673,6 +1727,7 @@ reopenNote(noteKey) {
     }
 
     showLogin() {
+        this.closeAllModals();
         document.getElementById('loginModal').classList.remove('hidden');
         document.getElementById('logoSection').classList.add('hidden');
         document.getElementById('mainLayout').classList.add('hidden');
@@ -1688,35 +1743,6 @@ reopenNote(noteKey) {
 // Inicializa a aplicação
 const noteManager = new NoteManager();
 
-// Verifica se o usuário está logado ao carregar a página
-window.addEventListener('load', () => {
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-        noteManager.currentUser = JSON.parse(savedUser);
-        noteManager.updateUserInfo();
-        noteManager.showMainLayout();
-    } else {
-        noteManager.showLogin();
-    }
-});
-
-// Event listener for global search
-document.getElementById('searchInput').addEventListener('input', () => {
-    const searchQuery = document.getElementById('searchInput').value;
-    const results = noteManager.searchAllContracts(searchQuery);
-    noteManager.currentPage = 0;
-    noteManager.renderNotes(results);
-    if (results.length > 0) {
-        const notes = document.querySelectorAll('.note-button');
-        notes.forEach(noteBtn => {
-            const noteKey = noteBtn.dataset.contract;
-            noteBtn.classList.toggle('hidden', !results.includes(noteKey));
-        });
-    } else {
-        utils.showNotification('Nenhum contrato encontrado.', 'alert');
-    }
-});
-
 // Login handling
 document.getElementById('loginForm').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -1730,6 +1756,25 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
         utils.showNotification('Login bem-sucedido!', 'success');
     } else {
         utils.showNotification('E-mail ou senha incorretos.', 'error');
+    }
+});
+
+// Event listener for global search
+document.getElementById('searchInput').addEventListener('input', () => {
+    if (noteManager.isAuthenticated()) {
+        const searchQuery = document.getElementById('searchInput').value;
+        const results = noteManager.searchAllContracts(searchQuery);
+        noteManager.currentPage = 0;
+        noteManager.renderNotes(results);
+        if (results.length > 0) {
+            const notes = document.querySelectorAll('.note-button');
+            notes.forEach(noteBtn => {
+                const noteKey = noteBtn.dataset.contract;
+                noteBtn.classList.toggle('hidden', !results.includes(noteKey));
+            });
+        } else {
+            utils.showNotification('Nenhum contrato encontrado.', 'alert');
+        }
     }
 });
 </script>
