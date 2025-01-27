@@ -101,7 +101,7 @@
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 text-black">
 
 <!-- Login Modal -->
-<div id="loginModal" class="modal-overlay">
+<div id="loginModal" class="modal-overlay flex items-center justify-center">
     <div class="modal-content p-6 w-full max-w-md">
         <h2 class="text-xl font-semibold mb-4 text-center text-black">Login</h2>
         <form id="loginForm" class="space-y-4">
@@ -139,6 +139,9 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col items-center p-4">
 
+        <!-- User Info -->
+        <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden">Logado: <span id="loggedUser"></span></div>
+
         <!-- Main Controls -->
         <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
             <button id="createNoteBtn" class="btn btn-wine-red">
@@ -155,6 +158,9 @@
             </button>
             <button id="showDashboardBtn" class="btn btn-wine-red">
                 <i class="fas fa-chart-bar mr-2"></i>Dashboard
+            </button>
+            <button id="logoutBtn" class="btn btn-gray">
+                <i class="fas fa-sign-out-alt mr-2"></i>Logout
             </button>
             <input type="file" id="fileInput" class="hidden" accept=".json">
         </div>
@@ -368,7 +374,7 @@
 
     </div>
 
-    <!-- Notes Section -->
+<!-- Notes Section -->
     <div class="w-1/4 p-4">
         <!-- Filter Controls -->
         <div class="mb-4 flex flex-col space-y-2">
@@ -385,7 +391,7 @@
             </select>
         </div>
 
-<!-- Search and Filter Controls -->
+        <!-- Search and Filter Controls -->
         <div class="mb-4">
             <div class="relative">
                 <input type="text" 
@@ -513,13 +519,14 @@ class NoteManager {
         this.currentPage = 0;
         this.notesPerPage = 6;
         this.commentsPerPage = 4;  // Número de comentários por vez
-        this.currentUser = 'VictorCainj';
+        this.currentUser = null;
         this.currentDateTime = utils.getCurrentDateTime();
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
         this.initializeEventListeners();
         this.updateVerifiedNotes();
         this.chart = null; // Add this line to keep track of the chart instance
+        this.checkLogin();
     }
 
     cleanInvalidNotes() {
@@ -603,6 +610,10 @@ class NoteManager {
         document.getElementById('showDashboardBtn').addEventListener('click', () => {
             this.closeAllModals();
             this.toggleDashboard();
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            this.logout();
         });
 
         // Event Listeners para comentários e detalhes
@@ -780,7 +791,7 @@ class NoteManager {
         }
     }
 
-    renderNotes(searchResults = null) {
+renderNotes(searchResults = null) {
         const container = document.getElementById('notesContainer');
         container.innerHTML = '';
 
@@ -847,7 +858,7 @@ class NoteManager {
         this.sortNotes(); // Apply initial sorting
     }
 
-showNoteDetails(noteKey) {
+    showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -1205,7 +1216,7 @@ ${comments}
         }
     }
 
-    reopenNote(noteKey) {
+reopenNote(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'closed') {
@@ -1227,6 +1238,7 @@ ${comments}
     saveToLocalStorage() {
         try {
             localStorage.setItem('notes', JSON.stringify(this.notes));
+            localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
         } catch (error) {
             console.error('Erro ao salvar no localStorage:', error);
             utils.showNotification('Erro ao salvar dados localmente', 'error');
@@ -1236,14 +1248,31 @@ ${comments}
     loadFromLocalStorage() {
         try {
             const savedNotes = localStorage.getItem('notes');
+            const savedUser = localStorage.getItem('currentUser');
             if (savedNotes) {
                 this.notes = JSON.parse(savedNotes);
                 this.renderNotes();
+            }
+            if (savedUser) {
+                this.currentUser = JSON.parse(savedUser);
+                this.updateUserInfo();
+                this.showMainLayout();
             }
             this.updateVerifiedNotes();
         } catch (error) {
             console.error('Erro ao carregar do localStorage:', error);
             utils.showNotification('Erro ao carregar dados locais', 'error');
+        }
+    }
+
+    updateUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const loggedUser = document.getElementById('loggedUser');
+        if (this.currentUser) {
+            loggedUser.textContent = this.currentUser.email;
+            userInfo.classList.remove('hidden');
+        } else {
+            userInfo.classList.add('hidden');
         }
     }
 
@@ -1312,7 +1341,7 @@ ${comments}
         notes.forEach(note => container.appendChild(note));
     }
 
-updateNoteButton(noteKey) {
+    updateNoteButton(noteKey) {
         const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
         if (noteButton) {
             const note = this.notes[noteKey];
@@ -1438,7 +1467,7 @@ updateNoteButton(noteKey) {
                                 this.notes[noteKey] = {
                                     ...note,
                                     createdAt: note.createdAt || utils.getCurrentDateTime(),
-                                    createdBy: note.createdBy || this.currentUser,
+                                    createdBy: this.currentUser,
                                     status: note.status || 'open',
                                     providerName: note.providerName || '',
                                     scheduleDate: note.scheduleDate || '',
@@ -1496,7 +1525,7 @@ updateNoteButton(noteKey) {
                 id: comment.id || Date.now().toString(),
                 text: utils.sanitizeInput(comment.text || ''),
                 dateTime: comment.dateTime || utils.getCurrentDateTime(),
-                author: comment.author || this.currentUser,
+                author: this.currentUser,
                 editedAt: comment.editedAt || null
             }));
 
@@ -1630,6 +1659,35 @@ updateNoteButton(noteKey) {
 
         return matches;
     }
+
+    checkLogin() {
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            this.currentUser = JSON.parse(savedUser);
+            this.updateUserInfo();
+            this.showMainLayout();
+        } else {
+            this.showLogin();
+        }
+    }
+
+    showMainLayout() {
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('logoSection').classList.remove('hidden');
+        document.getElementById('mainLayout').classList.remove('hidden');
+    }
+
+    showLogin() {
+        document.getElementById('loginModal').classList.remove('hidden');
+        document.getElementById('logoSection').classList.add('hidden');
+        document.getElementById('mainLayout').classList.add('hidden');
+    }
+
+    logout() {
+        this.currentUser = null;
+        localStorage.removeItem('currentUser');
+        this.showLogin();
+    }
 }
 
 // Inicializa a aplicação
@@ -1659,9 +1717,9 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
     const password = document.getElementById('loginPassword').value;
 
     if (email === 'manutencao@madia.com.br' && password === 'password123') {
-        document.getElementById('loginModal').classList.add('hidden');
-        document.getElementById('logoSection').classList.remove('hidden');
-        document.getElementById('mainLayout').classList.remove('hidden');
+        noteManager.currentUser = { email };
+        noteManager.saveToLocalStorage();
+        noteManager.showMainLayout();
         utils.showNotification('Login bem-sucedido!', 'success');
     } else {
         utils.showNotification('E-mail ou senha incorretos.', 'error');
