@@ -95,6 +95,10 @@
         .category-content {
             display: none;
         }
+        .blurred-notes {
+            filter: blur(5px);
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -766,10 +770,21 @@ class NoteManager {
 
     isAuthenticated() {
         if (!this.currentUser) {
+            this.showNotesBlurred();
             this.showLogin();
             return false;
+        } else {
+            this.hideNotesBlurred();
+            return true;
         }
-        return true;
+    }
+
+    showNotesBlurred() {
+        document.getElementById('notesContainer').classList.add('blurred-notes');
+    }
+
+    hideNotesBlurred() {
+        document.getElementById('notesContainer').classList.remove('blurred-notes');
     }
 
     toggleModal(modalId) {
@@ -918,6 +933,9 @@ renderNotes(searchResults = null) {
         });
 
         this.sortNotes(); // Apply initial sorting
+        if (!this.isAuthenticated()) {
+            this.showNotesBlurred();
+        }
     }
 
     showNoteDetails(noteKey) {
