@@ -83,6 +83,12 @@
         .separator {
             @apply my-4 border-t-2 border-gray-300;
         }
+        .category {
+            cursor: pointer;
+        }
+        .category-content {
+            display: none;
+        }
     </style>
 </head>
 
@@ -674,6 +680,13 @@ class NoteManager {
 
         document.getElementById('nextPageBtn').addEventListener('click', () => {
             this.nextPage();
+        });
+
+        // Event Listener for category toggling
+        document.querySelectorAll('.category').forEach(category => {
+            category.addEventListener('click', () => {
+                this.toggleCategory(category);
+            });
         });
     }
 
@@ -1599,6 +1612,19 @@ sortNotes() {
         });
 
         return matches;
+    }
+
+    toggleCategory(category) {
+        // Close all categories
+        document.querySelectorAll('.category-content').forEach(content => {
+            content.style.display = 'none';
+        });
+
+        // Open the clicked category
+        const content = category.nextElementSibling;
+        if (content) {
+            content.style.display = 'block';
+        }
     }
 }
 
