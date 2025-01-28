@@ -21,16 +21,26 @@
                     <label for="aluguel" class="block text-sm font-medium text-gray-700 mb-1">
                         Valor do Aluguel (R$)
                     </label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-2 text-gray-500">R$</span>
-                        <input 
-                            type="number" 
-                            id="aluguel" 
-                            min="0"
-                            step="0.01"
-                            class="mt-1 block w-full pl-10 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" 
-                            required
-                            aria-describedby="aluguel-error">
+                    <div class="flex space-x-2">
+                        <div class="relative flex-grow">
+                            <span class="absolute left-3 top-2 text-gray-500">R$</span>
+                            <input 
+                                type="number" 
+                                id="aluguel" 
+                                min="0"
+                                step="0.01"
+                                class="mt-1 block w-full pl-10 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" 
+                                required
+                                aria-describedby="aluguel-error">
+                        </div>
+                        <select 
+                            id="multiplicador" 
+                            class="mt-1 w-16 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
+                            title="Multiplicador do valor do aluguel">
+                            <option value="1">x1</option>
+                            <option value="2">x2</option>
+                            <option value="3" selected>x3</option>
+                        </select>
                     </div>
                     <span id="aluguel-error" class="text-red-500 text-xs hidden"></span>
                 </div>
@@ -79,9 +89,6 @@
     </main>
 
     <script>
-        // Constantes
-        const MULTIPLICADOR_MULTA = 3;
-
         // Elementos do DOM
         const form = document.getElementById('calcForm');
         const resultadoDiv = document.getElementById('resultado');
@@ -108,8 +115,8 @@
             return true;
         };
 
-        const calcularMulta = (aluguel, prazoTotal, mesesRestantes) => {
-            return ((aluguel * MULTIPLICADOR_MULTA) / prazoTotal) * mesesRestantes;
+        const calcularMulta = (aluguel, prazoTotal, mesesRestantes, multiplicador) => {
+            return ((aluguel * multiplicador) / prazoTotal) * mesesRestantes;
         };
 
         const mostrarResultado = (valor, sucesso = true) => {
@@ -125,6 +132,7 @@
             const aluguel = parseFloat(document.getElementById('aluguel').value);
             const prazoTotal = parseInt(document.getElementById('prazoTotal').value);
             const mesesRestantes = parseInt(document.getElementById('mesesRestantes').value);
+            const multiplicador = parseInt(document.getElementById('multiplicador').value);
 
             // Validação
             const validacoes = [
@@ -144,7 +152,7 @@
             }
 
             try {
-                const multa = calcularMulta(aluguel, prazoTotal, mesesRestantes);
+                const multa = calcularMulta(aluguel, prazoTotal, mesesRestantes, multiplicador);
                 mostrarResultado(`A multa rescisória é: ${formatarMoeda(multa)}`);
             } catch (erro) {
                 console.error('Erro ao calcular multa:', erro);
