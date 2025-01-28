@@ -170,7 +170,7 @@
         </div>
 
         <!-- Notification Area -->
-        <div id="notificationArea" class="w-full max-w-4xl mb-4"></div>
+        <div id="notificationArea" class="w-full max-w-4xl mb-4 text-center"></div>
 
         <!-- Dashboard Section -->
         <div id="dashboard" class="w-full max-w-2xl mb-6 hidden text-center bg-white p-6 rounded-lg shadow-lg">
@@ -318,8 +318,6 @@
         <div id="noteDetailsModal" class="modal-overlay hidden">
             <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                 <h2 class="text-2xl font-semibold mb-4 text-center text-black">Detalhes da Anotação</h2>
-                
-                <div id="notificationAreaDetails" class="w-full max-w-4xl mb-4"></div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Coluna da esquerda - Detalhes -->
@@ -431,16 +429,6 @@ const utils = {
         notification.textContent = message;
         notificationArea.appendChild(notification);
         setTimeout(() => notificationArea.removeChild(notification), 5000);
-
-        // Show notification in details modal if it's open
-        const notificationAreaDetails = document.getElementById('notificationAreaDetails');
-        notificationAreaDetails.innerHTML = ''; // Clear existing notifications in details modal
-
-        const notificationDetails = document.createElement('div');
-        notificationDetails.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
-        notificationDetails.textContent = message;
-        notificationAreaDetails.appendChild(notificationDetails);
-        setTimeout(() => notificationAreaDetails.removeChild(notificationDetails), 5000);
     },
 
     sanitizeInput: (input) => {
@@ -886,7 +874,7 @@ class NoteManager {
             ...this.notes[key]
         }));
 
-// Filter notes based on status
+        // Filter notes based on status
         const statusFilter = document.getElementById('statusFilter').value;
         let filteredNotes = notesArray;
         if (statusFilter !== 'all') {
@@ -902,9 +890,9 @@ class NoteManager {
         const end = start + this.notesPerPage;
         const notesToDisplay = filteredNotes.slice(start, end);
 
-        notesToDisplay.forEach(note => {
+notesToDisplay.forEach(note => {
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
-            
+
             const noteButton = document.createElement('button');
             noteButton.className = `note-button w-full px-4 py-3 ${
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
