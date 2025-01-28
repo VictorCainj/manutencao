@@ -556,52 +556,62 @@ const totalSpace = 1000000000; // Exemplo: 1GB em bytes
 let usedSpace = 0; // Espaço usado inicial (em bytes)
 let notesSpace = 0; // Espaço usado por notas (em bytes)
 
+// Função para formatar bytes em unidades legíveis
 function formatBytes(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  let k = 1024,
-      sizes = ['KB', 'MB', 'GB', 'TB'],
-      i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
+// Função para atualizar as informações de armazenamento
 function updateStorageInfo() {
-  usedSpace = 500000000; // Função para calcular espaço total usado
-  notesSpace = 300000000; // Função para calcular espaço usado por notas
-  
-  const usagePercentage = (usedSpace / totalSpace) * 100;
-  
-  document.getElementById('total-space-used').innerText = formatBytes(usedSpace);
-  document.getElementById('notes-space-used').innerText = formatBytes(notesSpace);
-  document.getElementById('usage-percentage').innerText = usagePercentage.toFixed(2);
-  
-  const progressBar = document.getElementById('progress-bar');
-  progressBar.style.width = usagePercentage + '%';
-  progressBar.classList.remove('bg-blue-500', 'bg-red-500');
-  if (usagePercentage > 80) {
-    progressBar.classList.add('bg-red-500');
-    document.getElementById('warning').classList.remove('hidden');
-  } else {
-    progressBar.classList.add('bg-blue-500');
-    document.getElementById('warning').classList.add('hidden');
-  }
+    // Espaço total usado (em bytes)
+    // Aqui você deve colocar a lógica real para calcular o espaço total usado
+    usedSpace = 512000000000; // Exemplo: 512GB em bytes
+    
+    // Espaço usado especificamente por notas (em bytes)
+    // Aqui você deve colocar a lógica real para calcular o espaço usado por notas
+    notesSpace = 256000000000; // Exemplo: 256GB em bytes
+    
+    // Calcular a porcentagem de utilização
+    const usagePercentage = (usedSpace / totalSpace) * 100;
+    
+    // Atualizar os elementos do DOM com os valores calculados
+    document.getElementById('total-space-used').innerText = formatBytes(usedSpace);
+    document.getElementById('notes-space-used').innerText = formatBytes(notesSpace);
+    document.getElementById('usage-percentage').innerText = usagePercentage.toFixed(2);
+    
+    // Atualizar a barra de progresso
+    const progressBar = document.getElementById('progress-bar');
+    progressBar.style.width = usagePercentage + '%';
+    progressBar.classList.remove('bg-blue-500', 'bg-red-500');
+    if (usagePercentage > 80) {
+        progressBar.classList.add('bg-red-500');
+        document.getElementById('warning').classList.remove('hidden');
+    } else {
+        progressBar.classList.add('bg-blue-500');
+        document.getElementById('warning').classList.add('hidden');
+    }
 }
 
-// Show storage modal
+// Mostrar o modal de armazenamento
 document.getElementById('showStorageModalBtn').addEventListener('click', () => {
-  document.getElementById('storageModal').classList.remove('hidden');
-  updateStorageInfo();
+    document.getElementById('storageModal').classList.remove('hidden');
+    updateStorageInfo();
 });
 
-// Hide storage modal
+// Fechar o modal de armazenamento
 document.getElementById('closeStorageModal').addEventListener('click', () => {
-  document.getElementById('storageModal').classList.add('hidden');
+    document.getElementById('storageModal').classList.add('hidden');
 });
 
-// Fechar modal ao pressionar a tecla ESC
+// Fechar o modal ao pressionar a tecla ESC
 document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape') {
-    document.getElementById('storageModal').classList.add('hidden');
-  }
+    if (event.key === 'Escape') {
+        document.getElementById('storageModal').classList.add('hidden');
+    }
 });
 
 // Atualização automática a cada hora
