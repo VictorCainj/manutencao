@@ -350,6 +350,39 @@
           showLogin();
         }
       });
+
+      // Function to monitor typing status and update Firebase
+      const startTyping = () => {
+        const typingStatusRef = ref(database, 'typingStatus/' + currentUser.email.replace(/\./g, '_'));
+        set(typingStatusRef, true);
+      };
+
+      const stopTyping = () => {
+        const typingStatusRef = ref(database, 'typingStatus/' + currentUser.email.replace(/\./g, '_'));
+        set(typingStatusRef, false);
+      };
+
+      // Add event listeners to the input field for typing detection
+      document.addEventListener('DOMContentLoaded', () => {
+        const inputField = document.getElementById('commentText');
+        if (inputField) {
+          inputField.addEventListener('keydown', startTyping);
+          inputField.addEventListener('blur', stopTyping);
+        }
+
+        const typingStatusContainer = document.getElementById('typingStatusContainer');
+        onValue(ref(database, 'typingStatus'), (snapshot) => {
+          const typingStatus = snapshot.val();
+          typingStatusContainer.innerHTML = '';
+          for (const user in typingStatus) {
+            if (typingStatus[user]) {
+              const typingIndicator = document.createElement('div');
+              typingIndicator.textContent = `${user.replace(/_/g, '.')} está digitando...`;
+              typingStatusContainer.appendChild(typingIndicator);
+            }
+          }
+        });
+      });
     </script>
 </head>
 
@@ -402,7 +435,7 @@
         <!-- User Info -->
         <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden">Logado: <span id="loggedUser"></span></div>
 
-        <!-- Main Controls -->
+<!-- Main Controls -->
         <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
             <button id="createNoteBtn" class="btn btn-wine-red" aria-label="Criar Anotação">
                 <i class="fas fa-plus mr-2"></i>Criar anotação
@@ -428,7 +461,7 @@
         <!-- Notification Area -->
         <div id="notificationArea" class="w-full max-w-4xl mb-4 text-center"></div>
 
-<!-- Dashboard Section -->
+        <!-- Dashboard Section -->
         <div id="dashboard" class="w-full max-w-2xl mb-6 hidden text-center bg-white p-6 rounded-lg shadow-lg">
             <h2 class="text-2xl font-semibold mb-4 text-black">Dashboard</h2>
             <div class="grid grid-cols-2 gap-4 mb-4">
@@ -679,6 +712,7 @@
 </div>
 
 <script type="module">
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
 import { getDatabase, ref, set, onValue, push, update, remove } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
@@ -699,6 +733,145 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const database = getDatabase(app);
 
+// Function to handle editing a comment
+const editComment = (noteKey, commentId, newText) => {
+    const commentRef = ref(database, `notes/${noteKey}/comments/${commentId}`);
+    update(commentRef, {
+        text: sanitizeInput(newText),
+        editedAt: getCurrentDateTime()
+    })
+    .then(() => {
+        showNotification('Comentário atualizado com sucesso!', 'success');
+        update(ref(database, `notes/${noteKey}`), { status: 'verified' });
+    })
+    .catch((error) => {
+        showNotification('Erro ao atualizar comentário: ' + error.message, 'error');
+    });
+};
+
+// Function to handle deleting a comment
+const deleteComment = (noteKey, commentId) => {
+    const commentRef = ref(database, `notes/${noteKey}/comments/${commentId}`);
+    remove(commentRef)
+    .then(() => {
+        showNotification('Comentário excluído com sucesso!', 'success');
+    })
+    .catch((error) => {
+        showNotification('Erro ao excluir comentário: ' + error.message, 'error');
+    });
+};
+
+// Function to handle finalizing a note
+const finalizeNote = (noteKey) => {
+    const noteRef = ref(database, `notes/${noteKey}`);
+    update(noteRef, {
+        status: 'closed',
+        closedAt: getCurrentDateTime()
+    })
+    .then(() => {
+        showNotification('Nota finalizada com sucesso!', 'success');
+    })
+    .catch((error) => {
+        showNotification('Erro ao finalizar nota: ' + error.message, 'error');
+    });
+};
+
+// Function to handle reopening a note
+const reopenNote = (noteKey) => {
+    const noteRef = ref(database, `notes/${noteKey}`);
+    update(noteRef, {
+        status: 'open',
+        closedAt: null
+    })
+    .then(() => {
+        showNotification('Nota reaberta com sucesso!', 'success');
+    })
+    .catch((error) => {
+        showNotification('Erro ao reabrir nota: ' + error.message, 'error');
+    });
+};
+
+// Function to show notifications
+const showNotification = (message, type = 'success') => {
+    const notificationArea = document.getElementById('notificationArea');
+    notificationArea.innerHTML = ''; // Clear existing notifications
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
+    notification.textContent = message;
+    notificationArea.appendChild(notification);
+    setTimeout(() => notificationArea.removeChild(notification), 5000);
+};
+
+// Function to sanitize input
+const sanitizeInput = (input) => {
+    if (typeof input !== 'string') return '';
+    return input.trim().replace(/[<>]/g, '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+};
+
+// Function to validate form data
+const validateForm = (formData) => {
+    const errors = [];
+    
+    if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
+        errors.push('Número de contrato inválido - use apenas letras, números e hífen');
+    }
+    
+    if (formData.locator.length < 3) {
+        errors.push('Nome do Locador deve ter ao menos 3 caracteres');
+    }
+
+    if (formData.tenant.length < 3) {
+        errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
+    }
+    
+    if (formData.problem.length < 10) {
+        errors.push('Problema deve ter ao menos 10 caracteres');
+    }
+    
+    if (formData.address.length < 5) {
+        errors.push('Endereço deve ter ao menos 5 caracteres');
+    }
+    
+    return errors;
+};
+
+// Function to show the login modal
+const showLogin = () => {
+    document.getElementById('loginModal').classList.remove('hidden');
+    document.getElementById('logoSection').classList.add('hidden');
+    document.getElementById('mainLayout').classList.add('hidden');
+};
+
+// Function to handle login
+const login = (email, password) => {
+    if (email === 'manutencao@madia.com.br' && password === 'password123') {
+        currentUser = { email };
+        showMainLayout();
+        showNotification('Login bem-sucedido!', 'success');
+    } else {
+        showNotification('E-mail ou senha incorretos.', 'error');
+    }
+};
+
+// Function to show the main layout
+const showMainLayout = () => {
+    document.getElementById('loginModal').classList.add('hidden');
+    document.getElementById('logoSection').classList.remove('hidden');
+    document.getElementById('mainLayout').classList.remove('hidden');
+};
+
+// Dummy current user for demonstration purposes
+let currentUser = null;
+
+// Event listener for the login form
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    login(email, password);
+});
+
 // Example usage
 document.getElementById('createNoteBtn').addEventListener('click', () => {
     if (currentUser) {
@@ -715,7 +888,38 @@ document.getElementById('createNoteBtn').addEventListener('click', () => {
     }
 });
 
-// Utility functions and further implementation as described earlier...
+// Function to monitor typing status and update Firebase
+const startTyping = () => {
+    const typingStatusRef = ref(database, 'typingStatus/' + currentUser.email.replace(/\./g, '_'));
+    set(typingStatusRef, true);
+};
+
+const stopTyping = () => {
+    const typingStatusRef = ref(database, 'typingStatus/' + currentUser.email.replace(/\./g, '_'));
+    set(typingStatusRef, false);
+};
+
+// Add event listeners to the input field for typing detection
+document.addEventListener('DOMContentLoaded', () => {
+    const inputField = document.getElementById('commentText');
+    if (inputField) {
+        inputField.addEventListener('keydown', startTyping);
+        inputField.addEventListener('blur', stopTyping);
+    }
+
+    const typingStatusContainer = document.getElementById('typingStatusContainer');
+    onValue(ref(database, 'typingStatus'), (snapshot) => {
+        const typingStatus = snapshot.val();
+        typingStatusContainer.innerHTML = '';
+        for (const user in typingStatus) {
+            if (typingStatus[user]) {
+                const typingIndicator = document.createElement('div');
+                typingIndicator.textContent = `${user.replace(/_/g, '.')} está digitando...`;
+                typingStatusContainer.appendChild(typingIndicator);
+            }
+        }
+    });
+});
 </script>
 </body>
 </html>
