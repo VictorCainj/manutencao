@@ -319,6 +319,8 @@
             <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                 <h2 class="text-2xl font-semibold mb-4 text-center text-black">Detalhes da Anotação</h2>
                 
+                <div id="notificationAreaDetails" class="w-full max-w-4xl mb-4"></div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Coluna da esquerda - Detalhes -->
                     <div class="space-y-4">
@@ -429,6 +431,16 @@ const utils = {
         notification.textContent = message;
         notificationArea.appendChild(notification);
         setTimeout(() => notificationArea.removeChild(notification), 5000);
+
+        // Show notification in details modal if it's open
+        const notificationAreaDetails = document.getElementById('notificationAreaDetails');
+        notificationAreaDetails.innerHTML = ''; // Clear existing notifications in details modal
+
+        const notificationDetails = document.createElement('div');
+        notificationDetails.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
+        notificationDetails.textContent = message;
+        notificationAreaDetails.appendChild(notificationDetails);
+        setTimeout(() => notificationAreaDetails.removeChild(notificationDetails), 5000);
     },
 
     sanitizeInput: (input) => {
@@ -663,7 +675,7 @@ class NoteManager {
             if (this.isAuthenticated()) {
                 const noteKey = document.getElementById('noteDetailsContent')
                     .querySelector('p strong + span').textContent;
-                this.copyNoteDetails(noteKey);
+                this.copyNoteComments(noteKey);
             }
         });
 
@@ -874,14 +886,14 @@ class NoteManager {
             ...this.notes[key]
         }));
 
-        // Filter notes based on status
+// Filter notes based on status
         const statusFilter = document.getElementById('statusFilter').value;
         let filteredNotes = notesArray;
         if (statusFilter !== 'all') {
             filteredNotes = notesArray.filter(note => note.status === statusFilter);
         }
 
-// Apply search results if provided
+        // Apply search results if provided
         if (searchResults) {
             filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
         }
@@ -892,7 +904,7 @@ class NoteManager {
 
         notesToDisplay.forEach(note => {
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
-
+            
             const noteButton = document.createElement('button');
             noteButton.className = `note-button w-full px-4 py-3 ${
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
@@ -1106,10 +1118,8 @@ class NoteManager {
 
             this.notes[noteKey].comments.unshift(comment);
 
-            // Do not change status if the note is scheduled or closed
-            if (this.notes[noteKey].status !== 'scheduled' && this.notes[noteKey].status !== 'closed') {
-                this.notes[noteKey].status = 'verified';
-            }
+            // Update status to 'verified'
+            this.notes[noteKey].status = 'verified';
 
             this.saveToLocalStorage();
             this.renderComments(noteKey);
@@ -1190,8 +1200,11 @@ class NoteManager {
                 if (newText) {
                     note.comments[commentIndex].text = utils.sanitizeInput(newText);
                     note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
+                    // Update status to 'verified'
+                    note.status = 'verified';
                     this.saveToLocalStorage();
                     this.renderComments(noteKey);
+                    this.updateNoteButton(noteKey);
                     document.body.removeChild(editModal);
                     utils.showNotification('Comentário atualizado com sucesso!', 'success');
                 } else {
@@ -1224,6 +1237,7 @@ class NoteManager {
             note.comments.splice(commentIndex, 1);
             this.saveToLocalStorage();
             this.renderComments(noteKey);
+            this.updateNoteButton(noteKey);
             utils.showNotification('Comentário excluído com sucesso!', 'success');
         } catch (error) {
             console.error('Erro ao excluir comentário:', error);
@@ -1269,34 +1283,17 @@ class NoteManager {
         }
     }
 
-copyNoteDetails(noteKey) {
+    copyNoteComments(noteKey) {
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment => 
                 `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
-            const details = `
-Número do Contrato: ${noteKey}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Problema: ${note.problem}
-Endereço: ${note.address}
-Status: ${note.status === 'open' ? 'Aberto' : 
-                (note.status === 'scheduled' ? 'Em agendamento' : 
-                (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
-${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
-${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
-${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
-Comentários:
-${comments}
-            `.trim();
-
-            navigator.clipboard.writeText(details).then(() => {
-                utils.showNotification('Detalhes copiados para a área de transferência!', 'success');
+            navigator.clipboard.writeText(comments).then(() => {
+                utils.showNotification('Comentários copiados para a área de transferência!', 'success');
             });
         } catch (error) {
-            console.error('Erro ao copiar detalhes:', error);
-            utils.showNotification('Erro ao copiar detalhes', 'error');
+            console.error('Erro ao copiar comentários:', error);
+            utils.showNotification('Erro ao copiar comentários', 'error');
         }
     }
 
@@ -1306,18 +1303,6 @@ ${comments}
             const comments = note.comments.map(comment => 
                 `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
             const details = `
-Número do Contrato: ${noteKey}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Problema: ${note.problem}
-Endereço: ${note.address}
-Status: ${note.status === 'open' ? 'Aberto' : 
-                (note.status === 'scheduled' ? 'Em agendamento' : 
-                (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
-${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
-${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
-${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
 Comentários:
 ${comments}
             `.trim();
@@ -1350,7 +1335,7 @@ ${comments}
         }
     }
 
-    reopenNote(noteKey) {
+reopenNote(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'closed') {
@@ -1781,7 +1766,7 @@ ${comments}
         }
     }
 
-searchAllContracts(query) {
+    searchAllContracts(query) {
         const searchTerm = query.toLowerCase();
         const matches = Object.keys(this.notes).filter(key => {
             const note = this.notes[key];
