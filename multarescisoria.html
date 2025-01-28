@@ -3,71 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Calculadora de Multa Rescisória para Contratos de Aluguel - Cálculo rápido e preciso">
-    <meta name="keywords" content="calculadora, multa rescisória, aluguel, contrato, rescisão">
-    <meta name="author" content="VictorCainj">
+    <meta name="description" content="Calculadora de Multa Rescisória para Contratos de Aluguel">
     <title>Calculadora de Multa Rescisória</title>
-    
-    <!-- Preconnects -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    
-    <!-- Estilos -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    
-    <style>
-        .input-group {
-            position: relative;
-            transition: all 0.3s ease;
-        }
-        
-        .input-group:focus-within label {
-            color: #3b82f6;
-        }
-        
-        .tooltip {
-            position: absolute;
-            visibility: hidden;
-            background-color: #1f2937;
-            color: white;
-            text-align: center;
-            padding: 5px 10px;
-            border-radius: 6px;
-            z-index: 1;
-            font-size: 12px;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .has-tooltip:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .form-group {
-                margin-bottom: 1rem;
-            }
-            
-            input, select {
-                font-size: 16px;
-            }
-        }
-    </style>
 </head>
+<body class="bg-gray-100 font-roboto min-h-screen">
+    <main class="container mx-auto p-4">
+        <div class="max-w-md mx-auto bg-white p-6 rounded-lg shadow-lg">
+            <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">
+                Calculadora de Multa Rescisória
+            </h1>
 <body class="bg-gray-100 font-roboto min-h-screen flex items-center justify-center">
     <main class="container mx-auto p-4 max-w-md w-full">
         <div class="bg-white p-6 rounded-lg shadow-lg">
@@ -76,19 +24,43 @@
                     <i class="fas fa-calculator mr-2"></i>
                     Calculadora de Multa
                 </h1>
-                <div class="space-x-2">
-                    <button id="historicoBtn" class="text-blue-500 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-history text-xl"></i>
-                    </button>
-                    <button id="infoBtn" class="text-blue-500 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-info-circle text-xl"></i>
-                    </button>
+                <button id="infoBtn" class="text-blue-500 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-info-circle text-xl"></i>
+                </button>
+                <!-- Modal de Informação -->
+                <div id="infoModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md mx-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-gray-800">
+                                <i class="fas fa-formula text-blue-500 mr-2"></i>
+                                Fórmula do Cálculo
+                            </h2>
+                            <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="space-y-4">
+                            <p class="text-gray-600">A multa rescisória é calculada usando a seguinte fórmula:</p>
+                            <div class="bg-gray-50 p-4 rounded-md">
+                                <p class="font-mono text-center">
+                                    Multa = (Aluguel × Multiplicador ÷ Prazo Total) × Meses Restantes
+                                </p>
+                            </div>
+                            <p class="text-sm text-gray-500">
+                                Onde:<br>
+                                • Multiplicador: valor selecionado (1x, 2x ou 3x)<br>
+                                • Prazo Total: duração total do contrato em meses<br>
+                                • Meses Restantes: tempo que falta para término do contrato
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
+
             <form id="calcForm" class="space-y-4" novalidate>
-                <div class="input-group">
+                <div class="form-group">
                     <label for="aluguel" class="block text-sm font-medium text-gray-700 mb-1">
+                        Valor do Aluguel (R$)
                         <i class="fas fa-money-bill-wave mr-2"></i>
                         Valor do Aluguel
                     </label>
@@ -116,7 +88,7 @@
                     <span id="aluguel-error" class="text-red-500 text-xs hidden"></span>
                 </div>
 
-                <div class="input-group">
+                <div class="form-group">
                     <label for="prazoTotal" class="block text-sm font-medium text-gray-700 mb-1">
                         <i class="fas fa-calendar-alt mr-2"></i>
                         Prazo Total do Contrato (meses)
@@ -131,7 +103,7 @@
                     <span id="prazoTotal-error" class="text-red-500 text-xs hidden"></span>
                 </div>
 
-                <div class="input-group">
+                <div class="form-group">
                     <label for="mesesRestantes" class="block text-sm font-medium text-gray-700 mb-1">
                         <i class="fas fa-hourglass-half mr-2"></i>
                         Meses Restantes
@@ -159,50 +131,10 @@
             <div id="resultado" class="mt-6 p-4 rounded-md hidden">
                 <p class="text-center text-lg font-semibold"></p>
             </div>
-
-            <div id="historicoContainer" class="mt-6 hidden">
-                <h3 class="text-lg font-semibold mb-2">
-                    <i class="fas fa-history mr-2"></i>
-                    Últimos Cálculos
-                </h3>
-                <div id="historico" class="space-y-2 text-sm max-h-40 overflow-y-auto"></div>
-            </div>
-        </div>
-
-        <!-- Modal de Informação -->
-        <div id="infoModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white p-6 rounded-lg shadow-xl max-w-md mx-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold text-gray-800">
-                        <i class="fas fa-formula text-blue-500 mr-2"></i>
-                        Fórmula do Cálculo
-                    </h2>
-                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="space-y-4">
-                    <p class="text-gray-600">A multa rescisória é calculada usando a seguinte fórmula:</p>
-                    <div class="bg-gray-50 p-4 rounded-md">
-                        <p class="font-mono text-center">
-                            Multa = (Aluguel × Multiplicador ÷ Prazo Total) × Meses Restantes
-                        </p>
-                    </div>
-                    <p class="text-sm text-gray-500">
-                        Onde:<br>
-                        • Multiplicador: valor selecionado (1x, 2x ou 3x)<br>
-                        • Prazo Total: duração total do contrato em meses<br>
-                        • Meses Restantes: tempo que falta para término do contrato
-                    </p>
-                </div>
-            </div>
         </div>
     </main>
 
     <script>
-        // Constantes
-        const STORAGE_KEY = 'multa-rescisoria-calc';
-        
         // Elementos do DOM
         const form = document.getElementById('calcForm');
         const resultadoDiv = document.getElementById('resultado');
@@ -210,42 +142,18 @@
         const infoBtn = document.getElementById('infoBtn');
         const infoModal = document.getElementById('infoModal');
         const closeModal = document.getElementById('closeModal');
-        const historicoBtn = document.getElementById('historicoBtn');
-        const historicoContainer = document.getElementById('historicoContainer');
-        const historicoDiv = document.getElementById('historico');
-
-        // Funções de persistência
-        const salvarUltimosValores = (resultado) => {
-            const dados = {
-                aluguel: document.getElementById('aluguel').value,
-                multiplicador: document.getElementById('multiplicador').value,
-                prazoTotal: document.getElementById('prazoTotal').value,
-                mesesRestantes: document.getElementById('mesesRestantes').value,
-                resultado: resultado,
-                timestamp: new Date().toISOString()
-            };
-
-            // Salvar no histórico
-            let historico = JSON.parse(localStorage.getItem('historico-calculos') || '[]');
-            historico.unshift(dados);
-            historico = historico.slice(0, 5); // Manter apenas os últimos 5 cálculos
-            localStorage.setItem('historico-calculos', JSON.stringify(historico));
-
-            // Salvar últimos valores
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
-            
-            atualizarHistorico();
-        };
-
-        const carregarUltimosValores = () => {
-            const dados = JSON.parse(localStorage.getItem(STORAGE_KEY));
-            if (dados) {
-                document.getElementById('aluguel').value = dados.aluguel;
-                document.getElementById('multiplicador').value = dados.multiplicador;
-                document.getElementById('prazoTotal').value = dados.prazoTotal;
-                document.getElementById('mesesRestantes').value = dados.mesesRestantes;
+        // Event Listeners para o Modal
+        infoBtn.addEventListener('click', () => {
+            infoModal.classList.remove('hidden');
+        });
+        closeModal.addEventListener('click', () => {
+            infoModal.classList.add('hidden');
+        });
+        infoModal.addEventListener('click', (e) => {
+            if (e.target === infoModal) {
+                infoModal.classList.add('hidden');
             }
-        };
+        });
 
         // Funções auxiliares
         const formatarMoeda = (valor) => {
@@ -255,39 +163,17 @@
             });
         };
 
-        const formatarData = (data) => {
-            return new Date(data).toLocaleString('pt-BR');
-        };
-
         const validarCampo = (valor, minimo, campo) => {
             const elementoErro = document.getElementById(`${campo}-error`);
-            
+
             if (isNaN(valor) || valor < minimo) {
                 elementoErro.textContent = `Por favor, insira um valor válido maior que ${minimo}`;
                 elementoErro.classList.remove('hidden');
                 return false;
             }
-            
+
             elementoErro.classList.add('hidden');
             return true;
-        };
-
-        const validacaoAvancada = (aluguel, prazoTotal, mesesRestantes) => {
-            if (aluguel > 1000000) {
-                return {
-                    valido: false,
-                    mensagem: 'Valor do aluguel parece muito alto. Confirme o valor.'
-                };
-            }
-            
-            if (prazoTotal > 360) {
-                return {
-                    valido: false,
-                    mensagem: 'Prazo total excede 30 anos. Verifique o valor.'
-                };
-            }
-            
-            return { valido: true };
         };
 
         const calcularMulta = (aluguel, prazoTotal, mesesRestantes, multiplicador) => {
@@ -297,142 +183,13 @@
         const mostrarResultado = (valor, sucesso = true) => {
             resultadoDiv.classList.remove('hidden', 'bg-red-100', 'bg-green-100');
             resultadoDiv.classList.add(sucesso ? 'bg-green-100' : 'bg-red-100');
+            resultadoTexto.textContent = valor;
             resultadoTexto.innerHTML = sucesso ? 
                 `<i class="fas fa-check-circle text-green-500 mr-2"></i>${valor}` :
                 `<i class="fas fa-exclamation-circle text-red-500 mr-2"></i>${valor}`;
-
-            if (sucesso) {
-                adicionarBotaoExportar();
-            }
-        };
-
-        const atualizarHistorico = () => {
-            const historico = JSON.parse(localStorage.getItem('historico-calculos') || '[]');
-            historicoDiv.innerHTML = '';
-            
-            historico.forEach((calc, index) => {
-                const item = document.createElement('div');
-                item.className = 'p-2 border-b border-gray-200 last:border-0';
-                item.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <span class="font-semibold">${formatarMoeda(calc.resultado)}</span>
-                            <br>
-                            <span class="text-xs text-gray-500">${formatarData(calc.timestamp)}</span>
-                        </div>
-                        <button class="text-blue-500 hover:text-blue-600 text-sm" 
-                                onclick="carregarCalculo(${index})">
-                            Carregar
-                        </button>
-                    </div>
-                `;
-                historicoDiv.appendChild(item);
-            });
-        };
-
-const exportarResultado = () => {
-            const data = new Date().toLocaleDateString('pt-BR');
-            const hora = new Date().toLocaleTimeString('pt-BR');
-            const aluguel = parseFloat(document.getElementById('aluguel').value);
-            const multiplicador = document.getElementById('multiplicador').value;
-            const prazoTotal = document.getElementById('prazoTotal').value;
-            const mesesRestantes = document.getElementById('mesesRestantes').value;
-            
-            const conteudo = `
-                <!DOCTYPE html>
-                <html lang="pt-BR">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Relatório de Multa Rescisória</title>
-                    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
-                </head>
-                <body class="p-8">
-                    <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-2xl font-bold text-gray-800">Relatório de Multa Rescisória</h2>
-                            <div class="text-sm text-gray-500">
-                                <p>Data: ${data}</p>
-                                <p>Hora: ${hora}</p>
-                            </div>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <p class="text-sm text-gray-600">Valor do Aluguel:</p>
-                                    <p class="font-semibold">${formatarMoeda(aluguel)}</p>
-                                </div>
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <p class="text-sm text-gray-600">Multiplicador:</p>
-                                    <p class="font-semibold">${multiplicador}x</p>
-                                </div>
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <p class="text-sm text-gray-600">Prazo Total:</p>
-                                    <p class="font-semibold">${prazoTotal} meses</p>
-                                </div>
-                                <div class="bg-gray-50 p-3 rounded">
-                                    <p class="text-sm text-gray-600">Meses Restantes:</p>
-                                    <p class="font-semibold">${mesesRestantes} meses</p>
-                                </div>
-                            </div>
-                            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                                <p class="text-center font-bold text-lg">${resultadoTexto.textContent}</p>
-                            </div>
-                            <div class="mt-6 text-sm text-gray-500">
-                                <p>Fórmula utilizada:</p>
-                                <p class="font-mono bg-gray-50 p-2 rounded mt-1">
-                                    Multa = (Aluguel × ${multiplicador} ÷ ${prazoTotal}) × ${mesesRestantes}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="mt-8 text-sm text-gray-500 text-center">
-                            <p>Documento gerado em ${data} às ${hora}</p>
-                            <p>Calculadora de Multa Rescisória - VictorCainj</p>
-                        </div>
-                    </div>
-                </body>
-                </html>
-            `;
-            
-            const win = window.open('', '_blank');
-            win.document.write(conteudo);
-            win.document.close();
-            
-            // Aguarda o carregamento do Tailwind
-            setTimeout(() => {
-                win.print();
-            }, 500);
-        };
-
-        const adicionarBotaoExportar = () => {
-            const botoesAntigos = resultadoDiv.querySelectorAll('.botao-exportar');
-            botoesAntigos.forEach(botao => botao.remove());
-
-            const exportBtn = document.createElement('button');
-            exportBtn.className = 'botao-exportar mt-4 bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-300 w-full';
-            exportBtn.innerHTML = '<i class="fas fa-file-export mr-2"></i>Exportar/Imprimir';
-            exportBtn.onclick = exportarResultado;
-            resultadoDiv.appendChild(exportBtn);
-        };
-
-        const carregarCalculo = (index) => {
-            const historico = JSON.parse(localStorage.getItem('historico-calculos') || '[]');
-            const calc = historico[index];
-            if (calc) {
-                document.getElementById('aluguel').value = calc.aluguel;
-                document.getElementById('multiplicador').value = calc.multiplicador;
-                document.getElementById('prazoTotal').value = calc.prazoTotal;
-                document.getElementById('mesesRestantes').value = calc.mesesRestantes;
-                mostrarResultado(calc.resultado, true);
-            }
         };
 
         // Event Listeners
-        window.addEventListener('load', () => {
-            carregarUltimosValores();
-            atualizarHistorico();
-        });
-
         form.addEventListener('submit', function(event) {
             event.preventDefault();
 
@@ -441,7 +198,7 @@ const exportarResultado = () => {
             const mesesRestantes = parseInt(document.getElementById('mesesRestantes').value);
             const multiplicador = parseInt(document.getElementById('multiplicador').value);
 
-            // Validação básica
+            // Validação
             const validacoes = [
                 validarCampo(aluguel, 0, 'aluguel'),
                 validarCampo(prazoTotal, 1, 'prazoTotal'),
@@ -453,13 +210,6 @@ const exportarResultado = () => {
                 return;
             }
 
-            // Validação avançada
-            const validacaoAv = validacaoAvancada(aluguel, prazoTotal, mesesRestantes);
-            if (!validacaoAv.valido) {
-                mostrarResultado(validacaoAv.mensagem, false);
-                return;
-            }
-
             if (mesesRestantes > prazoTotal) {
                 mostrarResultado('Os meses restantes não podem ser maiores que o prazo total.', false);
                 return;
@@ -467,39 +217,10 @@ const exportarResultado = () => {
 
             try {
                 const multa = calcularMulta(aluguel, prazoTotal, mesesRestantes, multiplicador);
-                const resultado = `A multa rescisória é: ${formatarMoeda(multa)}`;
-                mostrarResultado(resultado, true);
-                salvarUltimosValores(multa);
+                mostrarResultado(`A multa rescisória é: ${formatarMoeda(multa)}`);
             } catch (erro) {
                 console.error('Erro ao calcular multa:', erro);
                 mostrarResultado('Ocorreu um erro ao calcular a multa.', false);
-            }
-        });
-
-        // Event Listeners para Modal e Histórico
-        infoBtn.addEventListener('click', () => {
-            infoModal.classList.remove('hidden');
-        });
-
-        closeModal.addEventListener('click', () => {
-            infoModal.classList.add('hidden');
-        });
-
-        historicoBtn.addEventListener('click', () => {
-            historicoContainer.classList.toggle('hidden');
-            atualizarHistorico();
-        });
-
-        infoModal.addEventListener('click', (e) => {
-            if (e.target === infoModal) {
-                infoModal.classList.add('hidden');
-            }
-        });
-
-        // Fechar modal com ESC
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                infoModal.classList.add('hidden');
             }
         });
 
@@ -508,6 +229,12 @@ const exportarResultado = () => {
             document.getElementById(campo).addEventListener('input', function() {
                 document.getElementById(`${campo}-error`).classList.add('hidden');
             });
+        });
+        // Fechar modal com a tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                infoModal.classList.add('hidden');
+            }
         });
     </script>
 </body>
