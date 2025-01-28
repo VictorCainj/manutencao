@@ -865,7 +865,7 @@ class NoteManager {
         }
     }
 
-renderNotes(searchResults = null) {
+    renderNotes(searchResults = null) {
         const container = document.getElementById('notesContainer');
         container.innerHTML = '';
 
@@ -881,7 +881,7 @@ renderNotes(searchResults = null) {
             filteredNotes = notesArray.filter(note => note.status === statusFilter);
         }
 
-        // Apply search results if provided
+// Apply search results if provided
         if (searchResults) {
             filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
         }
@@ -892,7 +892,7 @@ renderNotes(searchResults = null) {
 
         notesToDisplay.forEach(note => {
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
-            
+
             const noteButton = document.createElement('button');
             noteButton.className = `note-button w-full px-4 py-3 ${
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
@@ -1269,23 +1269,38 @@ renderNotes(searchResults = null) {
         }
     }
 
-    copyNoteDetails(noteKey) {
+copyNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment => 
                 `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
-            const details = `Comentários:\n${comments}`.trim();
+            const details = `
+Número do Contrato: ${noteKey}
+Locador: ${note.locator}
+Locatário: ${note.tenant}
+Problema: ${note.problem}
+Endereço: ${note.address}
+Status: ${note.status === 'open' ? 'Aberto' : 
+                (note.status === 'scheduled' ? 'Em agendamento' : 
+                (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
+${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
+${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
+Comentários:
+${comments}
+            `.trim();
 
             navigator.clipboard.writeText(details).then(() => {
-                utils.showNotification('Comentários copiados para a área de transferência!', 'success');
+                utils.showNotification('Detalhes copiados para a área de transferência!', 'success');
             });
         } catch (error) {
-            console.error('Erro ao copiar comentários:', error);
-            utils.showNotification('Erro ao copiar comentários', 'error');
+            console.error('Erro ao copiar detalhes:', error);
+            utils.showNotification('Erro ao copiar detalhes', 'error');
         }
     }
 
-downloadSingleContract(noteKey) {
+    downloadSingleContract(noteKey) {
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment => 
@@ -1630,7 +1645,7 @@ ${comments}
 
             const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
             const missingFields = requiredFields.filter(field => !note[field]);
-            
+
             if (missingFields.length > 0) {
                 throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
             }
@@ -1766,7 +1781,7 @@ ${comments}
         }
     }
 
-    searchAllContracts(query) {
+searchAllContracts(query) {
         const searchTerm = query.toLowerCase();
         const matches = Object.keys(this.notes).filter(key => {
             const note = this.notes[key];
