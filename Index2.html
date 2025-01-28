@@ -106,284 +106,6 @@
             @apply w-16 h-16 border-4 border-t-4 border-t-transparent border-white rounded-full animate-spin;
         }
     </style>
-
-    <script type="module">
-      // Import the functions you need from the SDKs you need
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-      import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
-      import { getDatabase, ref, set, onValue, push, update, remove } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
-
-      // Your web app's Firebase configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyA3jZ-j_PfwqiSPDnSGdgeYMK0DFlNWEjg",
-        authDomain: "anotacoes-75ec5.firebaseapp.com",
-        projectId: "anotacoes-75ec5",
-        storageBucket: "anotacoes-75ec5.firebasestorage.app",
-        messagingSenderId: "32475295961",
-        appId: "1:32475295961:web:914ba38766ffdeedce8ec8",
-        measurementId: "G-M03K5XJ0R3"
-      };
-
-      // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-      const analytics = getAnalytics(app);
-      const database = getDatabase(app);
-
-      // Utility function to get current date and time
-      const getCurrentDateTime = () => {
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const year = now.getFullYear();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-      };
-
-      // Function to handle adding a new note
-      const addNote = (formData) => {
-        const sanitizedData = {
-          contractNumber: formData.contractNumber,
-          locator: formData.locator,
-          tenant: formData.tenant,
-          problem: formData.problem,
-          address: formData.address
-        };
-
-        const newNoteKey = push(ref(database, 'notes')).key;
-
-        const newNoteData = {
-          ...sanitizedData,
-          status: 'open',
-          comments: [],
-          createdAt: getCurrentDateTime(),
-          createdBy: currentUser.email
-        };
-
-        set(ref(database, 'notes/' + newNoteKey), newNoteData)
-          .then(() => {
-            showNotification('Anotação criada com sucesso!', 'success');
-          })
-          .catch((error) => {
-            showNotification('Erro ao criar anotação: ' + error.message, 'error');
-          });
-      };
-
-      // Function to handle submitting a comment
-      const handleCommentSubmit = (noteKey, commentText) => {
-        if (!commentText.trim()) {
-          showNotification('Comentário não pode estar vazio', 'error');
-          return;
-        }
-
-        const newCommentKey = push(ref(database, `notes/${noteKey}/comments`)).key;
-
-        const comment = {
-          id: newCommentKey,
-          text: commentText,
-          dateTime: getCurrentDateTime(),
-          author: currentUser.email
-        };
-
-        set(ref(database, `notes/${noteKey}/comments/${newCommentKey}`), comment)
-          .then(() => {
-            showNotification('Comentário adicionado com sucesso!', 'success');
-            update(ref(database, `notes/${noteKey}`), { status: 'verified' });
-          })
-          .catch((error) => {
-            showNotification('Erro ao adicionar comentário: ' + error.message, 'error');
-          });
-      };
-
-      // Function to handle editing a comment
-      const editComment = (noteKey, commentId, newText) => {
-        const commentRef = ref(database, `notes/${noteKey}/comments/${commentId}`);
-        update(commentRef, {
-          text: newText,
-          editedAt: getCurrentDateTime()
-        })
-          .then(() => {
-            showNotification('Comentário atualizado com sucesso!', 'success');
-            update(ref(database, `notes/${noteKey}`), { status: 'verified' });
-          })
-          .catch((error) => {
-            showNotification('Erro ao atualizar comentário: ' + error.message, 'error');
-          });
-      };
-
-      // Function to handle deleting a comment
-      const deleteComment = (noteKey, commentId) => {
-        const commentRef = ref(database, `notes/${noteKey}/comments/${commentId}`);
-        remove(commentRef)
-          .then(() => {
-            showNotification('Comentário excluído com sucesso!', 'success');
-          })
-          .catch((error) => {
-            showNotification('Erro ao excluir comentário: ' + error.message, 'error');
-          });
-      };
-
-      // Function to handle finalizing a note
-      const finalizeNote = (noteKey) => {
-        const noteRef = ref(database, `notes/${noteKey}`);
-        update(noteRef, {
-          status: 'closed',
-          closedAt: getCurrentDateTime()
-        })
-          .then(() => {
-            showNotification('Nota finalizada com sucesso!', 'success');
-          })
-          .catch((error) => {
-            showNotification('Erro ao finalizar nota: ' + error.message, 'error');
-          });
-      };
-
-      // Function to handle reopening a note
-      const reopenNote = (noteKey) => {
-        const noteRef = ref(database, `notes/${noteKey}`);
-        update(noteRef, {
-          status: 'open',
-          closedAt: null
-        })
-          .then(() => {
-            showNotification('Nota reaberta com sucesso!', 'success');
-          })
-          .catch((error) => {
-            showNotification('Erro ao reabrir nota: ' + error.message, 'error');
-          });
-      };
-
-      // Function to show notifications
-      const showNotification = (message, type = 'success') => {
-        const notificationArea = document.getElementById('notificationArea');
-        notificationArea.innerHTML = ''; // Clear existing notifications
-
-        const notification = document.createElement('div');
-        notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
-        notification.textContent = message;
-        notificationArea.appendChild(notification);
-        setTimeout(() => notificationArea.removeChild(notification), 5000);
-      };
-
-      // Function to sanitize input
-      const sanitizeInput = (input) => {
-        if (typeof input !== 'string') return '';
-        return input.trim().replace(/[<>]/g, '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-      };
-
-      // Function to validate form data
-      const validateForm = (formData) => {
-        const errors = [];
-        
-        if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
-            errors.push('Número de contrato inválido - use apenas letras, números e hífen');
-        }
-        
-        if (formData.locator.length < 3) {
-            errors.push('Nome do Locador deve ter ao menos 3 caracteres');
-        }
-
-        if (formData.tenant.length < 3) {
-            errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
-        }
-        
-        if (formData.problem.length < 10) {
-            errors.push('Problema deve ter ao menos 10 caracteres');
-        }
-        
-        if (formData.address.length < 5) {
-            errors.push('Endereço deve ter ao menos 5 caracteres');
-        }
-        
-        return errors;
-      };
-
-      // Function to show the login modal
-      const showLogin = () => {
-        document.getElementById('loginModal').classList.remove('hidden');
-        document.getElementById('logoSection').classList.add('hidden');
-        document.getElementById('mainLayout').classList.add('hidden');
-      };
-
-      // Function to handle login
-      const login = (email, password) => {
-        if (email === 'manutencao@madia.com.br' && password === 'password123') {
-          currentUser = { email };
-          showMainLayout();
-          showNotification('Login bem-sucedido!', 'success');
-        } else {
-          showNotification('E-mail ou senha incorretos.', 'error');
-        }
-      };
-
-      // Function to show the main layout
-      const showMainLayout = () => {
-        document.getElementById('loginModal').classList.add('hidden');
-        document.getElementById('logoSection').classList.remove('hidden');
-        document.getElementById('mainLayout').classList.remove('hidden');
-      };
-
-      // Dummy current user for demonstration purposes
-      let currentUser = null;
-
-      // Event listener for the login form
-      document.getElementById('loginForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        login(email, password);
-      });
-
-      // Example usage
-      document.getElementById('createNoteBtn').addEventListener('click', () => {
-        if (currentUser) {
-          const formData = {
-            contractNumber: '123-456',
-            locator: 'John Doe',
-            tenant: 'Jane Smith',
-            problem: 'Leaking faucet',
-            address: '123 Main St'
-          };
-          addNote(formData);
-        } else {
-          showLogin();
-        }
-      });
-
-      // Function to monitor typing status and update Firebase
-      const startTyping = () => {
-        const typingStatusRef = ref(database, 'typingStatus/' + currentUser.email.replace(/\./g, '_'));
-        set(typingStatusRef, true);
-      };
-
-      const stopTyping = () => {
-        const typingStatusRef = ref(database, 'typingStatus/' + currentUser.email.replace(/\./g, '_'));
-        set(typingStatusRef, false);
-      };
-
-      // Add event listeners to the input field for typing detection
-      document.addEventListener('DOMContentLoaded', () => {
-        const inputField = document.getElementById('commentText');
-        if (inputField) {
-          inputField.addEventListener('keydown', startTyping);
-          inputField.addEventListener('blur', stopTyping);
-        }
-
-        const typingStatusContainer = document.getElementById('typingStatusContainer');
-        onValue(ref(database, 'typingStatus'), (snapshot) => {
-          const typingStatus = snapshot.val();
-          typingStatusContainer.innerHTML = '';
-          for (const user in typingStatus) {
-            if (typingStatus[user]) {
-              const typingIndicator = document.createElement('div');
-              typingIndicator.textContent = `${user.replace(/_/g, '.')} está digitando...`;
-              typingStatusContainer.appendChild(typingIndicator);
-            }
-          }
-        });
-      });
-    </script>
 </head>
 
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 text-black">
@@ -435,7 +157,7 @@
         <!-- User Info -->
         <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden">Logado: <span id="loggedUser"></span></div>
 
-<!-- Main Controls -->
+        <!-- Main Controls -->
         <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
             <button id="createNoteBtn" class="btn btn-wine-red" aria-label="Criar Anotação">
                 <i class="fas fa-plus mr-2"></i>Criar anotação
@@ -451,6 +173,9 @@
             </button>
             <button id="showDashboardBtn" class="btn btn-wine-red" aria-label="Dashboard">
                 <i class="fas fa-chart-bar mr-2"></i>Dashboard
+            </button>
+            <button id="showStorageModalBtn" class="btn btn-wine-red" aria-label="Ver armazenamento">
+                <i class="fas fa-database mr-2"></i>Ver armazenamento
             </button>
             <button id="logoutBtn" class="btn btn-gray" aria-label="Logout">
                 <i class="fas fa-sign-out-alt mr-2"></i>Logout
@@ -640,7 +365,7 @@
                         </div>
                     </div>
 
-                    <!-- Coluna da direita - Comentários -->
+<!-- Coluna da direita - Comentários -->
                     <div class="space-y-4">
                         <div class="bg-gray-50 p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-4 text-black">Comentários</h3>
@@ -669,7 +394,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <!-- Notes Section -->
@@ -711,214 +435,1517 @@
     </div>
 </div>
 
-<script type="module">
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-analytics.js";
-import { getDatabase, ref, set, onValue, push, update, remove } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js";
+<!-- Storage Modal -->
+<div id="storageModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center hidden">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-1/3">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-semibold">Espaço de Armazenamento</h2>
+      <button id="closeStorageModal" class="text-gray-500 hover:text-gray-700">&times;</button>
+    </div>
+    <div>
+      <p><strong>Espaço total usado:</strong> <span id="total-space-used"></span></p>
+      <p><strong>Espaço usado especificamente por notas:</strong> <span id="notes-space-used"></span></p>
+      <p><strong>Porcentagem de utilização:</strong> <span id="usage-percentage"></span>%</p>
+      <div class="relative pt-1">
+        <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+          <div id="progress-bar" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center"></div>
+        </div>
+      </div>
+      <div id="warning" class="hidden text-red-600 font-bold">Aviso: Armazenamento próximo do limite!</div>
+    </div>
+  </div>
+</div>
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyA3jZ-j_PfwqiSPDnSGdgeYMK0DFlNWEjg",
-    authDomain: "anotacoes-75ec5.firebaseapp.com",
-    projectId: "anotacoes-75ec5",
-    storageBucket: "anotacoes-75ec5.firebasestorage.app",
-    messagingSenderId: "32475295961",
-    appId: "1:32475295961:web:914ba38766ffdeedce8ec8",
-    measurementId: "G-M03K5XJ0R3"
-};
+<script>
+// Utility Functions
+const utils = {
+    showNotification: (message, type = 'success') => {
+        const notificationArea = document.getElementById('notificationArea');
+        notificationArea.innerHTML = ''; // Clear existing notifications
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const database = getDatabase(app);
+        const notification = document.createElement('div');
+        notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
+        notification.textContent = message;
+        notificationArea.appendChild(notification);
+        setTimeout(() => notificationArea.removeChild(notification), 5000);
+    },
 
-// Function to handle editing a comment
-const editComment = (noteKey, commentId, newText) => {
-    const commentRef = ref(database, `notes/${noteKey}/comments/${commentId}`);
-    update(commentRef, {
-        text: sanitizeInput(newText),
-        editedAt: getCurrentDateTime()
-    })
-    .then(() => {
-        showNotification('Comentário atualizado com sucesso!', 'success');
-        update(ref(database, `notes/${noteKey}`), { status: 'verified' });
-    })
-    .catch((error) => {
-        showNotification('Erro ao atualizar comentário: ' + error.message, 'error');
-    });
-};
+    sanitizeInput: (input) => {
+        if (typeof input !== 'string') return '';
+        return input.trim().replace(/[<>]/g, '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    },
 
-// Function to handle deleting a comment
-const deleteComment = (noteKey, commentId) => {
-    const commentRef = ref(database, `notes/${noteKey}/comments/${commentId}`);
-    remove(commentRef)
-    .then(() => {
-        showNotification('Comentário excluído com sucesso!', 'success');
-    })
-    .catch((error) => {
-        showNotification('Erro ao excluir comentário: ' + error.message, 'error');
-    });
-};
+    validateForm: (formData) => {
+        const errors = [];
+        
+        if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
+            errors.push('Número de contrato inválido - use apenas letras, números e hífen');
+        }
+        
+        if (formData.locator.length < 3) {
+            errors.push('Nome do Locador deve ter ao menos 3 caracteres');
+        }
 
-// Function to handle finalizing a note
-const finalizeNote = (noteKey) => {
-    const noteRef = ref(database, `notes/${noteKey}`);
-    update(noteRef, {
-        status: 'closed',
-        closedAt: getCurrentDateTime()
-    })
-    .then(() => {
-        showNotification('Nota finalizada com sucesso!', 'success');
-    })
-    .catch((error) => {
-        showNotification('Erro ao finalizar nota: ' + error.message, 'error');
-    });
-};
+        if (formData.tenant.length < 3) {
+            errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
+        }
+        
+        if (formData.problem.length < 10) {
+            errors.push('Problema deve ter ao menos 10 caracteres');
+        }
+        
+        if (formData.address.length < 5) {
+            errors.push('Endereço deve ter ao menos 5 caracteres');
+        }
+        
+        return errors;
+    },
 
-// Function to handle reopening a note
-const reopenNote = (noteKey) => {
-    const noteRef = ref(database, `notes/${noteKey}`);
-    update(noteRef, {
-        status: 'open',
-        closedAt: null
-    })
-    .then(() => {
-        showNotification('Nota reaberta com sucesso!', 'success');
-    })
-    .catch((error) => {
-        showNotification('Erro ao reabrir nota: ' + error.message, 'error');
-    });
-};
+    formatDate: (dateString) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Data inválida';
+            
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            
+            return `${day}/${month}/${year}`;
+        } catch (e) {
+            console.error('Error formatting date:', e);
+            return 'Data inválida';
+        }
+    },
 
-// Function to show notifications
-const showNotification = (message, type = 'success') => {
-    const notificationArea = document.getElementById('notificationArea');
-    notificationArea.innerHTML = ''; // Clear existing notifications
+    calculateDaysOpen: (dateString) => {
+        const start = new Date(dateString);
+        const today = new Date();
+        const diffTime = Math.abs(today - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    },
 
-    const notification = document.createElement('div');
-    notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
-    notification.textContent = message;
-    notificationArea.appendChild(notification);
-    setTimeout(() => notificationArea.removeChild(notification), 5000);
-};
+    getCurrentDateTime: () => {
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    },
 
-// Function to sanitize input
-const sanitizeInput = (input) => {
-    if (typeof input !== 'string') return '';
-    return input.trim().replace(/[<>]/g, '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-};
-
-// Function to validate form data
-const validateForm = (formData) => {
-    const errors = [];
-    
-    if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
-        errors.push('Número de contrato inválido - use apenas letras, números e hífen');
-    }
-    
-    if (formData.locator.length < 3) {
-        errors.push('Nome do Locador deve ter ao menos 3 caracteres');
-    }
-
-    if (formData.tenant.length < 3) {
-        errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
-    }
-    
-    if (formData.problem.length < 10) {
-        errors.push('Problema deve ter ao menos 10 caracteres');
-    }
-    
-    if (formData.address.length < 5) {
-        errors.push('Endereço deve ter ao menos 5 caracteres');
-    }
-    
-    return errors;
-};
-
-// Function to show the login modal
-const showLogin = () => {
-    document.getElementById('loginModal').classList.remove('hidden');
-    document.getElementById('logoSection').classList.add('hidden');
-    document.getElementById('mainLayout').classList.add('hidden');
-};
-
-// Function to handle login
-const login = (email, password) => {
-    if (email === 'manutencao@madia.com.br' && password === 'password123') {
-        currentUser = { email };
-        showMainLayout();
-        showNotification('Login bem-sucedido!', 'success');
-    } else {
-        showNotification('E-mail ou senha incorretos.', 'error');
+    downloadFile: (content, filename, type = 'text/plain') => {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }, 100);
     }
 };
 
-// Function to show the main layout
-const showMainLayout = () => {
-    document.getElementById('loginModal').classList.add('hidden');
-    document.getElementById('logoSection').classList.remove('hidden');
-    document.getElementById('mainLayout').classList.remove('hidden');
-};
+// Storage Management
+const totalSpace = 1000000000; // Exemplo: 1GB em bytes
+let usedSpace = 0; // Espaço usado inicial (em bytes)
+let notesSpace = 0; // Espaço usado por notas (em bytes)
 
-// Dummy current user for demonstration purposes
-let currentUser = null;
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  let k = 1024,
+      sizes = ['KB', 'MB', 'GB', 'TB'],
+      i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
 
-// Event listener for the login form
+function updateStorageInfo() {
+  usedSpace = 500000000; // Função para calcular espaço total usado
+  notesSpace = 300000000; // Função para calcular espaço usado por notas
+  
+  const usagePercentage = (usedSpace / totalSpace) * 100;
+  
+  document.getElementById('total-space-used').innerText = formatBytes(usedSpace);
+  document.getElementById('notes-space-used').innerText = formatBytes(notesSpace);
+  document.getElementById('usage-percentage').innerText = usagePercentage.toFixed(2);
+  
+  const progressBar = document.getElementById('progress-bar');
+  progressBar.style.width = usagePercentage + '%';
+  progressBar.classList.remove('bg-blue-500', 'bg-red-500');
+  if (usagePercentage > 80) {
+    progressBar.classList.add('bg-red-500');
+    document.getElementById('warning').classList.remove('hidden');
+  } else {
+    progressBar.classList.add('bg-blue-500');
+    document.getElementById('warning').classList.add('hidden');
+  }
+}
+
+// Show storage modal
+document.getElementById('showStorageModalBtn').addEventListener('click', () => {
+  document.getElementById('storageModal').classList.remove('hidden');
+  updateStorageInfo();
+});
+
+// Hide storage modal
+document.getElementById('closeStorageModal').addEventListener('click', () => {
+  document.getElementById('storageModal').classList.add('hidden');
+});
+
+// Fechar modal ao pressionar a tecla ESC
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    document.getElementById('storageModal').classList.add('hidden');
+  }
+});
+
+// Atualização automática a cada hora
+setInterval(updateStorageInfo, 3600000);
+
+// Note Manager Class
+class NoteManager {
+    constructor() {
+        this.notes = {};
+        this.currentPage = 0;
+        this.notesPerPage = 6;
+        this.commentsPerPage = 4;  // Número de comentários por vez
+        this.currentUser = null;
+        this.currentDateTime = utils.getCurrentDateTime();
+        this.loadFromLocalStorage();
+        this.cleanInvalidNotes();
+        this.initializeEventListeners();
+        this.updateVerifiedNotes();
+        this.chart = null; // Add this line to keep track of the chart instance
+    }
+
+    cleanInvalidNotes() {
+        const validNotes = {};
+        Object.entries(this.notes).forEach(([key, note]) => {
+            if (note && note.contractNumber) {
+                validNotes[key] = note;
+            }
+        });
+        this.notes = validNotes;
+        this.saveToLocalStorage();
+    }
+
+    initializeEventListeners() {
+        // Event Listeners para os botões principais
+        document.getElementById('createNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.toggleModal('noteModal');
+                document.getElementById('contractNumber').focus();
+            }
+        });
+
+        document.getElementById('cancelNoteBtn').addEventListener('click', () => {
+            this.toggleModal('noteModal');
+            document.getElementById('noteForm').reset();
+        });
+
+        document.getElementById('noteForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (this.isAuthenticated()) {
+                this.handleFormSubmit();
+            }
+        });
+
+        // Event Listeners para criar agendamento
+        document.getElementById('createScheduleBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.populateContractDropdown();
+                this.toggleModal('scheduleModal');
+                document.getElementById('existingContract').focus();
+            }
+        });
+
+        document.getElementById('cancelScheduleModalBtn').addEventListener('click', () => {
+            this.toggleModal('scheduleModal');
+            document.getElementById('scheduleForm').reset();
+        });
+
+        document.getElementById('scheduleForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (this.isAuthenticated()) {
+                this.handleScheduleFormSubmit();
+            }
+        });
+
+        document.getElementById('searchContract').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            this.filterContractDropdown(searchTerm);
+        });
+
+        // Event Listeners para busca e filtros
+        document.getElementById('searchInput').addEventListener('input', () => {
+            if (this.isAuthenticated()) {
+                this.filterNotes();
+            }
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', () => {
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
+        });
+
+        document.getElementById('dateFilter').addEventListener('change', () => {
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
+        });
+
+        // Event Listeners para importação/exportação
+        document.getElementById('importNotesBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                document.getElementById('fileInput').click();
+            }
+        });
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (this.isAuthenticated()) {
+                this.handleFileImport(e);
+            }
+        });
+
+        document.getElementById('downloadNotesBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.exportNotes();
+            }
+        });
+
+        document.getElementById('showDashboardBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.toggleDashboard();
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            this.logout();
+        });
+
+        // Event Listeners para comentários e detalhes
+        document.getElementById('commentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (this.isAuthenticated()) {
+                this.handleCommentSubmit();
+            }
+        });
+
+        document.getElementById('commentText').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (this.isAuthenticated()) {
+                    document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+                }
+            }
+        });
+
+        document.getElementById('closeDetailsBtn').addEventListener('click', () => {
+            this.toggleModal('noteDetailsModal');
+        });
+
+        // Event Listeners para ações nos detalhes
+        document.getElementById('copyDetailsBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.copyNoteComments(noteKey);
+            }
+        });
+
+        document.getElementById('downloadContractBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.downloadSingleContract(noteKey);
+            }
+        });
+
+        document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.cancelSchedule(noteKey);
+            }
+        });
+
+        document.getElementById('deleteNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.deleteNote(noteKey);
+            }
+        });
+
+        document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.finalizeNote(noteKey);
+            }
+        });
+
+        document.getElementById('reopenNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.reopenNote(noteKey);
+            }
+        });
+
+        document.getElementById('showMoreCommentsBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.currentCommentPage++;
+                this.renderComments(document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent);
+            }
+        });
+
+        document.getElementById('backToTopBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.currentCommentPage = 1;
+                this.renderComments(document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent);
+            }
+        });
+
+// Event Listener global para tecla ESC e Delete
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (!this.isAuthenticated()) {
+                    this.showLogin();
+                } else {
+                    this.closeAllModals();
+                }
+            }
+
+            // Navegação por setas do teclado
+            if (e.key === 'ArrowLeft') {
+                if (this.isAuthenticated()) {
+                    this.prevPage();
+                }
+            } else if (e.key === 'ArrowRight') {
+                if (this.isAuthenticated()) {
+                    this.nextPage();
+                }
+            }
+
+            // Excluir anotação ao pressionar Delete
+            if (e.key === 'Delete' && !document.getElementById('noteDetailsModal').classList.contains('hidden')) {
+                if (this.isAuthenticated()) {
+                    const noteKey = document.getElementById('noteDetailsContent')
+                        .querySelector('p strong + span').textContent;
+                    this.deleteNote(noteKey);
+                }
+            }
+        });
+
+        // Event Listeners para paginação
+        document.getElementById('prevPageBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.prevPage();
+            }
+        });
+
+        document.getElementById('nextPageBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.nextPage();
+            }
+        });
+    }
+
+    isAuthenticated() {
+        if (!this.currentUser) {
+            this.showNotesBlurred();
+            this.showLogin();
+            return false;
+        } else {
+            this.hideNotesBlurred();
+            return true;
+        }
+    }
+
+    showNotesBlurred() {
+        document.getElementById('notesContainer').classList.add('blurred-notes');
+    }
+
+    hideNotesBlurred() {
+        document.getElementById('notesContainer').classList.remove('blurred-notes');
+    }
+
+    toggleModal(modalId) {
+        // Close all modals and dashboard
+        document.querySelectorAll('.modal-overlay, #dashboard').forEach(modal => {
+            modal.classList.add('hidden');
+        });
+
+        // Open the selected modal or dashboard
+        document.getElementById(modalId).classList.toggle('hidden');
+    }
+
+    closeAllModals() {
+        // Close all modals and dashboard
+        document.querySelectorAll('.modal-overlay, #dashboard').forEach(modal => {
+            modal.classList.add('hidden');
+        });
+    }
+
+    handleFormSubmit() {
+        const formData = {
+            contractNumber: document.getElementById('contractNumber').value,
+            locator: document.getElementById('locator').value,
+            tenant: document.getElementById('tenant').value,
+            problem: document.getElementById('problem').value,
+            address: document.getElementById('address').value
+        };
+
+        const errors = utils.validateForm(formData);
+        if (errors.length > 0) {
+            errors.forEach(error => {
+                if (error.includes('Número de contrato inválido')) {
+                    document.getElementById('contractNumberError').classList.remove('hidden');
+                }
+                if (error.includes('Nome do Locador')) {
+                    document.getElementById('locatorError').classList.remove('hidden');
+                }
+                if (error.includes('Nome do Locatário')) {
+                    document.getElementById('tenantError').classList.remove('hidden');
+                }
+                if (error.includes('Problema')) {
+                    document.getElementById('problemError').classList.remove('hidden');
+                }
+                if (error.includes('Endereço')) {
+                    document.getElementById('addressError').classList.remove('hidden');
+                }
+            });
+            utils.showNotification(errors.join('\n'), 'error');
+            return;
+        }
+
+        const success = this.addNote(formData);
+        if (success) {
+            document.getElementById('noteForm').reset();
+            this.toggleModal('noteModal');
+        }
+    }
+
+    addNote(formData) {
+        try {
+            const sanitizedData = {
+                contractNumber: utils.sanitizeInput(formData.contractNumber),
+                locator: utils.sanitizeInput(formData.locator),
+                tenant: utils.sanitizeInput(formData.tenant),
+                problem: utils.sanitizeInput(formData.problem),
+                address: utils.sanitizeInput(formData.address)
+            };
+
+            if (!sanitizedData.contractNumber) {
+                throw new Error('Número do contrato é obrigatório');
+            }
+
+            const existingNotes = Object.keys(this.notes).filter(key => 
+                key.startsWith(sanitizedData.contractNumber + '#'));
+            
+            const sequence = existingNotes.length + 1;
+            const noteKey = `${sanitizedData.contractNumber}#${sequence}`;
+
+            this.notes[noteKey] = {
+                ...sanitizedData,
+                status: 'open',
+                comments: [],
+                createdAt: utils.getCurrentDateTime(),
+                createdBy: this.currentUser.email
+            };
+
+            this.renderNotes();
+            this.saveToLocalStorage();
+            utils.showNotification('Anotação criada com sucesso!', 'success');
+            return true;
+        } catch (error) {
+            console.error('Erro ao adicionar nota:', error);
+            utils.showNotification(`Erro ao criar anotação: ${error.message}`, 'error');
+            return false;
+        }
+    }
+
+    renderNotes(searchResults = null) {
+        const container = document.getElementById('notesContainer');
+        container.innerHTML = '';
+
+        const notesArray = Object.keys(this.notes).map(key => ({
+            key,
+            ...this.notes[key]
+        }));
+
+        // Filter notes based on status
+        const statusFilter = document.getElementById('statusFilter').value;
+        let filteredNotes = notesArray;
+        if (statusFilter !== 'all') {
+            filteredNotes = notesArray.filter(note => note.status === statusFilter);
+        }
+
+        // Apply search results if provided
+        if (searchResults) {
+            filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
+        }
+
+        const start = this.currentPage * this.notesPerPage;
+        const end = start + this.notesPerPage;
+        const notesToDisplay = filteredNotes.slice(start, end);
+
+        notesToDisplay.forEach(note => {
+            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
+
+            const noteButton = document.createElement('button');
+            noteButton.className = `note-button w-full px-4 py-3 ${
+                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
+                'bg-red-900 hover:bg-red-700'))
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
+
+            const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
+
+            noteButton.innerHTML = `
+                <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
+                <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
+                <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
+                <span class="block text-xs mt-1">${displayDate}</span>
+                <span class="block text-xs mt-1">
+                    ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
+                    (note.status === 'scheduled' ? 'Em agendamento' : 
+                    (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+                </span>
+                <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
+            `;
+
+            noteButton.dataset.contract = note.key;
+            noteButton.dataset.locator = note.locator.toLowerCase();
+            noteButton.dataset.tenant = note.tenant.toLowerCase();
+            noteButton.dataset.address = note.address.toLowerCase();
+            noteButton.dataset.date = note.createdAt; // Store the date in a consistent format for sorting
+            noteButton.dataset.status = note.status;
+
+            noteButton.addEventListener('click', () => {
+                if (this.isAuthenticated()) {
+                    this.showNoteDetails(note.key);
+                }
+            });
+
+            container.appendChild(noteButton);
+        });
+
+        this.sortNotes(); // Apply initial sorting
+        if (!this.isAuthenticated()) {
+            this.showNotesBlurred();
+        }
+    }
+
+    showNoteDetails(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
+            const detailsContent = document.getElementById('noteDetailsContent');
+
+            detailsContent.innerHTML = `
+                <div class="space-y-3">
+                    <div class="pb-2 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold">Informações do Contrato</h3>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDate(note.createdAt)}</div>
+                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
+                        <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
+                        <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
+                        <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
+                        <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
+                            <button class="ml-2 text-blue-500 hover:text-blue-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
+                                <i class="fas fa-search"></i>
+                            </button></p>
+                        <p><strong>Status:</strong> <span class="font-semibold ${
+                            note.status === 'open' ? 'text-red-900' :
+                            (note.status === 'scheduled' ? 'text-yellow-600' :
+                            (note.status === 'verified' ? 'text-purple-600' : 'text-green-600'))
+                        }">
+                            ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
+                            (note.status === 'scheduled' ? 'Em agendamento' : 
+                            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+                        </span></p>
+                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
+                    </div>
+                </div>
+            `;
+
+            // Mostrar/ocultar botões "Finalizar" e "Reabrir" com base no status
+            const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
+            const reopenNoteBtn = document.getElementById('reopenNoteBtn');
+            if (note.status === 'closed') {
+                finalizeNoteBtn.classList.add('hidden');
+                reopenNoteBtn.classList.remove('hidden');
+            } else {
+                finalizeNoteBtn.classList.remove('hidden');
+                reopenNoteBtn.classList.add('hidden');
+            }
+
+            // Mostrar/ocultar botão "Cancelar Agendamento" com base no status
+            const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
+            if (note.status === 'scheduled') {
+                cancelScheduleBtn.style.display = 'flex';
+            } else {
+                cancelScheduleBtn.style.display = 'none';
+            }
+
+            // Inicialize a página atual de comentários
+            this.currentCommentPage = 1;
+            this.renderComments(noteKey);
+            this.toggleModal('noteDetailsModal');
+            document.getElementById('commentText').focus();
+        } catch (error) {
+            console.error('Erro ao exibir detalhes da nota:', error);
+            utils.showNotification('Erro ao carregar detalhes', 'error');
+        }
+    }
+
+    renderComments(noteKey) {
+        try {
+            const commentsContainer = document.getElementById('commentsContainer');
+            commentsContainer.innerHTML = '';
+
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+            }
+
+            const start = (this.currentCommentPage - 1) * this.commentsPerPage;
+            const end = start + this.commentsPerPage;
+            const commentsToShow = note.comments.slice(start, end);
+
+            commentsToShow.forEach((comment) => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment-box';
+
+                commentElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
+                            <div class="mt-2 text-sm text-gray-500">
+                                <span>${utils.formatDate(comment.dateTime)}</span>
+                                <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
+                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="edit-comment-${comment.id}" class="ml-2 text-blue-500 hover:text-blue-700" aria-label="Editar Comentário">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button id="delete-comment-${comment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Excluir Comentário">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                commentsContainer.appendChild(commentElement);
+
+                // Add click event listener for editing comments
+                document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
+                    if (this.isAuthenticated()) {
+                        this.editComment(noteKey, comment.id);
+                    }
+                });
+
+                // Add click event listener for deleting comments
+                document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
+                    if (this.isAuthenticated()) {
+                        this.deleteComment(noteKey, comment.id);
+                    }
+                });
+            });
+
+            // Mostrar/ocultar botão "Mostrar Mais Comentários"
+            const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            if (end >= note.comments.length) {
+                showMoreCommentsBtn.style.display = 'none';
+                if (this.currentCommentPage > 1) {
+                    backToTopBtn.style.display = 'block';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
+            } else {
+                showMoreCommentsBtn.style.display = 'block';
+                backToTopBtn.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Erro ao renderizar comentários:', error);
+            utils.showNotification('Erro ao carregar comentários', 'error');
+        }
+    }
+
+    handleCommentSubmit() {
+        try {
+            const commentText = document.getElementById('commentText').value;
+            if (!commentText.trim()) {
+                utils.showNotification('Comentário não pode estar vazio', 'error');
+                return;
+            }
+
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+
+            const comment = {
+                id: Date.now().toString(),
+                text: utils.sanitizeInput(commentText),
+                dateTime: utils.getCurrentDateTime(),
+                author: this.currentUser.email
+            };
+
+            if (!Array.isArray(this.notes[noteKey].comments)) {
+                this.notes[noteKey].comments = [];
+            }
+
+            this.notes[noteKey].comments.unshift(comment);
+
+            // Update status to 'verified'
+            this.notes[noteKey].status = 'verified';
+
+            this.saveToLocalStorage();
+            this.renderComments(noteKey);
+            this.updateNoteButton(noteKey);
+            document.getElementById('commentForm').reset();
+            document.getElementById('commentText').focus();
+            utils.showNotification('Comentário adicionado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao adicionar comentário:', error);
+            utils.showNotification('Erro ao adicionar comentário', 'error');
+        }
+    }
+
+    editComment(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+                return;
+            }
+
+            const commentIndex = note.comments.findIndex(c => c.id === commentId);
+            if (commentIndex === -1) {
+                utils.showNotification('Comentário não encontrado.', 'error');
+                return;
+            }
+
+            // Create edit modal
+            const editModal = document.createElement('div');
+            editModal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            editModal.innerHTML = `
+                <div class="modal-content bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                    <h3 class="text-lg font-semibold mb-4">Editar Comentário</h3>
+                    <form id="editCommentForm" class="space-y-4">
+                        <textarea 
+                            id="editCommentText" 
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"
+                            required
+                        >${note.comments[commentIndex].text}</textarea>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancelEditComment" class="btn btn-gray">
+                                <i class="fas fa-times mr-2"></i>Cancelar
+                            </button>
+                            <button type="submit" class="btn btn-wine-red">
+                                <i class="fas fa-save mr-2"></i>Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+// Add modal to the document
+            document.body.appendChild(editModal);
+
+            // Get form elements
+            const form = document.getElementById('editCommentForm');
+            const cancelBtn = document.getElementById('cancelEditComment');
+            const textarea = document.getElementById('editCommentText');
+
+            // Handle cancel
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(editModal);
+            });
+
+            // Handle ESC key
+            document.addEventListener('keydown', function escListener(e) {
+                if (e.key === 'Escape') {
+                    document.body.removeChild(editModal);
+                    document.removeEventListener('keydown', escListener);
+                }
+            });
+
+            // Handle form submit
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newText = textarea.value.trim();
+                
+                if (newText) {
+                    note.comments[commentIndex].text = utils.sanitizeInput(newText);
+                    note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
+                    // Update status to 'verified'
+                    note.status = 'verified';
+                    this.saveToLocalStorage();
+                    this.renderComments(noteKey);
+                    this.updateNoteButton(noteKey);
+                    document.body.removeChild(editModal);
+                    utils.showNotification('Comentário atualizado com sucesso!', 'success');
+                } else {
+                    utils.showNotification('O comentário não pode estar vazio.', 'error');
+                }
+            });
+
+            // Focus on textarea
+            textarea.focus();
+        } catch (error) {
+            console.error('Erro ao editar comentário:', error);
+            utils.showNotification('Erro ao editar comentário', 'error');
+        }
+    }
+
+    deleteComment(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+                return;
+            }
+
+            const commentIndex = note.comments.findIndex(c => c.id === commentId);
+            if (commentIndex === -1) {
+                utils.showNotification('Comentário não encontrado.', 'error');
+                return;
+            }
+
+            note.comments.splice(commentIndex, 1);
+            this.saveToLocalStorage();
+            this.renderComments(noteKey);
+            this.updateNoteButton(noteKey);
+            utils.showNotification('Comentário excluído com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao excluir comentário:', error);
+            utils.showNotification('Erro ao excluir comentário', 'error');
+        }
+    }
+
+    cancelSchedule(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            if (note.status === 'scheduled') {
+                note.status = 'open';
+                note.providerName = '';
+                note.scheduleDate = '';
+                note.scheduleDescription = '';
+                this.saveToLocalStorage();
+                this.renderNotes();
+                this.showNoteDetails(noteKey);
+                utils.showNotification('Agendamento cancelado e status alterado para aberto!', 'success');
+            } else {
+                utils.showNotification('A nota não está em status de agendamento.', 'alert');
+            }
+        } catch (error) {
+            console.error('Erro ao cancelar agendamento:', error);
+            utils.showNotification('Erro ao cancelar agendamento', 'error');
+        }
+    }
+
+    deleteNote(noteKey) {
+        try {
+            if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
+                return;
+            }
+
+            delete this.notes[noteKey];
+            this.saveToLocalStorage();
+            this.renderNotes();
+            this.toggleModal('noteDetailsModal');
+            utils.showNotification('Anotação excluída com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao excluir nota:', error);
+            utils.showNotification('Erro ao excluir anotação', 'error');
+        }
+    }
+
+    copyNoteComments(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            const comments = note.comments.map(comment =>
+                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
+            navigator.clipboard.writeText(comments).then(() => {
+                utils.showNotification('Comentários copiados para a área de transferência!', 'success');
+            });
+        } catch (error) {
+            console.error('Erro ao copiar comentários:', error);
+            utils.showNotification('Erro ao copiar comentários', 'error');
+        }
+    }
+
+    downloadSingleContract(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            const comments = note.comments.map(comment =>
+                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
+            const details = `
+Número de Contrato: ${noteKey}
+Locador: ${note.locator}
+Locatário: ${note.tenant}
+Problema: ${note.problem}
+Endereço: ${note.address}
+Status: ${note.status}
+${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
+${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
+${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
+Comentários:
+${comments}
+            `.trim();
+
+            const filename = `${noteKey}.txt`;
+            utils.downloadFile(details, filename, 'text/plain');
+            utils.showNotification('Contrato exportado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao baixar contrato:', error);
+            utils.showNotification('Erro ao baixar contrato', 'error');
+        }
+    }
+
+    finalizeNote(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            if (note.status !== 'closed') {
+                note.status = 'closed';
+                note.closedAt = utils.getCurrentDateTime();
+                this.saveToLocalStorage();
+                this.renderNotes();
+                this.showNoteDetails(noteKey);
+                utils.showNotification('Nota finalizada com sucesso!', 'success');
+            } else {
+                utils.showNotification('A nota já está finalizada.', 'alert');
+            }
+        } catch (error) {
+            console.error('Erro ao finalizar nota:', error);
+            utils.showNotification('Erro ao finalizar nota', 'error');
+        }
+    }
+
+    reopenNote(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            if (note.status === 'closed') {
+                note.status = 'open';
+                delete note.closedAt;
+                this.saveToLocalStorage();
+                this.renderNotes();
+                this.showNoteDetails(noteKey);
+                utils.showNotification('Nota reaberta com sucesso!', 'success');
+            } else {
+                utils.showNotification('A nota não está finalizada.', 'alert');
+            }
+        } catch (error) {
+            console.error('Erro ao reabrir nota:', error);
+            utils.showNotification('Erro ao reabrir nota', 'error');
+        }
+    }
+
+    saveToLocalStorage() {
+        try {
+            localStorage.setItem('notes', JSON.stringify(this.notes));
+            localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+            utils.showNotification('Erro ao salvar dados localmente', 'error');
+        }
+    }
+
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedNotes) {
+                this.notes = JSON.parse(savedNotes);
+                this.renderNotes();
+            }
+            if (savedUser) {
+                this.currentUser = JSON.parse(savedUser);
+                this.updateUserInfo();
+                this.showMainLayout();
+            }
+            this.updateVerifiedNotes();
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            utils.showNotification('Erro ao carregar dados locais', 'error');
+        }
+    }
+
+    updateUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const loggedUser = document.getElementById('loggedUser');
+        if (this.currentUser) {
+            loggedUser.textContent = this.currentUser.email;
+            userInfo.classList.remove('hidden');
+        } else {
+            userInfo.classList.add('hidden');
+        }
+    }
+
+    updateVerifiedNotes() {
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+
+        Object.values(this.notes).forEach(note => {
+            if (note.status === 'verified') {
+                const noteDate = new Date(note.createdAt);
+                const noteDateStr = noteDate.toISOString().split('T')[0];
+                if (noteDateStr !== todayStr) {
+                    note.status = 'open';
+                }
+            }
+        });
+
+        this.saveToLocalStorage();
+        this.renderNotes();
+    }
+
+    handleSearch(searchTerm) {
+        this.filterNotes();
+    }
+
+    filterNotes() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+        const notes = document.querySelectorAll('.note-button');
+        notes.forEach(noteBtn => {
+            const noteKey = noteBtn.dataset.contract;
+            const note = this.notes[noteKey];
+
+            const matchesSearch = [
+                noteKey,
+                noteBtn.dataset.locator,
+                noteBtn.dataset.tenant,
+                noteBtn.dataset.address
+            ].join(' ').toLowerCase().includes(searchTerm);
+
+            noteBtn.classList.toggle('hidden', !matchesSearch);
+        });
+
+        this.sortNotes();
+    }
+
+    sortNotes() {
+        const container = document.getElementById('notesContainer');
+
+        const notes = Array.from(container.children);
+        const dateFilter = document.getElementById('dateFilter').value;
+
+        notes.sort((a, b) => {
+            const dateA = new Date(a.dataset.date);
+            const dateB = new Date(b.dataset.date);
+            
+            if (dateFilter === 'newest') {
+                return dateB - dateA;
+            } else {
+                return dateA - dateB;
+            }
+        });
+
+        // Clear and re-append sorted notes
+        container.innerHTML = '';
+        notes.forEach(note => container.appendChild(note));
+    }
+
+    updateNoteButton(noteKey) {
+        const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
+        if (noteButton) {
+            const note = this.notes[noteKey];
+            const commentCount = Array.isArray(note.comments) ? note.comments.length : 0;
+            const commentCountSpan = noteButton.querySelector('span:last-child');
+            if (commentCountSpan) {
+                commentCountSpan.textContent = `${commentCount} comentário(s)`;
+            }
+
+            noteButton.className = `note-button w-full px-4 py-3 ${
+                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
+                'bg-red-900 hover:bg-red-700'))
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
+        }
+    }
+
+    nextPage() {
+        const totalNotes = Object.keys(this.notes).length;
+        const totalPages = Math.ceil(totalNotes / this.notesPerPage);
+
+        if (this.currentPage < totalPages - 1) {
+            this.currentPage++;
+            this.renderNotes();
+        }
+    }
+
+    prevPage() {
+        if (this.currentPage > 0) {
+            this.currentPage--;
+            this.renderNotes();
+        }
+    }
+
+    handleScheduleFormSubmit() {
+        try {
+            const existingContract = document.getElementById('existingContract').value;
+            const providerName = document.getElementById('providerName').value;
+            const scheduleDate = document.getElementById('scheduleDate').value;
+            const scheduleDescription = document.getElementById('scheduleDescription').value;
+
+            if (!existingContract || !providerName || !scheduleDescription) {
+                utils.showNotification('Todos os campos são obrigatórios', 'error');
+                return;
+            }
+
+            const note = this.notes[existingContract];
+            if (!note) {
+                utils.showNotification('Contrato não encontrado', 'error');
+                return;
+            }
+
+            note.status = 'scheduled';
+            note.providerName = utils.sanitizeInput(providerName);
+            note.scheduleDate = scheduleDate;
+            note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
+
+            this.saveToLocalStorage();
+            this.renderNotes();
+            document.getElementById('scheduleForm').reset();
+            this.toggleModal('scheduleModal');
+            utils.showNotification('Agendamento criado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao criar agendamento:', error);
+            utils.showNotification('Erro ao criar agendamento', 'error');
+        }
+    }
+
+    populateContractDropdown() {
+        const existingContractDropdown = document.getElementById('existingContract');
+        existingContractDropdown.innerHTML = '<option value="">Selecione um contrato...</option>';
+
+        Object.keys(this.notes).forEach(noteKey => {
+            const note = this.notes[noteKey];
+            if (note.status === 'open' || note.status === 'verified') {
+                const option = document.createElement('option');
+                option.value = noteKey;
+                option.textContent = noteKey;
+                existingContractDropdown.appendChild(option);
+            }
+        });
+    }
+
+    filterContractDropdown(searchTerm) {
+        const existingContractDropdown = document.getElementById('existingContract');
+        const options = existingContractDropdown.querySelectorAll('option');
+
+        options.forEach(option => {
+            const isVisible = option.value.includes(searchTerm) || option.textContent.toLowerCase().includes(searchTerm);
+            option.style.display = isVisible ? '' : 'none';
+        });
+    }
+
+    handleFileImport(event) {
+        try {
+            const file = event.target.files[0];
+            if (!file) {
+                utils.showNotification('Nenhum arquivo selecionado', 'error');
+                return;
+            }
+
+            if (!file.name.endsWith('.json')) {
+                utils.showNotification('Por favor, selecione um arquivo JSON válido', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const importedNotes = JSON.parse(e.target.result);
+                    
+                    if (!importedNotes || typeof importedNotes !== 'object') {
+                        throw new Error('Formato de arquivo inválido');
+                    }
+
+                    let importCount = 0;
+                    const totalNotes = Object.keys(importedNotes).length;
+
+                    for (const [noteKey, note] of Object.entries(importedNotes)) {
+                        try {
+                            if (!this.notes[noteKey] && this.validateImportedNote(note, noteKey)) {
+                                this.notes[noteKey] = {
+                                    ...note,
+                                    createdAt: note.createdAt || utils.getCurrentDateTime(),
+                                    createdBy: this.currentUser.email,
+                                    status: note.status || 'open',
+                                    providerName: note.providerName || '',
+                                    scheduleDate: note.scheduleDate || '',
+                                    scheduleDescription: note.scheduleDescription || '',
+                                    comments: Array.isArray(note.comments) ? note.comments : []
+                                };
+                                importCount++;
+                            }
+                        } catch (error) {
+                            console.warn(`Erro ao importar nota ${noteKey}:`, error);
+                        }
+                    }
+
+                    this.saveToLocalStorage();
+                    this.renderNotes();
+                    utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
+                } catch (error) {
+                    console.error('Erro ao processar arquivo:', error);
+                    utils.showNotification(`Erro ao processar arquivo: ${error.message}`, 'error');
+                }
+            };
+
+            reader.onerror = () => {
+                utils.showNotification('Erro ao ler o arquivo', 'error');
+            };
+
+            reader.readAsText(file);
+        } catch (error) {
+            console.error('Erro na importação:', error);
+            utils.showNotification(`Erro ao importar arquivo: ${error.message}`, 'error');
+        } finally {
+            event.target.value = '';
+        }
+    }
+
+    validateImportedNote(note, noteKey) {
+        try {
+            if (!note || typeof note !== 'object') {
+                throw new Error('Dados da nota inválidos');
+            }
+
+            const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
+            const missingFields = requiredFields.filter(field => !note[field]);
+
+            if (missingFields.length > 0) {
+                throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
+            }
+
+            // Normalizar os comentários
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+            }
+
+            note.comments = note.comments.map(comment => ({
+                id: comment.id || Date.now().toString(),
+                text: utils.sanitizeInput(comment.text || ''),
+                dateTime: comment.dateTime || utils.getCurrentDateTime(),
+                author: this.currentUser.email,
+                editedAt: comment.editedAt || null
+            }));
+
+            return true;
+        } catch (error) {
+            console.warn(`Nota ${noteKey} inválida:`, error);
+            return false;
+        }
+    }
+
+    exportNotes() {
+        try {
+            if (Object.keys(this.notes).length === 0) {
+                utils.showNotification('Não há contratos para exportar', 'error');
+                return;
+            }
+
+            const exportData = {};
+            Object.entries(this.notes).forEach(([key, note]) => {
+                if (!note) return;
+
+                const contractNumber = note.contractNumber || key.split('#')[0];
+
+                const cleanedNote = {
+                    contractNumber: utils.sanitizeInput(contractNumber),
+                    locator: utils.sanitizeInput(note.locator || 'Não especificado'),
+                    tenant: utils.sanitizeInput(note.tenant || 'Não especificado'),
+                    problem: utils.sanitizeInput(note.problem || 'Não especificado'),
+                    address: utils.sanitizeInput(note.address || 'Não especificado'),
+                    status: note.status || 'open',
+                    createdAt: note.createdAt || utils.getCurrentDateTime(),
+                    createdBy: note.createdBy || this.currentUser.email,
+                    providerName: note.providerName || '',
+                    scheduleDate: note.scheduleDate || '',
+                    scheduleDescription: note.scheduleDescription || '',
+                    comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
+                        id: comment.id || Date.now().toString(),
+                        text: utils.sanitizeInput(comment.text || ''),
+                        dateTime: comment.dateTime || utils.getCurrentDateTime(),
+                        author: comment.author || this.currentUser.email,
+                        editedAt: comment.editedAt || null
+                    })) : []
+                };
+
+                if (note.closedAt) {
+                    cleanedNote.closedAt = note.closedAt;
+                }
+
+                exportData[key] = cleanedNote;
+            });
+
+            const notesJson = JSON.stringify(exportData, null, 2);
+            const filename = `contratos_${this.currentDateTime}.json`;
+            utils.downloadFile(notesJson, filename, 'application/json');
+            utils.showNotification('Contratos exportados com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro na exportação:', error);
+            utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
+        }
+    }
+
+renderDashboard() {
+        const statusData = {
+            open: 0,
+            closed: 0,
+            scheduled: 0,
+            verified: 0
+        };
+
+        Object.values(this.notes).forEach(note => {
+            statusData[note.status] = (statusData[note.status] || 0) + 1;
+        });
+
+        // Destroy the existing chart instance if it exists
+        if (this.chart) {
+            this.chart.destroy();
+        }
+
+        const statusChartCtx = document.getElementById('statusChart').getContext('2d');
+        this.chart = new Chart(statusChartCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje'],
+                datasets: [{
+                    label: 'Quantidade de Chamados',
+                    data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified],
+                    backgroundColor: ['#8B0000', '#006400', '#FFD700', '#800080'],
+                    borderColor: ['#5B0000', '#004400', '#CCAC00', '#660066'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0 // Ensure ticks are integer values
+                        }
+                    }
+                }
+            }
+        });
+
+        // Update the dashboard info
+        document.getElementById('openCount').textContent = `Abertos: ${statusData.open}`;
+        document.getElementById('closedCount').textContent = `Fechados: ${statusData.closed}`;
+        document.getElementById('scheduledCount').textContent = `Em Agendamento: ${statusData.scheduled}`;
+        document.getElementById('verifiedCount').textContent = `Verificados Hoje: ${statusData.verified}`;
+    }
+
+    toggleDashboard() {
+        const dashboard = document.getElementById('dashboard');
+        if (dashboard.classList.contains('hidden')) {
+            this.renderDashboard(); // Ensure the dashboard is rendered before showing it
+            dashboard.classList.remove('hidden');
+        } else {
+            dashboard.classList.add('hidden');
+        }
+    }
+
+    searchAllContracts(query) {
+        const searchTerm = query.toLowerCase();
+        const matches = Object.keys(this.notes).filter(key => {
+            const note = this.notes[key];
+            return key.toLowerCase().includes(searchTerm) ||
+                   note.locator.toLowerCase().includes(searchTerm) ||
+                   note.tenant.toLowerCase().includes(searchTerm) ||
+                   note.address.toLowerCase().includes(searchTerm);
+        });
+
+        return matches;
+    }
+
+    showMainLayout() {
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('logoSection').classList.remove('hidden');
+        document.getElementById('mainLayout').classList.remove('hidden');
+    }
+
+    showLogin() {
+        this.closeAllModals();
+        document.getElementById('loginModal').classList.remove('hidden');
+        document.getElementById('logoSection').classList.add('hidden');
+        document.getElementById('mainLayout').classList.add('hidden');
+    }
+
+    logout() {
+        this.currentUser = null;
+        localStorage.removeItem('currentUser');
+        this.showLogin();
+    }
+}
+
+// Inicializa a aplicação
+const noteManager = new NoteManager();
+
+// Login handling
 document.getElementById('loginForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-    login(email, password);
-});
 
-// Example usage
-document.getElementById('createNoteBtn').addEventListener('click', () => {
-    if (currentUser) {
-        const formData = {
-            contractNumber: '123-456',
-            locator: 'John Doe',
-            tenant: 'Jane Smith',
-            problem: 'Leaking faucet',
-            address: '123 Main St'
-        };
-        addNote(formData);
+    // Simulating a login check. In a real application, you would check against a database or authentication service.
+    if (email === 'manutencao@madia.com.br' && password === 'password123') {
+        noteManager.currentUser = { email };
+        noteManager.saveToLocalStorage();
+        noteManager.showMainLayout();
+        utils.showNotification('Login bem-sucedido!', 'success');
     } else {
-        showLogin();
+        utils.showNotification('E-mail ou senha incorretos.', 'error');
     }
 });
 
-// Function to monitor typing status and update Firebase
-const startTyping = () => {
-    const typingStatusRef = ref(database, 'typingStatus/' + currentUser.email.replace(/\./g, '_'));
-    set(typingStatusRef, true);
-};
-
-const stopTyping = () => {
-    const typingStatusRef = ref(database, 'typingStatus/' + currentUser.email.replace(/\./g, '_'));
-    set(typingStatusRef, false);
-};
-
-// Add event listeners to the input field for typing detection
-document.addEventListener('DOMContentLoaded', () => {
-    const inputField = document.getElementById('commentText');
-    if (inputField) {
-        inputField.addEventListener('keydown', startTyping);
-        inputField.addEventListener('blur', stopTyping);
-    }
-
-    const typingStatusContainer = document.getElementById('typingStatusContainer');
-    onValue(ref(database, 'typingStatus'), (snapshot) => {
-        const typingStatus = snapshot.val();
-        typingStatusContainer.innerHTML = '';
-        for (const user in typingStatus) {
-            if (typingStatus[user]) {
-                const typingIndicator = document.createElement('div');
-                typingIndicator.textContent = `${user.replace(/_/g, '.')} está digitando...`;
-                typingStatusContainer.appendChild(typingIndicator);
-            }
+// Event listener for global search
+document.getElementById('searchInput').addEventListener('input', () => {
+    if (noteManager.isAuthenticated()) {
+        const searchQuery = document.getElementById('searchInput').value;
+        const results = noteManager.searchAllContracts(searchQuery);
+        noteManager.currentPage = 0;
+        noteManager.renderNotes(results);
+        if (results.length > 0) {
+            const notes = document.querySelectorAll('.note-button');
+            notes.forEach(noteBtn => {
+                const noteKey = noteBtn.dataset.contract;
+                noteBtn.classList.toggle('hidden', !results.includes(noteKey));
+            });
+        } else {
+            utils.showNotification('Nenhum contrato encontrado.', 'alert');
         }
-    });
+    }
 });
 </script>
 </body>
