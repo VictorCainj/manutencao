@@ -17,6 +17,12 @@
         .btn-gray {
             @apply bg-gray-500 hover:bg-gray-700 focus:ring-gray-400;
         }
+        .btn-green {
+            @apply bg-green-500 hover:bg-green-700 focus:ring-green-400;
+        }
+        .btn-yellow {
+            @apply bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400;
+        }
         .notification {
             @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded-md shadow-lg transition-all duration-300 ease-in-out z-50 font-semibold text-center;
             animation: slideIn 0.3s ease-out;
@@ -89,21 +95,56 @@
         .category-content {
             display: none;
         }
+        .blurred-notes {
+            filter: blur(5px);
+            pointer-events: none;
+        }
     </style>
 </head>
 
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 text-black">
 
+<!-- Login Modal -->
+<div id="loginModal" class="modal-overlay flex items-center justify-center">
+    <div class="modal-content p-6 w-full max-w-md">
+        <h2 class="text-xl font-semibold mb-4 text-center text-black">Login</h2>
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label for="loginEmail" class="block text-gray-700">E-mail: *</label>
+                <input type="email" 
+                       id="loginEmail" 
+                       required
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
+            </div>
+            <div>
+                <label for="loginPassword" class="block text-gray-700">Senha: *</label>
+                <input type="password" 
+                       id="loginPassword" 
+                       required
+                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button type="submit" class="btn btn-wine-red">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Entrar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Logo Section -->
-<div class="mb-6">
+<div id="logoSection" class="mb-6 hidden">
     <img src="https://i.ibb.co/R3dKTYr/Madia-Im-veis-40-anos.webp" alt="Logo" class="mx-auto h-24">
 </div>
 
 <!-- Main Layout -->
-<div class="flex flex-1 w-full">
+<div id="mainLayout" class="flex flex-1 w-full hidden">
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col items-center p-4">
+
+        <!-- User Info -->
+        <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden">Logado: <span id="loggedUser"></span></div>
 
         <!-- Main Controls -->
         <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
@@ -122,11 +163,14 @@
             <button id="showDashboardBtn" class="btn btn-wine-red">
                 <i class="fas fa-chart-bar mr-2"></i>Dashboard
             </button>
+            <button id="logoutBtn" class="btn btn-gray">
+                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+            </button>
             <input type="file" id="fileInput" class="hidden" accept=".json">
         </div>
 
         <!-- Notification Area -->
-        <div id="notificationArea" class="w-full max-w-4xl mb-4"></div>
+        <div id="notificationArea" class="w-full max-w-4xl mb-4 text-center"></div>
 
         <!-- Dashboard Section -->
         <div id="dashboard" class="w-full max-w-2xl mb-6 hidden text-center bg-white p-6 rounded-lg shadow-lg">
@@ -274,7 +318,7 @@
         <div id="noteDetailsModal" class="modal-overlay hidden">
             <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                 <h2 class="text-2xl font-semibold mb-4 text-center text-black">Detalhes da Anotação</h2>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Coluna da esquerda - Detalhes -->
                     <div class="space-y-4">
@@ -334,7 +378,7 @@
 
     </div>
 
-    <!-- Notes Section -->
+<!-- Notes Section -->
     <div class="w-1/4 p-4">
         <!-- Filter Controls -->
         <div class="mb-4 flex flex-col space-y-2">
@@ -371,7 +415,6 @@
             <button id="nextPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -390,11 +433,7 @@ const utils = {
 
     sanitizeInput: (input) => {
         if (typeof input !== 'string') return '';
-        return input.trim()
-                   .replace(/[<>]/g, '')
-                   .replace(/&/g, '&amp;')
-                   .replace(/"/g, '&quot;')
-                   .replace(/'/g, '&#39;');
+        return input.trim().replace(/[<>]/g, '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     },
 
     validateForm: (formData) => {
@@ -480,7 +519,7 @@ class NoteManager {
         this.currentPage = 0;
         this.notesPerPage = 6;
         this.commentsPerPage = 4;  // Número de comentários por vez
-        this.currentUser = 'VictorCainj';
+        this.currentUser = null;
         this.currentDateTime = utils.getCurrentDateTime();
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
@@ -503,9 +542,11 @@ class NoteManager {
     initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
-            this.closeAllModals();
-            this.toggleModal('noteModal');
-            document.getElementById('contractNumber').focus();
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.toggleModal('noteModal');
+                document.getElementById('contractNumber').focus();
+            }
         });
 
         document.getElementById('cancelNoteBtn').addEventListener('click', () => {
@@ -515,15 +556,19 @@ class NoteManager {
 
         document.getElementById('noteForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.handleFormSubmit();
+            if (this.isAuthenticated()) {
+                this.handleFormSubmit();
+            }
         });
 
         // Event Listeners para criar agendamento
         document.getElementById('createScheduleBtn').addEventListener('click', () => {
-            this.closeAllModals();
-            this.populateContractDropdown();
-            this.toggleModal('scheduleModal');
-            document.getElementById('existingContract').focus();
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.populateContractDropdown();
+                this.toggleModal('scheduleModal');
+                document.getElementById('existingContract').focus();
+            }
         });
 
         document.getElementById('cancelScheduleModalBtn').addEventListener('click', () => {
@@ -533,7 +578,9 @@ class NoteManager {
 
         document.getElementById('scheduleForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.handleScheduleFormSubmit();
+            if (this.isAuthenticated()) {
+                this.handleScheduleFormSubmit();
+            }
         });
 
         document.getElementById('searchContract').addEventListener('input', (e) => {
@@ -543,45 +590,67 @@ class NoteManager {
 
         // Event Listeners para busca e filtros
         document.getElementById('searchInput').addEventListener('input', () => {
-            this.filterNotes();
+            if (this.isAuthenticated()) {
+                this.filterNotes();
+            }
         });
 
         document.getElementById('statusFilter').addEventListener('change', () => {
-            this.renderNotes();
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
         });
 
         document.getElementById('dateFilter').addEventListener('change', () => {
-            this.renderNotes();
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
         });
 
         // Event Listeners para importação/exportação
         document.getElementById('importNotesBtn').addEventListener('click', () => {
-            document.getElementById('fileInput').click();
+            if (this.isAuthenticated()) {
+                document.getElementById('fileInput').click();
+            }
         });
 
         document.getElementById('fileInput').addEventListener('change', (e) => {
-            this.handleFileImport(e);
+            if (this.isAuthenticated()) {
+                this.handleFileImport(e);
+            }
         });
 
         document.getElementById('downloadNotesBtn').addEventListener('click', () => {
-            this.exportNotes();
+            if (this.isAuthenticated()) {
+                this.exportNotes();
+            }
         });
 
         document.getElementById('showDashboardBtn').addEventListener('click', () => {
-            this.closeAllModals();
-            this.toggleDashboard();
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.toggleDashboard();
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            this.logout();
         });
 
         // Event Listeners para comentários e detalhes
         document.getElementById('commentForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.handleCommentSubmit();
+            if (this.isAuthenticated()) {
+                this.handleCommentSubmit();
+            }
         });
 
         document.getElementById('commentText').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+                if (this.isAuthenticated()) {
+                    document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+                }
             }
         });
 
@@ -591,82 +660,131 @@ class NoteManager {
 
         // Event Listeners para ações nos detalhes
         document.getElementById('copyDetailsBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.copyNoteDetails(noteKey);
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.copyNoteComments(noteKey);
+            }
         });
 
         document.getElementById('downloadContractBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.downloadSingleContract(noteKey);
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.downloadSingleContract(noteKey);
+            }
         });
 
         document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.cancelSchedule(noteKey);
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.cancelSchedule(noteKey);
+            }
         });
 
         document.getElementById('deleteNoteBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.deleteNote(noteKey);
-        });
-
-        document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.finalizeNote(noteKey);
-        });
-
-        document.getElementById('reopenNoteBtn').addEventListener('click', () => {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            this.reopenNote(noteKey);
-        });
-
-        document.getElementById('showMoreCommentsBtn').addEventListener('click', () => {
-            this.currentCommentPage++;
-            this.renderComments(document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent);
-        });
-
-        document.getElementById('backToTopBtn').addEventListener('click', () => {
-            this.currentCommentPage = 1;
-            this.renderComments(document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent);
-        });
-
-        // Event Listener global para tecla ESC e Delete
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.closeAllModals();
-            }
-
-            // Navegação por setas do teclado
-            if (e.key === 'ArrowLeft') {
-                this.prevPage();
-            } else if (e.key === 'ArrowRight') {
-                this.nextPage();
-            }
-
-            // Excluir anotação ao pressionar Delete
-            if (e.key === 'Delete' && !document.getElementById('noteDetailsModal').classList.contains('hidden')) {
+            if (this.isAuthenticated()) {
                 const noteKey = document.getElementById('noteDetailsContent')
                     .querySelector('p strong + span').textContent;
                 this.deleteNote(noteKey);
             }
         });
 
+        document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.finalizeNote(noteKey);
+            }
+        });
+
+        document.getElementById('reopenNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.reopenNote(noteKey);
+            }
+        });
+
+        document.getElementById('showMoreCommentsBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.currentCommentPage++;
+                this.renderComments(document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent);
+            }
+        });
+
+        document.getElementById('backToTopBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.currentCommentPage = 1;
+                this.renderComments(document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent);
+            }
+        });
+
+        // Event Listener global para tecla ESC e Delete
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (!this.isAuthenticated()) {
+                    this.showLogin();
+                } else {
+                    this.closeAllModals();
+                }
+            }
+
+            // Navegação por setas do teclado
+            if (e.key === 'ArrowLeft') {
+                if (this.isAuthenticated()) {
+                    this.prevPage();
+                }
+            } else if (e.key === 'ArrowRight') {
+                if (this.isAuthenticated()) {
+                    this.nextPage();
+                }
+            }
+
+            // Excluir anotação ao pressionar Delete
+            if (e.key === 'Delete' && !document.getElementById('noteDetailsModal').classList.contains('hidden')) {
+                if (this.isAuthenticated()) {
+                    const noteKey = document.getElementById('noteDetailsContent')
+                        .querySelector('p strong + span').textContent;
+                    this.deleteNote(noteKey);
+                }
+            }
+        });
+
         // Event Listeners para paginação
         document.getElementById('prevPageBtn').addEventListener('click', () => {
-            this.prevPage();
+            if (this.isAuthenticated()) {
+                this.prevPage();
+            }
         });
 
         document.getElementById('nextPageBtn').addEventListener('click', () => {
-            this.nextPage();
+            if (this.isAuthenticated()) {
+                this.nextPage();
+            }
         });
+    }
+
+    isAuthenticated() {
+        if (!this.currentUser) {
+            this.showNotesBlurred();
+            this.showLogin();
+            return false;
+        } else {
+            this.hideNotesBlurred();
+            return true;
+        }
+    }
+
+    showNotesBlurred() {
+        document.getElementById('notesContainer').classList.add('blurred-notes');
+    }
+
+    hideNotesBlurred() {
+        document.getElementById('notesContainer').classList.remove('blurred-notes');
     }
 
     toggleModal(modalId) {
@@ -733,7 +851,7 @@ class NoteManager {
                 status: 'open',
                 comments: [],
                 createdAt: utils.getCurrentDateTime(),
-                createdBy: this.currentUser
+                createdBy: this.currentUser.email
             };
 
             this.renderNotes();
@@ -772,9 +890,9 @@ class NoteManager {
         const end = start + this.notesPerPage;
         const notesToDisplay = filteredNotes.slice(start, end);
 
-        notesToDisplay.forEach(note => {
+notesToDisplay.forEach(note => {
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
-            
+
             const noteButton = document.createElement('button');
             noteButton.className = `note-button w-full px-4 py-3 ${
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
@@ -802,19 +920,25 @@ class NoteManager {
             noteButton.dataset.locator = note.locator.toLowerCase();
             noteButton.dataset.tenant = note.tenant.toLowerCase();
             noteButton.dataset.address = note.address.toLowerCase();
-            // Store the date in a consistent format for sorting
-            noteButton.dataset.date = note.createdAt;
+            noteButton.dataset.date = note.createdAt; // Store the date in a consistent format for sorting
             noteButton.dataset.status = note.status;
 
-            noteButton.addEventListener('click', () => this.showNoteDetails(note.key));
+            noteButton.addEventListener('click', () => {
+                if (this.isAuthenticated()) {
+                    this.showNoteDetails(note.key);
+                }
+            });
 
             container.appendChild(noteButton);
         });
 
         this.sortNotes(); // Apply initial sorting
+        if (!this.isAuthenticated()) {
+            this.showNotesBlurred();
+        }
     }
 
-showNoteDetails(noteKey) {
+    showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -906,12 +1030,18 @@ showNoteDetails(noteKey) {
                             <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
                             <div class="mt-2 text-sm text-gray-500">
                                 <span>${utils.formatDate(comment.dateTime)}</span>
+                                <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
                                 ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
                             </div>
                         </div>
-                        <button id="edit-comment-${comment.id}" class="ml-2 text-blue-500 hover:text-blue-700">
-                            <i class="fas fa-edit"></i>
-                        </button>
+                        <div class="flex space-x-2">
+                            <button id="edit-comment-${comment.id}" class="ml-2 text-blue-500 hover:text-blue-700">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button id="delete-comment-${comment.id}" class="ml-2 text-red-500 hover:text-red-700">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 `;
 
@@ -919,7 +1049,16 @@ showNoteDetails(noteKey) {
 
                 // Add click event listener for editing comments
                 document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
-                    this.editComment(noteKey, comment.id);
+                    if (this.isAuthenticated()) {
+                        this.editComment(noteKey, comment.id);
+                    }
+                });
+
+                // Add click event listener for deleting comments
+                document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
+                    if (this.isAuthenticated()) {
+                        this.deleteComment(noteKey, comment.id);
+                    }
                 });
             });
 
@@ -958,7 +1097,7 @@ showNoteDetails(noteKey) {
                 id: Date.now().toString(),
                 text: utils.sanitizeInput(commentText),
                 dateTime: utils.getCurrentDateTime(),
-                author: this.currentUser
+                author: this.currentUser.email
             };
 
             if (!Array.isArray(this.notes[noteKey].comments)) {
@@ -967,10 +1106,8 @@ showNoteDetails(noteKey) {
 
             this.notes[noteKey].comments.unshift(comment);
 
-            // Do not change status if the note is scheduled or closed
-            if (this.notes[noteKey].status !== 'scheduled' && this.notes[noteKey].status !== 'closed') {
-                this.notes[noteKey].status = 'verified';
-            }
+            // Update status to 'verified'
+            this.notes[noteKey].status = 'verified';
 
             this.saveToLocalStorage();
             this.renderComments(noteKey);
@@ -1051,8 +1188,11 @@ showNoteDetails(noteKey) {
                 if (newText) {
                     note.comments[commentIndex].text = utils.sanitizeInput(newText);
                     note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
+                    // Update status to 'verified'
+                    note.status = 'verified';
                     this.saveToLocalStorage();
                     this.renderComments(noteKey);
+                    this.updateNoteButton(noteKey);
                     document.body.removeChild(editModal);
                     utils.showNotification('Comentário atualizado com sucesso!', 'success');
                 } else {
@@ -1065,6 +1205,31 @@ showNoteDetails(noteKey) {
         } catch (error) {
             console.error('Erro ao editar comentário:', error);
             utils.showNotification('Erro ao editar comentário', 'error');
+        }
+    }
+
+    deleteComment(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+                return;
+            }
+
+            const commentIndex = note.comments.findIndex(c => c.id === commentId);
+            if (commentIndex === -1) {
+                utils.showNotification('Comentário não encontrado.', 'error');
+                return;
+            }
+
+            note.comments.splice(commentIndex, 1);
+            this.saveToLocalStorage();
+            this.renderComments(noteKey);
+            this.updateNoteButton(noteKey);
+            utils.showNotification('Comentário excluído com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao excluir comentário:', error);
+            utils.showNotification('Erro ao excluir comentário', 'error');
         }
     }
 
@@ -1106,34 +1271,17 @@ showNoteDetails(noteKey) {
         }
     }
 
-    copyNoteDetails(noteKey) {
+    copyNoteComments(noteKey) {
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment => 
                 `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
-            const details = `
-Número do Contrato: ${noteKey}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Problema: ${note.problem}
-Endereço: ${note.address}
-Status: ${note.status === 'open' ? 'Aberto' : 
-                (note.status === 'scheduled' ? 'Em agendamento' : 
-                (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
-${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
-${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
-${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
-Comentários:
-${comments}
-            `.trim();
-
-            navigator.clipboard.writeText(details).then(() => {
-                utils.showNotification('Detalhes copiados para a área de transferência!', 'success');
+            navigator.clipboard.writeText(comments).then(() => {
+                utils.showNotification('Comentários copiados para a área de transferência!', 'success');
             });
         } catch (error) {
-            console.error('Erro ao copiar detalhes:', error);
-            utils.showNotification('Erro ao copiar detalhes', 'error');
+            console.error('Erro ao copiar comentários:', error);
+            utils.showNotification('Erro ao copiar comentários', 'error');
         }
     }
 
@@ -1143,18 +1291,6 @@ ${comments}
             const comments = note.comments.map(comment => 
                 `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
             const details = `
-Número do Contrato: ${noteKey}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Problema: ${note.problem}
-Endereço: ${note.address}
-Status: ${note.status === 'open' ? 'Aberto' : 
-                (note.status === 'scheduled' ? 'Em agendamento' : 
-                (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
-${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
-${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
-${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
 Comentários:
 ${comments}
             `.trim();
@@ -1187,7 +1323,7 @@ ${comments}
         }
     }
 
-    reopenNote(noteKey) {
+reopenNote(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'closed') {
@@ -1209,6 +1345,7 @@ ${comments}
     saveToLocalStorage() {
         try {
             localStorage.setItem('notes', JSON.stringify(this.notes));
+            localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
         } catch (error) {
             console.error('Erro ao salvar no localStorage:', error);
             utils.showNotification('Erro ao salvar dados localmente', 'error');
@@ -1218,14 +1355,31 @@ ${comments}
     loadFromLocalStorage() {
         try {
             const savedNotes = localStorage.getItem('notes');
+            const savedUser = localStorage.getItem('currentUser');
             if (savedNotes) {
                 this.notes = JSON.parse(savedNotes);
                 this.renderNotes();
+            }
+            if (savedUser) {
+                this.currentUser = JSON.parse(savedUser);
+                this.updateUserInfo();
+                this.showMainLayout();
             }
             this.updateVerifiedNotes();
         } catch (error) {
             console.error('Erro ao carregar do localStorage:', error);
             utils.showNotification('Erro ao carregar dados locais', 'error');
+        }
+    }
+
+    updateUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const loggedUser = document.getElementById('loggedUser');
+        if (this.currentUser) {
+            loggedUser.textContent = this.currentUser.email;
+            userInfo.classList.remove('hidden');
+        } else {
+            userInfo.classList.add('hidden');
         }
     }
 
@@ -1272,7 +1426,7 @@ ${comments}
         this.sortNotes();
     }
 
-sortNotes() {
+    sortNotes() {
         const container = document.getElementById('notesContainer');
 
         const notes = Array.from(container.children);
@@ -1420,7 +1574,7 @@ sortNotes() {
                                 this.notes[noteKey] = {
                                     ...note,
                                     createdAt: note.createdAt || utils.getCurrentDateTime(),
-                                    createdBy: note.createdBy || this.currentUser,
+                                    createdBy: this.currentUser.email,
                                     status: note.status || 'open',
                                     providerName: note.providerName || '',
                                     scheduleDate: note.scheduleDate || '',
@@ -1464,7 +1618,7 @@ sortNotes() {
 
             const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
             const missingFields = requiredFields.filter(field => !note[field]);
-            
+
             if (missingFields.length > 0) {
                 throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
             }
@@ -1478,7 +1632,7 @@ sortNotes() {
                 id: comment.id || Date.now().toString(),
                 text: utils.sanitizeInput(comment.text || ''),
                 dateTime: comment.dateTime || utils.getCurrentDateTime(),
-                author: comment.author || this.currentUser,
+                author: this.currentUser.email,
                 editedAt: comment.editedAt || null
             }));
 
@@ -1510,7 +1664,7 @@ sortNotes() {
                     address: utils.sanitizeInput(note.address || 'Não especificado'),
                     status: note.status || 'open',
                     createdAt: note.createdAt || utils.getCurrentDateTime(),
-                    createdBy: note.createdBy || this.currentUser,
+                    createdBy: note.createdBy || this.currentUser.email,
                     providerName: note.providerName || '',
                     scheduleDate: note.scheduleDate || '',
                     scheduleDescription: note.scheduleDescription || '',
@@ -1518,7 +1672,7 @@ sortNotes() {
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
                         dateTime: comment.dateTime || utils.getCurrentDateTime(),
-                        author: comment.author || this.currentUser,
+                        author: comment.author || this.currentUser.email,
                         editedAt: comment.editedAt || null
                     })) : []
                 };
@@ -1612,25 +1766,62 @@ sortNotes() {
 
         return matches;
     }
+
+    showMainLayout() {
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('logoSection').classList.remove('hidden');
+        document.getElementById('mainLayout').classList.remove('hidden');
+    }
+
+    showLogin() {
+        this.closeAllModals();
+        document.getElementById('loginModal').classList.remove('hidden');
+        document.getElementById('logoSection').classList.add('hidden');
+        document.getElementById('mainLayout').classList.add('hidden');
+    }
+
+    logout() {
+        this.currentUser = null;
+        localStorage.removeItem('currentUser');
+        this.showLogin();
+    }
 }
 
 // Inicializa a aplicação
 const noteManager = new NoteManager();
 
+// Login handling
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    if (email === 'manutencao@madia.com.br' && password === 'password123') {
+        noteManager.currentUser = { email };
+        noteManager.saveToLocalStorage();
+        noteManager.showMainLayout();
+        utils.showNotification('Login bem-sucedido!', 'success');
+    } else {
+        utils.showNotification('E-mail ou senha incorretos.', 'error');
+    }
+});
+
 // Event listener for global search
 document.getElementById('searchInput').addEventListener('input', () => {
-    const searchQuery = document.getElementById('searchInput').value;
-    const results = noteManager.searchAllContracts(searchQuery);
-    noteManager.currentPage = 0;
-    noteManager.renderNotes(results);
-    if (results.length > 0) {
-        const notes = document.querySelectorAll('.note-button');
-        notes.forEach(noteBtn => {
-            const noteKey = noteBtn.dataset.contract;
-            noteBtn.classList.toggle('hidden', !results.includes(noteKey));
-        });
-    } else {
-        utils.showNotification('Nenhum contrato encontrado.', 'alert');
+    if (noteManager.isAuthenticated()) {
+        const searchQuery = document.getElementById('searchInput').value;
+        const results = noteManager.searchAllContracts(searchQuery);
+        noteManager.currentPage = 0;
+        noteManager.renderNotes(results);
+        if (results.length > 0) {
+            const notes = document.querySelectorAll('.note-button');
+            notes.forEach(noteBtn => {
+                const noteKey = noteBtn.dataset.contract;
+                noteBtn.classList.toggle('hidden', !results.includes(noteKey));
+            });
+        } else {
+            utils.showNotification('Nenhum contrato encontrado.', 'alert');
+        }
     }
 });
 </script>
