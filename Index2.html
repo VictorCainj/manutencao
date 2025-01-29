@@ -1737,7 +1737,7 @@ const noteManager = new NoteManager();
 
 // Login handling
 document.getElementById('loginForm').addEventListener('submit', (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Impede o comportamento padrão do formulário
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
 
