@@ -363,74 +363,80 @@
                     </div>
 
 <!-- Coluna da direita - Comentários -->
-                    <div class="space-y-4">
-                        <div class="bg-gray-50 p-4 rounded-lg shadow-md">
-                            <h3 class="text-lg font-semibold mb-4 text-black">Comentários</h3>
-                            
-                            <form id="commentForm" class="mb-4">
-                                <textarea id="commentText" 
-                                         required
-                                         class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[80px] text-black"
-                                         placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
-                                <button type="submit" class="btn btn-wine-red w-full mt-2">
-                                    <i class="fas fa-comment mr-2"></i>Adicionar Comentário
-                                </button>
-                            </form>
+<div class="space-y-4">
+    <div class="bg-gray-50 p-4 rounded-lg shadow-md">
+        <h3 class="text-lg font-semibold mb-4 text-black">Comentários</h3>
+        
+        <form id="commentForm" class="mb-4">
+            <textarea id="commentText" 
+                     required
+                     class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[80px] text-black"
+                     placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
+            <button type="submit" class="btn btn-wine-red w-full mt-2">
+                <i class="fas fa-comment mr-2"></i>Adicionar Comentário
+            </button>
+        </form>
 
-                            <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
-                            <button id="showMoreCommentsBtn" class="show-more">Mostrar Mais Comentários</button>
-                            <button id="backToTopBtn" class="show-more hidden">Voltar ao Início dos Comentários</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-4 text-right">
-                    <button type="button" id="closeDetailsBtn" class="btn btn-gray">
-                        <i class="fas fa-times mr-2"></i>Fechar
-                    </button>
-                </div>
-            </div>
-        </div>
-
+        <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+        <button id="showMoreCommentsBtn" class="show-more">Mostrar Mais Comentários</button>
+        <button id="backToTopBtn" class="show-more hidden">Voltar ao Início dos Comentários</button>
     </div>
+</div>
+
+<div class="mt-4 text-right">
+    <button type="button" id="closeDetailsBtn" class="btn btn-gray">
+        <i class="fas fa-times mr-2"></i>Fechar
+    </button>
+</div>
+</div>
+</div>
+</div>
 
 <!-- Notes Section -->
-    <div class="w-1/4 p-4">
-        <!-- Filter Controls -->
-        <div class="mb-4 flex flex-col space-y-2">
-            <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
-                <option value="all">Todos os Chamados</option>
-                <option value="open">Abertos</option>
-                <option value="scheduled">Em Agendamento</option>
-                <option value="verified">Verificados Hoje</option>
-                <option value="closed">Fechados</option>
-            </select>
-            <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
-                <option value="newest">Mais Recentes</option>
-                <option value="oldest">Mais Antigos</option>
-            </select>
+<div class="w-1/4 p-4">
+    <!-- Filter Controls -->
+    <div class="mb-4 flex flex-col space-y-2">
+        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
+            <option value="all">Todos os Chamados</option>
+            <option value="open">Abertos</option>
+            <option value="scheduled">Em Agendamento</option>
+            <option value="verified">Verificados Hoje</option>
+            <option value="closed">Fechados</option>
+        </select>
+        <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
+            <option value="newest">Mais Recentes</option>
+            <option value="oldest">Mais Antigos</option>
+        </select>
+    </div>
+
+    <!-- Search and Filter Controls -->
+    <div class="mb-4">
+        <div class="relative">
+            <input type="text" 
+                   id="searchInput" 
+                   placeholder="Pesquisar contratos..." 
+                   class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
+                   aria-label="Pesquisar contratos">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
         </div>
-
-        <!-- Search and Filter Controls -->
-        <div class="mb-4">
-            <div class="relative">
-                <input type="text" 
-                       id="searchInput" 
-                       placeholder="Pesquisar contratos..." 
-                       class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
-                       aria-label="Pesquisar contratos">
-                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            </div>
-        </div>
-
-        <div id="notesContainer" class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-
-        <!-- Pagination Controls -->
-        <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
-            <button id="prevPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-left"></i></button>
-            <button id="nextPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-right"></i></button>
+        <div class="relative mt-2">
+            <input type="text" 
+                   id="searchProblemsCommentsInput" 
+                   placeholder="Pesquisar Problemas e Comentários..." 
+                   class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
+                   aria-label="Pesquisar Problemas e Comentários">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
         </div>
     </div>
+
+    <div id="notesContainer" class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+
+    <!-- Pagination Controls -->
+    <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
+        <button id="prevPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-left"></i></button>
+        <button id="nextPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-right"></i></button>
+    </div>
+</div>
 </div>
 
 <script>
@@ -525,6 +531,10 @@ const utils = {
             URL.revokeObjectURL(url);
             document.body.removeChild(a);
         }, 100);
+    },
+
+    formatComment: (comment) => {
+        return comment.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
     }
 };
 
@@ -608,6 +618,12 @@ class NoteManager {
         document.getElementById('searchInput').addEventListener('input', () => {
             if (this.isAuthenticated()) {
                 this.filterNotes();
+            }
+        });
+
+        document.getElementById('searchProblemsCommentsInput').addEventListener('input', () => {
+            if (this.isAuthenticated()) {
+                this.filterNotesByProblemsAndComments();
             }
         });
 
@@ -768,6 +784,17 @@ class NoteManager {
                     this.deleteNote(noteKey);
                 }
             }
+
+            // Mudança de status usando teclas E e Q
+            if (e.key === 'E' && document.getElementById('noteDetailsModal').classList.contains('hidden')) {
+                if (this.isAuthenticated() && this.currentNote) {
+                    this.mudarStatus(this.currentNote, 'PENDENTE');
+                }
+            } else if (e.key === 'Q' && document.getElementById('noteDetailsModal').classList.contains('hidden')) {
+                if (this.isAuthenticated() && this.currentNote) {
+                    this.mudarStatus(this.currentNote, 'VERIFICADO DIÁRIO');
+                }
+            }
         });
 
         // Event Listeners para paginação
@@ -820,7 +847,7 @@ class NoteManager {
         });
     }
 
-    handleFormSubmit() {
+handleFormSubmit() {
         const formData = {
             contractNumber: document.getElementById('contractNumber').value,
             locator: document.getElementById('locator').value,
@@ -859,7 +886,7 @@ class NoteManager {
         }
     }
 
-addNote(formData) {
+    addNote(formData) {
         try {
             const sanitizedData = {
                 contractNumber: utils.sanitizeInput(formData.contractNumber),
@@ -1060,7 +1087,7 @@ addNote(formData) {
                 commentElement.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="flex-grow">
-                            <p class="text-gray-800 whitespace-pre-wrap">${utils.sanitizeInput(comment.text)}</p>
+                            <p class="text-gray-800 whitespace-pre-wrap">${utils.formatComment(comment.text)}</p>
                             <div class="mt-2 text-sm text-gray-500">
                                 <span>${utils.formatDate(comment.dateTime)}</span>
                                 <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
@@ -1073,6 +1100,12 @@ addNote(formData) {
                             </button>
                             <button id="delete-comment-${comment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Excluir Comentário">
                                 <i class="fas fa-trash"></i>
+                            </button>
+                            <button id="alert-comment-${comment.id}" class="ml-2 text-yellow-500 hover:text-yellow-700" aria-label="Alerta Comentário">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </button>
+                            <button id="fix-comment-${comment.id}" class="ml-2 text-green-500 hover:text-green-700" aria-label="Fixar Comentário">
+                                <i class="fas fa-thumbtack"></i>
                             </button>
                         </div>
                     </div>
@@ -1091,6 +1124,20 @@ addNote(formData) {
                 document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
                     if (this.isAuthenticated()) {
                         this.deleteComment(noteKey, comment.id);
+                    }
+                });
+
+                // Add click event listener for alerting comments
+                document.getElementById(`alert-comment-${comment.id}`).addEventListener('click', () => {
+                    if (this.isAuthenticated()) {
+                        this.alertComment(noteKey, comment.id);
+                    }
+                });
+
+                // Add click event listener for fixing comments
+                document.getElementById(`fix-comment-${comment.id}`).addEventListener('click', () => {
+                    if (this.isAuthenticated()) {
+                        this.fixComment(noteKey, comment.id);
                     }
                 });
             });
@@ -1139,8 +1186,10 @@ addNote(formData) {
 
             this.notes[noteKey].comments.unshift(comment);
 
-            // Update status to 'verified'
-            this.notes[noteKey].status = 'verified';
+            // Update status to 'verified' if not in 'scheduled' status
+            if (this.notes[noteKey].status !== 'scheduled') {
+                this.notes[noteKey].status = 'verified';
+            }
 
             this.saveToLocalStorage();
             this.renderComments(noteKey);
@@ -1151,6 +1200,38 @@ addNote(formData) {
         } catch (error) {
             console.error('Erro ao adicionar comentário:', error);
             utils.showNotification('Erro ao adicionar comentário', 'error');
+        }
+    }
+
+    alertComment(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            const comment = note.comments.find(c => c.id === commentId);
+            if (comment) {
+                comment.alert = !comment.alert;
+                this.saveToLocalStorage();
+                this.renderComments(noteKey);
+                utils.showNotification('Comentário atualizado para alerta!', 'success');
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar comentário para alerta:', error);
+            utils.showNotification('Erro ao atualizar comentário para alerta', 'error');
+        }
+    }
+
+    fixComment(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            const comment = note.comments.find(c => c.id === commentId);
+            if (comment) {
+                comment.fixed = !comment.fixed;
+                this.saveToLocalStorage();
+                this.renderComments(noteKey);
+                utils.showNotification('Comentário fixado/desfixado com sucesso!', 'success');
+            }
+        } catch (error) {
+            console.error('Erro ao fixar/desfixar comentário:', error);
+            utils.showNotification('Erro ao fixar/desfixar comentário', 'error');
         }
     }
 
@@ -1195,7 +1276,7 @@ addNote(formData) {
             // Add modal to the document
             document.body.appendChild(editModal);
 
-            // Get form elements
+// Get form elements
             const form = document.getElementById('editCommentForm');
             const cancelBtn = document.getElementById('cancelEditComment');
             const textarea = document.getElementById('editCommentText');
@@ -1221,8 +1302,10 @@ addNote(formData) {
                 if (newText) {
                     note.comments[commentIndex].text = utils.sanitizeInput(newText);
                     note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
-                    // Update status to 'verified'
-                    note.status = 'verified';
+                    // Update status to 'verified' if not in 'scheduled' status
+                    if (note.status !== 'scheduled') {
+                        note.status = 'verified';
+                    }
                     this.saveToLocalStorage();
                     this.renderComments(noteKey);
                     this.updateNoteButton(noteKey);
@@ -1304,29 +1387,30 @@ addNote(formData) {
         }
     }
 
-copyNoteComments(noteKey) {
-    try {
-        const note = this.notes[noteKey];
-        const comments = note.comments.map(comment =>
-            `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
-        ).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
-        navigator.clipboard.writeText(comments).then(() => {
-            utils.showNotification('Comentários copiados para a área de transferência!', 'success');
-        }).catch(err => {
-            console.error('Erro ao copiar comentários:', err);
+    copyNoteComments(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            const comments = note.comments.map(comment =>
+                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
+            ).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
+            navigator.clipboard.writeText(comments).then(() => {
+                utils.showNotification('Comentários copiados para a área de transferência!', 'success');
+            }).catch(err => {
+                console.error('Erro ao copiar comentários:', err);
+                utils.showNotification('Erro ao copiar comentários', 'error');
+            });
+        } catch (error) {
+            console.error('Erro ao copiar comentários:', error);
             utils.showNotification('Erro ao copiar comentários', 'error');
-        });
-    } catch (error) {
-        console.error('Erro ao copiar comentários:', error);
-        utils.showNotification('Erro ao copiar comentários', 'error');
+        }
     }
-}
 
     downloadSingleContract(noteKey) {
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment =>
-                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n\n');
+                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
+            ).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
             const details = `
 Número de Contrato: ${noteKey}
 Locador: ${note.locator}
@@ -1466,6 +1550,23 @@ ${comments}
                 noteBtn.dataset.tenant,
                 noteBtn.dataset.address
             ].join(' ').toLowerCase().includes(searchTerm);
+
+            noteBtn.classList.toggle('hidden', !matchesSearch);
+        });
+
+        this.sortNotes();
+    }
+
+    filterNotesByProblemsAndComments() {
+        const searchTerm = document.getElementById('searchProblemsCommentsInput').value.toLowerCase();
+
+        const notes = document.querySelectorAll('.note-button');
+        notes.forEach(noteBtn => {
+            const noteKey = noteBtn.dataset.contract;
+            const note = this.notes[noteKey];
+
+            const matchesSearch = note.problem.toLowerCase().includes(searchTerm) || 
+                note.comments.some(comment => comment.text.toLowerCase().includes(searchTerm));
 
             noteBtn.classList.toggle('hidden', !matchesSearch);
         });
@@ -1690,7 +1791,7 @@ ${comments}
         }
     }
 
-    exportNotes() {
+exportNotes() {
         try {
             if (Object.keys(this.notes).length === 0) {
                 utils.showNotification('Não há contratos para exportar', 'error');
@@ -1832,6 +1933,23 @@ ${comments}
         localStorage.removeItem('currentUser');
         this.showLogin();
     }
+
+    mudarStatus(noteKey, novoStatus) {
+        try {
+            const note = this.notes[noteKey];
+            if (note) {
+                note.status = novoStatus;
+                this.saveToLocalStorage();
+                this.renderNotes();
+                utils.showNotification(`Status alterado para ${novoStatus} com sucesso!`, 'success');
+            } else {
+                utils.showNotification('Nota não encontrada.', 'error');
+            }
+        } catch (error) {
+            console.error('Erro ao mudar status:', error);
+            utils.showNotification('Erro ao mudar status.', 'error');
+        }
+    }
 }
 
 // Inicializa a aplicação
@@ -1859,6 +1977,24 @@ document.getElementById('searchInput').addEventListener('input', () => {
     if (noteManager.isAuthenticated()) {
         const searchQuery = document.getElementById('searchInput').value;
         const results = noteManager.searchAllContracts(searchQuery);
+        noteManager.currentPage = 0;
+        noteManager.renderNotes(results);
+        if (results.length > 0) {
+            const notes = document.querySelectorAll('.note-button');
+            notes.forEach(noteBtn => {
+                const noteKey = noteBtn.dataset.contract;
+                noteBtn.classList.toggle('hidden', !results.includes(noteKey));
+            });
+        } else {
+            utils.showNotification('Nenhum contrato encontrado.', 'alert');
+        }
+    }
+});
+
+document.getElementById('searchProblemsCommentsInput').addEventListener('input', () => {
+    if (noteManager.isAuthenticated()) {
+        const searchQuery = document.getElementById('searchProblemsCommentsInput').value.toLowerCase();
+        const results = noteManager.filterNotesByProblemsAndComments(searchQuery);
         noteManager.currentPage = 0;
         noteManager.renderNotes(results);
         if (results.length > 0) {
