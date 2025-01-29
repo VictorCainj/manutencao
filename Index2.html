@@ -83,15 +83,6 @@
         .dropdown-item {
             @apply block px-4 py-2 text-gray-800 hover:bg-gray-200 transition-colors duration-200;
         }
-        .dashboard-info {
-            @apply bg-white rounded-lg shadow-md p-4 text-center flex flex-col items-center justify-center transition-all duration-300;
-        }
-        .dashboard-info i {
-            @apply text-4xl mb-2;
-        }
-        .dashboard-info p {
-            @apply text-lg font-semibold;
-        }
         .separator {
             @apply my-4 border-t-2 border-gray-300;
         }
@@ -342,7 +333,7 @@
                         <div id="fixedCommentSection" class="space-y-4"></div>
                     </div>
 
-                    <!-- Coluna da direita - Comentários -->
+<!-- Coluna da direita - Comentários -->
                     <div class="space-y-4">
                         <div class="bg-gray-50 p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-4 text-black">Comentários</h3>
@@ -373,7 +364,7 @@
         </div>
     </div>
 
-<!-- Notes Section -->
+    <!-- Notes Section -->
     <div class="w-1/4 p-4">
         <!-- Filter Controls -->
         <div class="mb-4 flex flex-col space-y-2">
@@ -524,7 +515,6 @@ class NoteManager {
         this.cleanInvalidNotes();
         this.initializeEventListeners();
         this.updateVerifiedNotes();
-        this.chart = null; // Add this line to keep track of the chart instance
     }
 
     cleanInvalidNotes() {
@@ -843,7 +833,7 @@ class NoteManager {
         }
     }
 
-    renderNotes(searchResults = null) {
+renderNotes(searchResults = null) {
         const container = document.getElementById('notesContainer');
         container.innerHTML = '';
 
@@ -859,7 +849,7 @@ class NoteManager {
             filteredNotes = notesArray.filter(note => note.status === statusFilter);
         }
 
-// Apply search results if provided
+        // Apply search results if provided
         if (searchResults) {
             filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
         }
@@ -1048,6 +1038,7 @@ class NoteManager {
                         <span>${utils.formatDate(comment.dateTime)}</span>
                         <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
                         ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+                        ${isFixed ? ` <i class="fas fa-thumbtack text-green-500"></i>` : ''}
                     </div>
                 </div>
                 <div class="flex space-x-2">
@@ -1256,7 +1247,7 @@ class NoteManager {
         }
     }
 
-    deleteComment(noteKey, commentId) {
+deleteComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1281,7 +1272,7 @@ class NoteManager {
         }
     }
 
-cancelSchedule(noteKey) {
+    cancelSchedule(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'scheduled') {
