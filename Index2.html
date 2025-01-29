@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Anotações de Contratos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         .btn {
@@ -112,47 +111,19 @@
     <div class="spinner"></div>
 </div>
 
-<!-- Login Modal -->
-<div id="loginModal" class="modal-overlay flex items-center justify-center">
-    <div class="modal-content p-6 w-full max-w-md">
-        <h2 class="text-xl font-semibold mb-4 text-center text-black">Login</h2>
-        <form id="loginForm" class="space-y-4">
-            <div>
-                <label for="loginEmail" class="block text-gray-700">E-mail: *</label>
-                <input type="email" 
-                       id="loginEmail" 
-                       required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
-            </div>
-            <div>
-                <label for="loginPassword" class="block text-gray-700">Senha: *</label>
-                <input type="password" 
-                       id="loginPassword" 
-                       required
-                       class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
-            </div>
-            <div class="flex justify-end space-x-2">
-                <button type="submit" class="btn btn-wine-red">
-                    <i class="fas fa-sign-in-alt mr-2"></i>Entrar
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <!-- Logo Section -->
-<div id="logoSection" class="mb-6 hidden">
+<div id="logoSection" class="mb-6">
     <img src="https://i.ibb.co/R3dKTYr/Madia-Im-veis-40-anos.webp" alt="Logo" class="mx-auto h-24">
 </div>
 
 <!-- Main Layout -->
-<div id="mainLayout" class="flex flex-1 w-full hidden">
+<div id="mainLayout" class="flex flex-1 w-full">
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col items-center p-4">
 
         <!-- User Info -->
-        <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden">Logado: <span id="loggedUser"></span></div>
+        <div id="userInfo" class="mb-4 text-center text-xl font-semibold">Logado: Victor</div>
 
         <!-- Main Controls -->
         <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
@@ -167,9 +138,6 @@
             </button>
             <button id="downloadNotesBtn" class="btn btn-gray" aria-label="Baixar Todos os Contratos">
                 <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
-            </button>
-            <button id="logoutBtn" class="btn btn-gray" aria-label="Logout">
-                <i class="fas fa-sign-out-alt mr-2"></i>Logout
             </button>
             <input type="file" id="fileInput" class="hidden" accept=".json">
         </div>
@@ -333,7 +301,7 @@
                         <div id="fixedCommentSection" class="space-y-4"></div>
                     </div>
 
-<!-- Coluna da direita - Comentários -->
+                    <!-- Coluna da direita - Comentários -->
                     <div class="space-y-4">
                         <div class="bg-gray-50 p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-4 text-black">Comentários</h3>
@@ -509,7 +477,7 @@ class NoteManager {
         this.currentPage = 0;
         this.notesPerPage = 6;
         this.commentsPerPage = 4;  // Número de comentários por vez
-        this.currentUser = null;
+        this.currentUser = { email: 'Victor' };
         this.currentDateTime = utils.getCurrentDateTime();
         this.loadFromLocalStorage();
         this.cleanInvalidNotes();
@@ -531,11 +499,9 @@ class NoteManager {
     initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.closeAllModals();
-                this.toggleModal('noteModal');
-                document.getElementById('contractNumber').focus();
-            }
+            this.closeAllModals();
+            this.toggleModal('noteModal');
+            document.getElementById('contractNumber').focus();
         });
 
         document.getElementById('cancelNoteBtn').addEventListener('click', () => {
@@ -545,19 +511,15 @@ class NoteManager {
 
         document.getElementById('noteForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            if (this.isAuthenticated()) {
-                this.handleFormSubmit();
-            }
+            this.handleFormSubmit();
         });
 
         // Event Listeners para criar agendamento
         document.getElementById('createScheduleBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.closeAllModals();
-                this.populateContractDropdown();
-                this.toggleModal('scheduleModal');
-                document.getElementById('existingContract').focus();
-            }
+            this.closeAllModals();
+            this.populateContractDropdown();
+            this.toggleModal('scheduleModal');
+            document.getElementById('existingContract').focus();
         });
 
         document.getElementById('cancelScheduleModalBtn').addEventListener('click', () => {
@@ -567,9 +529,7 @@ class NoteManager {
 
         document.getElementById('scheduleForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            if (this.isAuthenticated()) {
-                this.handleScheduleFormSubmit();
-            }
+            this.handleScheduleFormSubmit();
         });
 
         document.getElementById('searchContract').addEventListener('input', (e) => {
@@ -579,60 +539,40 @@ class NoteManager {
 
         // Event Listeners para busca e filtros
         document.getElementById('searchInput').addEventListener('input', () => {
-            if (this.isAuthenticated()) {
-                this.filterNotes();
-            }
+            this.filterNotes();
         });
 
         document.getElementById('statusFilter').addEventListener('change', () => {
-            if (this.isAuthenticated()) {
-                this.renderNotes();
-            }
+            this.renderNotes();
         });
 
         document.getElementById('dateFilter').addEventListener('change', () => {
-            if (this.isAuthenticated()) {
-                this.renderNotes();
-            }
+            this.renderNotes();
         });
 
         // Event Listeners para importação/exportação
         document.getElementById('importNotesBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                document.getElementById('fileInput').click();
-            }
+            document.getElementById('fileInput').click();
         });
 
         document.getElementById('fileInput').addEventListener('change', (e) => {
-            if (this.isAuthenticated()) {
-                this.handleFileImport(e);
-            }
+            this.handleFileImport(e);
         });
 
         document.getElementById('downloadNotesBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.exportNotes();
-            }
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            this.logout();
+            this.exportNotes();
         });
 
         // Event Listeners para comentários e detalhes
         document.getElementById('commentForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            if (this.isAuthenticated()) {
-                this.handleCommentSubmit();
-            }
+            this.handleCommentSubmit();
         });
 
         document.getElementById('commentText').addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                if (this.isAuthenticated()) {
-                    document.getElementById('commentForm').dispatchEvent(new Event('submit'));
-                }
+                document.getElementById('commentForm').dispatchEvent(new Event('submit'));
             }
         });
 
@@ -642,100 +582,61 @@ class NoteManager {
 
         // Event Listeners para ações nos detalhes
         document.getElementById('copyDetailsBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
-                this.copyNoteComments(noteKey);
-            }
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.copyNoteComments(noteKey);
         });
 
         document.getElementById('downloadContractBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
-                this.downloadSingleContract(noteKey);
-            }
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.downloadSingleContract(noteKey);
         });
 
         document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
-                this.cancelSchedule(noteKey);
-            }
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.cancelSchedule(noteKey);
         });
 
         document.getElementById('deleteNoteBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
-                this.deleteNote(noteKey);
-            }
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.deleteNote(noteKey);
         });
 
         document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
-                this.finalizeNote(noteKey);
-            }
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.finalizeNote(noteKey);
         });
 
         document.getElementById('reopenNoteBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
-                this.reopenNote(noteKey);
-            }
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            this.reopenNote(noteKey);
         });
 
         document.getElementById('showMoreCommentsBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.currentCommentPage++;
-                this.renderComments(document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent);
-            }
+            this.currentCommentPage++;
+            this.renderComments(document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent);
         });
 
         document.getElementById('backToTopBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.currentCommentPage = 1;
-                this.renderComments(document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent);
-            }
+            this.currentCommentPage = 1;
+            this.renderComments(document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent);
         });
 
         // Event Listeners para paginação
         document.getElementById('prevPageBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.prevPage();
-            }
+            this.prevPage();
         });
 
         document.getElementById('nextPageBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.nextPage();
-            }
+            this.nextPage();
         });
-    }
-
-    isAuthenticated() {
-        if (!this.currentUser) {
-            this.showNotesBlurred();
-            this.showLogin();
-            return false;
-        } else {
-            this.hideNotesBlurred();
-            return true;
-        }
-    }
-
-    showNotesBlurred() {
-        document.getElementById('notesContainer').classList.add('blurred-notes');
-    }
-
-    hideNotesBlurred() {
-        document.getElementById('notesContainer').classList.remove('blurred-notes');
     }
 
     toggleModal(modalId) {
@@ -833,7 +734,7 @@ class NoteManager {
         }
     }
 
-renderNotes(searchResults = null) {
+    renderNotes(searchResults = null) {
         const container = document.getElementById('notesContainer');
         container.innerHTML = '';
 
@@ -892,21 +793,16 @@ renderNotes(searchResults = null) {
             noteButton.dataset.status = note.status;
 
             noteButton.addEventListener('click', () => {
-                if (this.isAuthenticated()) {
-                    this.showNoteDetails(note.key);
-                }
+                this.showNoteDetails(note.key);
             });
 
             container.appendChild(noteButton);
         });
 
         this.sortNotes(); // Apply initial sorting
-        if (!this.isAuthenticated()) {
-            this.showNotesBlurred();
-        }
     }
 
-    showNoteDetails(noteKey) {
+showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -944,7 +840,6 @@ renderNotes(searchResults = null) {
                 </div>
             `;
 
-            // Mostrar/ocultar botões "Finalizar" e "Reabrir" com base no status
             const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
             const reopenNoteBtn = document.getElementById('reopenNoteBtn');
             if (note.status === 'closed') {
@@ -955,7 +850,6 @@ renderNotes(searchResults = null) {
                 reopenNoteBtn.classList.add('hidden');
             }
 
-            // Mostrar/ocultar botão "Cancelar Agendamento" com base no status
             const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
             if (note.status === 'scheduled') {
                 cancelScheduleBtn.style.display = 'flex';
@@ -963,7 +857,6 @@ renderNotes(searchResults = null) {
                 cancelScheduleBtn.style.display = 'none';
             }
 
-            // Inicialize a página atual de comentários
             this.currentCommentPage = 1;
             this.renderComments(noteKey);
             this.toggleModal('noteDetailsModal');
@@ -990,7 +883,6 @@ renderNotes(searchResults = null) {
             const end = start + this.commentsPerPage;
             const commentsToShow = note.comments.slice(start, end);
 
-            // Render fixed comments first
             const fixedComments = note.comments.filter(comment => comment.fixed);
             fixedComments.forEach(comment => this.renderCommentElement(fixedCommentSection, noteKey, comment, true));
 
@@ -1000,7 +892,6 @@ renderNotes(searchResults = null) {
                 }
             });
 
-            // Mostrar/ocultar botão "Mostrar Mais Comentários"
             const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
             const backToTopBtn = document.getElementById('backToTopBtn');
             if (end >= note.comments.length) {
@@ -1061,27 +952,19 @@ renderNotes(searchResults = null) {
         container.appendChild(commentElement);
 
         document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.editComment(noteKey, comment.id);
-            }
+            this.editComment(noteKey, comment.id);
         });
 
         document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.deleteComment(noteKey, comment.id);
-            }
+            this.deleteComment(noteKey, comment.id);
         });
 
         document.getElementById(`important-comment-${comment.id}`).addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.markCommentAsImportant(noteKey, comment.id);
-            }
+            this.markCommentAsImportant(noteKey, comment.id);
         });
 
         document.getElementById(`fix-comment-${comment.id}`).addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.fixComment(noteKey, comment.id);
-            }
+            this.fixComment(noteKey, comment.id);
         });
     }
 
@@ -1109,7 +992,6 @@ renderNotes(searchResults = null) {
 
             this.notes[noteKey].comments.unshift(comment);
 
-            // Update status to 'verified' if not in 'scheduled' status
             if (this.notes[noteKey].status !== 'scheduled') {
                 this.notes[noteKey].status = 'verified';
             }
@@ -1172,7 +1054,6 @@ renderNotes(searchResults = null) {
                 return;
             }
 
-            // Create edit modal
             const editModal = document.createElement('div');
             editModal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
             editModal.innerHTML = `
@@ -1196,20 +1077,16 @@ renderNotes(searchResults = null) {
                 </div>
             `;
 
-            // Add modal to the document
             document.body.appendChild(editModal);
 
-            // Get form elements
             const form = document.getElementById('editCommentForm');
             const cancelBtn = document.getElementById('cancelEditComment');
             const textarea = document.getElementById('editCommentText');
 
-            // Handle cancel
             cancelBtn.addEventListener('click', () => {
                 document.body.removeChild(editModal);
             });
 
-            // Handle ESC key
             document.addEventListener('keydown', function escListener(e) {
                 if (e.key === 'Escape') {
                     document.body.removeChild(editModal);
@@ -1217,7 +1094,6 @@ renderNotes(searchResults = null) {
                 }
             });
 
-            // Handle form submit
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const newText = textarea.value.trim();
@@ -1225,7 +1101,6 @@ renderNotes(searchResults = null) {
                 if (newText) {
                     note.comments[commentIndex].text = utils.sanitizeInput(newText);
                     note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
-                    // Update status to 'verified' if not in 'scheduled' status
                     if (note.status !== 'scheduled') {
                         note.status = 'verified';
                     }
@@ -1239,7 +1114,6 @@ renderNotes(searchResults = null) {
                 }
             });
 
-            // Focus on textarea
             textarea.focus();
         } catch (error) {
             console.error('Erro ao editar comentário:', error);
@@ -1247,7 +1121,7 @@ renderNotes(searchResults = null) {
         }
     }
 
-deleteComment(noteKey, commentId) {
+    deleteComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1315,7 +1189,7 @@ deleteComment(noteKey, commentId) {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment =>
                 `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
-            ).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
+            ).join('\n\n');
             navigator.clipboard.writeText(comments).then(() => {
                 utils.showNotification('Comentários copiados para a área de transferência!', 'success');
             }).catch(err => {
@@ -1333,7 +1207,7 @@ deleteComment(noteKey, commentId) {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment =>
                 `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
-            ).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
+            ).join('\n\n');
             const details = `
 Número de Contrato: ${noteKey}
 Locador: ${note.locator}
@@ -1377,7 +1251,7 @@ ${comments}
         }
     }
 
-    reopenNote(noteKey) {
+reopenNote(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'closed') {
@@ -1399,7 +1273,6 @@ ${comments}
     saveToLocalStorage() {
         try {
             localStorage.setItem('notes', JSON.stringify(this.notes));
-            localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
         } catch (error) {
             console.error('Erro ao salvar no localStorage:', error);
             utils.showNotification('Erro ao salvar dados localmente', 'error');
@@ -1409,31 +1282,14 @@ ${comments}
     loadFromLocalStorage() {
         try {
             const savedNotes = localStorage.getItem('notes');
-            const savedUser = localStorage.getItem('currentUser');
             if (savedNotes) {
                 this.notes = JSON.parse(savedNotes);
                 this.renderNotes();
-            }
-            if (savedUser) {
-                this.currentUser = JSON.parse(savedUser);
-                this.updateUserInfo();
-                this.showMainLayout();
             }
             this.updateVerifiedNotes();
         } catch (error) {
             console.error('Erro ao carregar do localStorage:', error);
             utils.showNotification('Erro ao carregar dados locais', 'error');
-        }
-    }
-
-    updateUserInfo() {
-        const userInfo = document.getElementById('userInfo');
-        const loggedUser = document.getElementById('loggedUser');
-        if (this.currentUser) {
-            loggedUser.textContent = this.currentUser.email;
-            userInfo.classList.remove('hidden');
-        } else {
-            userInfo.classList.add('hidden');
         }
     }
 
@@ -1499,7 +1355,6 @@ ${comments}
             }
         });
 
-        // Clear and re-append sorted notes
         container.innerHTML = '';
         notes.forEach(note => container.appendChild(note));
     }
@@ -1660,7 +1515,6 @@ ${comments}
                 throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
             }
 
-            // Normalizar os comentários
             if (!Array.isArray(note.comments)) {
                 note.comments = [];
             }
@@ -1735,28 +1589,9 @@ ${comments}
 // Inicializa a aplicação
 const noteManager = new NoteManager();
 
-// Login handling
-document.getElementById('loginForm').addEventListener('submit', (e) => {
-    e.preventDefault(); // Impede o comportamento padrão do formulário
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-
-    // Simulating a login check. In a real application, you would check against a database or authentication service.
-    if (email === 'manutencao@madia.com.br' && password === 'password123') {
-        noteManager.currentUser = { email };
-        noteManager.saveToLocalStorage();
-        noteManager.showMainLayout();
-        utils.showNotification('Login bem-sucedido!', 'success');
-    } else {
-        utils.showNotification('E-mail ou senha incorretos.', 'error');
-    }
-});
-
 // Event listener for global search
 document.getElementById('searchInput').addEventListener('input', () => {
-    if (noteManager.isAuthenticated()) {
-        noteManager.filterNotes();
-    }
+    noteManager.filterNotes();
 });
 </script>
 </body>
