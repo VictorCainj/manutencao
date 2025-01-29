@@ -55,10 +55,13 @@
             @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
         }
         .comment-important {
-            background-color: #ffcccc;
+            @apply border-l-4 border-yellow-400;
         }
         .comment-fixed {
-            background-color: #fff8dc;
+            @apply border-t-4 border-b-4 border-l-4 border-r-4 border-green-400;
+        }
+        .comment-fixed-important {
+            @apply border-t-4 border-b-4 border-l-4 border-r-4 border-yellow-400;
         }
         .note-card {
             @apply transition-all duration-200 transform hover:scale-102;
@@ -914,10 +917,11 @@ showNoteDetails(noteKey) {
     renderCommentElement(container, noteKey, comment, isFixed) {
         const commentElement = document.createElement('div');
         commentElement.className = 'comment-box';
-        if (comment.important) {
+        if (comment.important && isFixed) {
+            commentElement.classList.add('comment-fixed-important');
+        } else if (comment.important) {
             commentElement.classList.add('comment-important');
-        }
-        if (isFixed) {
+        } else if (isFixed) {
             commentElement.classList.add('comment-fixed');
         }
 
