@@ -58,6 +58,9 @@
         .comment-important {
             background-color: #ffcccc;
         }
+        .comment-fixed {
+            background-color: #fff8dc;
+        }
         .note-card {
             @apply transition-all duration-200 transform hover:scale-102;
         }
@@ -174,9 +177,6 @@
             <button id="downloadNotesBtn" class="btn btn-gray" aria-label="Baixar Todos os Contratos">
                 <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
             </button>
-            <button id="showDashboardBtn" class="btn btn-wine-red" aria-label="Dashboard">
-                <i class="fas fa-chart-bar mr-2"></i>Dashboard
-            </button>
             <button id="logoutBtn" class="btn btn-gray" aria-label="Logout">
                 <i class="fas fa-sign-out-alt mr-2"></i>Logout
             </button>
@@ -185,32 +185,6 @@
 
         <!-- Notification Area -->
         <div id="notificationArea" class="w-full max-w-4xl mb-4 text-center"></div>
-
-        <!-- Dashboard Section -->
-        <div id="dashboard" class="w-full max-w-2xl mb-6 hidden text-center bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-semibold mb-4 text-black">Dashboard</h2>
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div class="dashboard-info">
-                    <i class="fas fa-folder-open text-red-900"></i>
-                    <p id="openCount">Abertos: 0</p>
-                </div>
-                <div class="dashboard-info">
-                    <i class="fas fa-check text-green-500"></i>
-                    <p id="closedCount">Fechados: 0</p>
-                </div>
-                <div class="dashboard-info">
-                    <i class="fas fa-calendar-alt text-yellow-500"></i>
-                    <p id="scheduledCount">Em Agendamento: 0</p>
-                </div>
-                <div class="dashboard-info">
-                    <i class="fas fa-check-double text-purple-500"></i>
-                    <p id="verifiedCount">Verificados Hoje: 0</p>
-                </div>
-            </div>
-            <div class="relative w-full h-96 mx-auto">
-                <canvas id="statusChart"></canvas>
-            </div>
-        </div>
 
         <div class="separator"></div>
 
@@ -363,9 +337,12 @@
                                 <i class="fas fa-undo mr-2"></i>Reabrir
                             </button>
                         </div>
+
+                        <!-- Fixed Comment Section -->
+                        <div id="fixedCommentSection" class="space-y-4"></div>
                     </div>
 
-<!-- Coluna da direita - Comentários -->
+                    <!-- Coluna da direita - Comentários -->
                     <div class="space-y-4">
                         <div class="bg-gray-50 p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-4 text-black">Comentários</h3>
@@ -396,7 +373,7 @@
         </div>
     </div>
 
-    <!-- Notes Section -->
+<!-- Notes Section -->
     <div class="w-1/4 p-4">
         <!-- Filter Controls -->
         <div class="mb-4 flex flex-col space-y-2">
@@ -405,7 +382,7 @@
                 <option value="open">Abertos</option>
                 <option value="scheduled">Em Agendamento</option>
                 <option value="verified">Verificados Hoje</option>
-                <option value="closed">Fechados</option>
+                <option value="closed">Finalizados</option>
             </select>
             <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
                 <option value="newest">Mais Recentes</option>
@@ -413,22 +390,14 @@
             </select>
         </div>
 
-        <!-- Search and Filter Controls -->
+        <!-- Search Controls -->
         <div class="mb-4">
             <div class="relative">
                 <input type="text" 
                        id="searchInput" 
-                       placeholder="Pesquisar contratos..." 
+                       placeholder="Pesquisar contratos, problemas e comentários..." 
                        class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
-                       aria-label="Pesquisar contratos">
-                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-            </div>
-            <div class="relative mt-2">
-                <input type="text" 
-                       id="searchProblemsCommentsInput" 
-                       placeholder="Pesquisar Problemas e Comentários..." 
-                       class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
-                       aria-label="Pesquisar Problemas e Comentários">
+                       aria-label="Pesquisar contratos, problemas e comentários">
                 <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
             </div>
         </div>
@@ -625,12 +594,6 @@ class NoteManager {
             }
         });
 
-        document.getElementById('searchProblemsCommentsInput').addEventListener('input', () => {
-            if (this.isAuthenticated()) {
-                this.filterNotesByProblemsAndComments();
-            }
-        });
-
         document.getElementById('statusFilter').addEventListener('change', () => {
             if (this.isAuthenticated()) {
                 this.renderNotes();
@@ -659,13 +622,6 @@ class NoteManager {
         document.getElementById('downloadNotesBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
                 this.exportNotes();
-            }
-        });
-
-        document.getElementById('showDashboardBtn').addEventListener('click', () => {
-            if (this.isAuthenticated()) {
-                this.closeAllModals();
-                this.toggleDashboard();
             }
         });
 
@@ -759,48 +715,6 @@ class NoteManager {
             }
         });
 
-        // Event Listener global para tecla ESC e Delete
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (!this.isAuthenticated()) {
-                    this.showLogin();
-                } else {
-                    this.closeAllModals();
-                }
-            }
-
-            // Navegação por setas do teclado
-            if (e.key === 'ArrowLeft') {
-                if (this.isAuthenticated()) {
-                    this.prevPage();
-                }
-            } else if (e.key === 'ArrowRight') {
-                if (this.isAuthenticated()) {
-                    this.nextPage();
-                }
-            }
-
-            // Excluir anotação ao pressionar Delete
-            if (e.key === 'Delete' && !document.getElementById('noteDetailsModal').classList.contains('hidden')) {
-                if (this.isAuthenticated()) {
-                    const noteKey = document.getElementById('noteDetailsContent')
-                        .querySelector('p strong + span').textContent;
-                    this.deleteNote(noteKey);
-                }
-            }
-
-            // Mudança de status usando teclas E e Q
-            if (e.key === 'E' && document.getElementById('noteDetailsModal').classList.contains('hidden')) {
-                if (this.isAuthenticated() && this.currentNote) {
-                    this.mudarStatus(this.currentNote, 'PENDENTE');
-                }
-            } else if (e.key === 'Q' && document.getElementById('noteDetailsModal').classList.contains('hidden')) {
-                if (this.isAuthenticated() && this.currentNote) {
-                    this.mudarStatus(this.currentNote, 'VERIFICADO DIÁRIO');
-                }
-            }
-        });
-
         // Event Listeners para paginação
         document.getElementById('prevPageBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
@@ -836,7 +750,7 @@ class NoteManager {
 
     toggleModal(modalId) {
         // Close all modals and dashboard
-        document.querySelectorAll('.modal-overlay, #dashboard').forEach(modal => {
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
             modal.classList.add('hidden');
         });
 
@@ -846,12 +760,12 @@ class NoteManager {
 
     closeAllModals() {
         // Close all modals and dashboard
-        document.querySelectorAll('.modal-overlay, #dashboard').forEach(modal => {
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
             modal.classList.add('hidden');
         });
     }
 
-handleFormSubmit() {
+    handleFormSubmit() {
         const formData = {
             contractNumber: document.getElementById('contractNumber').value,
             locator: document.getElementById('locator').value,
@@ -945,7 +859,7 @@ handleFormSubmit() {
             filteredNotes = notesArray.filter(note => note.status === statusFilter);
         }
 
-        // Apply search results if provided
+// Apply search results if provided
         if (searchResults) {
             filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
         }
@@ -1073,7 +987,9 @@ handleFormSubmit() {
     renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
+            const fixedCommentSection = document.getElementById('fixedCommentSection');
             commentsContainer.innerHTML = '';
+            fixedCommentSection.innerHTML = '';
 
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1086,11 +1002,11 @@ handleFormSubmit() {
 
             // Render fixed comments first
             const fixedComments = note.comments.filter(comment => comment.fixed);
-            fixedComments.forEach(comment => this.renderCommentElement(commentsContainer, noteKey, comment));
+            fixedComments.forEach(comment => this.renderCommentElement(fixedCommentSection, noteKey, comment, true));
 
             commentsToShow.forEach(comment => {
                 if (!comment.fixed) {
-                    this.renderCommentElement(commentsContainer, noteKey, comment);
+                    this.renderCommentElement(commentsContainer, noteKey, comment, false);
                 }
             });
 
@@ -1114,11 +1030,14 @@ handleFormSubmit() {
         }
     }
 
-    renderCommentElement(container, noteKey, comment) {
+    renderCommentElement(container, noteKey, comment, isFixed) {
         const commentElement = document.createElement('div');
         commentElement.className = 'comment-box';
         if (comment.important) {
             commentElement.classList.add('comment-important');
+        }
+        if (isFixed) {
+            commentElement.classList.add('comment-fixed');
         }
 
         commentElement.innerHTML = `
@@ -1262,7 +1181,7 @@ handleFormSubmit() {
                 return;
             }
 
-// Create edit modal
+            // Create edit modal
             const editModal = document.createElement('div');
             editModal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
             editModal.innerHTML = `
@@ -1362,7 +1281,7 @@ handleFormSubmit() {
         }
     }
 
-    cancelSchedule(noteKey) {
+cancelSchedule(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'scheduled') {
@@ -1375,7 +1294,7 @@ handleFormSubmit() {
                 this.showNoteDetails(noteKey);
                 utils.showNotification('Agendamento cancelado e status alterado para aberto!', 'success');
             } else {
-                utils.showNotification('A nota não está em status de agendamento.', 'alert');
+                utils.showNotification('A nota não está em status de agendamento.', 'important');
             }
         } catch (error) {
             console.error('Erro ao cancelar agendamento:', error);
@@ -1459,7 +1378,7 @@ ${comments}
                 this.showNoteDetails(noteKey);
                 utils.showNotification('Nota finalizada com sucesso!', 'success');
             } else {
-                utils.showNotification('A nota já está finalizada.', 'alert');
+                utils.showNotification('A nota já está finalizada.', 'important');
             }
         } catch (error) {
             console.error('Erro ao finalizar nota:', error);
@@ -1478,7 +1397,7 @@ ${comments}
                 this.showNoteDetails(noteKey);
                 utils.showNotification('Nota reaberta com sucesso!', 'success');
             } else {
-                utils.showNotification('A nota não está finalizada.', 'alert');
+                utils.showNotification('A nota não está finalizada.', 'important');
             }
         } catch (error) {
             console.error('Erro ao reabrir nota:', error);
@@ -1561,25 +1480,10 @@ ${comments}
                 noteKey,
                 noteBtn.dataset.locator,
                 noteBtn.dataset.tenant,
-                noteBtn.dataset.address
+                noteBtn.dataset.address,
+                note.problem,
+                ...note.comments.map(comment => comment.text)
             ].join(' ').toLowerCase().includes(searchTerm);
-
-            noteBtn.classList.toggle('hidden', !matchesSearch);
-        });
-
-        this.sortNotes();
-    }
-
-    filterNotesByProblemsAndComments() {
-        const searchTerm = document.getElementById('searchProblemsCommentsInput').value.toLowerCase();
-
-        const notes = document.querySelectorAll('.note-button');
-        notes.forEach(noteBtn => {
-            const noteKey = noteBtn.dataset.contract;
-            const note = this.notes[noteKey];
-
-            const matchesSearch = note.problem.toLowerCase().includes(searchTerm) || 
-                note.comments.some(comment => comment.text.toLowerCase().includes(searchTerm));
 
             noteBtn.classList.toggle('hidden', !matchesSearch);
         });
@@ -1607,25 +1511,6 @@ ${comments}
         // Clear and re-append sorted notes
         container.innerHTML = '';
         notes.forEach(note => container.appendChild(note));
-    }
-
-    updateNoteButton(noteKey) {
-        const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
-        if (noteButton) {
-            const note = this.notes[noteKey];
-            const commentCount = Array.isArray(note.comments) ? note.comments.length : 0;
-            const commentCountSpan = noteButton.querySelector('span:last-child');
-            if (commentCountSpan) {
-                commentCountSpan.textContent = `${commentCount} comentário(s)`;
-            }
-
-            noteButton.className = `note-button w-full px-4 py-3 ${
-                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
-                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
-                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
-                'bg-red-900 hover:bg-red-700'))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
-        }
     }
 
     nextPage() {
@@ -1784,7 +1669,7 @@ ${comments}
                 throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
             }
 
-// Normalizar os comentários
+            // Normalizar os comentários
             if (!Array.isArray(note.comments)) {
                 note.comments = [];
             }
@@ -1854,117 +1739,6 @@ ${comments}
             utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
         }
     }
-
-    renderDashboard() {
-        const statusData = {
-            open: 0,
-            closed: 0,
-            scheduled: 0,
-            verified: 0,
-            pending: 0 // Adicionando o status pendente
-        };
-
-        Object.values(this.notes).forEach(note => {
-            statusData[note.status] = (statusData[note.status] || 0) + 1;
-        });
-
-        // Destroy the existing chart instance if it exists
-        if (this.chart) {
-            this.chart.destroy();
-        }
-
-        const statusChartCtx = document.getElementById('statusChart').getContext('2d');
-        this.chart = new Chart(statusChartCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje', 'Pendente'],
-                datasets: [{
-                    label: 'Quantidade de Chamados',
-                    data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified, statusData.pending],
-                    backgroundColor: ['#8B0000', '#006400', '#FFD700', '#800080', '#FF4500'],
-                    borderColor: ['#5B0000', '#004400', '#CCAC00', '#660066', '#CC3700'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0 // Ensure ticks are integer values
-                        }
-                    }
-                }
-            }
-        });
-
-        // Update the dashboard info
-        document.getElementById('openCount').textContent = `Abertos: ${statusData.open}`;
-        document.getElementById('closedCount').textContent = `Fechados: ${statusData.closed}`;
-        document.getElementById('scheduledCount').textContent = `Em Agendamento: ${statusData.scheduled}`;
-        document.getElementById('verifiedCount').textContent = `Verificados Hoje: ${statusData.verified}`;
-        document.getElementById('pendingCount').textContent = `Pendente: ${statusData.pending}`; // Atualizando o contador pendente
-    }
-
-    toggleDashboard() {
-        const dashboard = document.getElementById('dashboard');
-        if (dashboard.classList.contains('hidden')) {
-            this.renderDashboard(); // Ensure the dashboard is rendered before showing it
-            dashboard.classList.remove('hidden');
-        } else {
-            dashboard.classList.add('hidden');
-        }
-    }
-
-    searchAllContracts(query) {
-        const searchTerm = query.toLowerCase();
-        const matches = Object.keys(this.notes).filter(key => {
-            const note = this.notes[key];
-            return key.toLowerCase().includes(searchTerm) ||
-                   note.locator.toLowerCase().includes(searchTerm) ||
-                   note.tenant.toLowerCase().includes(searchTerm) ||
-                   note.address.toLowerCase().includes(searchTerm);
-        });
-
-        return matches;
-    }
-
-    showMainLayout() {
-        document.getElementById('loginModal').classList.add('hidden');
-        document.getElementById('logoSection').classList.remove('hidden');
-        document.getElementById('mainLayout').classList.remove('hidden');
-    }
-
-    showLogin() {
-        this.closeAllModals();
-        document.getElementById('loginModal').classList.remove('hidden');
-        document.getElementById('logoSection').classList.add('hidden');
-        document.getElementById('mainLayout').classList.add('hidden');
-    }
-
-    logout() {
-        this.currentUser = null;
-        localStorage.removeItem('currentUser');
-        this.showLogin();
-    }
-
-    mudarStatus(noteKey, novoStatus) {
-        try {
-            const note = this.notes[noteKey];
-            if (note) {
-                note.status = novoStatus;
-                this.saveToLocalStorage();
-                this.renderNotes();
-                utils.showNotification(`Status alterado para ${novoStatus} com sucesso!`, 'success');
-            } else {
-                utils.showNotification('Nota não encontrada.', 'error');
-            }
-        } catch (error) {
-            console.error('Erro ao mudar status:', error);
-            utils.showNotification('Erro ao mudar status.', 'error');
-        }
-    }
 }
 
 // Inicializa a aplicação
@@ -1990,41 +1764,7 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
 // Event listener for global search
 document.getElementById('searchInput').addEventListener('input', () => {
     if (noteManager.isAuthenticated()) {
-        const searchQuery = document.getElementById('searchInput').value;
-        const results = noteManager.searchAllContracts(searchQuery);
-        noteManager.currentPage = 0;
-        noteManager.renderNotes(results);
-        if (results.length > 0) {
-            const notes = document.querySelectorAll('.note-button');
-            notes.forEach(noteBtn => {
-                const noteKey = noteBtn.dataset.contract;
-                noteBtn.classList.toggle('hidden', !results.includes(noteKey));
-            });
-        } else {
-            utils.showNotification('Nenhum contrato encontrado.', 'alert');
-        }
-    }
-});
-
-document.getElementById('searchProblemsCommentsInput').addEventListener('input', () => {
-    if (noteManager.isAuthenticated()) {
-        const searchQuery = document.getElementById('searchProblemsCommentsInput').value.toLowerCase();
-        const results = Object.keys(noteManager.notes).filter(key => {
-            const note = noteManager.notes[key];
-            return note.problem.toLowerCase().includes(searchQuery) || 
-                   note.comments.some(comment => comment.text.toLowerCase().includes(searchQuery));
-        });
-        noteManager.currentPage = 0;
-        noteManager.renderNotes(results);
-        if (results.length > 0) {
-            const notes = document.querySelectorAll('.note-button');
-            notes.forEach(noteBtn => {
-                const noteKey = noteBtn.dataset.contract;
-                noteBtn.classList.toggle('hidden', !results.includes(noteKey));
-            });
-        } else {
-            utils.showNotification('Nenhum contrato encontrado.', 'alert');
-        }
+        noteManager.filterNotes();
     }
 });
 </script>
