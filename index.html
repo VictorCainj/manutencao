@@ -1305,24 +1305,28 @@ addNote(formData) {
     }
 
 copyNoteComments(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            const comments = note.comments.map(comment =>
-                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
-            navigator.clipboard.writeText(comments).then(() => {
-                utils.showNotification('Comentários copiados para a área de transferência!', 'success');
-            });
-        } catch (error) {
-            console.error('Erro ao copiar comentários:', error);
+    try {
+        const note = this.notes[noteKey];
+        const comments = note.comments.map(comment =>
+            `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
+        ).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
+        navigator.clipboard.writeText(comments).then(() => {
+            utils.showNotification('Comentários copiados para a área de transferência!', 'success');
+        }).catch(err => {
+            console.error('Erro ao copiar comentários:', err);
             utils.showNotification('Erro ao copiar comentários', 'error');
-        }
+        });
+    } catch (error) {
+        console.error('Erro ao copiar comentários:', error);
+        utils.showNotification('Erro ao copiar comentários', 'error');
     }
+}
 
     downloadSingleContract(noteKey) {
         try {
             const note = this.notes[noteKey];
             const comments = note.comments.map(comment =>
-                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n');
+                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n\n');
             const details = `
 Número de Contrato: ${noteKey}
 Locador: ${note.locator}
