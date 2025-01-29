@@ -60,9 +60,6 @@
         .comment-fixed {
             @apply border-t-4 border-b-4 border-l-4 border-r-4 border-green-400;
         }
-        .comment-fixed-important {
-            @apply border-t-4 border-b-4 border-l-4 border-r-4 border-yellow-400;
-        }
         .note-card {
             @apply transition-all duration-200 transform hover:scale-102;
         }
@@ -640,6 +637,17 @@ class NoteManager {
         document.getElementById('nextPageBtn').addEventListener('click', () => {
             this.nextPage();
         });
+
+        // Event Listeners para teclas de atalho
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeAllModals();
+            } else if (e.key === '<') {
+                this.prevPage();
+            } else if (e.key === '>') {
+                this.nextPage();
+            }
+        });
     }
 
     toggleModal(modalId) {
@@ -918,7 +926,7 @@ showNoteDetails(noteKey) {
         const commentElement = document.createElement('div');
         commentElement.className = 'comment-box';
         if (comment.important && isFixed) {
-            commentElement.classList.add('comment-fixed-important');
+            commentElement.classList.add('comment-fixed');
         } else if (comment.important) {
             commentElement.classList.add('comment-important');
         } else if (isFixed) {
@@ -1322,24 +1330,24 @@ reopenNote(noteKey) {
     filterNotes() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
-        const notes = document.querySelectorAll('.note-button');
-        notes.forEach(noteBtn => {
-            const noteKey = noteBtn.dataset.contract;
-            const note = this.notes[noteKey];
+        const allNotes = Object.keys(this.notes).map(key => ({
+            key,
+            ...this.notes[key]
+        }));
 
-            const matchesSearch = [
-                noteKey,
-                noteBtn.dataset.locator,
-                noteBtn.dataset.tenant,
-                noteBtn.dataset.address,
-                note.problem,
-                ...note.comments.map(comment => comment.text)
-            ].join(' ').toLowerCase().includes(searchTerm);
-
-            noteBtn.classList.toggle('hidden', !matchesSearch);
+        const filteredNotes = allNotes.filter(note => {
+            const noteText = [
+                note.key,
+                note.locator.toLowerCase(),
+                note.tenant.toLowerCase(),
+                note.address.toLowerCase(),
+                note.problem.toLowerCase(),
+                ...note.comments.map(comment => comment.text.toLowerCase())
+            ].join(' ');
+            return noteText.includes(searchTerm);
         });
 
-        this.sortNotes();
+        this.renderNotes(filteredNotes.map(note => note.key));
     }
 
     sortNotes() {
