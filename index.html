@@ -1322,12 +1322,13 @@ copyNoteComments(noteKey) {
     }
 }
 
-    downloadSingleContract(noteKey) {
-        try {
-            const note = this.notes[noteKey];
-            const comments = note.comments.map(comment =>
-                `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`).join('\n\n');
-            const details = `
+downloadSingleContract(noteKey) {
+    try {
+        const note = this.notes[noteKey];
+        const comments = note.comments.map(comment =>
+            `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
+        ).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
+        const details = `
 Número de Contrato: ${noteKey}
 Locador: ${note.locator}
 Locatário: ${note.tenant}
@@ -1340,16 +1341,16 @@ ${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.sc
 ${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
 Comentários:
 ${comments}
-            `.trim();
+        `.trim();
 
-            const filename = `${noteKey}.txt`;
-            utils.downloadFile(details, filename, 'text/plain');
-            utils.showNotification('Contrato exportado com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao baixar contrato:', error);
-            utils.showNotification('Erro ao baixar contrato', 'error');
-        }
+        const filename = `${noteKey}.txt`;
+        utils.downloadFile(details, filename, 'text/plain');
+        utils.showNotification('Contrato exportado com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao baixar contrato:', error);
+        utils.showNotification('Erro ao baixar contrato', 'error');
     }
+}
 
     finalizeNote(noteKey) {
         try {
