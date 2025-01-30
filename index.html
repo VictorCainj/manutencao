@@ -325,7 +325,7 @@
                     <option value="all">Todos os Chamados</option>
                     <option value="open">Abertos</option>
                     <option value="scheduled">Em Agendamento</option>
-                    <option value="verified">Verificados Hoje</option>
+                    <option value="verified_today">Verificados Hoje</option>
                     <option value="closed">Fechados</option>
                 </select>
             </div>
@@ -1004,7 +1004,7 @@ handleFormSubmit() {
         }
     }
 
-handleCommentSubmit() {
+    handleCommentSubmit() {
         try {
             const commentText = document.getElementById('commentText').value.trim();
             if (!commentText) {
@@ -1111,9 +1111,9 @@ handleCommentSubmit() {
                 if (newText) {
                     note.comments[commentIndex].text = utils.sanitizeInput(newText);
                     note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
-                    // Update status to 'verified' only if the current status is not 'scheduled'
+                    // Update status to 'verified_today' only if the current status is not 'scheduled'
                     if (note.status !== 'scheduled') {
-                        note.status = 'verified';
+                        note.status = 'verified_today';
                     }
                     this.saveToLocalStorage();
                     this.renderComments(noteKey);
@@ -1354,7 +1354,7 @@ deleteComment(noteKey, commentId) {
             noteButton.className = `note-button ${
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
                 (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
-                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
+                (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
                 'bg-red-900 hover:bg-red-700'))
             } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
         }
@@ -1423,7 +1423,7 @@ deleteComment(noteKey, commentId) {
 
         Object.keys(this.notes).forEach(noteKey => {
             const note = this.notes[noteKey];
-            if (note.status === 'open' || note.status === 'verified') {
+            if (note.status === 'open' || note.status === 'verified_today') {
                 const option = document.createElement('option');
                 option.value = noteKey;
                 option.textContent = noteKey;
@@ -1598,7 +1598,7 @@ deleteComment(noteKey, commentId) {
             open: 0,
             closed: 0,
             scheduled: 0,
-            verified: 0
+            verified_today: 0
         };
 
         Object.values(this.notes).forEach(note => {
@@ -1617,7 +1617,7 @@ deleteComment(noteKey, commentId) {
                 labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje'],
                 datasets: [{
                     label: 'Quantidade de Chamados',
-                    data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified],
+                    data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today],
                     backgroundColor: ['#8B0000', '#006400', '#FFD700', '#800080'],
                     borderColor: ['#5B0000', '#004400', '#CCAC00', '#660066'],
                     borderWidth: 1
@@ -1645,7 +1645,7 @@ deleteComment(noteKey, commentId) {
         document.getElementById('openCount').textContent = `Abertos: ${statusData.open}`;
         document.getElementById('closedCount').textContent = `Fechados: ${statusData.closed}`;
         document.getElementById('scheduledCount').textContent = `Em Agendamento: ${statusData.scheduled}`;
-        document.getElementById('verifiedCount').textContent = `Verificados Hoje: ${statusData.verified}`;
+        document.getElementById('verifiedCount').textContent = `Verificados Hoje: ${statusData.verified_today}`;
     }
 
     showMainLayout() {
@@ -1757,40 +1757,6 @@ ${comments}
         utils.showNotification('Erro ao baixar contrato', 'error');
     }
 }
-
-// Event listener to close all modals with the 'Esc' key and confirm comment editing with 'Enter' key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        noteManager.closeAllModals();
-    }
-
-    if (e.key === 'Enter' && document.activeElement.tagName === 'TEXTAREA') {
-        if (document.activeElement.id === 'editCommentText' || document.activeElement.id === 'commentText') {
-            e.preventDefault();
-            document.activeElement.closest('form').dispatchEvent(new Event('submit'));
-        }
-    }
-
-    // Navegação por setas do teclado
-    if (e.key === 'ArrowLeft') {
-        if (noteManager.isAuthenticated()) {
-            noteManager.prevPage();
-        }
-    } else if (e.key === 'ArrowRight') {
-        if (noteManager.isAuthenticated()) {
-            noteManager.nextPage();
-        }
-    }
-
-    // Excluir anotação ao pressionar Delete
-    if (e.key === 'Delete' && !document.getElementById('noteDetailsModal').classList.contains('hidden')) {
-        if (noteManager.isAuthenticated()) {
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-            noteManager.deleteNote(noteKey);
-        }
-    }
-});
 
 // Function to search all contracts and prioritize comments
 noteManager.searchAllContracts = (searchTerm) => {
