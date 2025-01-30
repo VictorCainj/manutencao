@@ -307,8 +307,20 @@
 
 <!-- Notes Section -->
 <div class="w-1/4 p-4">
+    <!-- Search and Filter Controls -->
+    <div class="flex items-center justify-between mb-4">
+        <div class="relative w-full">
+            <input type="text" 
+                   id="searchInput" 
+                   placeholder="Pesquisar contratos..." 
+                   class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
+                   aria-label="Pesquisar contratos">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+    </div>
+
     <!-- Filter Controls -->
-    <div class="mb-4 flex flex-col space-y-2">
+    <div class="flex flex-col space-y-2 mb-4">
         <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
             <option value="all">Todos os Chamados</option>
             <option value="open">Abertos</option>
@@ -322,19 +334,7 @@
         </select>
     </div>
 
-    <!-- Search and Filter Controls -->
-    <div class="mb-4">
-        <div class="relative">
-            <input type="text" 
-                   id="searchInput" 
-                   placeholder="Pesquisar contratos..." 
-                   class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
-                   aria-label="Pesquisar contratos">
-            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-        </div>
-    </div>
-
-    <div id="notesContainer" class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+    <div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
 
     <!-- Pagination Controls -->
     <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
@@ -444,7 +444,7 @@ class NoteManager {
     constructor() {
         this.notes = {};
         this.currentPage = 0;
-        this.notesPerPage = 6;
+        this.notesPerPage = 21; // 7 notes per row * 3 rows
         this.commentsPerPage = 4;  // Número de comentários por vez
         this.currentUser = null;
         this.currentDateTime = utils.getCurrentDateTime();
@@ -1716,6 +1716,87 @@ document.getElementById('searchInput').addEventListener('input', () => {
             });
         } else {
             utils.showNotification('Nenhum contrato encontrado.', 'alert');
+        }
+    }
+});
+
+// Utility function to copy note comments to clipboard
+noteManager.copyNoteComments = (noteKey) => {
+    try {
+        const note = noteManager.notes[noteKey];
+        const comments = note.comments.map(comment =>
+            `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
+        ).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
+        navigator.clipboard.writeText(comments).then(() => {
+            utils.showNotification('Comentários copiados para a área de transferência!', 'success');
+        }).catch(err => {
+            console.error('Erro ao copiar comentários:', err);
+            utils.showNotification('Erro ao copiar comentários', 'error');
+        });
+    } catch (error) {
+        console.error('Erro ao copiar comentários:', error);
+        utils.showNotification('Erro ao copiar comentários', 'error');
+    }
+}
+
+// Utility function to download a single contract
+noteManager.downloadSingleContract = (noteKey) => {
+    try {
+        const note = noteManager.notes[noteKey];
+        const comments = note.comments.map(comment =>
+            `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
+        ).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
+        const details = `
+Número de Contrato: ${noteKey}
+Locador: ${note.locator}
+Locatário: ${note.tenant}
+Problema: ${note.problem}
+Endereço: ${note.address}
+Status: ${note.status}
+${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
+${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
+${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
+Comentários:
+${comments}
+        `.trim();
+
+        const filename = `${noteKey}.txt`;
+        utils.downloadFile(details, filename, 'text/plain');
+        utils.showNotification('Contrato exportado com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao baixar contrato:', error);
+        utils.showNotification('Erro ao baixar contrato', 'error');
+    }
+}
+
+// Event listener to close all modals with the 'Esc' key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        if (!noteManager.isAuthenticated()) {
+            noteManager.showLogin();
+        } else {
+            noteManager.closeAllModals();
+        }
+    }
+
+    // Navegação por setas do teclado
+    if (e.key === 'ArrowLeft') {
+        if (noteManager.isAuthenticated()) {
+            noteManager.prevPage();
+        }
+    } else if (e.key === 'ArrowRight') {
+        if (noteManager.isAuthenticated()) {
+            noteManager.nextPage();
+        }
+    }
+
+    // Excluir anotação ao pressionar Delete
+    if (e.key === 'Delete' && !document.getElementById('noteDetailsModal').classList.contains('hidden')) {
+        if (noteManager.isAuthenticated()) {
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+            noteManager.deleteNote(noteKey);
         }
     }
 });
