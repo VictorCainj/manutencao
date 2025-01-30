@@ -722,7 +722,7 @@ class NoteManager {
         });
     }
 
-handleFormSubmit() {
+    handleFormSubmit() {
         const formData = {
             contractNumber: document.getElementById('contractNumber').value,
             locator: document.getElementById('locator').value,
@@ -732,7 +732,7 @@ handleFormSubmit() {
             createdAt: utils.getCurrentDateTime()
         };
 
-        const errors = utils.validateForm(formData);
+const errors = utils.validateForm(formData);
         if (errors.length > 0) {
             errors.forEach(error => {
                 if (error.includes('Número de contrato inválido')) {
@@ -1133,7 +1133,7 @@ handleFormSubmit() {
         }
     }
 
-deleteComment(noteKey, commentId) {
+    deleteComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1158,7 +1158,7 @@ deleteComment(noteKey, commentId) {
         }
     }
 
-    cancelSchedule(noteKey) {
+cancelSchedule(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'scheduled') {
@@ -1234,67 +1234,67 @@ deleteComment(noteKey, commentId) {
         }
     }
 
-saveToLocalStorage() {
-    try {
-        localStorage.setItem('notes', JSON.stringify(this.notes));
-        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-        utils.showNotification('Dados salvos localmente com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro ao salvar no localStorage:', error);
-        utils.showNotification('Erro ao salvar dados localmente', 'error');
+    saveToLocalStorage() {
+        try {
+            localStorage.setItem('notes', JSON.stringify(this.notes));
+            localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+            utils.showNotification('Dados salvos localmente com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+            utils.showNotification('Erro ao salvar dados localmente', 'error');
+        }
     }
-}
 
-loadFromLocalStorage() {
-    try {
-        const savedNotes = localStorage.getItem('notes');
-        const savedUser = localStorage.getItem('currentUser');
-        if (savedNotes) {
-            this.notes = JSON.parse(savedNotes);
-            this.fixOldNotes();
-            this.renderNotes();
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedNotes) {
+                this.notes = JSON.parse(savedNotes);
+                this.fixOldNotes();
+                this.renderNotes();
+            }
+            if (savedUser) {
+                this.currentUser = JSON.parse(savedUser);
+                this.updateUserInfo();
+                this.showMainLayout();
+            }
+            this.updateVerifiedNotes();
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            utils.showNotification('Erro ao carregar dados locais', 'error');
         }
-        if (savedUser) {
-            this.currentUser = JSON.parse(savedUser);
-            this.updateUserInfo();
-            this.showMainLayout();
-        }
-        this.updateVerifiedNotes();
-    } catch (error) {
-        console.error('Erro ao carregar do localStorage:', error);
-        utils.showNotification('Erro ao carregar dados locais', 'error');
     }
-}
 
-fixOldNotes() {
-    Object.keys(this.notes).forEach(noteKey => {
-        const note = this.notes[noteKey];
-        // Adiciona campos ausentes com valores padrão
-        if (!note.hasOwnProperty('status')) {
-            note.status = 'open';
-        }
-        if (!note.hasOwnProperty('comments')) {
-            note.comments = [];
-        }
-        if (!note.hasOwnProperty('createdAt')) {
-            note.createdAt = utils.getCurrentDateTime();
-        }
-        if (!note.hasOwnProperty('createdBy')) {
-            note.createdBy = this.currentUser ? this.currentUser.email : 'unknown';
-        }
-        if (!note.hasOwnProperty('providerName')) {
-            note.providerName = '';
-        }
-        if (!note.hasOwnProperty('scheduleDate')) {
-            note.scheduleDate = '';
-        }
-        if (!note.hasOwnProperty('scheduleDescription')) {
-            note.scheduleDescription = '';
-        }
-    });
-    this.saveToLocalStorage();
-}
-    
+    fixOldNotes() {
+        Object.keys(this.notes).forEach(noteKey => {
+            const note = this.notes[noteKey];
+            // Adiciona campos ausentes com valores padrão
+            if (!note.hasOwnProperty('status')) {
+                note.status = 'open';
+            }
+            if (!note.hasOwnProperty('comments')) {
+                note.comments = [];
+            }
+            if (!note.hasOwnProperty('createdAt')) {
+                note.createdAt = utils.getCurrentDateTime();
+            }
+            if (!note.hasOwnProperty('createdBy')) {
+                note.createdBy = this.currentUser ? this.currentUser.email : 'unknown';
+            }
+            if (!note.hasOwnProperty('providerName')) {
+                note.providerName = '';
+            }
+            if (!note.hasOwnProperty('scheduleDate')) {
+                note.scheduleDate = '';
+            }
+            if (!note.hasOwnProperty('scheduleDescription')) {
+                note.scheduleDescription = '';
+            }
+        });
+        this.saveToLocalStorage();
+    }
+
     updateUserInfo() {
         const userInfo = document.getElementById('userInfo');
         const loggedUser = document.getElementById('loggedUser');
