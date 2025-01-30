@@ -306,7 +306,7 @@
 </div>
 
 <!-- Notes Section -->
-<div class="w-1/4 p-4">
+<div class="flex-1 p-4">
     <!-- Search and Filter Controls -->
     <div class="flex items-center justify-between mb-4">
         <div class="relative w-full">
@@ -341,7 +341,6 @@
         <button id="prevPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-left"></i></button>
         <button id="nextPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-right"></i></button>
     </div>
-</div>
 </div>
 
 <script>
@@ -792,78 +791,78 @@ handleFormSubmit() {
         this.toggleModal('noteModal');
     }
 
-    renderNotes(searchResults = null) {
-        const container = document.getElementById('notesContainer');
-        container.innerHTML = '';
+renderNotes(searchResults = null) {
+    const container = document.getElementById('notesContainer');
+    container.innerHTML = '';
 
-        const notesArray = Object.keys(this.notes).map(key => ({
-            key,
-            ...this.notes[key]
-        }));
+    const notesArray = Object.keys(this.notes).map(key => ({
+        key,
+        ...this.notes[key]
+    }));
 
-        // Filter notes based on status
-        const statusFilter = document.getElementById('statusFilter').value;
-        let filteredNotes = notesArray;
-        if (statusFilter !== 'all') {
-            filteredNotes = notesArray.filter(note => note.status === statusFilter);
-        }
+    // Filter notes based on status
+    const statusFilter = document.getElementById('statusFilter').value;
+    let filteredNotes = notesArray;
+    if (statusFilter !== 'all') {
+        filteredNotes = notesArray.filter(note => note.status === statusFilter);
+    }
 
-        // Apply search results if provided
-        if (searchResults) {
-            filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
-        }
+    // Apply search results if provided
+    if (searchResults) {
+        filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
+    }
 
-        const start = this.currentPage * this.notesPerPage;
-        const end = start + this.notesPerPage;
-        const notesToDisplay = filteredNotes.slice(start, end);
+    const start = this.currentPage * this.notesPerPage;
+    const end = start + this.notesPerPage;
+    const notesToDisplay = filteredNotes.slice(start, end);
 
-        notesToDisplay.forEach(note => {
-            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
+    notesToDisplay.forEach(note => {
+        const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
 
-            const noteButton = document.createElement('button');
-            noteButton.className = `note-button w-full px-4 py-3 ${
-                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
-                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
-                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
-                'bg-red-900 hover:bg-red-700'))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
+        const noteButton = document.createElement('button');
+        noteButton.className = `note-button ${
+            note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+            (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+            (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
+            'bg-red-900 hover:bg-red-700'))
+        } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
 
-            const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
+        const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
-            noteButton.innerHTML = `
-                <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
-                <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
-                <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-                <span class="block text-xs mt-1">${displayDate}</span>
-                <span class="block text-xs mt-1">
-                    ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
-                    (note.status === 'scheduled' ? 'Em agendamento' : 
-                    (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-                </span>
-                <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
-            `;
+        noteButton.innerHTML = `
+            <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
+            <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
+            <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
+            <span class="block text-xs mt-1">${displayDate}</span>
+            <span class="block text-xs mt-1">
+                ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
+                (note.status === 'scheduled' ? 'Em agendamento' : 
+                (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+            </span>
+            <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
+        `;
 
-            noteButton.dataset.contract = note.key;
-            noteButton.dataset.locator = note.locator.toLowerCase();
-            noteButton.dataset.tenant = note.tenant.toLowerCase();
-            noteButton.dataset.address = note.address.toLowerCase();
-            noteButton.dataset.date = note.createdAt; // Store the date in a consistent format for sorting
-            noteButton.dataset.status = note.status;
+        noteButton.dataset.contract = note.key;
+        noteButton.dataset.locator = note.locator.toLowerCase();
+        noteButton.dataset.tenant = note.tenant.toLowerCase();
+        noteButton.dataset.address = note.address.toLowerCase();
+        noteButton.dataset.date = note.createdAt; // Store the date in a consistent format for sorting
+        noteButton.dataset.status = note.status;
 
-            noteButton.addEventListener('click', () => {
-                if (this.isAuthenticated()) {
-                    this.showNoteDetails(note.key);
-                }
-            });
-
-            container.appendChild(noteButton);
+        noteButton.addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.showNoteDetails(note.key);
+            }
         });
 
-        this.sortNotes(); // Apply initial sorting
-        if (!this.isAuthenticated()) {
-            this.showNotesBlurred();
-        }
+        container.appendChild(noteButton);
+    });
+
+    this.sortNotes(); // Apply initial sorting
+    if (!this.isAuthenticated()) {
+        this.showNotesBlurred();
     }
+}
 
     showNoteDetails(noteKey) {
         try {
@@ -1770,13 +1769,20 @@ ${comments}
     }
 }
 
-// Event listener to close all modals with the 'Esc' key
+// Event listener to close all modals with the 'Esc' key and confirm comment editing with 'Enter' key
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         if (!noteManager.isAuthenticated()) {
             noteManager.showLogin();
         } else {
             noteManager.closeAllModals();
+        }
+    }
+
+    if (e.key === 'Enter' && document.activeElement.tagName === 'TEXTAREA') {
+        if (document.activeElement.id === 'editCommentText' || document.activeElement.id === 'commentText') {
+            e.preventDefault();
+            document.activeElement.closest('form').dispatchEvent(new Event('submit'));
         }
     }
 
