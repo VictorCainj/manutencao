@@ -816,7 +816,7 @@ handleFormSubmit() {
             noteButton.className = `note-button ${
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
                 (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
-                (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
+                (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
                 'bg-red-900 hover:bg-red-700'))
             } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
 
@@ -830,7 +830,7 @@ handleFormSubmit() {
                 <span class="block text-xs mt-1">
                     ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
                     (note.status === 'scheduled' ? 'Em agendamento' : 
-                    (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+                    (note.status === 'verified_today' ? 'Verificado Hoje' : 'Finalizado'))}
                 </span>
                 <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
             `;
@@ -884,11 +884,11 @@ handleFormSubmit() {
                         <p><strong>Status:</strong> <span class="font-semibold ${
                             note.status === 'open' ? 'text-red-900' :
                             (note.status === 'scheduled' ? 'text-yellow-600' :
-                            (note.status === 'verified' ? 'text-purple-600' : 'text-green-600'))
+                            (note.status === 'verified_today' ? 'text-purple-600' : 'text-green-600'))
                         }">
                             ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
                             (note.status === 'scheduled' ? 'Em agendamento' : 
-                            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+                            (note.status === 'verified_today' ? 'Verificado Hoje' : 'Finalizado'))}
                         </span></p>
                         ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
                         ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
@@ -1004,7 +1004,7 @@ handleFormSubmit() {
         }
     }
 
-    handleCommentSubmit() {
+handleCommentSubmit() {
         try {
             const commentText = document.getElementById('commentText').value.trim();
             if (!commentText) {
@@ -1027,9 +1027,9 @@ handleFormSubmit() {
 
             this.notes[noteKey].comments.unshift(comment);
 
-            // Update status to 'verified' only if the current status is not 'scheduled'
+            // Update status to 'verified_today' only if the current status is not 'scheduled'
             if (this.notes[noteKey].status !== 'scheduled') {
-                this.notes[noteKey].status = 'verified';
+                this.notes[noteKey].status = 'verified_today';
             }
 
             this.saveToLocalStorage();
@@ -1281,7 +1281,7 @@ deleteComment(noteKey, commentId) {
         const todayStr = today.toISOString().split('T')[0];
 
         Object.values(this.notes).forEach(note => {
-            if (note.status === 'verified') {
+            if (note.status === 'verified_today') {
                 const noteDate = new Date(note.createdAt);
                 const noteDateStr = noteDate.toISOString().split('T')[0];
                 if (noteDateStr !== todayStr) {
