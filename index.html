@@ -1239,25 +1239,40 @@ cancelSchedule(noteKey) {
         }
     }
 
-    loadFromLocalStorage() {
-        try {
-            const savedNotes = localStorage.getItem('notes');
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedNotes) {
+loadFromLocalStorage() {
+    try {
+        const savedNotes = localStorage.getItem('notes');
+        const savedUser = localStorage.getItem('currentUser');
+
+        if (savedNotes) {
+            try {
                 this.notes = JSON.parse(savedNotes);
                 this.renderNotes();
+            } catch (error) {
+                console.error('Erro ao parsear notas do localStorage:', error);
+                utils.showNotification('Erro ao carregar dados locais: Formato de notas inválido.', 'error');
+                this.notes = {};
             }
-            if (savedUser) {
+        }
+
+        if (savedUser) {
+            try {
                 this.currentUser = JSON.parse(savedUser);
                 this.updateUserInfo();
                 this.showMainLayout();
+            } catch (error) {
+                console.error('Erro ao parsear usuário do localStorage:', error);
+                utils.showNotification('Erro ao carregar dados locais: Formato de usuário inválido.', 'error');
+                this.currentUser = null;
             }
-            this.updateVerifiedNotes();
-        } catch (error) {
-            console.error('Erro ao carregar do localStorage:', error);
-            utils.showNotification('Erro ao carregar dados locais', 'error');
         }
+
+        this.updateVerifiedNotes();
+    } catch (error) {
+        console.error('Erro ao carregar do localStorage:', error);
+        utils.showNotification('Erro ao carregar dados locais', 'error');
     }
+}
 
     updateUserInfo() {
         const userInfo = document.getElementById('userInfo');
