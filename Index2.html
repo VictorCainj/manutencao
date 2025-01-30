@@ -1066,93 +1066,94 @@ handleFormSubmit() {
         }
     }
 
-    editComment(noteKey, commentId) {
-        try {
-            const note = this.notes[noteKey];
-            if (!Array.isArray(note.comments)) {
-                note.comments = [];
-                return;
-            }
-
-            const commentIndex = note.comments.findIndex(c => c.id === commentId);
-            if (commentIndex === -1) {
-                utils.showNotification('Comentário não encontrado.', 'error');
-                return;
-            }
-
-            // Create edit modal
-            const editModal = document.createElement('div');
-            editModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            editModal.innerHTML = `
-                <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-                    <h3 class="text-lg font-semibold mb-4">Editar Comentário</h3>
-                    <form id="editCommentForm" class="space-y-4">
-                        <textarea 
-                            id="editCommentText" 
-                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"
-                            required
-                        >${note.comments[commentIndex].text}</textarea>
-                        <div class="flex justify-end space-x-2">
-                            <button type="button" id="cancelEditComment" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
-                                <i class="fas fa-times mr-2"></i>Cancelar
-                            </button>
-                            <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
-                                <i class="fas fa-save mr-2"></i>Salvar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            `;
-
-            // Add modal to the document
-            document.body.appendChild(editModal);
-
-            // Get form elements
-            const form = document.getElementById('editCommentForm');
-            const cancelBtn = document.getElementById('cancelEditComment');
-            const textarea = document.getElementById('editCommentText');
-
-            // Handle cancel
-            cancelBtn.addEventListener('click', () => {
-                document.body.removeChild(editModal);
-            });
-
-            // Handle ESC key
-            document.addEventListener('keydown', function escListener(e) {
-                if (e.key === 'Escape') {
-                    document.body.removeChild(editModal);
-                    document.removeEventListener('keydown', escListener);
-                }
-            });
-
-            // Handle form submit
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const newText = textarea.value.trim();
-                
-                if (newText) {
-                    note.comments[commentIndex].text = utils.sanitizeInput(newText);
-                    note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
-                    // Update status to 'verified'
-                    note.status = 'verified';
-                    this.saveToLocalStorage();
-                    this.renderComments(noteKey);
-                    this.updateNoteButton(noteKey);
-                    document.body.removeChild(editModal);
-                    utils.showNotification('Comentário atualizado com sucesso!', 'success');
-                } else {
-                    utils.showNotification('O comentário não pode estar vazio.', 'error');
-                }
-            });
-
-            // Focus on textarea
-            textarea.focus();
-        } catch (error) {
-            console.error('Erro ao editar comentário:', error);
-            utils.showNotification('Erro ao editar comentário', 'error');
+editComment(noteKey, commentId) {
+    try {
+        const note = this.notes[noteKey];
+        if (!Array.isArray(note.comments)) {
+            note.comments = [];
+            return;
         }
-    }
 
+        const commentIndex = note.comments.findIndex(c => c.id === commentId);
+        if (commentIndex === -1) {
+            utils.showNotification('Comentário não encontrado.', 'error');
+            return;
+        }
+
+        // Create edit modal
+        const editModal = document.createElement('div');
+        editModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        editModal.innerHTML = `
+            <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                <h3 class="text-lg font-semibold mb-4">Editar Comentário</h3>
+                <form id="editCommentForm" class="space-y-4">
+                    <textarea 
+                        id="editCommentText" 
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"
+                        required
+                    >${note.comments[commentIndex].text}</textarea>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" id="cancelEditComment" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                            <i class="fas fa-times mr-2"></i>Cancelar
+                        </button>
+                        <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                            <i class="fas fa-save mr-2"></i>Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        // Add modal to the document
+        document.body.appendChild(editModal);
+
+        // Get form elements
+        const form = document.getElementById('editCommentForm');
+        const cancelBtn = document.getElementById('cancelEditComment');
+        const textarea = document.getElementById('editCommentText');
+
+        // Handle cancel
+        cancelBtn.addEventListener('click', () => {
+            document.body.removeChild(editModal);
+        });
+
+        // Handle ESC key
+        document.addEventListener('keydown', function escListener(e) {
+            if (e.key === 'Escape') {
+                document.body.removeChild(editModal);
+                document.removeEventListener('keydown', escListener);
+            }
+        });
+
+        // Handle form submit
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newText = textarea.value.trim();
+            
+            if (newText) {
+                note.comments[commentIndex].text = utils.sanitizeInput(newText);
+                note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
+                // Update status to 'verified' only if the current status is not 'scheduled'
+                if (note.status !== 'scheduled') {
+                    note.status = 'verified';
+                }
+                this.saveToLocalStorage();
+                this.renderComments(noteKey);
+                this.updateNoteButton(noteKey);
+                document.body.removeChild(editModal);
+                utils.showNotification('Comentário atualizado com sucesso!', 'success');
+            } else {
+                utils.showNotification('O comentário não pode estar vazio.', 'error');
+            }
+        });
+
+        // Focus on textarea
+        textarea.focus();
+    } catch (error) {
+        console.error('Erro ao editar comentário:', error);
+        utils.showNotification('Erro ao editar comentário', 'error');
+    }
+}
     deleteComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
