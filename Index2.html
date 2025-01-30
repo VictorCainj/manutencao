@@ -4,111 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Anotações de Contratos</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.tailwindcss.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        .btn {
-            @apply px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200;
-        }
-        .btn-wine-red {
-            @apply bg-red-900 hover:bg-red-700 focus:ring-red-400;
-        }
-        .btn-gray {
-            @apply bg-gray-500 hover:bg-gray-700 focus:ring-gray-400;
-        }
-        .btn-green {
-            @apply bg-green-500 hover:bg-green-700 focus:ring-green-400;
-        }
-        .btn-yellow {
-            @apply bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400;
-        }
-        .notification {
-            @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded-md shadow-lg transition-all duration-300 ease-in-out z-50 font-semibold text-center;
-            animation: slideIn 0.3s ease-out;
-        }
-        .notification-success {
-            @apply bg-green-500 text-white border-l-4 border-green-700;
-        }
-        .notification-error {
-            @apply bg-red-500 text-white border-l-4 border-red-700;
-        }
-        .notification-important {
-            @apply bg-yellow-500 text-black border-l-4 border-yellow-700;
-        }
-        @keyframes slideIn {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-        .modal-overlay {
-            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40;
-        }
-        .modal-content {
-            @apply bg-white rounded-lg shadow-lg transform transition-all duration-300;
-        }
-        .comment-box {
-            @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
+        .comment-fixed {
+            border-left-width: 4px;
+            border-color: #48bb78;
         }
         .comment-important {
-            @apply border-l-4 border-red-300;
+            border-left-width: 4px;
+            border-color: #f56565;
         }
-        .comment-fixed {
-            @apply border-l-4 border-green-400;
+        .comment-box {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-width: 1px;
+            border-color: #e2e8f0;
         }
-        .note-card {
-            @apply transition-all duration-200 transform hover:scale-102;
-        }
-        .progress-bar {
-            @apply absolute bottom-0 left-0 h-2 bg-blue-500 transition-all duration-300;
-        }
-        .show-more {
-            color: blue;
-            cursor: pointer;
-        }
-        .dropdown {
-            @apply relative inline-block;
-        }
-        .dropdown-content {
-            @apply hidden absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-50;
-        }
-        .dropdown:hover .dropdown-content {
-            @apply block;
-        }
-        .dropdown-item {
-            @apply block px-4 py-2 text-gray-800 hover:bg-gray-200 transition-colors duration-200;
-        }
-        .separator {
-            @apply my-4 border-t-2 border-gray-300;
-        }
-        .category {
-            cursor: pointer;
-        }
-        .category-content {
-            display: none;
-        }
-        .blurred-notes {
-            filter: blur(5px);
-            pointer-events: none;
-        }
-        .loader {
-            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
-        }
-        .spinner {
-            @apply w-16 h-16 border-4 border-t-4 border-t-transparent border-white rounded-full animate-spin;
+        .comment-box:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
-
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 text-black">
 
 <!-- Loader -->
-<div id="loader" class="loader hidden">
-    <div class="spinner"></div>
+<div id="loader" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="w-16 h-16 border-4 border-t-4 border-t-transparent border-white rounded-full animate-spin"></div>
 </div>
 
 <!-- Logo Section -->
@@ -123,20 +47,21 @@
     <div class="flex-1 flex flex-col items-center p-4">
 
         <!-- User Info -->
-        <div id="userInfo" class="mb-4 text-center text-xl font-semibold">Logado: Victor</div>
+        <div id="userInfo" class="mb-4 text-center text-xl font-semibold" aria-describedby="userInfoDesc">Logado: Victor</div>
+        <div id="userInfoDesc" class="hidden">Informação do usuário atualmente logado</div>
 
         <!-- Main Controls -->
         <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
-            <button id="createNoteBtn" class="btn btn-wine-red" aria-label="Criar Anotação">
+            <button id="createNoteBtn" class="px-4 py-2 bg-red-900 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200" aria-label="Criar Anotação">
                 <i class="fas fa-plus mr-2"></i>Criar anotação
             </button>
-            <button id="createScheduleBtn" class="btn btn-wine-red" aria-label="Criar Agendamento">
+            <button id="createScheduleBtn" class="px-4 py-2 bg-red-900 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200" aria-label="Criar Agendamento">
                 <i class="fas fa-calendar-alt mr-2"></i>Criar Agendamento
             </button>
-            <button id="importNotesBtn" class="btn btn-gray" aria-label="Importar Contratos">
+            <button id="importNotesBtn" class="px-4 py-2 bg-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-gray-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200" aria-label="Importar Contratos">
                 <i class="fas fa-file-import mr-2"></i>Importar Contratos
             </button>
-            <button id="downloadNotesBtn" class="btn btn-gray" aria-label="Baixar Todos os Contratos">
+            <button id="downloadNotesBtn" class="px-4 py-2 bg-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-gray-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200" aria-label="Baixar Todos os Contratos">
                 <i class="fas fa-download mr-2"></i>Baixar Todos os Contratos
             </button>
             <input type="file" id="fileInput" class="hidden" accept=".json">
@@ -145,11 +70,11 @@
         <!-- Notification Area -->
         <div id="notificationArea" class="w-full max-w-4xl mb-4 text-center"></div>
 
-        <div class="separator"></div>
+        <div class="my-4 border-t-2 border-gray-300"></div>
 
         <!-- Note Creation Modal -->
-        <div id="noteModal" class="modal-overlay hidden">
-            <div class="modal-content p-6 w-full max-w-md">
+        <div id="noteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 hidden">
+            <div class="bg-white rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md">
                 <h2 class="text-xl font-semibold mb-4 text-center text-black">Criar Anotação</h2>
                 <form id="noteForm" class="space-y-4">
                     <div>
@@ -200,10 +125,10 @@
                     </div>
 
                     <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancelNoteBtn" class="btn btn-gray">
+                        <button type="button" id="cancelNoteBtn" class="px-4 py-2 bg-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-gray-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200">
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
-                        <button type="submit" class="btn btn-wine-red">
+                        <button type="submit" class="px-4 py-2 bg-red-900 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200">
                             <i class="fas fa-save mr-2"></i>Salvar
                         </button>
                     </div>
@@ -211,11 +136,11 @@
             </div>
         </div>
 
-        <div class="separator"></div>
+        <div class="my-4 border-t-2 border-gray-300"></div>
 
         <!-- Schedule Creation Modal -->
-        <div id="scheduleModal" class="modal-overlay hidden">
-            <div class="modal-content p-6 w-full max-w-md">
+        <div id="scheduleModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 hidden">
+            <div class="bg-white rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md">
                 <h2 class="text-xl font-semibold mb-4 text-center text-black">Criar Agendamento</h2>
                 <form id="scheduleForm" class="space-y-4">
                     <div>
@@ -253,10 +178,10 @@
                     </div>
 
                     <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancelScheduleModalBtn" class="btn btn-gray">
+                        <button type="button" id="cancelScheduleModalBtn" class="px-4 py-2 bg-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-gray-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200">
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
-                        <button type="submit" class="btn btn-wine-red">
+                        <button type="submit" class="px-4 py-2 bg-red-900 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200">
                             <i class="fas fa-save mr-2"></i>Salvar
                         </button>
                     </div>
@@ -264,11 +189,11 @@
             </div>
         </div>
 
-        <div class="separator"></div>
+        <div class="my-4 border-t-2 border-gray-300"></div>
 
         <!-- Note Details Modal -->
-        <div id="noteDetailsModal" class="modal-overlay hidden">
-            <div class="modal-content p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+        <div id="noteDetailsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 hidden">
+            <div class="bg-white rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                 <h2 class="text-2xl font-semibold mb-4 text-center text-black">Detalhes da Anotação</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -277,22 +202,22 @@
                         <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative"></div>
                         
                         <div class="flex space-x-2">
-                            <button type="button" id="copyDetailsBtn" class="btn btn-green flex-1">
+                            <button type="button" id="copyDetailsBtn" class="px-4 py-2 bg-green-500 hover:bg-green-700 focus:ring-2 focus:ring-green-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200 flex-1">
                                 <i class="fas fa-copy mr-2"></i>Copiar
                             </button>
-                            <button type="button" id="downloadContractBtn" class="btn btn-yellow flex-1">
+                            <button type="button" id="downloadContractBtn" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-700 focus:ring-2 focus:ring-yellow-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200 flex-1">
                                 <i class="fas fa-file-download mr-2"></i>Baixar
                             </button>
-                            <button type="button" id="cancelScheduleBtn" class="btn btn-red flex-1">
+                            <button type="button" id="cancelScheduleBtn" class="px-4 py-2 bg-red-500 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200 flex-1">
                                 <i class="fas fa-calendar-times mr-2"></i>Cancelar Agendamento
                             </button>
-                            <button type="button" id="deleteNoteBtn" class="btn btn-red flex-1">
+                            <button type="button" id="deleteNoteBtn" class="px-4 py-2 bg-red-500 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200 flex-1">
                                 <i class="fas fa-trash mr-2"></i>Excluir
                             </button>
-                            <button type="button" id="finalizeNoteBtn" class="btn btn-green flex-1 hidden">
+                            <button type="button" id="finalizeNoteBtn" class="px-4 py-2 bg-green-500 hover:bg-green-700 focus:ring-2 focus:ring-green-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200 flex-1 hidden">
                                 <i class="fas fa-check mr-2"></i>Finalizar
                             </button>
-                            <button type="button" id="reopenNoteBtn" class="btn btn-wine-red flex-1 hidden">
+                            <button type="button" id="reopenNoteBtn" class="px-4 py-2 bg-red-900 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200 flex-1 hidden">
                                 <i class="fas fa-undo mr-2"></i>Reabrir
                             </button>
                         </div>
@@ -311,20 +236,20 @@
                                          required
                                          class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[80px] text-black"
                                          placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
-                                <button type="submit" class="btn btn-wine-red w-full mt-2">
+                                <button type="submit" class="px-4 py-2 bg-red-900 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200 w-full mt-2">
                                     <i class="fas fa-comment mr-2"></i>Adicionar Comentário
                                 </button>
                             </form>
 
                             <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
-                            <button id="showMoreCommentsBtn" class="show-more">Mostrar Mais Comentários</button>
-                            <button id="backToTopBtn" class="show-more hidden">Voltar ao Início dos Comentários</button>
+                            <button id="showMoreCommentsBtn" class="text-blue-500 cursor-pointer">Mostrar Mais Comentários</button>
+                            <button id="backToTopBtn" class="text-blue-500 cursor-pointer hidden">Voltar ao Início dos Comentários</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-4 text-right">
-                    <button type="button" id="closeDetailsBtn" class="btn btn-gray">
+                    <button type="button" id="closeDetailsBtn" class="px-4 py-2 bg-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-gray-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200">
                         <i class="fas fa-times mr-2"></i>Fechar
                     </button>
                 </div>
@@ -349,28 +274,35 @@
             </select>
         </div>
 
-        <!-- Search Controls -->
+<!-- Search Controls -->
         <div class="mb-4">
             <div class="relative">
                 <input type="text" 
                        id="searchInput" 
                        placeholder="Pesquisar contratos, problemas e comentários..." 
                        class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black"
-                       aria-label="Pesquisar contratos, problemas e comentários">
+                       aria-label="Pesquisar contratos, problemas e comentários"
+                       aria-describedby="searchDesc">
                 <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
             </div>
+            <div id="searchDesc" class="hidden">Digite para buscar contratos, problemas e comentários</div>
         </div>
 
         <div id="notesContainer" class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
 
         <!-- Pagination Controls -->
         <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
-            <button id="prevPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-left"></i></button>
-            <button id="nextPageBtn" class="btn btn-wine-red"><i class="fas fa-chevron-right"></i></button>
+            <button id="prevPageBtn" class="px-4 py-2 bg-red-900 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button id="nextPageBtn" class="px-4 py-2 bg-red-900 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/date-fns@2.27.0/dist/date-fns.min.js"></script>
 <script>
 // Utility Functions
 const utils = {
@@ -381,8 +313,19 @@ const utils = {
         const notification = document.createElement('div');
         notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'important' ? 'notification-important' : 'notification-error'}`;
         notification.textContent = message;
+
         notificationArea.appendChild(notification);
-        setTimeout(() => notificationArea.removeChild(notification), 5000);
+
+        const notificationTimeout = setTimeout(() => {
+            if (notificationArea.contains(notification)) {
+                notificationArea.removeChild(notification);
+            }
+        }, 5000);
+
+        notification.addEventListener('click', () => {
+            clearTimeout(notificationTimeout);
+            notificationArea.removeChild(notification);
+        });
     },
 
     sanitizeInput: (input) => {
@@ -418,14 +361,7 @@ const utils = {
 
     formatDate: (dateString) => {
         try {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) return 'Data inválida';
-            
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            
-            return `${day}/${month}/${year}`;
+            return dateFns.format(new Date(dateString), 'dd/MM/yyyy');
         } catch (e) {
             console.error('Error formatting date:', e);
             return 'Data inválida';
@@ -435,20 +371,11 @@ const utils = {
     calculateDaysOpen: (dateString) => {
         const start = new Date(dateString);
         const today = new Date();
-        const diffTime = Math.abs(today - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
+        return Math.ceil(dateFns.differenceInDays(today, start));
     },
 
     getCurrentDateTime: () => {
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const year = now.getFullYear();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        return dateFns.format(new Date(), 'yyyy-MM-dd HH:mm:ss');
     },
 
     downloadFile: (content, filename, type = 'text/plain') => {
@@ -466,7 +393,9 @@ const utils = {
     },
 
     formatComment: (comment) => {
-        return comment.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+        const div = document.createElement('div');
+        div.textContent = comment;
+        return div.innerHTML.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
     }
 };
 
@@ -486,13 +415,12 @@ class NoteManager {
     }
 
     cleanInvalidNotes() {
-        const validNotes = {};
-        Object.entries(this.notes).forEach(([key, note]) => {
+        this.notes = Object.entries(this.notes).reduce((validNotes, [key, note]) => {
             if (note && note.contractNumber) {
                 validNotes[key] = note;
             }
-        });
-        this.notes = validNotes;
+            return validNotes;
+        }, {});
         this.saveToLocalStorage();
     }
 
@@ -651,23 +579,25 @@ class NoteManager {
     }
 
     toggleModal(modalId) {
-        // Close all modals and dashboard
+        // Close all other modals
         document.querySelectorAll('.modal-overlay').forEach(modal => {
-            modal.classList.add('hidden');
+            if (modal.id !== modalId) {
+                modal.classList.add('hidden');
+            }
         });
 
-        // Open the selected modal or dashboard
+        // Toggle the selected modal
         document.getElementById(modalId).classList.toggle('hidden');
     }
 
     closeAllModals() {
-        // Close all modals and dashboard
+        // Close all modals
         document.querySelectorAll('.modal-overlay').forEach(modal => {
             modal.classList.add('hidden');
         });
     }
 
-handleFormSubmit() {
+    handleFormSubmit() {
         const formData = {
             contractNumber: document.getElementById('contractNumber').value,
             locator: document.getElementById('locator').value,
@@ -680,18 +610,23 @@ handleFormSubmit() {
         if (errors.length > 0) {
             errors.forEach(error => {
                 if (error.includes('Número de contrato inválido')) {
+                    document.getElementById('contractNumber').classList.add('border-red-500');
                     document.getElementById('contractNumberError').classList.remove('hidden');
                 }
                 if (error.includes('Nome do Locador')) {
+                    document.getElementById('locator').classList.add('border-red-500');
                     document.getElementById('locatorError').classList.remove('hidden');
                 }
                 if (error.includes('Nome do Locatário')) {
+                    document.getElementById('tenant').classList.add('border-red-500');
                     document.getElementById('tenantError').classList.remove('hidden');
                 }
                 if (error.includes('Problema')) {
+                    document.getElementById('problem').classList.add('border-red-500');
                     document.getElementById('problemError').classList.remove('hidden');
                 }
                 if (error.includes('Endereço')) {
+                    document.getElementById('address').classList.add('border-red-500');
                     document.getElementById('addressError').classList.remove('hidden');
                 }
             });
@@ -784,9 +719,9 @@ handleFormSubmit() {
             const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
             noteButton.innerHTML = `
-                <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
-                <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
-                <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
+                <span class="block font-bold">${note.key}</span>
+                <span class="block text-sm">Locador: ${note.locator}</span>
+                <span class="block text-sm">Locatário: ${note.tenant}</span>
                 <span class="block text-xs mt-1">${displayDate}</span>
                 <span class="block text-xs mt-1">
                     ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
@@ -796,12 +731,12 @@ handleFormSubmit() {
                 <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
             `;
 
-            noteButton.dataset.contract = note.key;
-            noteButton.dataset.locator = note.locator.toLowerCase();
-            noteButton.dataset.tenant = note.tenant.toLowerCase();
-            noteButton.dataset.address = note.address.toLowerCase();
-            noteButton.dataset.date = note.createdAt; // Store the date in a consistent format for sorting
-            noteButton.dataset.status = note.status;
+            noteButton.setAttribute('data-contract', note.key);
+            noteButton.setAttribute('data-locator', note.locator.toLowerCase());
+            noteButton.setAttribute('data-tenant', note.tenant.toLowerCase());
+            noteButton.setAttribute('data-address', note.address.toLowerCase());
+            noteButton.setAttribute('data-date', note.createdAt); // Store the date in a consistent format for sorting
+            noteButton.setAttribute('data-status', note.status);
 
             noteButton.addEventListener('click', () => {
                 this.showNoteDetails(note.key);
@@ -813,44 +748,99 @@ handleFormSubmit() {
         this.sortNotes(); // Apply initial sorting
     }
 
-    showNoteDetails(noteKey) {
+showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
             const detailsContent = document.getElementById('noteDetailsContent');
 
-            detailsContent.innerHTML = `
-                <div class="space-y-3">
-                    <div class="pb-2 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold">Informações do Contrato</h3>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2">
-                        <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDate(note.createdAt)}</div>
-                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
-                        <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
-                        <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
-                        <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
-                        <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
-                            <button class="ml-2 text-blue-500 hover:text-blue-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
-                                <i class="fas fa-search"></i>
-                            </button></p>
-                        <p><strong>Status:</strong> <span class="font-semibold ${
-                            note.status === 'open' ? 'text-red-900' :
-                            (note.status === 'scheduled' ? 'text-yellow-600' :
-                            (note.status === 'verified' ? 'text-purple-600' : 'text-green-600'))
-                        }">
-                            ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
-                            (note.status === 'scheduled' ? 'Em agendamento' : 
-                            (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
-                        </span></p>
-                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
-                        ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
-                        ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
-                        ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
-                    </div>
-                </div>
-            `;
+            // Limpar conteúdo anterior
+            detailsContent.textContent = '';
 
+            // Criar elementos de forma segura usando createElement e textContent
+            const infoContainer = document.createElement('div');
+            infoContainer.className = 'space-y-3';
+
+            const header = document.createElement('div');
+            header.className = 'pb-2 border-b border-gray-200';
+
+            const headerTitle = document.createElement('h3');
+            headerTitle.className = 'text-lg font-semibold';
+            headerTitle.textContent = 'Informações do Contrato';
+            header.appendChild(headerTitle);
+            infoContainer.appendChild(header);
+
+            const infoGrid = document.createElement('div');
+            infoGrid.className = 'grid grid-cols-1 gap-2';
+
+            const dateInfo = document.createElement('div');
+            dateInfo.className = 'absolute top-2 right-2 text-gray-500 text-sm';
+            dateInfo.textContent = utils.formatDate(note.createdAt);
+            infoContainer.appendChild(dateInfo);
+
+            const fields = [
+                { label: 'Número de Contrato:', value: noteKey },
+                { label: 'Locador:', value: note.locator },
+                { label: 'Locatário:', value: note.tenant },
+                { label: 'Problema:', value: note.problem, isMultiline: true },
+                {
+                    label: 'Endereço:',
+                    value: note.address,
+                    isAddress: true,
+                    link: `https://www.google.com/search?q=${encodeURIComponent(note.address)}`
+                },
+                {
+                    label: 'Status:',
+                    value: note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
+                        (note.status === 'scheduled' ? 'Em agendamento' : 
+                        (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado')),
+                    statusClass: note.status === 'open' ? 'text-red-900' : 
+                        (note.status === 'scheduled' ? 'text-yellow-600' : 
+                        (note.status === 'verified' ? 'text-purple-600' : 'text-green-600'))
+                },
+                ...(note.closedAt ? [{ label: 'Finalizado em:', value: utils.formatDate(note.closedAt) }] : []),
+                ...(note.status === 'scheduled' ? [
+                    { label: 'Prestador:', value: note.providerName },
+                    { label: 'Data do Agendamento:', value: utils.formatDate(note.scheduleDate) },
+                    { label: 'Descrição do Agendamento:', value: note.scheduleDescription, isMultiline: true }
+                ] : [])
+            ];
+
+            fields.forEach(field => {
+                const p = document.createElement('p');
+                const strong = document.createElement('strong');
+                strong.textContent = field.label;
+                p.appendChild(strong);
+
+                if (field.isAddress) {
+                    const span = document.createElement('span');
+                    span.textContent = ` ${field.value}`;
+                    p.appendChild(span);
+
+                    const button = document.createElement('button');
+                    button.className = 'ml-2 text-blue-500 hover:text-blue-700';
+                    button.onclick = () => window.open(field.link, '_blank');
+                    button.innerHTML = '<i class="fas fa-search"></i>';
+                    p.appendChild(button);
+                } else if (field.statusClass) {
+                    const span = document.createElement('span');
+                    span.className = `font-semibold ${field.statusClass}`;
+                    span.textContent = ` ${field.value}`;
+                    p.appendChild(span);
+                } else {
+                    const span = document.createElement('span');
+                    span.className = field.isMultiline ? 'whitespace-pre-wrap' : '';
+                    span.textContent = ` ${field.value}`;
+                    p.appendChild(span);
+                }
+
+                infoGrid.appendChild(p);
+            });
+
+            infoContainer.appendChild(infoGrid);
+            detailsContent.appendChild(infoContainer);
+
+            // Atualizar botões de ação
             const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
             const reopenNoteBtn = document.getElementById('reopenNoteBtn');
             if (note.status === 'closed') {
@@ -882,8 +872,8 @@ handleFormSubmit() {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             const fixedCommentSection = document.getElementById('fixedCommentSection');
-            commentsContainer.innerHTML = '';
-            fixedCommentSection.innerHTML = '';
+            commentsContainer.textContent = '';
+            fixedCommentSection.textContent = '';
 
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -933,53 +923,77 @@ handleFormSubmit() {
             commentElement.classList.add('comment-fixed');
         }
 
-        commentElement.innerHTML = `
-            <div class="flex justify-between items-start">
-                <div class="flex-grow">
-                    <p class="text-gray-800 whitespace-pre-wrap">${utils.formatComment(comment.text)}</p>
-                    <div class="mt-2 text-sm text-gray-500">
-                        <span>${utils.formatDate(comment.dateTime)}</span>
-                        <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
-                        ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
-                        ${isFixed ? ` <i class="fas fa-thumbtack text-green-500 mr-2"></i>` : ''}
-                    </div>
-                </div>
-                <div class="flex space-x-2">
-                    <button id="edit-comment-${comment.id}" class="ml-2 text-blue-500 hover:text-blue-700" aria-label="Editar Comentário">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button id="delete-comment-${comment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Excluir Comentário">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                    ${!isFixed ? `<button id="important-comment-${comment.id}" class="ml-2 text-red-300 hover:text-red-500" aria-label="Marcar como Importante">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </button>` : ''}
-                    <button id="fix-comment-${comment.id}" class="ml-2 text-green-500 hover:text-green-700" aria-label="Fixar Comentário">
-                        <i class="fas fa-thumbtack"></i>
-                    </button>
-                </div>
-            </div>
+        const commentContent = document.createElement('div');
+        commentContent.className = 'flex justify-between items-start';
+
+        const textContainer = document.createElement('div');
+        textContainer.className = 'flex-grow';
+
+        const commentText = document.createElement('p');
+        commentText.className = 'text-gray-800 whitespace-pre-wrap';
+        commentText.innerHTML = utils.formatComment(comment.text);
+        textContainer.appendChild(commentText);
+
+        const commentMetadata = document.createElement('div');
+        commentMetadata.className = 'mt-2 text-sm text-gray-500';
+        commentMetadata.innerHTML = `
+            <span>${utils.formatDate(comment.dateTime)}</span>
+            <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
+            ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
         `;
+        if (isFixed) {
+            const fixedIcon = document.createElement('i');
+            fixedIcon.className = 'fas fa-thumbtack text-green-500 mr-2';
+            commentMetadata.insertBefore(fixedIcon, commentMetadata.firstChild);
+        }
+        textContainer.appendChild(commentMetadata);
 
-        container.appendChild(commentElement);
+        const actionsContainer = document.createElement('div');
+        actionsContainer.className = 'flex space-x-2';
 
-        document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
+        const editButton = document.createElement('button');
+        editButton.className = 'ml-2 text-blue-500 hover:text-blue-700';
+        editButton.setAttribute('aria-label', 'Editar Comentário');
+        editButton.innerHTML = '<i class="fas fa-edit"></i>';
+        editButton.addEventListener('click', () => {
             this.editComment(noteKey, comment.id);
         });
+        actionsContainer.appendChild(editButton);
 
-        document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'ml-2 text-red-500 hover:text-red-700';
+        deleteButton.setAttribute('aria-label', 'Excluir Comentário');
+        deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteButton.addEventListener('click', () => {
             this.deleteComment(noteKey, comment.id);
         });
+        actionsContainer.appendChild(deleteButton);
 
         if (!isFixed) {
-            document.getElementById(`important-comment-${comment.id}`).addEventListener('click', () => {
+            const importantButton = document.createElement('button');
+            importantButton.className = 'ml-2 text-red-300 hover:text-red-500';
+            importantButton.setAttribute('aria-label', 'Marcar como Importante');
+            importantButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            importantButton.addEventListener('click', () => {
                 this.markCommentAsImportant(noteKey, comment.id);
             });
+            actionsContainer.appendChild(importantButton);
         }
 
-        document.getElementById(`fix-comment-${comment.id}`).addEventListener('click', () => {
+        const fixButton = document.createElement('button');
+        fixButton.className = 'ml-2 text-green-500 hover:text-green-700';
+        fixButton.setAttribute('aria-label', 'Fixar Comentário');
+        fixButton.innerHTML = '<i class="fas fa-thumbtack"></i>';
+        fixButton.addEventListener('click', () => {
             this.fixComment(noteKey, comment.id);
         });
+        actionsContainer.appendChild(fixButton);
+
+        commentContent.appendChild(textContainer);
+        commentContent.appendChild(actionsContainer);
+        commentElement.appendChild(commentContent);
+
+        container.appendChild(commentElement);
     }
 
     handleCommentSubmit() {
@@ -1054,7 +1068,7 @@ handleFormSubmit() {
         }
     }
 
-editComment(noteKey, commentId) {
+    editComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1080,10 +1094,10 @@ editComment(noteKey, commentId) {
                             required
                         >${note.comments[commentIndex].text}</textarea>
                         <div class="flex justify-end space-x-2">
-                            <button type="button" id="cancelEditComment" class="btn btn-gray">
+                            <button type="button" id="cancelEditComment" class="px-4 py-2 bg-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-gray-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200">
                                 <i class="fas fa-times mr-2"></i>Cancelar
                             </button>
-                            <button type="submit" class="btn btn-wine-red">
+                            <button type="submit" class="px-4 py-2 bg-red-900 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200">
                                 <i class="fas fa-save mr-2"></i>Salvar
                             </button>
                         </div>
@@ -1181,17 +1195,43 @@ editComment(noteKey, commentId) {
         }
     }
 
-    deleteNote(noteKey) {
+deleteNote(noteKey) {
         try {
-            if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
-                return;
-            }
+            // Substituir confirm por modal personalizado para melhor UX
+            const deleteModal = document.createElement('div');
+            deleteModal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            deleteModal.innerHTML = `
+                <div class="modal-content bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                    <h3 class="text-lg font-semibold mb-4">Excluir Anotação</h3>
+                    <p>Tem certeza que deseja excluir esta anotação?</p>
+                    <div class="flex justify-end space-x-2 mt-4">
+                        <button type="button" id="cancelDeleteNote" class="px-4 py-2 bg-gray-500 hover:bg-gray-700 focus:ring-2 focus:ring-gray-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200">
+                            <i class="fas fa-times mr-2"></i>Cancelar
+                        </button>
+                        <button type="button" id="confirmDeleteNote" class="px-4 py-2 bg-red-900 hover:bg-red-700 focus:ring-2 focus:ring-red-400 text-white font-semibold rounded-md shadow-md transition-colors duration-200">
+                            <i class="fas fa-trash mr-2"></i>Excluir
+                        </button>
+                    </div>
+                </div>
+            `;
 
-            delete this.notes[noteKey];
-            this.saveToLocalStorage();
-            this.renderNotes();
-            this.toggleModal('noteDetailsModal');
-            utils.showNotification('Anotação excluída com sucesso!', 'success');
+            document.body.appendChild(deleteModal);
+
+            const cancelBtn = document.getElementById('cancelDeleteNote');
+            const confirmBtn = document.getElementById('confirmDeleteNote');
+
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(deleteModal);
+            });
+
+            confirmBtn.addEventListener('click', () => {
+                delete this.notes[noteKey];
+                this.saveToLocalStorage();
+                this.renderNotes();
+                this.toggleModal('noteDetailsModal');
+                utils.showNotification('Anotação excluída com sucesso!', 'success');
+                document.body.removeChild(deleteModal);
+            });
         } catch (error) {
             console.error('Erro ao excluir nota:', error);
             utils.showNotification('Erro ao excluir anotação', 'error');
@@ -1555,9 +1595,8 @@ ${comments}
                 return;
             }
 
-            const exportData = {};
-            Object.entries(this.notes).forEach(([key, note]) => {
-                if (!note) return;
+            const exportData = Object.entries(this.notes).reduce((acc, [key, note]) => {
+                if (!note) return acc;
 
                 const contractNumber = note.contractNumber || key.split('#')[0];
 
@@ -1586,8 +1625,9 @@ ${comments}
                     cleanedNote.closedAt = note.closedAt;
                 }
 
-                exportData[key] = cleanedNote;
-            });
+                acc[key] = cleanedNote;
+                return acc;
+            }, {});
 
             const notesJson = JSON.stringify(exportData, null, 2);
             const filename = `contratos_${this.currentDateTime}.json`;
@@ -1607,8 +1647,6 @@ const noteManager = new NoteManager();
 document.getElementById('searchInput').addEventListener('input', () => {
     noteManager.filterNotes();
 });
-
-// Complete script closure
 </script>
 </body>
 </html>
