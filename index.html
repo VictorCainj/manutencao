@@ -240,7 +240,7 @@
 
         <div class="my-4 border-t-2 border-gray-300"></div>
 
-        <!-- Note Details Modal -->
+<!-- Note Details Modal -->
         <div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
             <div class="bg-white rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                 <h2 class="text-2xl font-semibold mb-4 text-center text-black">Detalhes da Anotação</h2>
@@ -272,7 +272,7 @@
                         </div>
                     </div>
 
-<!-- Coluna da direita - Comentários -->
+                    <!-- Coluna da direita - Comentários -->
                     <div class="space-y-4">
                         <div class="bg-gray-50 p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-4 text-black">Comentários</h3>
@@ -638,7 +638,7 @@ class NoteManager {
             }
         });
 
-        document.getElementById('backToTopBtn').addEventListener('click', () => {
+document.getElementById('backToTopBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
                 this.currentCommentPage = 1;
                 this.renderComments(document.getElementById('noteDetailsContent')
@@ -729,7 +729,7 @@ class NoteManager {
             address: document.getElementById('address').value
         };
 
-const errors = utils.validateForm(formData);
+        const errors = utils.validateForm(formData);
         if (errors.length > 0) {
             errors.forEach(error => {
                 if (error.includes('Número de contrato inválido')) {
@@ -1053,7 +1053,7 @@ const errors = utils.validateForm(formData);
                 return;
             }
 
-            // Create edit modal
+// Create edit modal
             const editModal = document.createElement('div');
             editModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
             editModal.innerHTML = `
@@ -1091,12 +1091,13 @@ const errors = utils.validateForm(formData);
             });
 
             // Handle ESC key
-            document.addEventListener('keydown', function escListener(e) {
+            const escListener = (e) => {
                 if (e.key === 'Escape') {
                     document.body.removeChild(editModal);
                     document.removeEventListener('keydown', escListener);
                 }
-            });
+            };
+            document.addEventListener('keydown', escListener);
 
             // Handle form submit
             form.addEventListener('submit', (e) => {
@@ -1153,7 +1154,7 @@ const errors = utils.validateForm(formData);
         }
     }
 
-cancelSchedule(noteKey) {
+    cancelSchedule(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'scheduled') {
@@ -1239,40 +1240,42 @@ cancelSchedule(noteKey) {
         }
     }
 
-loadFromLocalStorage() {
-    try {
-        const savedNotes = localStorage.getItem('notes');
-        const savedUser = localStorage.getItem('currentUser');
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            const savedUser = localStorage.getItem('currentUser');
 
-        if (savedNotes) {
-            try {
-                this.notes = JSON.parse(savedNotes);
-                this.renderNotes();
-            } catch (error) {
-                console.error('Erro ao parsear notas do localStorage:', error);
-                utils.showNotification('Erro ao carregar dados locais: Formato de notas inválido.', 'error');
-                this.notes = {};
+            if (savedNotes) {
+                try {
+                    this.notes = JSON.parse(savedNotes);
+                    this.renderNotes();
+                } catch (error) {
+                    console.error('Erro ao parsear notas do localStorage:', error);
+                    utils.showNotification('Erro ao carregar dados locais: Formato de notas inválido.', 'error');
+                    this.notes = {};
+                }
             }
-        }
 
-        if (savedUser) {
-            try {
-                this.currentUser = JSON.parse(savedUser);
-                this.updateUserInfo();
-                this.showMainLayout();
-            } catch (error) {
-                console.error('Erro ao parsear usuário do localStorage:', error);
-                utils.showNotification('Erro ao carregar dados locais: Formato de usuário inválido.', 'error');
-                this.currentUser = null;
+            if (savedUser) {
+                try {
+                    this.currentUser = JSON.parse(savedUser);
+                    this.updateUserInfo();
+                    this.showMainLayout();
+                } catch (error) {
+                    console.error('Erro ao parsear usuário do localStorage:', error);
+                    utils.showNotification('Erro ao carregar dados locais: Formato de usuário inválido.', 'error');
+                    this.currentUser = null;
+                }
+            } else {
+                this.showLogin();
             }
-        }
 
-        this.updateVerifiedNotes();
-    } catch (error) {
-        console.error('Erro ao carregar do localStorage:', error);
-        utils.showNotification('Erro ao carregar dados locais', 'error');
+            this.updateVerifiedNotes();
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            utils.showNotification('Erro ao carregar dados locais', 'error');
+        }
     }
-}
 
     updateUserInfo() {
         const userInfo = document.getElementById('userInfo');
@@ -1561,7 +1564,7 @@ loadFromLocalStorage() {
         }
     }
 
-    validateImportedNote(note, noteKey) {
+validateImportedNote(note, noteKey) {
         try {
             if (!note || typeof note !== 'object') {
                 throw new Error('Dados da nota inválidos');
@@ -1693,7 +1696,7 @@ loadFromLocalStorage() {
             }
         });
 
-// Update the dashboard info
+        // Update the dashboard info
         document.getElementById('openCount').textContent = `Abertos: ${statusData.open}`;
         document.getElementById('closedCount').textContent = `Fechados: ${statusData.closed}`;
         document.getElementById('scheduledCount').textContent = `Em Agendamento: ${statusData.scheduled}`;
@@ -1733,7 +1736,8 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
     // Simulating a login check. In a real application, you would check against a database or authentication service.
     if (email === 'manutencao@madia.com.br' && password === 'password123') {
         noteManager.currentUser = { email };
-        noteManager.saveToLocalStorage();
+        // Save the current user to localStorage
+        localStorage.setItem('currentUser', JSON.stringify(noteManager.currentUser));
         noteManager.showMainLayout();
         utils.showNotification('Login bem-sucedido!', 'success');
     } else {
