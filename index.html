@@ -998,46 +998,46 @@ handleFormSubmit() {
         }
     }
 
-handleCommentSubmit() {
-    try {
-        const commentText = document.getElementById('commentText').value;
-        if (!commentText.trim()) {
-            utils.showNotification('Comentário não pode estar vazio', 'error');
-            return;
+    handleCommentSubmit() {
+        try {
+            const commentText = document.getElementById('commentText').value;
+            if (!commentText.trim()) {
+                utils.showNotification('Comentário não pode estar vazio', 'error');
+                return;
+            }
+
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+
+            const comment = {
+                id: Date.now().toString(),
+                text: utils.sanitizeInput(commentText),
+                dateTime: utils.getCurrentDateTime(),
+                author: this.currentUser.email
+            };
+
+            if (!Array.isArray(this.notes[noteKey].comments)) {
+                this.notes[noteKey].comments = [];
+            }
+
+            this.notes[noteKey].comments.unshift(comment);
+
+            // Update status to 'verified' only if the current status is not 'scheduled'
+            if (this.notes[noteKey].status !== 'scheduled') {
+                this.notes[noteKey].status = 'verified';
+            }
+
+            this.saveToLocalStorage();
+            this.renderComments(noteKey);
+            this.updateNoteButton(noteKey);
+            document.getElementById('commentForm').reset();
+            document.getElementById('commentText').focus();
+            utils.showNotification('Comentário adicionado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao adicionar comentário:', error);
+            utils.showNotification('Erro ao adicionar comentário', 'error');
         }
-
-        const noteKey = document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent;
-
-        const comment = {
-            id: Date.now().toString(),
-            text: utils.sanitizeInput(commentText),
-            dateTime: utils.getCurrentDateTime(),
-            author: this.currentUser.email
-        };
-
-        if (!Array.isArray(this.notes[noteKey].comments)) {
-            this.notes[noteKey].comments = [];
-        }
-
-        this.notes[noteKey].comments.unshift(comment);
-
-        // Update status to 'verified' only if the current status is not 'scheduled'
-        if (this.notes[noteKey].status !== 'scheduled') {
-            this.notes[noteKey].status = 'verified';
-        }
-
-        this.saveToLocalStorage();
-        this.renderComments(noteKey);
-        this.updateNoteButton(noteKey);
-        document.getElementById('commentForm').reset();
-        document.getElementById('commentText').focus();
-        utils.showNotification('Comentário adicionado com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro ao adicionar comentário:', error);
-        utils.showNotification('Erro ao adicionar comentário', 'error');
     }
-}
 
     editComment(noteKey, commentId) {
         try {
@@ -1239,42 +1239,25 @@ deleteComment(noteKey, commentId) {
         }
     }
 
-loadFromLocalStorage() {
-    try {
-        const savedNotes = localStorage.getItem('notes');
-        const savedUser = localStorage.getItem('currentUser');
-        console.log('Saved notes:', savedNotes);
-        console.log('Saved user:', savedUser);
-
-        if (savedNotes) {
-            this.notes = JSON.parse(savedNotes);
-            if (typeof this.notes !== 'object' || this.notes === null) {
-                throw new Error('Dados de notas inválidos');
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedNotes) {
+                this.notes = JSON.parse(savedNotes);
+                this.renderNotes();
             }
-            this.renderNotes();
-        } else {
-            this.notes = {}; // Inicializa como objeto vazio se não houver dados salvos
-        }
-
-        if (savedUser) {
-            this.currentUser = JSON.parse(savedUser);
-            if (typeof this.currentUser !== 'object' || this.currentUser === null || !this.currentUser.email) {
-                throw new Error('Dados do usuário inválidos');
+            if (savedUser) {
+                this.currentUser = JSON.parse(savedUser);
+                this.updateUserInfo();
+                this.showMainLayout();
             }
-            this.updateUserInfo();
-            this.showMainLayout();
-        } else {
-            this.currentUser = null; // Inicializa como null se não houver dados salvos
+            this.updateVerifiedNotes();
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            utils.showNotification('Erro ao carregar dados locais', 'error');
         }
-
-        this.updateVerifiedNotes();
-    } catch (error) {
-        console.error('Erro ao carregar do localStorage:', error);
-        this.notes = {}; // Reset notes in case of error
-        this.currentUser = null; // Reset currentUser in case of error
-        utils.showNotification('Erro ao carregar dados locais', 'error');
     }
-}
 
     updateUserInfo() {
         const userInfo = document.getElementById('userInfo');
@@ -1990,49 +1973,46 @@ toggleModal(modalId) {
         }
     }
 
-handleCommentSubmit() {
-    try {
-        const commentText = document.getElementById('commentText').value;
-        console.log('Comment text:', commentText);
-        if (!commentText.trim()) {
-            utils.showNotification('Comentário não pode estar vazio', 'error');
-            return;
+    handleCommentSubmit() {
+        try {
+            const commentText = document.getElementById('commentText').value;
+            if (!commentText.trim()) {
+                utils.showNotification('Comentário não pode estar vazio', 'error');
+                return;
+            }
+
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+
+            const comment = {
+                id: Date.now().toString(),
+                text: utils.sanitizeInput(commentText),
+                dateTime: utils.getCurrentDateTime(),
+                author: this.currentUser.email
+            };
+
+            if (!Array.isArray(this.notes[noteKey].comments)) {
+                this.notes[noteKey].comments = [];
+            }
+
+            this.notes[noteKey].comments.unshift(comment);
+
+            // Update status to 'verified' only if the current status is not 'scheduled'
+            if (this.notes[noteKey].status !== 'scheduled') {
+                this.notes[noteKey].status = 'verified';
+            }
+
+            this.saveToLocalStorage();
+            this.renderComments(noteKey);
+            this.updateNoteButton(noteKey);
+            document.getElementById('commentForm').reset();
+            document.getElementById('commentText').focus();
+            utils.showNotification('Comentário adicionado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao adicionar comentário:', error);
+            utils.showNotification('Erro ao adicionar comentário', 'error');
         }
-
-        const noteKey = document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent;
-        console.log('Note key:', noteKey);
-
-        const comment = {
-            id: Date.now().toString(),
-            text: utils.sanitizeInput(commentText),
-            dateTime: utils.getCurrentDateTime(),
-            author: this.currentUser.email
-        };
-        console.log('Comment object:', comment);
-
-        if (!Array.isArray(this.notes[noteKey].comments)) {
-            this.notes[noteKey].comments = [];
-        }
-
-        this.notes[noteKey].comments.unshift(comment);
-
-        // Update status to 'verified' only if the current status is not 'scheduled'
-        if (this.notes[noteKey].status !== 'scheduled') {
-            this.notes[noteKey].status = 'verified';
-        }
-
-        this.saveToLocalStorage();
-        this.renderComments(noteKey);
-        this.updateNoteButton(noteKey);
-        document.getElementById('commentForm').reset();
-        document.getElementById('commentText').focus();
-        utils.showNotification('Comentário adicionado com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro ao adicionar comentário:', error);
-        utils.showNotification('Erro ao adicionar comentário', 'error');
     }
-}
 
     editComment(noteKey, commentId) {
         try {
@@ -2209,28 +2189,25 @@ cancelSchedule(noteKey) {
         }
     }
 
-loadFromLocalStorage() {
-    try {
-        const savedNotes = localStorage.getItem('notes');
-        const savedUser = localStorage.getItem('currentUser');
-        console.log('Saved notes:', savedNotes);
-        console.log('Saved user:', savedUser);
-
-        if (savedNotes) {
-            this.notes = JSON.parse(savedNotes);
-            this.renderNotes();
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedNotes) {
+                this.notes = JSON.parse(savedNotes);
+                this.renderNotes();
+            }
+            if (savedUser) {
+                this.currentUser = JSON.parse(savedUser);
+                this.updateUserInfo();
+                this.showMainLayout();
+            }
+            this.updateVerifiedNotes();
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            utils.showNotification('Erro ao carregar dados locais', 'error');
         }
-        if (savedUser) {
-            this.currentUser = JSON.parse(savedUser);
-            this.updateUserInfo();
-            this.showMainLayout();
-        }
-        this.updateVerifiedNotes();
-    } catch (error) {
-        console.error('Erro ao carregar do localStorage:', error);
-        utils.showNotification('Erro ao carregar dados locais', 'error');
     }
-}
 
     updateUserInfo() {
         const userInfo = document.getElementById('userInfo');
