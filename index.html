@@ -1239,25 +1239,54 @@ deleteComment(noteKey, commentId) {
         }
     }
 
-    loadFromLocalStorage() {
-        try {
-            const savedNotes = localStorage.getItem('notes');
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedNotes) {
+loadFromLocalStorage() {
+    try {
+        // Primeiro, vamos verificar o que exatamente está no localStorage
+        const savedNotes = localStorage.getItem('notes');
+        const savedUser = localStorage.getItem('currentUser');
+        
+        console.log('Dados brutos do localStorage:');
+        console.log('notes:', savedNotes);
+        console.log('currentUser:', savedUser);
+
+        // Tente parsear separadamente para identificar qual está causando o problema
+        if (savedNotes) {
+            try {
                 this.notes = JSON.parse(savedNotes);
-                this.renderNotes();
+                console.log('Notes parseadas com sucesso:', this.notes);
+            } catch (e) {
+                console.error('Erro ao parsear notes:', e);
+                // Opcional: limpar dados corrompidos
+                localStorage.removeItem('notes');
             }
-            if (savedUser) {
-                this.currentUser = JSON.parse(savedUser);
-                this.updateUserInfo();
-                this.showMainLayout();
-            }
-            this.updateVerifiedNotes();
-        } catch (error) {
-            console.error('Erro ao carregar do localStorage:', error);
-            utils.showNotification('Erro ao carregar dados locais', 'error');
         }
+
+        if (savedUser) {
+            try {
+                this.currentUser = JSON.parse(savedUser);
+                console.log('User parseado com sucesso:', this.currentUser);
+            } catch (e) {
+                console.error('Erro ao parsear usuário:', e);
+                // Opcional: limpar dados corrompidos
+                localStorage.removeItem('currentUser');
+            }
+        }
+
+        // Só continua se os dados foram carregados corretamente
+        if (this.notes) {
+            this.renderNotes();
+        }
+        if (this.currentUser) {
+            this.updateUserInfo();
+            this.showMainLayout();
+        }
+        this.updateVerifiedNotes();
+        
+    } catch (error) {
+        console.error('Erro detalhado:', error);
+        utils.showNotification('Erro ao carregar dados locais', 'error');
     }
+}
 
     updateUserInfo() {
         const userInfo = document.getElementById('userInfo');
