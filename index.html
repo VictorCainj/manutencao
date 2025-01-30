@@ -1243,18 +1243,29 @@ loadFromLocalStorage() {
     try {
         const savedNotes = localStorage.getItem('notes');
         const savedUser = localStorage.getItem('currentUser');
+        console.log('Saved notes:', savedNotes);
+        console.log('Saved user:', savedUser);
+
         if (savedNotes) {
             this.notes = JSON.parse(savedNotes);
+            if (typeof this.notes !== 'object' || this.notes === null) {
+                throw new Error('Dados de notas inválidos');
+            }
             this.renderNotes();
         }
         if (savedUser) {
             this.currentUser = JSON.parse(savedUser);
+            if (typeof this.currentUser !== 'object' || this.currentUser === null || !this.currentUser.email) {
+                throw new Error('Dados do usuário inválidos');
+            }
             this.updateUserInfo();
             this.showMainLayout();
         }
         this.updateVerifiedNotes();
     } catch (error) {
         console.error('Erro ao carregar do localStorage:', error);
+        this.notes = {}; // Reset notes in case of error
+        this.currentUser = null; // Reset currentUser in case of error
         utils.showNotification('Erro ao carregar dados locais', 'error');
     }
 }
