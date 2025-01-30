@@ -471,6 +471,23 @@ class NoteManager {
 
     initializeEventListeners() {
         // Event Listeners para os botões principais
+
+loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    // Simulating a login check. In a real application, you would check against a database or authentication service.
+    if (email === 'manutencao@madia.com.br' && password === 'password123') {
+        noteManager.currentUser = { email };
+        // Save the current user to localStorage
+        localStorage.setItem('currentUser', JSON.stringify(noteManager.currentUser));
+        noteManager.showMainLayout();
+    } else {
+        utils.showNotification('E-mail ou senha incorretos.', 'error');
+    }
+});
+        
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
                 this.closeAllModals();
@@ -1705,12 +1722,13 @@ validateImportedNote(note, noteKey) {
         document.getElementById('verifiedCount').textContent = `Verificados Hoje: ${statusData.verified}`;
     }
 
-    showMainLayout() {
-        document.getElementById('loginModal').classList.add('hidden');
-        document.getElementById('logoSection').classList.remove('hidden');
-        document.getElementById('mainLayout').classList.remove('hidden');
-        this.renderDashboard(); // Ensure the dashboard is rendered when showing the main layout
-    }
+showMainLayout() {
+    document.getElementById('loginModal').classList.add('hidden');
+    document.getElementById('logoSection').classList.remove('hidden');
+    document.getElementById('mainLayout').classList.remove('hidden');
+    this.renderDashboard(); // Ensure the dashboard is rendered when showing the main layout
+    utils.showNotification('Login bem-sucedido!', 'success'); // Adiciona a notificação de login bem-sucedido
+}
 
     showLogin() {
         this.closeAllModals();
