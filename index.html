@@ -2242,26 +2242,75 @@ cancelSchedule(noteKey) {
         this.filterNotes();
     }
 
-    filterNotes() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+filterNotes() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const container = document.getElementById('notesContainer');
+    container.innerHTML = '';
 
-        const notes = document.querySelectorAll('.note-button');
-        notes.forEach(noteBtn => {
-            const noteKey = noteBtn.dataset.contract;
-            const note = this.notes[noteKey];
+    const notesArray = Object.keys(this.notes).map(key => ({
+        key,
+        ...this.notes[key]
+    }));
 
-            const matchesSearch = [
-                noteKey,
-                noteBtn.dataset.locator,
-                noteBtn.dataset.tenant,
-                noteBtn.dataset.address
-            ].join(' ').toLowerCase().includes(searchTerm);
+    // Filter notes based on search term
+    const filteredNotes = notesArray.filter(note => 
+        note.key.toLowerCase().includes(searchTerm) ||
+        note.locator.toLowerCase().includes(searchTerm) ||
+        note.tenant.toLowerCase().includes(searchTerm) ||
+        note.address.toLowerCase().includes(searchTerm)
+    );
 
-            noteBtn.classList.toggle('hidden', !matchesSearch);
+    const start = this.currentPage * this.notesPerPage;
+    const end = start + this.notesPerPage;
+    const notesToDisplay = filteredNotes.slice(start, end);
+
+    notesToDisplay.forEach(note => {
+        const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
+
+        const noteButton = document.createElement('button');
+        noteButton.className = `note-button ${
+            note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+            (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+            (note.status === 'verified' ? 'bg-purple-500 hover:bg-purple-700' :
+            'bg-red-900 hover:bg-red-700'))
+        } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
+
+        const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
+
+        noteButton.innerHTML = `
+            <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
+            <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
+            <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
+            <span class="block text-xs mt-1">${displayDate}</span>
+            <span class="block text-xs mt-1">
+                ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
+                (note.status === 'scheduled' ? 'Em agendamento' : 
+                (note.status === 'verified' ? 'Verificado Hoje' : 'Finalizado'))}
+            </span>
+            <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
+        `;
+
+        noteButton.dataset.contract = note.key;
+        noteButton.dataset.locator = note.locator.toLowerCase();
+        noteButton.dataset.tenant = note.tenant.toLowerCase();
+        noteButton.dataset.address = note.address.toLowerCase();
+        noteButton.dataset.date = note.createdAt; // Store the date in a consistent format for sorting
+        noteButton.dataset.status = note.status;
+
+        noteButton.addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.showNoteDetails(note.key);
+            }
         });
 
-        this.sortNotes();
+        container.appendChild(noteButton);
+    });
+
+    this.sortNotes(); // Apply initial sorting
+    if (!this.isAuthenticated()) {
+        this.showNotesBlurred();
     }
+}
 
     sortNotes() {
         const container = document.getElementById('notesContainer');
