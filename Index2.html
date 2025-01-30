@@ -1027,44 +1027,46 @@ handleFormSubmit() {
         }
     }
 
-    handleCommentSubmit() {
-        try {
-            const commentText = document.getElementById('commentText').value;
-            if (!commentText.trim()) {
-                utils.showNotification('Comentário não pode estar vazio', 'error');
-                return;
-            }
-
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-
-            const comment = {
-                id: Date.now().toString(),
-                text: utils.sanitizeInput(commentText),
-                dateTime: utils.getCurrentDateTime(),
-                author: this.currentUser.email
-            };
-
-            if (!Array.isArray(this.notes[noteKey].comments)) {
-                this.notes[noteKey].comments = [];
-            }
-
-            this.notes[noteKey].comments.unshift(comment);
-
-            // Update status to 'verified'
-            this.notes[noteKey].status = 'verified';
-
-            this.saveToLocalStorage();
-            this.renderComments(noteKey);
-            this.updateNoteButton(noteKey);
-            document.getElementById('commentForm').reset();
-            document.getElementById('commentText').focus();
-            utils.showNotification('Comentário adicionado com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao adicionar comentário:', error);
-            utils.showNotification('Erro ao adicionar comentário', 'error');
+handleCommentSubmit() {
+    try {
+        const commentText = document.getElementById('commentText').value;
+        if (!commentText.trim()) {
+            utils.showNotification('Comentário não pode estar vazio', 'error');
+            return;
         }
+
+        const noteKey = document.getElementById('noteDetailsContent')
+            .querySelector('p strong + span').textContent;
+
+        const comment = {
+            id: Date.now().toString(),
+            text: utils.sanitizeInput(commentText),
+            dateTime: utils.getCurrentDateTime(),
+            author: this.currentUser.email
+        };
+
+        if (!Array.isArray(this.notes[noteKey].comments)) {
+            this.notes[noteKey].comments = [];
+        }
+
+        this.notes[noteKey].comments.unshift(comment);
+
+        // Update status to 'verified' only if the current status is not 'scheduled'
+        if (this.notes[noteKey].status !== 'scheduled') {
+            this.notes[noteKey].status = 'verified';
+        }
+
+        this.saveToLocalStorage();
+        this.renderComments(noteKey);
+        this.updateNoteButton(noteKey);
+        document.getElementById('commentForm').reset();
+        document.getElementById('commentText').focus();
+        utils.showNotification('Comentário adicionado com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao adicionar comentário:', error);
+        utils.showNotification('Erro ao adicionar comentário', 'error');
     }
+}
 
 editComment(noteKey, commentId) {
     try {
@@ -1154,6 +1156,7 @@ editComment(noteKey, commentId) {
         utils.showNotification('Erro ao editar comentário', 'error');
     }
 }
+    
     deleteComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
