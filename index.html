@@ -857,7 +857,7 @@ handleFormSubmit() {
         }
     }
 
-showNoteDetails(noteKey) {
+    showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -881,9 +881,9 @@ showNoteDetails(noteKey) {
                             <button class="ml-2 text-blue-500 hover:text-blue-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
                                 <i class="fas fa-search"></i>
                             </button></p>
-                        <p><strong>Status:</strong> <span class="font-semibold ${ 
-                            note.status === 'open' ? 'text-red-900' : 
-                            (note.status === 'scheduled' ? 'text-yellow-600' : 
+                        <p><strong>Status:</strong> <span class="font-semibold ${
+                            note.status === 'open' ? 'text-red-900' :
+                            (note.status === 'scheduled' ? 'text-yellow-600' :
                             (note.status === 'verified' ? 'text-purple-600' : 'text-green-600'))
                         }">
                             ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
@@ -1133,7 +1133,7 @@ showNoteDetails(noteKey) {
         }
     }
 
-    deleteComment(noteKey, commentId) {
+deleteComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1323,11 +1323,6 @@ showNoteDetails(noteKey) {
         const container = document.getElementById('notesContainer');
 
         const notes = Array.from(container.children);
-
-sortNotes() {
-        const container = document.getElementById('notesContainer');
-
-        const notes = Array.from(container.children);
         const dateFilter = document.getElementById('dateFilter').value;
 
         notes.sort((a, b) => {
@@ -1366,7 +1361,13 @@ sortNotes() {
     }
 
     nextPage() {
-        const totalNotes = Object.keys(this.notes).length;
+        const filteredNotes = Object.keys(this.notes).filter(noteKey => {
+            const note = this.notes[noteKey];
+            const statusFilter = document.getElementById('statusFilter').value;
+            return statusFilter === 'all' || note.status === statusFilter;
+        });
+
+        const totalNotes = filteredNotes.length;
         const totalPages = Math.ceil(totalNotes / this.notesPerPage);
 
         if (this.currentPage < totalPages - 1) {
