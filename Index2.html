@@ -55,10 +55,10 @@
             @apply bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200;
         }
         .comment-important {
-            @apply border-l-4 border-yellow-400;
+            @apply border-l-4 border-red-300;
         }
         .comment-fixed {
-            @apply border-t-4 border-b-4 border-l-4 border-r-4 border-green-400;
+            @apply border-l-4 border-green-400;
         }
         .note-card {
             @apply transition-all duration-200 transform hover:scale-102;
@@ -667,7 +667,7 @@ class NoteManager {
         });
     }
 
-    handleFormSubmit() {
+handleFormSubmit() {
         const formData = {
             contractNumber: document.getElementById('contractNumber').value,
             locator: document.getElementById('locator').value,
@@ -813,7 +813,7 @@ class NoteManager {
         this.sortNotes(); // Apply initial sorting
     }
 
-showNoteDetails(noteKey) {
+    showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
@@ -941,7 +941,7 @@ showNoteDetails(noteKey) {
                         <span>${utils.formatDate(comment.dateTime)}</span>
                         <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
                         ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
-                        ${isFixed ? ` <i class="fas fa-thumbtack text-green-500"></i>` : ''}
+                        ${isFixed ? ` <i class="fas fa-thumbtack text-green-500 mr-2"></i>` : ''}
                     </div>
                 </div>
                 <div class="flex space-x-2">
@@ -951,9 +951,9 @@ showNoteDetails(noteKey) {
                     <button id="delete-comment-${comment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Excluir Comentário">
                         <i class="fas fa-trash"></i>
                     </button>
-                    <button id="important-comment-${comment.id}" class="ml-2 text-yellow-500 hover:text-yellow-700" aria-label="Marcar como Importante">
+                    ${!isFixed ? `<button id="important-comment-${comment.id}" class="ml-2 text-red-300 hover:text-red-500" aria-label="Marcar como Importante">
                         <i class="fas fa-exclamation-triangle"></i>
-                    </button>
+                    </button>` : ''}
                     <button id="fix-comment-${comment.id}" class="ml-2 text-green-500 hover:text-green-700" aria-label="Fixar Comentário">
                         <i class="fas fa-thumbtack"></i>
                     </button>
@@ -971,9 +971,11 @@ showNoteDetails(noteKey) {
             this.deleteComment(noteKey, comment.id);
         });
 
-        document.getElementById(`important-comment-${comment.id}`).addEventListener('click', () => {
-            this.markCommentAsImportant(noteKey, comment.id);
-        });
+        if (!isFixed) {
+            document.getElementById(`important-comment-${comment.id}`).addEventListener('click', () => {
+                this.markCommentAsImportant(noteKey, comment.id);
+            });
+        }
 
         document.getElementById(`fix-comment-${comment.id}`).addEventListener('click', () => {
             this.fixComment(noteKey, comment.id);
@@ -1052,7 +1054,7 @@ showNoteDetails(noteKey) {
         }
     }
 
-    editComment(noteKey, commentId) {
+editComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1263,7 +1265,7 @@ ${comments}
         }
     }
 
-reopenNote(noteKey) {
+    reopenNote(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'closed') {
@@ -1605,6 +1607,8 @@ const noteManager = new NoteManager();
 document.getElementById('searchInput').addEventListener('input', () => {
     noteManager.filterNotes();
 });
+
+// Complete script closure
 </script>
 </body>
 </html>
