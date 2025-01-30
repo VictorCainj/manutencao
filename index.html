@@ -1252,7 +1252,10 @@ loadFromLocalStorage() {
                 throw new Error('Dados de notas inválidos');
             }
             this.renderNotes();
+        } else {
+            this.notes = {}; // Inicializa como objeto vazio se não houver dados salvos
         }
+
         if (savedUser) {
             this.currentUser = JSON.parse(savedUser);
             if (typeof this.currentUser !== 'object' || this.currentUser === null || !this.currentUser.email) {
@@ -1260,7 +1263,10 @@ loadFromLocalStorage() {
             }
             this.updateUserInfo();
             this.showMainLayout();
+        } else {
+            this.currentUser = null; // Inicializa como null se não houver dados salvos
         }
+
         this.updateVerifiedNotes();
     } catch (error) {
         console.error('Erro ao carregar do localStorage:', error);
