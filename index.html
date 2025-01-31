@@ -421,7 +421,7 @@
         <!-- Pagination Controls -->
         <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
             <button id="prevPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-left"></i></button>
-            <button id="nextPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-right"></i></button>
+            <button id="nextPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
 </div>
@@ -694,48 +694,42 @@ class NoteManager {
         // Event Listeners para copiar detalhes
         document.getElementById('copyDetailsBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
+                const noteKey = document.getElementById('detailContractNumber').textContent;
                 this.copyNoteDetails(noteKey);
             }
         });
 
         document.getElementById('downloadContractBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
+                const noteKey = document.getElementById('detailContractNumber').textContent;
                 this.downloadSingleContract(noteKey);
             }
         });
 
         document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
+                const noteKey = document.getElementById('detailContractNumber').textContent;
                 this.cancelSchedule(noteKey);
             }
         });
 
         document.getElementById('deleteNoteBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
+                const noteKey = document.getElementById('detailContractNumber').textContent;
                 this.deleteNote(noteKey);
             }
         });
 
         document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
+                const noteKey = document.getElementById('detailContractNumber').textContent;
                 this.finalizeNote(noteKey);
             }
         });
 
         document.getElementById('reopenNoteBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
-                const noteKey = document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent;
+                const noteKey = document.getElementById('detailContractNumber').textContent;
                 this.reopenNote(noteKey);
             }
         });
@@ -743,16 +737,14 @@ class NoteManager {
         document.getElementById('showMoreCommentsBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
                 this.currentCommentPage++;
-                this.renderComments(document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent);
+                this.renderComments(document.getElementById('detailContractNumber').textContent);
             }
         });
 
         document.getElementById('backToTopBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
                 this.currentCommentPage = 1;
-                this.renderComments(document.getElementById('noteDetailsContent')
-                    .querySelector('p strong + span').textContent);
+                this.renderComments(document.getElementById('detailContractNumber').textContent);
             }
         });
 
@@ -783,8 +775,7 @@ class NoteManager {
             // Excluir anotação ao pressionar Delete
             if (e.key === 'Delete' && !document.getElementById('noteDetailsModal').classList.contains('hidden')) {
                 if (this.isAuthenticated()) {
-                    const noteKey = document.getElementById('noteDetailsContent')
-                        .querySelector('p strong + span').textContent;
+                    const noteKey = document.getElementById('detailContractNumber').textContent;
                     this.deleteNote(noteKey);
                 }
             }
@@ -1119,6 +1110,526 @@ ${note.comments.map(comment => `Comentário de ${comment.author} em ${utils.form
         });
     }
 
+renderDashboard() {
+        const statusData = {
+            open: 0,
+            closed: 0,
+            scheduled: 0,
+            verified_today: 0,
+            special_clause: 0
+        };
+
+        Object.values(this.notes).forEach(note => {
+            statusData[note.status] = (statusData[note.status] || 0) + 1;
+        });
+
+        // Destroy the existing chart instance if it exists
+        if (this.chart) {
+            this.chart.destroy();
+        }
+
+        const statusChartCtx = document.getElementById('statusChart').getContext('2d');
+        this.chart = new Chart(statusChartCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje', 'Cláusula Especial'],
+                datasets: [{
+                    label: 'Quantidade de Chamados',
+                    data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today, statusData.special_clause],
+                    backgroundColor: ['#8B0000', '#006400', '#FFD700', '#800080', '#0000FF'],
+                    borderColor: ['#5B0000', '#004400', '#CCAC00', '#660066', '#0000AA'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0 // Ensure ticks are integer values
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Update the dashboard info
+        document.getElementById('openCount').textContent = `Abertos: ${statusData.open}`;
+        document.getElementById('closedCount').textContent = `Fechados: ${statusData.closed}`;
+        document.getElementById('scheduledCount').textContent = `Em Agendamento: ${statusData.scheduled}`;
+        document.getElementById('verifiedCount').textContent = `Verificados Hoje: ${statusData.verified_today}`;
+        document.getElementById('specialClauseCount').textContent = `Cláusula Especial: ${statusData.special_clause}`;
+    }
+
+    showMainLayout() {
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('logoSection').classList.remove('hidden');
+        document.getElementById('mainLayout').classList.remove('hidden');
+        this.renderDashboard(); // Ensure the dashboard is rendered when showing the main layout
+    }
+
+    showLogin() {
+        this.closeAllModals();
+        document.getElementById('loginModal').classList.remove('hidden');
+        document.getElementById('logoSection').classList.add('hidden');
+        document.getElementById('mainLayout').classList.add('hidden');
+    }
+
+    logout() {
+        this.currentUser = null;
+        localStorage.removeItem('currentUser');
+        this.showLogin();
+    }
+
+    showNoteDetails(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
+            const detailsContent = document.getElementById('noteDetailsContent');
+
+            detailsContent.innerHTML = `
+                <div class="space-y-3">
+                    <div class="pb-2 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold">Informações do Contrato</h3>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDate(note.createdAt)}</div>
+                        <p><strong>Número de Contrato:</strong> <span id="detailContractNumber">${utils.sanitizeInput(noteKey)}</span></p>
+                        <p><strong>Locador:</strong> <span id="detailLocator">${utils.sanitizeInput(note.locator)}</span></p>
+                        <p><strong>Locatário:</strong> <span id="detailTenant">${utils.sanitizeInput(note.tenant)}</span></p>
+                        <p><strong>Problema:</strong> <span class="whitespace-pre-wrap" id="detailProblem">${utils.sanitizeInput(note.problem)}</span></p>
+                        <p><strong>Endereço:</strong> <span id="detailAddress">${utils.sanitizeInput(note.address)}</span></p>
+                        <p><strong>Status:</strong> <span id="detailStatus" class="font-semibold ${
+                            note.status === 'open' ? 'text-red-900' :
+                            (note.status === 'scheduled' ? 'text-yellow-600' :
+                            (note.status === 'verified_today' ? 'text-purple-600' :
+                            (note.status === 'special_clause' ? 'text-blue-600' : 'text-green-600')))
+                        }">
+                            ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
+                            (note.status === 'scheduled' ? 'Em agendamento' : 
+                            (note.status === 'verified_today' ? 'Verificado Hoje' : 
+                            (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
+                        </span></p>
+                        ${note.closedAt ? `<p id="detailClosedAt"><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
+                        ${note.status === 'scheduled' || note.status === 'special_clause' ? `<p id="detailProviderName"><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
+                        ${note.status === 'scheduled' || note.status === 'special_clause' ? `<p id="detailScheduleDate"><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
+                        ${note.status === 'scheduled' || note.status === 'special_clause' ? `<p id="detailScheduleDescription"><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
+                    </div>
+                </div>
+            `;
+
+            // Mostrar/ocultar botões "Finalizar" e "Reabrir" com base no status
+            const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
+            const reopenNoteBtn = document.getElementById('reopenNoteBtn');
+            if (note.status === 'closed') {
+                finalizeNoteBtn.classList.add('hidden');
+                reopenNoteBtn.classList.remove('hidden');
+            } else {
+                finalizeNoteBtn.classList.remove('hidden');
+                reopenNoteBtn.classList.add('hidden');
+            }
+
+            // Mostrar/ocultar botão "Cancelar Agendamento" com base no status
+            const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
+            if (note.status === 'scheduled') {
+                cancelScheduleBtn.style.display = 'flex';
+            } else {
+                cancelScheduleBtn.style.display = 'none';
+            }
+
+            // Inicialize a página atual de comentários
+            this.currentCommentPage = 1;
+            this.renderComments(noteKey);
+            this.toggleModal('noteDetailsModal');
+        } catch (error) {
+            console.error('Erro ao exibir detalhes da nota:', error);
+            utils.showNotification('Erro ao carregar detalhes', 'error');
+        }
+    }
+
+    renderComments(noteKey) {
+        try {
+            const commentsContainer = document.getElementById('commentsContainer');
+            commentsContainer.innerHTML = '';
+
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+            }
+
+            const start = (this.currentCommentPage - 1) * this.commentsPerPage;
+            const end = start + this.commentsPerPage;
+            const commentsToShow = note.comments.slice(start, end);
+
+            commentsToShow.forEach((comment) => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200';
+
+                commentElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <p class="text-gray-800 whitespace-pre-wrap">${utils.applyBoldFormatting(utils.sanitizeInput(comment.text))}</p>
+                            <div class="mt-2 text-sm text-gray-500">
+                                <span>${utils.formatDate(comment.dateTime)}</span>
+                                <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
+                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                commentsContainer.appendChild(commentElement);
+            });
+
+            // Mostrar/ocultar botão "Mostrar Mais Comentários"
+            const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            if (end >= note.comments.length) {
+                showMoreCommentsBtn.style.display = 'none';
+                if (this.currentCommentPage > 1) {
+                    backToTopBtn.style.display = 'block';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
+            } else {
+                showMoreCommentsBtn.style.display = 'block';
+                backToTopBtn.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Erro ao renderizar comentários:', error);
+            utils.showNotification('Erro ao carregar comentários', 'error');
+        }
+    }
+
+    saveToLocalStorage() {
+        try {
+            localStorage.setItem('notes', JSON.stringify(this.notes));
+            localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+            utils.showNotification('Erro ao salvar dados localmente', 'error');
+        }
+    }
+
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedNotes) {
+                this.notes = JSON.parse(savedNotes);
+                this.fixOldNotes();
+                this.renderNotes();
+            }
+            if (savedUser) {
+                this.currentUser = JSON.parse(savedUser);
+                this.updateUserInfo();
+                this.showMainLayout();
+            }
+            this.updateVerifiedNotes();
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            utils.showNotification('Erro ao carregar dados locais', 'error');
+        }
+    }
+
+    fixOldNotes() {
+        Object.keys(this.notes).forEach(noteKey => {
+            const note = this.notes[noteKey];
+            // Adiciona campos ausentes com valores padrão
+            if (!note.hasOwnProperty('status')) {
+                note.status = 'open';
+            }
+            if (!note.hasOwnProperty('comments')) {
+                note.comments = [];
+            }
+            if (!note.hasOwnProperty('createdAt')) {
+                note.createdAt = utils.getCurrentDateTime();
+            }
+            if (!note.hasOwnProperty('createdBy')) {
+                note.createdBy = this.currentUser ? this.currentUser.email : 'unknown';
+            }
+            if (!note.hasOwnProperty('providerName')) {
+                note.providerName = '';
+            }
+            if (!note.hasOwnProperty('scheduleDate')) {
+                note.scheduleDate = '';
+            }
+            if (!note.hasOwnProperty('scheduleDescription')) {
+                note.scheduleDescription = '';
+            }
+        });
+        this.saveToLocalStorage();
+    }
+
+    updateUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const loggedUser = document.getElementById('loggedUser');
+        const userIcon = document.getElementById('userIcon');
+        if (this.currentUser) {
+            loggedUser.textContent = this.currentUser.email;
+            userIcon.src = this.currentUser.email === 'manutencao@madia.com.br' 
+                ? 'url_to_manutencao_image' 
+                : 'url_to_manutencao1_image';
+            userInfo.classList.remove('hidden');
+        } else {
+            userInfo.classList.add('hidden');
+        }
+    }
+
+    updateVerifiedNotes() {
+        try {
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+
+            Object.values(this.notes).forEach(note => {
+                // Verificar os comentários do dia atual
+                const hasCommentsToday = note.comments && note.comments.some(comment => {
+                    const commentDate = new Date(comment.dateTime);
+                    const commentDateStr = commentDate.toISOString().split('T')[0];
+                    return commentDateStr === todayStr;
+                });
+
+                // Se houver comentários de hoje e o status não for 'scheduled', marcar como verified_today
+                if (hasCommentsToday && note.status !== 'scheduled' && note.status !== 'closed') {
+                    note.status = 'verified_today';
+                }
+                // Se não houver comentários hoje e o status for verified_today, voltar para open
+                else if (!hasCommentsToday && note.status === 'verified_today') {
+                    note.status = 'open';
+                }
+            });
+
+            this.saveToLocalStorage();
+            this.renderNotes();
+        } catch (error) {
+            console.error('Erro ao atualizar notas verificadas:', error);
+            utils.showNotification('Erro ao atualizar status das notas', 'error');
+        }
+    }
+
+    filterNotes() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+        const notes = document.querySelectorAll('.note-button');
+        notes.forEach(noteBtn => {
+            const noteKey = noteBtn.dataset.contract;
+            const note = this.notes[noteKey];
+
+            const matchesSearch = [
+                noteKey,
+                noteBtn.dataset.locator,
+                noteBtn.dataset.tenant,
+                noteBtn.dataset.address
+            ].join(' ').toLowerCase().includes(searchTerm);
+
+            noteBtn.classList.toggle('hidden', !matchesSearch);
+        });
+
+        this.sortNotes();
+    }
+
+    sortNotes() {
+        const container = document.getElementById('notesContainer');
+
+        const notes = Array.from(container.children);
+        const dateFilter = document.getElementById('dateFilter').value;
+
+        notes.sort((a, b) => {
+            const dateA = new Date(a.dataset.date);
+            const dateB = new Date(b.dataset.date);
+            
+            if (dateFilter === 'newest') {
+                return dateB - dateA;
+            } else {
+                return dateA - dateB;
+            }
+        });
+
+        // Clear and re-append sorted notes
+        container.innerHTML = '';
+        notes.forEach(note => container.appendChild(note));
+    }
+
+    nextPage() {
+        const filteredNotes = Object.keys(this.notes).filter(noteKey => {
+            const note = this.notes[noteKey];
+            const statusFilter = document.getElementById('statusFilter').value;
+            return statusFilter === 'all' || note.status === statusFilter;
+        });
+
+        const totalNotes = filteredNotes.length;
+        const totalPages = Math.ceil(totalNotes / this.notesPerPage);
+
+        if (this.currentPage < totalPages - 1) {
+            this.currentPage++;
+            this.renderNotes();
+        }
+    }
+
+    prevPage() {
+        if (this.currentPage > 0) {
+            this.currentPage--;
+            this.renderNotes();
+        }
+    }
+
+    handleFileImport(event) {
+        try {
+            const file = event.target.files[0];
+            if (!file) {
+                utils.showNotification('Nenhum arquivo selecionado', 'error');
+                return;
+            }
+
+            if (!file.name.endsWith('.json')) {
+                utils.showNotification('Por favor, selecione um arquivo JSON válido', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const importedNotes = JSON.parse(e.target.result);
+                    
+                    if (!importedNotes || typeof importedNotes !== 'object') {
+                        throw new Error('Formato de arquivo inválido');
+                    }
+
+                    let importCount = 0;
+                    const totalNotes = Object.keys(importedNotes).length;
+
+                    for (const [noteKey, note] of Object.entries(importedNotes)) {
+                        try {
+                            if (!this.notes[noteKey] && this.validateImportedNote(note, noteKey)) {
+                                this.notes[noteKey] = {
+                                    ...note,
+                                    createdAt: note.createdAt || utils.getCurrentDateTime(),
+                                    createdBy: this.currentUser.email,
+                                    status: note.status || 'open',
+                                    providerName: note.providerName || '',
+                                    scheduleDate: note.scheduleDate || '',
+                                    scheduleDescription: note.scheduleDescription || '',
+                                    comments: Array.isArray(note.comments) ? note.comments : []
+                                };
+                                importCount++;
+                            }
+                        } catch (error) {
+                            console.warn(`Erro ao importar nota ${noteKey}:`, error);
+                        }
+                    }
+
+                    this.saveToLocalStorage();
+                    this.renderNotes();
+                    utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
+                } catch (error) {
+                    console.error('Erro ao processar arquivo:', error);
+                    utils.showNotification(`Erro ao processar arquivo: ${error.message}`, 'error');
+                }
+            };
+
+            reader.onerror = () => {
+                utils.showNotification('Erro ao ler o arquivo', 'error');
+            };
+
+            reader.readAsText(file);
+        } catch (error) {
+            console.error('Erro na importação:', error);
+            utils.showNotification(`Erro ao importar arquivo: ${error.message}`, 'error');
+        } finally {
+            event.target.value = '';
+        }
+    }
+
+    validateImportedNote(note, noteKey) {
+        try {
+            if (!note || typeof note !== 'object') {
+                throw new Error('Dados da nota inválidos');
+            }
+
+            const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
+            const missingFields = requiredFields.filter(field => !note[field]);
+
+            if (missingFields.length > 0) {
+                throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
+            }
+
+            // Normalizar os comentários
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+            }
+
+            note.comments = note.comments.map(comment => ({
+                id: comment.id || Date.now().toString(),
+                text: utils.sanitizeInput(comment.text || ''),
+                dateTime: comment.dateTime || utils.getCurrentDateTime(),
+                author: comment.author || this.currentUser.email,
+                editedAt: comment.editedAt || null
+            }));
+
+            return true;
+        } catch (error) {
+            console.warn(`Nota ${noteKey} inválida:`, error);
+            return false;
+        }
+    }
+
+exportNotes() {
+        try {
+            if (Object.keys(this.notes).length === 0) {
+                utils.showNotification('Não há contratos para exportar', 'error');
+                return;
+            }
+
+            const exportData = {};
+            Object.entries(this.notes).forEach(([key, note]) => {
+                if (!note) return;
+
+                const contractNumber = note.contractNumber || key.split('#')[0];
+
+                const cleanedNote = {
+                    contractNumber: utils.sanitizeInput(contractNumber),
+                    locator: utils.sanitizeInput(note.locator || 'Não especificado'),
+                    tenant: utils.sanitizeInput(note.tenant || 'Não especificado'),
+                    problem: utils.sanitizeInput(note.problem || 'Não especificado'),
+                    address: utils.sanitizeInput(note.address || 'Não especificado'),
+                    status: note.status || 'open',
+                    createdAt: note.createdAt || utils.getCurrentDateTime(),
+                    createdBy: note.createdBy || this.currentUser.email,
+                    providerName: note.providerName || '',
+                    scheduleDate: note.scheduleDate || '',
+                    scheduleDescription: note.scheduleDescription || '',
+                    comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
+                        id: comment.id || Date.now().toString(),
+                        text: utils.sanitizeInput(comment.text || ''),
+                        dateTime: comment.dateTime || utils.getCurrentDateTime(),
+                        author: comment.author || this.currentUser.email,
+                        editedAt: comment.editedAt || null
+                    })) : []
+                };
+
+                if (note.closedAt) {
+                    cleanedNote.closedAt = note.closedAt;
+                }
+
+                exportData[key] = cleanedNote;
+            });
+
+            const notesJson = JSON.stringify(exportData, null, 2);
+            const filename = `contratos_${this.currentDateTime}.json`;
+            utils.downloadFile(notesJson, filename, 'application/json');
+            utils.showNotification('Contratos exportados com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro na exportação:', error);
+            utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
+        }
+    }
+
     renderDashboard() {
         const statusData = {
             open: 0,
@@ -1132,7 +1643,7 @@ ${note.comments.map(comment => `Comentário de ${comment.author} em ${utils.form
             statusData[note.status] = (statusData[note.status] || 0) + 1;
         });
 
-// Destroy the existing chart instance if it exists
+        // Destroy the existing chart instance if it exists
         if (this.chart) {
             this.chart.destroy();
         }
