@@ -1306,23 +1306,36 @@ cancelSchedule(noteKey) {
         }
     }
 
-    updateVerifiedNotes() {
+updateVerifiedNotes() {
+    try {
         const today = new Date();
         const todayStr = today.toISOString().split('T')[0];
 
         Object.values(this.notes).forEach(note => {
-            if (note.status === 'verified_today') {
-                const noteDate = new Date(note.createdAt);
-                const noteDateStr = noteDate.toISOString().split('T')[0];
-                if (noteDateStr !== todayStr) {
-                    note.status = 'open';
-                }
+            // Verificar os comentários do dia atual
+            const hasCommentsToday = note.comments && note.comments.some(comment => {
+                const commentDate = new Date(comment.dateTime);
+                const commentDateStr = commentDate.toISOString().split('T')[0];
+                return commentDateStr === todayStr;
+            });
+
+            // Se houver comentários de hoje e o status não for 'scheduled', marcar como verified_today
+            if (hasCommentsToday && note.status !== 'scheduled' && note.status !== 'closed') {
+                note.status = 'verified_today';
+            }
+            // Se não houver comentários hoje e o status for verified_today, voltar para open
+            else if (!hasCommentsToday && note.status === 'verified_today') {
+                note.status = 'open';
             }
         });
 
         this.saveToLocalStorage();
         this.renderNotes();
+    } catch (error) {
+        console.error('Erro ao atualizar notas verificadas:', error);
+        utils.showNotification('Erro ao atualizar status das notas', 'error');
     }
+}
 
     handleSearch(searchTerm) {
         this.filterNotes();
@@ -1701,6 +1714,13 @@ cancelSchedule(noteKey) {
 
 // Inicializa a aplicação
 const noteManager = new NoteManager();
+
+// Atualiza o status das notas verificadas a cada minuto
+setInterval(() => {
+    if (noteManager.isAuthenticated()) {
+        noteManager.updateVerifiedNotes();
+    }
+}, 60000); // 60000 ms = 1 minuto
 
 // Login handling
 document.getElementById('loginForm').addEventListener('submit', (e) => {
