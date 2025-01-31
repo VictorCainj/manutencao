@@ -457,7 +457,7 @@ class NoteManager {
         this.chart = null; // Add this line to keep track of the chart instance
 
         // Atualiza o dashboard automaticamente a cada 3 segundos
-        setInterval(() => this.renderDashboard(), 3000);
+        setInterval(() => this.renderDashboard(), 60000);
     }
 
     cleanInvalidNotes() {
