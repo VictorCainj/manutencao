@@ -87,7 +87,10 @@
     <div class="flex-1 flex flex-col items-center p-4">
 
         <!-- User Info -->
-        <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden">Logado: <span id="loggedUser"></span></div>
+        <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden">
+            <img id="userIcon" src="" alt="User Icon" class="inline-block w-8 h-8 rounded-full mr-2">
+            Logado: <span id="loggedUser"></span>
+        </div>
 
         <!-- Main Controls -->
         <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
@@ -257,7 +260,7 @@
                         
                         <div class="flex space-x-2">
                             <button type="button" id="copyDetailsBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
-                                <i class="fas fa-copy mr-2"></i>Copiar
+                                <i class="fas fa-copy mr-2"></i>Copiar Contrato
                             </button>
                             <button type="button" id="downloadContractBtn" class="bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
                                 <i class="fas fa-file-download mr-2"></i>Baixar
@@ -291,7 +294,9 @@
                                     <i class="fas fa-comment mr-2"></i>Adicionar Comentário
                                 </button>
                             </form>
-
+                            <button type="button" id="copyCommentsBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 w-full">
+                                <i class="fas fa-copy mr-2"></i>Copiar
+                            </button>
                             <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
                             <button id="showMoreCommentsBtn" class="text-blue-500 cursor-pointer">Mostrar Mais Comentários</button>
                             <button id="backToTopBtn" class="text-blue-500 cursor-pointer hidden">Voltar ao Início dos Comentários</button>
@@ -327,6 +332,7 @@
                     <option value="scheduled">Em Agendamento</option>
                     <option value="verified_today">Verificados Hoje</option>
                     <option value="closed">Fechados</option>
+                    <option value="special_clause">Cláusula Especial</option>
                 </select>
             </div>
         </div>
@@ -722,7 +728,7 @@ class NoteManager {
         });
     }
 
-    handleFormSubmit() {
+handleFormSubmit() {
         const formData = {
             contractNumber: document.getElementById('contractNumber').value,
             locator: document.getElementById('locator').value,
@@ -732,7 +738,7 @@ class NoteManager {
             createdAt: utils.getCurrentDateTime()
         };
 
-const errors = utils.validateForm(formData);
+        const errors = utils.validateForm(formData);
         if (errors.length > 0) {
             errors.forEach(error => {
                 if (error.includes('Número de contrato inválido')) {
@@ -817,7 +823,8 @@ const errors = utils.validateForm(formData);
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
                 (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
                 (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
-                'bg-red-900 hover:bg-red-700'))
+                (note.status === 'special_clause' ? 'bg-blue-500 hover:bg-blue-700' :
+                'bg-red-900 hover:bg-red-700')))
             } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
 
             const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
@@ -830,7 +837,8 @@ const errors = utils.validateForm(formData);
                 <span class="block text-xs mt-1">
                     ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
                     (note.status === 'scheduled' ? 'Em agendamento' : 
-                    (note.status === 'verified_today' ? 'Verificado Hoje' : 'Finalizado'))}
+                    (note.status === 'verified_today' ? 'Verificado Hoje' : 
+                    (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
                 </span>
                 <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
             `;
@@ -884,11 +892,13 @@ const errors = utils.validateForm(formData);
                         <p><strong>Status:</strong> <span class="font-semibold ${
                             note.status === 'open' ? 'text-red-900' :
                             (note.status === 'scheduled' ? 'text-yellow-600' :
-                            (note.status === 'verified_today' ? 'text-purple-600' : 'text-green-600'))
+                            (note.status === 'verified_today' ? 'text-purple-600' :
+                            (note.status === 'special_clause' ? 'text-blue-600' : 'text-green-600')))
                         }">
                             ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
                             (note.status === 'scheduled' ? 'Em agendamento' : 
-                            (note.status === 'verified_today' ? 'Verificado Hoje' : 'Finalizado'))}
+                            (note.status === 'verified_today' ? 'Verificado Hoje' : 
+                            (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
                         </span></p>
                         ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
                         ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
@@ -1133,7 +1143,7 @@ const errors = utils.validateForm(formData);
         }
     }
 
-    deleteComment(noteKey, commentId) {
+deleteComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1158,7 +1168,7 @@ const errors = utils.validateForm(formData);
         }
     }
 
-cancelSchedule(noteKey) {
+    cancelSchedule(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'scheduled') {
@@ -1298,44 +1308,48 @@ cancelSchedule(noteKey) {
     updateUserInfo() {
         const userInfo = document.getElementById('userInfo');
         const loggedUser = document.getElementById('loggedUser');
+        const userIcon = document.getElementById('userIcon');
         if (this.currentUser) {
             loggedUser.textContent = this.currentUser.email;
+            userIcon.src = this.currentUser.email === 'manutencao@madia.com.br' 
+                ? 'url_to_manutencao_image' 
+                : 'url_to_manutencao1_image';
             userInfo.classList.remove('hidden');
         } else {
             userInfo.classList.add('hidden');
         }
     }
 
-updateVerifiedNotes() {
-    try {
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+    updateVerifiedNotes() {
+        try {
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
 
-        Object.values(this.notes).forEach(note => {
-            // Verificar os comentários do dia atual
-            const hasCommentsToday = note.comments && note.comments.some(comment => {
-                const commentDate = new Date(comment.dateTime);
-                const commentDateStr = commentDate.toISOString().split('T')[0];
-                return commentDateStr === todayStr;
+            Object.values(this.notes).forEach(note => {
+                // Verificar os comentários do dia atual
+                const hasCommentsToday = note.comments && note.comments.some(comment => {
+                    const commentDate = new Date(comment.dateTime);
+                    const commentDateStr = commentDate.toISOString().split('T')[0];
+                    return commentDateStr === todayStr;
+                });
+
+                // Se houver comentários de hoje e o status não for 'scheduled', marcar como verified_today
+                if (hasCommentsToday && note.status !== 'scheduled' && note.status !== 'closed') {
+                    note.status = 'verified_today';
+                }
+                // Se não houver comentários hoje e o status for verified_today, voltar para open
+                else if (!hasCommentsToday && note.status === 'verified_today') {
+                    note.status = 'open';
+                }
             });
 
-            // Se houver comentários de hoje e o status não for 'scheduled', marcar como verified_today
-            if (hasCommentsToday && note.status !== 'scheduled' && note.status !== 'closed') {
-                note.status = 'verified_today';
-            }
-            // Se não houver comentários hoje e o status for verified_today, voltar para open
-            else if (!hasCommentsToday && note.status === 'verified_today') {
-                note.status = 'open';
-            }
-        });
-
-        this.saveToLocalStorage();
-        this.renderNotes();
-    } catch (error) {
-        console.error('Erro ao atualizar notas verificadas:', error);
-        utils.showNotification('Erro ao atualizar status das notas', 'error');
+            this.saveToLocalStorage();
+            this.renderNotes();
+        } catch (error) {
+            console.error('Erro ao atualizar notas verificadas:', error);
+            utils.showNotification('Erro ao atualizar status das notas', 'error');
+        }
     }
-}
 
     handleSearch(searchTerm) {
         this.filterNotes();
@@ -1398,7 +1412,8 @@ updateVerifiedNotes() {
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
                 (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
                 (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
-                'bg-red-900 hover:bg-red-700'))
+                (note.status === 'special_clause' ? 'bg-blue-500 hover:bg-blue-700' :
+                'bg-red-900 hover:bg-red-700')))
             } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
         }
     }
@@ -1636,12 +1651,13 @@ updateVerifiedNotes() {
         }
     }
 
-    renderDashboard() {
+renderDashboard() {
         const statusData = {
             open: 0,
             closed: 0,
             scheduled: 0,
-            verified_today: 0
+            verified_today: 0,
+            special_clause: 0
         };
 
         Object.values(this.notes).forEach(note => {
@@ -1657,12 +1673,12 @@ updateVerifiedNotes() {
         this.chart = new Chart(statusChartCtx, {
             type: 'bar',
             data: {
-                labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje'],
+                labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje', 'Cláusula Especial'],
                 datasets: [{
                     label: 'Quantidade de Chamados',
-                    data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today],
-                    backgroundColor: ['#8B0000', '#006400', '#FFD700', '#800080'],
-                    borderColor: ['#5B0000', '#004400', '#CCAC00', '#660066'],
+                    data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today, statusData.special_clause],
+                    backgroundColor: ['#8B0000', '#006400', '#FFD700', '#800080', '#0000FF'],
+                    borderColor: ['#5B0000', '#004400', '#CCAC00', '#660066', '#0000AA'],
                     borderWidth: 1
                 }]
             },
@@ -1689,6 +1705,7 @@ updateVerifiedNotes() {
         document.getElementById('closedCount').textContent = `Fechados: ${statusData.closed}`;
         document.getElementById('scheduledCount').textContent = `Em Agendamento: ${statusData.scheduled}`;
         document.getElementById('verifiedCount').textContent = `Verificados Hoje: ${statusData.verified_today}`;
+        document.getElementById('specialClauseCount').textContent = `Cláusula Especial: ${statusData.special_clause}`;
     }
 
     showMainLayout() {
@@ -1730,6 +1747,11 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
 
     // Simulating a login check. In a real application, you would check against a database or authentication service.
     if (email === 'manutencao@madia.com.br' && password === 'password123') {
+        noteManager.currentUser = { email };
+        noteManager.saveToLocalStorage();
+        noteManager.showMainLayout();
+        utils.showNotification('Login bem-sucedido!', 'success');
+    } else if (email === 'manutencao1@madia.com.br' && password === 'password1234') {
         noteManager.currentUser = { email };
         noteManager.saveToLocalStorage();
         noteManager.showMainLayout();
