@@ -1,288 +1,154 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de Estudos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:wght@400;500;700&family=SF+Pro+Display:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="path/to/tinymce/skins/ui/oxide/skin.min.css">
+    <title>Estudos Ultra Completo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', 'Poppins', 'SF Pro Display', sans-serif;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        .card {
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+        :root {
+            --bg-color: #F8FAFC;
+            --text-color: #121212;
+            --primary-color: #0EA5E9;
         }
 
-        .card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        .dark-mode {
+            --bg-color: #121212;
+            --text-color: #F8FAFC;
         }
 
-        .hidden-buttons .buttons {
-            display: none;
-        }
-
-        .card:hover .buttons {
+        header {
             display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: var(--primary-color);
+            color: #fff;
         }
 
-        .grid-container {
+        main {
+            padding: 20px;
+        }
+
+        #study-form {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        #studies-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 20px;
         }
 
-        @media (max-width: 768px) {
-            .grid-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
+        .study-card {
+            background-color: #fff;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .study-card:hover {
+            transform: scale(1.05);
+        }
+
+        [data-status="concluido"] {
+            border-left: 5px solid green;
+        }
+
+        [data-status="em-andamento"] {
+            border-left: 5px solid orange;
+        }
+
+        [data-status="revisao"] {
+            border-left: 5px solid blue;
         }
     </style>
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 </head>
-<body class="bg-gray-100 min-h-screen">
-
-    <!-- Header -->
-    <header class="bg-white shadow p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-blue-600">Gerenciador de Estudos</h1>
-            <button id="toggleDarkMode" class="bg-blue-500 text-white px-4 py-2 rounded-md">
-                <i class="fas fa-moon"></i> Modo Escuro
-            </button>
-        </div>
+<body>
+    <header>
+        <h1>Estudos Ultra Completo</h1>
+        <button id="toggle-theme">Modo Claro/Escuro</button>
     </header>
-
-    <!-- Main Content -->
-    <main class="container mx-auto p-4">
-        <!-- Barra de Pesquisa -->
-        <div class="flex justify-end mb-4">
-            <input type="text" id="searchInput" placeholder="Buscar estudos..." class="w-full md:w-1/3 p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-        </div>
-
-        <!-- Formulário de Criação de Estudo -->
-        <div class="bg-white p-4 rounded-lg shadow mb-4">
-            <h2 class="text-xl font-semibold mb-4">Novo Estudo</h2>
-            <form id="studyForm" class="space-y-4">
-                <div>
-                    <label for="studyTitle" class="block text-sm font-medium text-gray-700">Título</label>
-                    <input type="text" id="studyTitle" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label for="studyDescription" class="block text-sm font-medium text-gray-700">Descrição</label>
-                    <textarea id="studyDescription" rows="4" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
-                </div>
-                <div>
-                    <label for="studyCategory" class="block text-sm font-medium text-gray-700">Categoria</label>
-                    <input type="text" id="studyCategory" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label for="studyTags" class="block text-sm font-medium text-gray-700">Tags</label>
-                    <input type="text" id="studyTags" placeholder="Separe as tags por vírgula" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label for="studyStatus" class="block text-sm font-medium text-gray-700">Status</label>
-                    <select id="studyStatus" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="Em andamento">Em andamento</option>
-                        <option value="Concluído">Concluído</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="studyColor" class="block text-sm font-medium text-gray-700">Cor</label>
-                    <input type="color" id="studyColor" value="#ffffff" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                </div>
-                <div class="flex justify-end">
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">Salvar</button>
-                </div>
+    <main>
+        <section id="create-study">
+            <h2>Criar Estudo</h2>
+            <form id="study-form">
+                <input type="text" id="title" placeholder="Título" required>
+                <textarea id="content" placeholder="Conteúdo" required></textarea>
+                <input type="text" id="category" placeholder="Categoria" required>
+                <input type="text" id="tags" placeholder="Tags (separadas por vírgula)">
+                <select id="status">
+                    <option value="em-andamento">Em andamento</option>
+                    <option value="concluido">Concluído</option>
+                    <option value="revisao">Revisão</option>
+                </select>
+                <input type="color" id="color" value="#0EA5E9">
+                <button type="submit">Salvar Estudo</button>
             </form>
-        </div>
-
-        <!-- Container de Estudos -->
-        <div class="grid-container" id="studiesContainer">
-            <!-- Cards serão adicionados dinamicamente aqui -->
-        </div>
+        </section>
+        <section id="studies">
+            <h2>Meus Estudos</h2>
+            <div id="studies-container" class="masonry-grid"></div>
+        </section>
     </main>
-
-    <!-- Modal de Visualização -->
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <h2 id="modalTitle" class="text-2xl font-bold mb-4"></h2>
-            <div id="modalDescription" class="mb-4"></div>
-            <div class="mb-4">
-                <span id="modalCategory" class="inline-block bg-blue-200 text-blue-800 px-3 py-1 rounded-full mr-2"></span>
-                <span id="modalTags" class="inline-block bg-green-200 text-green-800 px-3 py-1 rounded-full mr-2"></span>
-                <span id="modalStatus" class="inline-block bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full"></span>
-            </div>
-            <div class="flex justify-end space-x-2">
-                <button id="editButton" class="bg-yellow-500 text-white px-4 py-2 rounded-md">Editar</button>
-                <button id="deleteButton" class="bg-red-500 text-white px-4 py-2 rounded-md">Excluir</button>
-                <button id="closeModal" class="bg-gray-500 text-white px-4 py-2 rounded-md">Fechar</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Estado da aplicação
-        let studies = JSON.parse(localStorage.getItem('studies')) || [];
+        document.addEventListener('DOMContentLoaded', () => {
+            const studyForm = document.getElementById('study-form');
+            const studiesContainer = document.getElementById('studies-container');
+            const toggleThemeBtn = document.getElementById('toggle-theme');
+            const studies = JSON.parse(localStorage.getItem('studies')) || [];
 
-        // Inicialização do TinyMCE
-        tinymce.init({
-            selector: '#studyDescription',
-            plugins: 'lists link',
-            toolbar: 'undo redo | bold italic | bullist numlist | link',
-            menubar: false
-        });
-
-        // Funções auxiliares
-        function saveToLocalStorage() {
-            localStorage.setItem('studies', JSON.stringify(studies));
-        }
-
-        function renderStudies() {
-            const container = document.getElementById('studiesContainer');
-            container.innerHTML = '';
-
-            studies.forEach((study, index) => {
-                const studyEl = document.createElement('div');
-                studyEl.className = 'card p-4';
-                studyEl.style.backgroundColor = study.color;
-                studyEl.innerHTML = `
-                    <h3 class="text-lg font-semibold mb-2">${study.title}</h3>
-                    <div class="text-sm text-gray-600 mb-2">${study.category}</div>
-                    <div class="text-sm text-gray-600">${study.tags.join(', ')}</div>
-                    <div class="buttons mt-2">
-                        <button onclick="viewStudy(${index})" class="text-blue-500">Ver</button>
-                        <button onclick="editStudy(${index})" class="text-yellow-500">Editar</button>
-                        <button onclick="deleteStudy(${index})" class="text-red-500">Excluir</button>
-                    </div>
-                `;
-                container.appendChild(studyEl);
-            });
-        }
-
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        function addStudy(event) {
-            event.preventDefault();
-
-            const title = document.getElementById('studyTitle').value.trim();
-            const description = tinymce.get('studyDescription').getContent();
-            const category = document.getElementById('studyCategory').value.trim();
-            const tags = document.getElementById('studyTags').value.split(',').map(tag => tag.trim());
-            const status = document.getElementById('studyStatus').value;
-            const color = document.getElementById('studyColor').value;
-
-            if (!title || !description || !category) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-
-            const newStudy = {
-                title,
-                description,
-                category,
-                tags,
-                status,
-                color,
-                created: new Date().toISOString()
+            const renderStudies = () => {
+                studiesContainer.innerHTML = '';
+                studies.forEach(study => {
+                    const studyCard = document.createElement('div');
+                    studyCard.className = 'study-card';
+                    studyCard.style.backgroundColor = study.color;
+                    studyCard.dataset.status = study.status;
+                    studyCard.innerHTML = `
+                        <h3>${study.title}</h3>
+                        <p>${study.content}</p>
+                        <p><strong>Categoria:</strong> ${study.category}</p>
+                        <p><strong>Tags:</strong> ${study.tags.join(', ')}</p>
+                        <p><strong>Status:</strong> ${study.status}</p>
+                    `;
+                    studiesContainer.appendChild(studyCard);
+                });
             };
 
-            studies.unshift(newStudy); // Adiciona o novo estudo no início da lista
-            saveToLocalStorage();
-            renderStudies();
-            document.getElementById('studyForm').reset();
-            tinymce.get('studyDescription').setContent('');
-            showNotification('Estudo salvo com sucesso!');
-        }
-
-        function viewStudy(index) {
-            const study = studies[index];
-            document.getElementById('modalTitle').innerText = study.title;
-            document.getElementById('modalDescription').innerHTML = study.description;
-            document.getElementById('modalCategory').innerText = study.category;
-            document.getElementById('modalTags').innerText = study.tags.join(', ');
-            document.getElementById('modalStatus').innerText = study.status;
-            document.getElementById('modal').style.display = 'flex';
-            document.getElementById('editButton').onclick = () => editStudy(index);
-            document.getElementById('deleteButton').onclick = () => deleteStudy(index);
-        }
-
-        function editStudy(index) {
-            const study = studies[index];
-            document.getElementById('studyTitle').value = study.title;
-            tinymce.get('studyDescription').setContent(study.description);
-            document.getElementById('studyCategory').value = study.category;
-            document.getElementById('studyTags').value = study.tags.join(', ');
-            document.getElementById('studyStatus').value = study.status;
-            document.getElementById('studyColor').value = study.color;
-
-            studies.splice(index, 1);
-            saveToLocalStorage();
-            renderStudies();
-            document.getElementById('modal').style.display = 'none';
-            showNotification('Estudo carregado para edição.');
-        }
-
-        function deleteStudy(index) {
-            if (confirm('Tem certeza que deseja excluir este estudo?')) {
-                studies.splice(index, 1);
-                saveToLocalStorage();
+            studyForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const newStudy = {
+                    title: document.getElementById('title').value,
+                    content: document.getElementById('content').value,
+                    category: document.getElementById('category').value,
+                    tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()),
+                    status: document.getElementById('status').value,
+                    color: document.getElementById('color').value,
+                };
+                studies.push(newStudy);
+                localStorage.setItem('studies', JSON.stringify(studies));
                 renderStudies();
-                document.getElementById('modal').style.display = 'none';
-                showNotification('Estudo excluído com sucesso!', 'error');
-            }
-        }
-
-        // Event Listeners
-        document.getElementById('studyForm').addEventListener('submit', addStudy);
-        document.getElementById('closeModal').addEventListener('click', () => {
-            document.getElementById('modal').style.display = 'none';
-        });
-
-        // Modo Escuro
-        document.getElementById('toggleDarkMode').addEventListener('click', () => {
-            document.body.classList.toggle('dark');
-            document.querySelectorAll('.card').forEach(card => {
-                card.classList.toggle('dark');
+                studyForm.reset();
             });
-        });
 
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', renderStudies);
+            toggleThemeBtn.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+            });
+
+            renderStudies();
+        });
     </script>
 </body>
 </html>
