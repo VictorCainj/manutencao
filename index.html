@@ -66,8 +66,8 @@
         }
 
         .user-icon {
-            width: 24px;
-            height: 24px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             margin-right: 8px;
         }
@@ -121,7 +121,8 @@
 
         <!-- User Info -->
         <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden">
-            Logado: <img id="userIcon" class="user-icon" src="" alt="User Icon"><span id="loggedUser"></span>
+            <img id="userIcon" class="user-icon" src="https://i.imgur.com/kooxTdN.jpeg" alt="User Icon">
+            Logado: <span id="loggedUser"></span>
         </div>
 
         <!-- Main Controls -->
@@ -149,6 +150,7 @@
 
         <!-- Dashboard Section -->
         <div id="dashboard" class="w-full max-w-2xl mb-6 text-center bg-transparent p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold mb-4 text-black">Dashboard de Chamados</h2>
             <div class="relative w-full h-96 mx-auto">
                 <canvas id="statusChart" style="background: transparent;"></canvas>
             </div>
@@ -275,7 +277,7 @@
 
         <div class="my-4 border-t-2 border-gray-300"></div>
 
-        <!-- Note Details Modal -->
+<!-- Note Details Modal -->
         <div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duração-300 z-40 hidden">
             <div class="bg-white rounded-lg shadow-lg transform transition-all duração-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-end">
@@ -315,7 +317,7 @@
                         </div>
                     </div>
 
-<!-- Coluna da direita - Comentários -->
+                    <!-- Coluna da direita - Comentários -->
                     <div class="space-y-4">
                         <div class="bg-gray-50 p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-4 text-black">Comentários</h3>
@@ -375,7 +377,7 @@
         <!-- Pagination Controls -->
         <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
             <button id="prevPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-left"></i></button>
-            <button id="nextPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-right"></i></button>
+            <button id="nextPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
 </div>
@@ -663,7 +665,7 @@ class NoteManager {
             }
         });
 
-        document.getElementById('reopenNoteBtn').addEventListener('click', () => {
+document.getElementById('reopenNoteBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
                 const noteKey = document.getElementById('noteDetailsContent')
                     .querySelector('p strong + span').textContent;
@@ -769,7 +771,7 @@ class NoteManager {
         });
     }
 
-handleFormSubmit() {
+    handleFormSubmit() {
         const formData = {
             contractNumber: document.getElementById('contractNumber').value,
             locator: document.getElementById('locator').value,
@@ -922,10 +924,7 @@ handleFormSubmit() {
                         <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
                         <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
                         <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
-                        <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span>
-                            <button class="ml-2 text-blue-500 hover:text-blue-700" onclick="navigator.clipboard.writeText('${utils.sanitizeInput(note.problem)}')">
-                                <i class="fas fa-copy"></i> Copiar
-                            </button></p>
+                        <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
                         <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
                             <button class="ml-2 text-blue-500 hover:text-blue-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
                                 <i class="fas fa-search"></i>
@@ -1095,7 +1094,7 @@ handleFormSubmit() {
         }
     }
 
-    editComment(noteKey, commentId) {
+editComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1184,7 +1183,7 @@ handleFormSubmit() {
         }
     }
 
-deleteComment(noteKey, commentId) {
+    deleteComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1381,9 +1380,9 @@ deleteComment(noteKey, commentId) {
         if (email === 'manutencao@madia.com.br') {
             return 'https://i.imgur.com/kooxTdN.jpeg';
         } else if (email === 'manutencao1@madia.com.br') {
-            return 'https://example.com/user2-icon.png';
+            return 'https://i.imgur.com/kooxTdN.jpeg';
         }
-        return 'https://example.com/default-icon.png';
+        return 'https://i.imgur.com/kooxTdN.jpeg';
     }
 
     updateVerifiedNotes() {
@@ -1566,7 +1565,7 @@ deleteComment(noteKey, commentId) {
         });
     }
 
-    handleFileImport(event) {
+handleFileImport(event) {
         try {
             const file = event.target.files[0];
             if (!file) {
@@ -1717,7 +1716,7 @@ deleteComment(noteKey, commentId) {
         }
     }
 
-renderDashboard() {
+    renderDashboard() {
         const statusData = {
             open: 0,
             closed: 0,
