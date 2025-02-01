@@ -29,7 +29,7 @@
             --details-text-color: #000000;
             --comment-background-color: #FFFFFF;
             --comment-text-color: #000000;
-            --comment-border-color: #333333;
+            --comment-border-color: #CCCCCC; /* Modernized border color */
         }
 
         body {
@@ -287,7 +287,7 @@
         .comment {
             background-color: var(--comment-background-color);
             color: var(--comment-text-color);
-            border: 1px solid var(--comment-border-color);
+            border: 1px solid var(--comment-border-color); /* Modernized border */
             padding: 10px;
             border-radius: 4px;
             margin-bottom: 10px;
@@ -302,6 +302,20 @@
             font-size: 0.85rem;
             color: var(--secondary-text-color);
             margin-bottom: 10px;
+        }
+
+        /* Estilo para a área de digitação de comentários */
+        #commentText {
+            background-color: #FFFFFF; /* Fundo branco */
+            color: #000000; /* Texto preto */
+            border: 1px solid var(--comment-border-color); /* Modernized border */
+        }
+
+        /* Estilo para a seleção de módulos */
+        #module, #moduleDetail {
+            background-color: #FFFFFF; /* Fundo branco */
+            color: #000000; /* Texto preto */
+            border: 1px solid var(--comment-border-color); /* Modernized border */
         }
     </style>
 </head>
@@ -429,7 +443,7 @@
                         </select>
                     </div>
 
-                    <div class="flex justify-end space-x-2">
+<div class="flex justify-end space-x-2">
                         <button type="button" id="cancelNoteBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
@@ -443,7 +457,8 @@
 
         <div class="my-4 border-t-2 border-gray-300"></div>
 
-<div id="scheduleModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+        <!-- Schedule Creation Modal -->
+        <div id="scheduleModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
             <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md">
                 <h2 class="text-xl font-semibold mb-4 text-center">Criar Agendamento</h2>
                 <form id="scheduleForm" class="space-y-4">
@@ -470,10 +485,10 @@
                         <textarea id="scheduleDescription" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
                     </div>
                     <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancelScheduleModalBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
+                        <button type="button" id="cancelScheduleModalBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
-                        <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
+                        <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
                             <i class="fas fa-save mr-2"></i>Salvar
                         </button>
                     </div>
@@ -484,10 +499,10 @@
         <div class="my-4 border-t-2 border-gray-300"></div>
 
         <!-- Note Details Modal -->
-        <div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duração-300 z-40 hidden">
-            <div class="details-container transform transition-all duração-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+        <div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+            <div class="details-container transform transition-all duration-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-end">
-                    <button type="button" id="closeDetailsBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
+                    <button type="button" id="closeDetailsBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
                         <i class="fas fa-times mr-2"></i>Fechar
                     </button>
                 </div>
@@ -499,25 +514,25 @@
                         <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative text-black"></div>
 
                         <div class="flex space-x-2">
-                            <button type="button" id="copyDetailsBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
+                            <button type="button" id="copyDetailsBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 flex-1">
                                 <i class="fas fa-copy mr-2"></i>Copiar
                             </button>
-                            <button type="button" id="downloadContractBtn" class="bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
+                            <button type="button" id="downloadContractBtn" class="bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 flex-1">
                                 <i class="fas fa-file-download mr-2"></i>Baixar
                             </button>
-                            <button type="button" id="cancelScheduleBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
+                            <button type="button" id="cancelScheduleBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 flex-1">
                                 <i class="fas fa-calendar-times mr-2"></i>Cancelar Agendamento
                             </button>
-                            <button type="button" id="deleteNoteBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
+                            <button type="button" id="deleteNoteBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 flex-1">
                                 <i class="fas fa-trash mr-2"></i>Excluir
                             </button>
-                            <button type="button" id="finalizeNoteBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1 hidden">
+                            <button type="button" id="finalizeNoteBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 flex-1 hidden">
                                 <i class="fas fa-check mr-2"></i>Finalizar
                             </button>
-                            <button type="button" id="reopenNoteBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1 hidden">
+                            <button type="button" id="reopenNoteBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 flex-1 hidden">
                                 <i class="fas fa-undo mr-2"></i>Reabrir
                             </button>
-                            <button type="button" id="specialClauseBtn" class="bg-orange-500 hover:bg-orange-700 focus:ring-orange-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
+                            <button type="button" id="specialClauseBtn" class="bg-orange-500 hover:bg-orange-700 focus:ring-orange-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 flex-1">
                                 <i class="fas fa-star mr-2"></i>Transformar em Cláusula Especial
                             </button>
                         </div>
@@ -539,7 +554,7 @@
                             <h3 class="text-lg font-semibold mb-4">Comentários</h3>
                             <form id="commentForm" class="mb-4">
                                 <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
-                                <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 w-full mt-2">
+                                <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 w-full mt-2">
                                     <i class="fas fa-comment mr-2"></i>Adicionar Comentário
                                 </button>
                             </form>
@@ -594,7 +609,7 @@
         <!-- Pagination Controls -->
         <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
             <button id="prevPageBtn" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-left"></i></button>
-            <button id="nextPageBtn" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200"><i class="fas fa-chevron-right"></i></button>
+            <button id="nextPageBtn" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
 </div>
@@ -729,7 +744,7 @@ class NoteManager {
         this.saveToLocalStorage();
     }
 
-    initializeEventListeners() {
+initializeEventListeners() {
         // Event Listeners para os botões principais
         document.getElementById('createNoteBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
@@ -766,7 +781,7 @@ class NoteManager {
             document.getElementById('scheduleForm').reset();
         });
 
-document.getElementById('scheduleForm').addEventListener('submit', (e) => {
+        document.getElementById('scheduleForm').addEventListener('submit', (e) => {
             e.preventDefault();
             if (this.isAuthenticated()) {
                 this.handleScheduleFormSubmit();
@@ -1184,7 +1199,7 @@ document.getElementById('scheduleForm').addEventListener('submit', (e) => {
                 reopenNoteBtn.classList.add('hidden');
             }
 
-            // Mostrar/ocultar botão "Cancelar Agendamento" com base no status
+// Mostrar/ocultar botão "Cancelar Agendamento" com base no status
             const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
             if (note.status === 'scheduled') {
                 cancelScheduleBtn.style.display = 'flex';
@@ -1203,7 +1218,7 @@ document.getElementById('scheduleForm').addEventListener('submit', (e) => {
         }
     }
 
-renderComments(noteKey) {
+    renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -1630,6 +1645,121 @@ renderComments(noteKey) {
                 }
             });
 
+// Handle form submit
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newText = textarea.value.trim();
+
+                if (newText) {
+                    note.comments[commentIndex].text = utils.sanitizeInput(newText);
+                    note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
+                    // Update status to 'verified_today' only if the current status is not 'scheduled'
+                    if (note.status !== 'scheduled') {
+                        note.status = 'verified_today';
+                    }
+                    this.saveToLocalStorage();
+                    this.renderComments(noteKey);
+                    this.updateNoteButton(noteKey);
+                    document.body.removeChild(editModal);
+                    utils.showNotification('Comentário atualizado com sucesso!', 'success');
+                } else {
+                    utils.showNotification('O comentário não pode estar vazio.', 'error');
+                }
+            });
+
+            // Focus on textarea
+            textarea.focus();
+        } catch (error) {
+            console.error('Erro ao editar comentário:', error);
+            utils.showNotification('Erro ao editar comentário', 'error');
+        }
+    }
+
+    deleteComment(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+                return;
+            }
+
+            const commentIndex = note.comments.findIndex(c => c.id === commentId);
+            if (commentIndex === -1) {
+                utils.showNotification('Comentário não encontrado.', 'error');
+                return;
+            }
+
+            note.comments.splice(commentIndex, 1);
+            this.saveToLocalStorage();
+            this.renderComments(noteKey);
+            this.updateNoteButton(noteKey);
+            utils.showNotification('Comentário excluído com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao excluir comentário:', error);
+            utils.showNotification('Erro ao excluir comentário', 'error');
+        }
+    }
+
+    editSubcomment(noteKey, commentId, subcommentId) {
+        try {
+            const note = this.notes[noteKey];
+            const comment = note.comments.find(c => c.id === commentId);
+            if (!comment || !Array.isArray(comment.subcomments)) {
+                comment.subcomments = [];
+                return;
+            }
+
+            const subcommentIndex = comment.subcomments.findIndex(sc => sc.id === subcommentId);
+            if (subcommentIndex === -1) {
+                utils.showNotification('Subcomentário não encontrado.', 'error');
+                return;
+            }
+
+            // Create edit modal
+            const editModal = document.createElement('div');
+            editModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            editModal.innerHTML = `
+                <div class="bg-dark-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+                    <h3 class="text-lg font-semibold mb-4">Editar Subcomentário</h3>
+                    <form id="editSubcommentForm" class="space-y-4">
+                        <textarea 
+                            id="editSubcommentText" 
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
+                            required
+                        >${comment.subcomments[subcommentIndex].text}</textarea>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancelEditSubcomment" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
+                                <i class="fas fa-times mr-2"></i>Cancelar
+                            </button>
+                            <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
+                                <i class="fas fa-save mr-2"></i>Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            // Add modal to the document
+            document.body.appendChild(editModal);
+
+            // Get form elements
+            const form = document.getElementById('editSubcommentForm');
+            const cancelBtn = document.getElementById('cancelEditSubcomment');
+            const textarea = document.getElementById('editSubcommentText');
+
+            // Handle cancel
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(editModal);
+            });
+
+            // Handle ESC key
+            document.addEventListener('keydown', function escListener(e) {
+                if (e.key === 'Escape') {
+                    document.body.removeChild(editModal);
+                    document.removeEventListener('keydown', escListener);
+                }
+            });
+
             // Handle form submit
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -1655,7 +1785,7 @@ renderComments(noteKey) {
         }
     }
 
-deleteSubcomment(noteKey, commentId, subcommentId) {
+    deleteSubcomment(noteKey, commentId, subcommentId) {
         try {
             const note = this.notes[noteKey];
             const comment = note.comments.find(c => c.id === commentId);
@@ -2026,7 +2156,7 @@ deleteSubcomment(noteKey, commentId, subcommentId) {
         });
     }
 
-    handleFileImport(event) {
+handleFileImport(event) {
         try {
             const file = event.target.files[0];
             if (!file) {
@@ -2179,7 +2309,7 @@ deleteSubcomment(noteKey, commentId, subcommentId) {
         }
     }
 
-renderDashboard() {
+    renderDashboard() {
         const statusData = {
             open: 0,
             closed: 0,
