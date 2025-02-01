@@ -2018,6 +2018,7 @@ renderDashboard() {
 }
 
 // Inicializa a aplicação
+// Inicializa a aplicação
 const noteManager = new NoteManager();
 
 // Atualiza o status das notas verificadas a cada minuto
@@ -2059,6 +2060,29 @@ document.getElementById('searchInput').addEventListener('input', () => {
             });
         } else {
             utils.showNotification('Nenhum contrato encontrado.', 'alert');
+        }
+    }
+});
+
+// Event listeners for pagination buttons
+document.getElementById('prevPageBtn').addEventListener('click', () => {
+    if (noteManager.isAuthenticated()) {
+        noteManager.prevPage();
+    }
+});
+document.getElementById('nextPageBtn').addEventListener('click', () => {
+    if (noteManager.isAuthenticated()) {
+        noteManager.nextPage();
+    }
+});
+
+// Event listener for keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (noteManager.isAuthenticated()) {
+        if (e.key === 'ArrowLeft') {
+            noteManager.prevPage();
+        } else if (e.key === 'ArrowRight') {
+            noteManager.nextPage();
         }
     }
 });
