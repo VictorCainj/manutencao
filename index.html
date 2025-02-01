@@ -74,19 +74,19 @@
 
         /* Module colors */
         .module-criacao {
-            background-color: #1e90ff; /* DodgerBlue */
+            color: #1e90ff; /* DodgerBlue */
         }
         .module-analise {
-            background-color: #32cd32; /* LimeGreen */
+            color: #32cd32; /* LimeGreen */
         }
         .module-negociacao {
-            background-color: #ffa500; /* Orange */
+            color: #ffa500; /* Orange */
         }
         .module-execucao {
-            background-color: #ff1493; /* DeepPink */
+            color: #ff1493; /* DeepPink */
         }
         .module-finalizacao {
-            background-color: #8b4513; /* SaddleBrown */
+            color: #8b4513; /* SaddleBrown */
         }
 
         .module-status {
@@ -313,7 +313,7 @@
 
         <div class="my-4 border-t-2 border-gray-300"></div>
 
-<!-- Note Details Modal -->
+        <!-- Note Details Modal -->
         <div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duração-300 z-40 hidden">
             <div class="bg-white rounded-lg shadow-lg transform transition-all duração-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-end">
@@ -324,7 +324,7 @@
                 <h2 class="text-2xl font-semibold mb-4 text-center text-black">Detalhes da Anotação</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Coluna da esquerda - Detalhes -->
+<!-- Coluna da esquerda - Detalhes -->
                     <div class="space-y-4">
                         <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative"></div>
                         
@@ -686,7 +686,7 @@ class NoteManager {
             this.toggleModal('noteDetailsModal');
         });
 
-// Event Listeners para ações nos detalhes
+        // Event Listeners para ações nos detalhes
         document.getElementById('copyDetailsBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
                 const noteKey = document.getElementById('noteDetailsContent')
@@ -719,7 +719,7 @@ class NoteManager {
             }
         });
 
-        document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
+document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
                 const noteKey = document.getElementById('noteDetailsContent')
                     .querySelector('p strong + span').textContent;
@@ -957,7 +957,7 @@ class NoteManager {
                 (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
                 (note.status === 'special_clause' ? 'status-clausula-especial' :
                 'bg-red-900 hover:bg-red-700')))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200 module-${note.module.toLowerCase()}`;
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
 
             const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
@@ -1070,7 +1070,7 @@ class NoteManager {
         }
     }
 
-renderComments(noteKey) {
+    renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -1140,7 +1140,7 @@ renderComments(noteKey) {
                 this.renderSubcomments(noteKey, comment.id);
             });
 
-            // Mostrar/ocultar botão "Mostrar Mais Comentários"
+// Mostrar/ocultar botão "Mostrar Mais Comentários"
             const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
             const backToTopBtn = document.getElementById('backToTopBtn');
             if (end >= note.comments.length) {
@@ -1530,7 +1530,7 @@ renderComments(noteKey) {
         }
     }
 
-cancelSchedule(noteKey) {
+    cancelSchedule(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'scheduled') {
@@ -1606,7 +1606,7 @@ cancelSchedule(noteKey) {
         }
     }
 
-    transformToSpecialClause(noteKey) {
+transformToSpecialClause(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status !== 'special_clause') {
@@ -1804,7 +1804,7 @@ cancelSchedule(noteKey) {
                 (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
                 (note.status === 'special_clause' ? 'status-clausula-especial' :
                 'bg-red-900 hover:bg-red-700')))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200 module-${note.module.toLowerCase()}`;
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
         }
     }
 
@@ -2043,7 +2043,7 @@ cancelSchedule(noteKey) {
         }
     }
 
-renderDashboard() {
+    renderDashboard() {
         const statusData = {
             open: 0,
             closed: 0,
@@ -2138,12 +2138,7 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
     const password = document.getElementById('loginPassword').value;
 
     // Simulating a login check. In a real application, you would check against a database or authentication service.
-    if (email === 'manutencao@madia.com.br' && password === 'password123') {
-        noteManager.currentUser = { email };
-        noteManager.saveToLocalStorage();
-        noteManager.showMainLayout();
-        utils.showNotification('Login bem-sucedido!', 'success');
-    } else if (email === 'manutencao1@madia.com.br' && password === 'password123') {
+    if ((email === 'manutencao@madia.com.br' && password === 'password123') || (email === 'manutencao1@madia.com.br' && password === 'password123')) {
         noteManager.currentUser = { email };
         noteManager.saveToLocalStorage();
         noteManager.showMainLayout();
