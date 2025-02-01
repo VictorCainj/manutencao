@@ -186,6 +186,16 @@
             });
         }
 
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 px-4 py-2 rounded-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
         function addStudy(event) {
             event.preventDefault();
 
@@ -216,6 +226,7 @@
             renderStudies();
             document.getElementById('studyForm').reset();
             tinymce.get('studyDescription').setContent('');
+            showNotification('Estudo salvo com sucesso!');
         }
 
         function viewStudy(index) {
@@ -242,6 +253,8 @@
             studies.splice(index, 1);
             saveToLocalStorage();
             renderStudies();
+            document.getElementById('modal').style.display = 'none';
+            showNotification('Estudo carregado para edição.');
         }
 
         function deleteStudy(index) {
@@ -250,6 +263,7 @@
                 saveToLocalStorage();
                 renderStudies();
                 document.getElementById('modal').style.display = 'none';
+                showNotification('Estudo excluído com sucesso!', 'error');
             }
         }
 
