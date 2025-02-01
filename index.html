@@ -40,12 +40,12 @@
         }
 
         .status-clausula-especial {
-            background-color: #ff4500;
+            background-color: #d900ff; /* Roxo Shock */
             color: white;
         }
 
         .status-clausula-especial:hover {
-            background-color: #e03e00;
+            background-color: #b800db; /* Roxo Shock mais escuro */
         }
 
         .notification-success {
@@ -87,6 +87,14 @@
         }
         .module-finalizacao {
             background-color: #8b4513; /* SaddleBrown */
+        }
+
+        .module-status {
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: white;
         }
     </style>
 </head>
@@ -408,6 +416,16 @@
                     <option value="special_clause">Cláusula Especial</option>
                 </select>
             </div>
+            <div>
+                <select id="moduleFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
+                    <option value="all">Todos os Módulos</option>
+                    <option value="Criacao">Criação</option>
+                    <option value="Analise">Análise</option>
+                    <option value="Negociacao">Negociação</option>
+                    <option value="Execucao">Execução</option>
+                    <option value="Finalizacao">Finalização</option>
+                </select>
+            </div>
         </div>
 
         <div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
@@ -613,6 +631,12 @@ class NoteManager {
         });
 
         document.getElementById('dateFilter').addEventListener('change', () => {
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
+        });
+
+        document.getElementById('moduleFilter').addEventListener('change', () => {
             if (this.isAuthenticated()) {
                 this.renderNotes();
             }
@@ -910,6 +934,12 @@ class NoteManager {
             filteredNotes = notesArray.filter(note => note.status === statusFilter);
         }
 
+        // Filter notes based on module
+        const moduleFilter = document.getElementById('moduleFilter').value;
+        if (moduleFilter !== 'all') {
+            filteredNotes = filteredNotes.filter(note => note.module === moduleFilter);
+        }
+
         // Apply search results if provided
         if (searchResults) {
             filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
@@ -932,10 +962,10 @@ class NoteManager {
             const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
             noteButton.innerHTML = `
+                <span class="module-status module-${note.module.toLowerCase()}">${note.module}</span>
                 <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
                 <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
                 <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-                <span class="block text-sm">Módulo: ${utils.sanitizeInput(note.module)}</span>
                 <span class="block text-xs mt-1">${displayDate}</span>
                 <span class="block text-xs mt-1">
                     ${note.status === 'open' ? `Aberto` : 
@@ -1040,7 +1070,7 @@ class NoteManager {
         }
     }
 
-    renderComments(noteKey) {
+renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -1085,7 +1115,7 @@ class NoteManager {
 
                 commentsContainer.appendChild(commentElement);
 
-// Add click event listener for editing comments
+                // Add click event listener for editing comments
                 document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
                     if (this.isAuthenticated()) {
                         this.editComment(noteKey, comment.id);
@@ -1500,7 +1530,7 @@ class NoteManager {
         }
     }
 
-    cancelSchedule(noteKey) {
+cancelSchedule(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'scheduled') {
@@ -1557,7 +1587,7 @@ class NoteManager {
         }
     }
 
-reopenNote(noteKey) {
+    reopenNote(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'closed') {
@@ -2013,7 +2043,7 @@ reopenNote(noteKey) {
         }
     }
 
-    renderDashboard() {
+renderDashboard() {
         const statusData = {
             open: 0,
             closed: 0,
@@ -2039,8 +2069,8 @@ reopenNote(noteKey) {
                 datasets: [{
                     label: 'Quantidade de Chamados',
                     data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today, statusData.special_clause],
-                    backgroundColor: ['#8B0000', '#006400', '#FFD700', '#800080', '#FF4500'],
-                    borderColor: ['#5B0000', '#004400', '#CCAC00', '#660066', '#E03E00'],
+                    backgroundColor: ['#8B0000', '#006400', '#FFD700', '#800080', '#D900FF'],
+                    borderColor: ['#5B0000', '#004400', '#CCAC00', '#660066', '#B800DB'],
                     borderWidth: 1
                 }]
             },
@@ -2077,7 +2107,7 @@ reopenNote(noteKey) {
         this.renderDashboard(); // Ensure the dashboard is rendered when showing the main layout
     }
 
-showLogin() {
+    showLogin() {
         this.closeAllModals();
         document.getElementById('loginModal').classList.remove('hidden');
         document.getElementById('logoSection').classList.add('hidden');
