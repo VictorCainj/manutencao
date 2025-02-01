@@ -122,7 +122,7 @@
         <!-- User Info -->
         <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden">
             <img id="userIcon" class="user-icon" src="https://i.imgur.com/kooxTdN.jpeg" alt="User Icon">
-            Logado: <span id="loggedUser"></span>
+            <span id="loggedUser"></span>
         </div>
 
         <!-- Main Controls -->
@@ -264,7 +264,7 @@
                     </div>
 
                     <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancelScheduleModalBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                        <button type="button" id="cancelScheduleModalBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
                         <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
@@ -728,6 +728,19 @@ document.getElementById('reopenNoteBtn').addEventListener('click', () => {
                         .querySelector('p strong + span').textContent;
                     this.deleteNote(noteKey);
                 }
+            }
+        });
+
+        // Event listeners for pagination buttons
+        document.getElementById('prevPageBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.prevPage();
+            }
+        });
+
+        document.getElementById('nextPageBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.nextPage();
             }
         });
     }
@@ -1368,7 +1381,7 @@ editComment(noteKey, commentId) {
         const loggedUser = document.getElementById('loggedUser');
         const userIcon = document.getElementById('userIcon');
         if (this.currentUser) {
-            loggedUser.textContent = this.currentUser.email;
+            loggedUser.textContent = `Logado: ${this.currentUser.email}`;
             userIcon.src = this.getUserIcon(this.currentUser.email);
             userInfo.classList.remove('hidden');
         } else {
