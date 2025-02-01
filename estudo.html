@@ -1,158 +1,2135 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estudos Ultra Completo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <title>Sistema de Estudo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="icon" href="https://i.imgur.com/78ZTh4S.png" type="image/x-icon">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
         :root {
-            --bg-color: #F8FAFC;
-            --text-color: #121212;
-            --primary-color: #0EA5E9;
+            --primary-color: #1E90FF;
+            --secondary-color: #32CD32;
+            --alert-color: #FFD700;
+            --error-color: #FF6347;
+            --background-color: #F0F2F5;
+            --text-color: #333;
+            --border-color: #DDD;
         }
 
-        .dark-mode {
-            --bg-color: #121212;
-            --text-color: #F8FAFC;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
         }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            padding: 20px;
+        header, footer {
             background-color: var(--primary-color);
-            color: #fff;
+            color: white;
+            text-align: center;
+            padding: 1rem;
         }
 
-        main {
-            padding: 20px;
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
-        #study-form {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
+        .btn-primary:hover {
+            background-color: #1C7ED6;
         }
 
-        #studies-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
 
-        .study-card {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
+        .btn-secondary:hover {
+            background-color: #2E8B57;
         }
 
-        .study-card:hover {
-            transform: scale(1.05);
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
         }
 
-        [data-status="concluido"] {
-            border-left: 5px solid green;
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
         }
 
-        [data-status="em-andamento"] {
-            border-left: 5px solid orange;
+        .hidden {
+            display: none;
         }
 
-        [data-status="revisao"] {
-            border-left: 5px solid blue;
+        .notification {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .notification-success {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .notification-alert {
+            background-color: var(--alert-color);
+            color: white;
+        }
+
+        .notification-error {
+            background-color: var(--error-color);
+            color: white;
         }
     </style>
 </head>
-<body>
-    <header>
-        <h1>Estudos Ultra Completo</h1>
-        <button id="toggle-theme">Modo Claro/Escuro</button>
-    </header>
-    <main>
-        <section id="create-study">
-            <h2>Criar Estudo</h2>
-            <form id="study-form">
-                <input type="text" id="title" placeholder="Título" required>
-                <textarea id="content" placeholder="Conteúdo" required></textarea>
-                <input type="text" id="category" placeholder="Categoria" required>
-                <input type="text" id="tags" placeholder="Tags (separadas por vírgula)">
-                <select id="status">
-                    <option value="em-andamento">Em andamento</option>
-                    <option value="concluido">Concluído</option>
-                    <option value="revisao">Revisão</option>
+<body class="flex flex-col min-h-screen bg-gray-100 text-gray-900">
+
+<!-- Header -->
+<header class="bg-blue-500 text-white p-4">
+    <h1 class="text-2xl text-center">Sistema de Estudo</h1>
+</header>
+
+<!-- Main content area -->
+<main class="flex-1 container mx-auto p-4">
+    <!-- Notification area -->
+    <div id="notificationArea"></div>
+
+    <!-- User Info -->
+    <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden flex items-center">
+        <img id="userIcon" class="user-icon" src="https://i.imgur.com/kooxTdN.jpeg" alt="User Icon">
+        <span id="loggedUser" class="ml-2"></span>
+    </div>
+
+    <!-- Main Controls -->
+    <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
+        <button id="createNoteBtn" class="btn-primary" aria-label="Criar Anotação">
+            <i class="fas fa-plus mr-2"></i>Criar anotação
+        </button>
+        <button id="createScheduleBtn" class="btn-primary" aria-label="Criar Revisão">
+            <i class="fas fa-calendar-alt mr-2"></i>Criar Revisão
+        </button>
+        <button id="importNotesBtn" class="btn-secondary" aria-label="Importar Anotações">
+            <i class="fas fa-file-import mr-2"></i>Importar Anotações
+        </button>
+        <button id="downloadNotesBtn" class="btn-secondary" aria-label="Baixar Todas as Anotações">
+            <i class="fas fa-download mr-2"></i>Baixar Todas as Anotações
+        </button>
+        <button id="logoutBtn" class="btn-secondary" aria-label="Logout">
+            <i class="fas fa-sign-out-alt mr-2"></i>Deslogar
+        </button>
+        <input type="file" id="fileInput" class="hidden" accept=".json">
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="w-full max-w-2xl mb-6 text-center bg-transparent p-6 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-semibold mb-4">Dashboard</h2>
+        <div class="relative w-full h-96 mx-auto">
+            <canvas id="statusChart" style="background: transparent;"></canvas>
+        </div>
+    </div>
+
+    <div class="my-4 border-t-2 border-gray-300"></div>
+
+    <!-- Notes Section -->
+    <div class="flex-1 p-4">
+        <!-- Search and Filter Controls -->
+        <div class="flex flex-wrap items-center justify-between mb-4 space-x-4">
+            <div class="relative flex-1">
+                <input type="text" id="searchInput" placeholder="Pesquisar anotações..." class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400" aria-label="Pesquisar anotações">
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+            <div>
+                <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <option value="newest">Mais Recentes</option>
+                    <option value="oldest">Mais Antigos</option>
                 </select>
-                <input type="color" id="color" value="#0EA5E9">
-                <button type="submit">Salvar Estudo</button>
-            </form>
-        </section>
-        <section id="studies">
-            <h2>Meus Estudos</h2>
-            <div id="studies-container" class="masonry-grid"></div>
-        </section>
-    </main>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const studyForm = document.getElementById('study-form');
-            const studiesContainer = document.getElementById('studies-container');
-            const toggleThemeBtn = document.getElementById('toggle-theme');
-            let studies = JSON.parse(localStorage.getItem('studies')) || [];
+            </div>
+            <div>
+                <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <option value="all">Todos os Status</option>
+                    <option value="open">Abertos</option>
+                    <option value="scheduled">Em Revisão</option>
+                    <option value="verified_today">Verificados Hoje</option>
+                    <option value="closed">Fechados</option>
+                    <option value="special_clause">Flashcards</option>
+                </select>
+            </div>
+            <div>
+                <select id="subjectFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <option value="all">Todas as Matérias</option>
+                    <option value="Matemática">Matemática</option>
+                    <option value="Física">Física</option>
+                    <option value="Química">Química</option>
+                    <option value="Biologia">Biologia</option>
+                    <option value="História">História</option>
+                    <option value="Geografia">Geografia</option>
+                    <option value="Português">Português</option>
+                    <option value="Inglês">Inglês</option>
+                </select>
+            </div>
+        </div>
 
-            const saveStudiesToLocalStorage = () => {
-                localStorage.setItem('studies', JSON.stringify(studies));
-            };
+        <div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
 
-            const renderStudies = () => {
-                studiesContainer.innerHTML = '';
-                studies.forEach(study => {
-                    const studyCard = document.createElement('div');
-                    studyCard.className = 'study-card';
-                    studyCard.style.backgroundColor = study.color;
-                    studyCard.dataset.status = study.status;
-                    studyCard.innerHTML = `
-                        <h3>${study.title}</h3>
-                        <p>${study.content}</p>
-                        <p><strong>Categoria:</strong> ${study.category}</p>
-                        <p><strong>Tags:</strong> ${study.tags.join(', ')}</p>
-                        <p><strong>Status:</strong> ${study.status}</p>
-                    `;
-                    studiesContainer.appendChild(studyCard);
-                });
-            };
+        <!-- Pagination Controls -->
+        <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
+            <button id="prevPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-left"></i></button>
+            <button id="nextPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</main>
 
-            studyForm.addEventListener('submit', e => {
-                e.preventDefault();
-                const newStudy = {
-                    title: document.getElementById('title').value,
-                    content: document.getElementById('content').value,
-                    category: document.getElementById('category').value,
-                    tags: document.getElementById('tags').value.split(',').map(tag => tag.trim()),
-                    status: document.getElementById('status').value,
-                    color: document.getElementById('color').value,
-                };
-                studies.push(newStudy);
-                saveStudiesToLocalStorage();
-                renderStudies();
-                studyForm.reset();
-            });
+<!-- Footer -->
+<footer class="bg-blue-500 text-white text-center p-4">
+    <p>&copy; 2025 Sistema de Estudo. Todos os direitos reservados.</p>
+</footer>
 
-            toggleThemeBtn.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-            });
+<!-- Modals and other hidden elements -->
+<div id="noteModal" class="modal hidden">
+    <div class="modal-content">
+        <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
+        <form id="noteForm" class="space-y-4">
+            <div>
+                <label for="contractNumber" class="block">Número de Contrato: *</label>
+                <input type="text" id="contractNumber" required pattern="[A-Za-z0-9-]+" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                <span id="contractNumberError" class="text-red-900 hidden">Número de contrato inválido - use apenas letras, números e hífen</span>
+            </div>
 
-            renderStudies();
+            <div class="flex space-x-4">
+                <div class="w-1/2">
+                    <label for="locator" class="block">Locador: *</label>
+                    <input type="text" id="locator" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <span id="locatorError" class="text-red-900 hidden">Nome do Locador deve ter ao menos 3 caracteres</span>
+                </div>
+                <div class="w-1/2">
+                    <label for="tenant" class="block">Locatário: *</label>
+                    <input type="text" id="tenant" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <span id="tenantError" class="text-red-900 hidden">Nome do Locatário deve ter ao menos 3 caracteres</span>
+                </div>
+            </div>
+
+            <div>
+                <label for="address" class="block">Endereço: *</label>
+                <input type="text" id="address" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                <span id="addressError" class="text-red-900 hidden">Endereço deve ter ao menos 5 caracteres</span>
+            </div>
+
+            <div>
+                <label for="problem" class="block">Problema: *</label>
+                <textarea id="problem" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"></textarea>
+                <span id="problemError" class="text-red-900 hidden">Problema deve ter ao menos 10 caracteres</span>
+            </div>
+
+            <div>
+                <label for="subject" class="block">Matéria: *</label>
+                <select id="subject" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <option value="Matemática">Matemática</option>
+                    <option value="Física">Física</option>
+                    <option value="Química">Química</option>
+                    <option value="Biologia">Biologia</option>
+                    <option value="História">História</option>
+                    <option value="Geografia">Geografia</option>
+                    <option value="Português">Português</option>
+                    <option value="Inglês">Inglês</option>
+                </select>
+            </div>
+
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="cancelNoteBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </button>
+                <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                    <i class="fas fa-save mr-2"></i>Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="scheduleModal" class="modal hidden">
+    <div class="modal-content">
+        <h2 class="text-xl font-semibold mb-4 text-center">Criar Revisão</h2>
+        <form id="scheduleForm" class="space-y-4">
+            <div>
+                <label for="searchContract" class="block">Pesquisar Contrato:</label>
+                <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400" placeholder="Buscar contrato...">
+            </div>
+            <div>
+                <label for="existingContract" class="block">Selecionar Contrato: *</label>
+                <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                    <option value="">Selecione um contrato...</option>
+                </select>
+            </div>
+            <div>
+                <label for="providerName" class="block">Nome do Prestador: *</label>
+                <input type="text" id="providerName" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+            </div>
+            <div>
+                <label for="scheduleDate" class="block">Data da Revisão: *</label>
+                <input type="date" id="scheduleDate" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+            </div>
+            <div>
+                <label for="scheduleDescription" class="block">Descrição da Revisão: *</label>
+                <textarea id="scheduleDescription" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"></textarea>
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="cancelScheduleModalBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </button>
+                <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                    <i class="fas fa-save mr-2"></i>Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="noteDetailsModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="flex justify-end">
+            <button type="button" id="closeDetailsBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                <i class="fas fa-times mr-2"></i>Fechar
+            </button>
+        </div>
+        <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Coluna da esquerda - Detalhes -->
+            <div class="space-y-4">
+                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative text-black"></div>
+
+                <div class="flex space-x-2">
+                    <button type="button" id="copyDetailsBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                        <i class="fas fa-copy mr-1"></i>Copiar
+                    </button>
+                    <button type="button" id="downloadContractBtn" class="bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                        <i class="fas fa-file-download mr-1"></i>Baixar
+                    </button>
+                    <button type="button" id="cancelScheduleBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                        <i class="fas fa-calendar-times mr-1"></i>Cancelar Revisão
+                    </button>
+                    <button type="button" id="deleteNoteBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                        <i class="fas fa-trash mr-1"></i>Excluir
+                    </button>
+                    <button type="button" id="finalizeNoteBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 hidden">
+                        <i class="fas fa-check mr-1"></i>Finalizar
+                    </button>
+                    <button type="button" id="reopenNoteBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 hidden">
+                        <i class="fas fa-undo mr-1"></i>Reabrir
+                    </button>
+                    <button type="button" id="transformToFlashcardBtn" class="bg-orange-500 hover:bg-orange-700 focus:ring-orange-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                        <i class="fas fa-star mr-1"></i>Transformar em Flashcard
+                    </button>
+                </div>
+                <div>
+                    <label for="subjectDetail" class="block">Matéria: *</label>
+                    <select id="subjectDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                        <option value="Matemática">Matemática</option>
+                        <option value="Física">Física</option>
+                        <option value="Química">Química</option>
+                        <option value="Biologia">Biologia</option>
+                        <option value="História">História</option>
+                        <option value="Geografia">Geografia</option>
+                        <option value="Português">Português</option>
+                        <option value="Inglês">Inglês</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Coluna da direita - Comentários -->
+            <div class="space-y-4">
+                <div class="bg-dark-900 p-4 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">Comentários</h3>
+                    <form id="commentForm" class="mb-4">
+                        <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[80px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
+                        <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 w-full mt-2">
+                            <i class="fas fa-comment mr-2"></i>Adicionar Comentário
+                        </button>
+                    </form>
+                    <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+                    <button id="showMoreCommentsBtn" class="text-red-900 cursor-pointer">Mostrar Mais Comentários</button>
+                    <button id="backToTopBtn" class="text-red-900 cursor-pointer hidden">Voltar ao Topo dos Comentários</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Utility Functions
+const utils = {
+    showNotification: (message, type = 'success') => {
+        const notificationArea = document.getElementById('notificationArea');
+        notificationArea.innerHTML = ''; // Clear existing notifications
+
+        const notification = document.createElement('div');
+        notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
+        notification.textContent = message;
+        notificationArea.appendChild(notification);
+        setTimeout(() => notificationArea.removeChild(notification), 5000);
+    },
+
+    sanitizeInput: (input) => {
+        if (typeof input !== 'string') return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return input.replace(/[&<>"']/g, (m) => map[m]);
+    },
+
+    validateForm: (formData) => {
+        const errors = [];
+
+        if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
+            errors.push('Número de contrato inválido - use apenas letras, números e hífen');
+        }
+
+        if (formData.locator.length < 3) {
+            errors.push('Nome do Locador deve ter ao menos 3 caracteres');
+        }
+
+        if (formData.tenant.length < 3) {
+            errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
+        }
+
+        if (formData.problem.length < 10) {
+            errors.push('Problema deve ter ao menos 10 caracteres');
+        }
+
+        if (formData.address.length < 5) {
+            errors.push('Endereço deve ter ao menos 5 caracteres');
+        }
+
+        return errors;
+    },
+
+    formatDate: (dateString) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Data inválida';
+
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+
+            return `${day}/${month}/${year}`;
+        } catch (e) {
+            console.error('Error formatting date:', e);
+            return 'Data inválida';
+        }
+    },
+
+    calculateDaysOpen: (dateString) => {
+        const start = new Date(dateString);
+        const today = new Date();
+        const diffTime = Math.abs(today - start);
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    },
+
+    getCurrentDateTime: () => {
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    },
+
+    downloadFile: (content, filename, type = 'text/plain') => {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }, 100);
+    },
+
+    applyBoldFormatting: (text) => {
+        return text.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+    }
+};
+
+// Note Manager Class
+class StudyNoteManager {
+    constructor() {
+        this.notes = {};
+        this.currentPage = 0;
+        this.notesPerPage = 9; // 3 notes per row * 3 rows
+        this.commentsPerPage = 4;  // Número de comentários por vez
+        this.currentUser = null;
+        this.currentDateTime = utils.getCurrentDateTime();
+        this.selectedNoteKey = null;
+        this.loadFromLocalStorage();
+        this.cleanInvalidNotes();
+        this.initializeEventListeners();
+        this.updateReviewedNotes();
+        this.chart = null;
+
+        // Atualiza o dashboard automaticamente a cada 3 segundos
+        setInterval(() => this.renderDashboard(), 60000);
+    }
+
+    cleanInvalidNotes() {
+        const validNotes = {};
+        Object.entries(this.notes).forEach(([key, note]) => {
+            if (note && note.contractNumber) {
+                validNotes[key] = note;
+            }
         });
-    </script>
+        this.notes = validNotes;
+        this.saveToLocalStorage();
+    }
+
+    initializeEventListeners() {
+        document.getElementById('createNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.toggleModal('noteModal');
+                document.getElementById('contractNumber').focus();
+            }
+        });
+
+        document.getElementById('cancelNoteBtn').addEventListener('click', () => {
+            this.toggleModal('noteModal');
+            document.getElementById('noteForm').reset();
+        });
+
+        document.getElementById('noteForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (this.isAuthenticated()) {
+                this.handleFormSubmit();
+            }
+        });
+
+        document.getElementById('createScheduleBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.populateSubjectDropdown();
+                this.toggleModal('scheduleModal');
+                document.getElementById('existingContract').focus();
+            }
+        });
+
+        document.getElementById('cancelScheduleModalBtn').addEventListener('click', () => {
+            this.toggleModal('scheduleModal');
+            document.getElementById('scheduleForm').reset();
+        });
+
+        document.getElementById('scheduleForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (this.isAuthenticated()) {
+                this.handleReviewScheduleFormSubmit();
+            }
+        });
+
+        document.getElementById('searchContract').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            this.filterSubjectDropdown(searchTerm);
+        });
+
+        document.getElementById('searchInput').addEventListener('input', () => {
+            if (this.isAuthenticated()) {
+                this.filterNotes();
+            }
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', () => {
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
+        });
+
+        document.getElementById('dateFilter').addEventListener('change', () => {
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
+        });
+
+        document.getElementById('subjectFilter').addEventListener('change', () => {
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
+        });
+
+        document.getElementById('importNotesBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                document.getElementById('fileInput').click();
+            }
+        });
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (this.isAuthenticated()) {
+                this.handleFileImport(e);
+            }
+        });
+
+        document.getElementById('downloadNotesBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.exportNotes();
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            this.logout();
+        });
+
+        document.getElementById('commentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (this.isAuthenticated()) {
+                this.handleCommentSubmit();
+            }
+        });
+
+        document.getElementById('commentText').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (this.isAuthenticated()) {
+                    document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+                }
+            }
+        });
+
+        document.getElementById('closeDetailsBtn').addEventListener('click', () => {
+            this.toggleModal('noteDetailsModal');
+        });
+
+        document.getElementById('copyDetailsBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.copyNoteComments(noteKey);
+            }
+        });
+
+        document.getElementById('downloadContractBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.downloadSingleContract(noteKey);
+            }
+        });
+
+        document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.cancelReviewSchedule(noteKey);
+            }
+        });
+
+        document.getElementById('deleteNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.deleteNote(noteKey);
+            }
+        });
+
+        document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.finalizeNote(noteKey);
+            }
+        });
+
+        document.getElementById('reopenNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.reopenNote(noteKey);
+            }
+        });
+
+        document.getElementById('transformToFlashcardBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.transformToFlashcard(noteKey);
+            }
+        });
+
+        document.getElementById('showMoreCommentsBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.currentCommentPage++;
+                this.renderComments(document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent);
+            }
+        });
+
+        document.getElementById('backToTopBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.currentCommentPage = 1;
+                this.renderComments(document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeAllModals();
+            }
+        });
+
+        document.getElementById('prevPageBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.prevPage();
+            }
+        });
+
+        document.getElementById('nextPageBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.nextPage();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (this.isAuthenticated()) {
+                if (e.key === 'ArrowLeft') {
+                    this.prevPage();
+                } else if (e.key === 'ArrowRight') {
+                    this.nextPage();
+                } else if (e.key === 'Delete') {
+                    const noteKey = this.selectedNoteKey;
+                    if (noteKey) {
+                        this.deleteNote(noteKey);
+                    }
+                }
+            }
+        });
+    }
+
+    isAuthenticated() {
+        if (!this.currentUser) {
+            this.showNotesBlurred();
+            this.showLogin();
+            return false;
+        } else {
+            this.hideNotesBlurred();
+            return true;
+        }
+    }
+
+    showNotesBlurred() {
+        document.getElementById('notesContainer').classList.add('blurred-notes');
+    }
+
+    hideNotesBlurred() {
+        document.getElementById('notesContainer').classList.remove('blurred-notes');
+    }
+
+    toggleModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.toggle('hidden');
+            if (modalId === 'noteModal' && modal.classList.contains('hidden')) {
+                document.getElementById('noteForm').reset();
+            }
+        }
+    }
+
+    closeAllModals() {
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.classList.add('hidden');
+        });
+    }
+
+handleFormSubmit() {
+        const formData = {
+            contractNumber: document.getElementById('contractNumber').value,
+            locator: document.getElementById('locator').value,
+            tenant: document.getElementById('tenant').value,
+            problem: document.getElementById('problem').value,
+            address: document.getElementById('address').value,
+            subject: document.getElementById('subject').value,
+            createdAt: utils.getCurrentDateTime()
+        };
+
+        const errors = utils.validateForm(formData);
+        if (errors.length > 0) {
+            errors.forEach(error => {
+                if (error.includes('Número de contrato inválido')) {
+                    document.getElementById('contractNumberError').classList.remove('hidden');
+                }
+                if (error.includes('Nome do Locador')) {
+                    document.getElementById('locatorError').classList.remove('hidden');
+                }
+                if (error.includes('Nome do Locatário')) {
+                    document.getElementById('tenantError').classList.remove('hidden');
+                }
+                if (error.includes('Problema')) {
+                    document.getElementById('problemError').classList.remove('hidden');
+                }
+                if (error.includes('Endereço')) {
+                    document.getElementById('addressError').classList.remove('hidden');
+                }
+            });
+            utils.showNotification(errors.join('\n'), 'error');
+            return;
+        }
+
+        const sanitizedData = {
+            contractNumber: utils.sanitizeInput(formData.contractNumber),
+            locator: utils.sanitizeInput(formData.locator),
+            tenant: utils.sanitizeInput(formData.tenant),
+            problem: utils.sanitizeInput(formData.problem),
+            address: utils.sanitizeInput(formData.address),
+            subject: utils.sanitizeInput(formData.subject),
+            createdAt: formData.createdAt
+        };
+
+        const existingNotes = Object.keys(this.notes).filter(key => 
+            key.startsWith(sanitizedData.contractNumber + '#'));
+
+        const sequence = existingNotes.length + 1;
+        const noteKey = `${sanitizedData.contractNumber}#${sequence}`;
+
+        this.notes[noteKey] = {
+            ...sanitizedData,
+            status: 'open',
+            comments: [],
+            createdBy: this.currentUser.email
+        };
+
+        this.renderNotes();
+        this.saveToLocalStorage();
+        utils.showNotification('Anotação criada com sucesso!', 'success');
+        document.getElementById('noteForm').reset();
+        this.toggleModal('noteModal');
+    }
+
+    renderNotes(searchResults = null) {
+        const container = document.getElementById('notesContainer');
+        container.innerHTML = '';
+
+        const notesArray = Object.keys(this.notes).map(key => ({
+            key,
+            ...this.notes[key]
+        }));
+
+        const statusFilter = document.getElementById('statusFilter').value;
+        let filteredNotes = notesArray;
+        if (statusFilter !== 'all') {
+            filteredNotes = notesArray.filter(note => note.status === statusFilter);
+        }
+
+        const subjectFilter = document.getElementById('subjectFilter').value;
+        if (subjectFilter !== 'all') {
+            filteredNotes = filteredNotes.filter(note => note.subject === subjectFilter);
+        }
+
+        if (searchResults) {
+            filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
+        }
+
+        const start = this.currentPage * this.notesPerPage;
+        const end = start + this.notesPerPage;
+        const notesToDisplay = filteredNotes.slice(start, end);
+
+        notesToDisplay.forEach(note => {
+            const noteButton = document.createElement('button');
+            noteButton.className = `note-button ${
+                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+                (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
+                (note.status === 'special_clause' ? 'status-clausula-especial' :
+                'bg-red-900 hover:bg-red-700')))
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
+
+            const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
+
+            noteButton.innerHTML = `
+                <span class="module-status module-${note.subject.toLowerCase()}">${note.subject}</span>
+                <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
+                <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
+                <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
+                <span class="block text-xs mt-1">${displayDate}</span>
+                <span class="block text-xs mt-1">
+                    ${note.status === 'open' ? `Aberto` : 
+                    (note.status === 'scheduled' ? 'Em agendamento' : 
+                    (note.status === 'verified_today' ? 'Verificado Hoje' : 
+                    (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
+                </span>
+                <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
+            `;
+            noteButton.dataset.contract = note.key;
+            noteButton.dataset.locator = note.locator.toLowerCase();
+            noteButton.dataset.tenant = note.tenant.toLowerCase();
+            noteButton.dataset.address = note.address.toLowerCase();
+            noteButton.dataset.date = note.createdAt;
+
+            noteButton.addEventListener('click', () => {
+                if (this.isAuthenticated()) {
+                    this.showNoteDetails(note.key);
+                }
+            });
+
+            noteButton.addEventListener('click', () => {
+                this.selectedNoteKey = note.key;
+            });
+
+            container.appendChild(noteButton);
+        });
+
+        this.sortNotes();
+        if (!this.isAuthenticated()) {
+            this.showNotesBlurred();
+        }
+    }
+
+    showNoteDetails(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            const detailsContent = document.getElementById('noteDetailsContent');
+
+            detailsContent.innerHTML = `
+                <div class="space-y-3">
+                    <div class="pb-2 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold">Informações do Contrato</h3>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="absolute top-2 right-2 text-gray-500 text-sm">${utils.formatDate(note.createdAt)}</div>
+                        <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
+                        <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
+                        <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
+                        <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
+                        <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
+                            <button class="ml-2 text-red-900 hover:text-red-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
+                                <i class="fas fa-search"></i>
+                            </button></p>
+                        <p><strong>Status:</strong> <span class="font-semibold ${
+                            note.status === 'open' ? 'text-red-900' :
+                            (note.status === 'scheduled' ? 'text-yellow-600' :
+                            (note.status === 'verified_today' ? 'text-purple-600' :
+                            (note.status === 'special_clause' ? 'text-orange-600' : 'text-green-600')))
+                        }">
+                            ${note.status === 'open' ? 'Aberto' : 
+                            (note.status === 'scheduled' ? 'Em agendamento' : 
+                            (note.status === 'verified_today' ? 'Verificado Hoje' : 
+                            (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
+                        </span></p>
+                        ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
+                        ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('subjectDetail').value = note.subject;
+
+            const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
+            const reopenNoteBtn = document.getElementById('reopenNoteBtn');
+            if (note.status === 'closed') {
+                finalizeNoteBtn.classList.add('hidden');
+                reopenNoteBtn.classList.remove('hidden');
+            } else {
+                finalizeNoteBtn.classList.remove('hidden');
+                reopenNoteBtn.classList.add('hidden');
+            }
+
+            const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
+            if (note.status === 'scheduled') {
+                cancelScheduleBtn.style.display = 'flex';
+            } else {
+                cancelScheduleBtn.style.display = 'none';
+            }
+
+            this.currentCommentPage = 1;
+            this.renderComments(noteKey);
+            this.toggleModal('noteDetailsModal');
+            document.getElementById('commentText').focus();
+        } catch (error) {
+            console.error('Erro ao exibir detalhes da nota:', error);
+            utils.showNotification('Erro ao carregar detalhes', 'error');
+        }
+    }
+
+    renderComments(noteKey) {
+        try {
+            const commentsContainer = document.getElementById('commentsContainer');
+            commentsContainer.innerHTML = '';
+
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+            }
+
+            const start = (this.currentCommentPage - 1) * this.commentsPerPage;
+            const end = start + this.commentsPerPage;
+            const commentsToShow = note.comments.slice(start, end);
+
+            commentsToShow.forEach((comment) => {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'comment';
+
+                commentElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <p class="comment-text">${utils.applyBoldFormatting(utils.sanitizeInput(comment.text))}</p>
+                            <div class="mt-2 text-sm text-gray-500">
+                                <span>${utils.formatDate(comment.dateTime)}</span>
+                                <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
+                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="edit-comment-${comment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Editar Comentário">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button id="delete-comment-${comment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Excluir Comentário">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button id="add-subcomment-${comment.id}" class="ml-2 text-red-900 hover:text-green-700" aria-label="Adicionar Subcomentário">
+                                <i class="fas fa-comment-dots"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="subcomments-${comment.id}" class="ml-6 mt-2 space-y-2"></div>
+                `;
+
+                commentsContainer.appendChild(commentElement);
+
+                document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
+                    if (this.isAuthenticated()) {
+                        this.editComment(noteKey, comment.id);
+                    }
+                });
+
+                document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
+                    if (this.isAuthenticated()) {
+                        this.deleteComment(noteKey, comment.id);
+                    }
+                });
+
+                document.getElementById(`add-subcomment-${comment.id}`).addEventListener('click', () => {
+                    if (this.isAuthenticated()) {
+                        this.addSubcomment(noteKey, comment.id);
+                    }
+                });
+
+                this.renderSubcomments(noteKey, comment.id);
+            });
+
+            const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            if (end >= note.comments.length) {
+                showMoreCommentsBtn.style.display = 'none';
+                if (this.currentCommentPage > 1) {
+                    backToTopBtn.style.display = 'block';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
+            } else {
+                showMoreCommentsBtn.style.display = 'block';
+                backToTopBtn.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Erro ao renderizar comentários:', error);
+            utils.showNotification('Erro ao carregar comentários', 'error');
+        }
+    }
+
+    renderSubcomments(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            const comment = note.comments.find(c => c.id === commentId);
+
+            if (!comment || !Array.isArray(comment.subcomments)) {
+                comment.subcomments = [];
+            }
+
+            const subcommentsContainer = document.getElementById(`subcomments-${comment.id}`);
+            subcommentsContainer.innerHTML = '';
+
+            comment.subcomments.forEach((subcomment) => {
+                const subcommentElement = document.createElement('div');
+                subcommentElement.className = 'comment';
+
+                subcommentElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <p class="comment-text">${utils.applyBoldFormatting(utils.sanitizeInput(subcomment.text))}</p>
+                            <div class="mt-2 text-sm text-gray-500">
+                                <span>${utils.formatDate(subcomment.dateTime)}</span>
+                                <span class="italic">(por ${utils.sanitizeInput(subcomment.author)})</span>
+                                ${subcomment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(subcomment.editedAt)})</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="edit-subcomment-${subcomment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Editar Subcomentário">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button id="delete-subcomment-${subcomment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Excluir Subcomentário">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                subcommentsContainer.appendChild(subcommentElement);
+
+                document.getElementById(`edit-subcomment-${subcomment.id}`).addEventListener('click', () => {
+                    if (this.isAuthenticated()) {
+                        this.editSubcomment(noteKey, commentId, subcomment.id);
+                    }
+                });
+
+                document.getElementById(`delete-subcomment-${subcomment.id}`).addEventListener('click', () => {
+                    if (this.isAuthenticated()) {
+                        this.deleteSubcomment(noteKey, commentId, subcomment.id);
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('Erro ao renderizar subcomentários:', error);
+            utils.showNotification('Erro ao carregar subcomentários', 'error');
+        }
+    }
+
+    addSubcomment(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            const comment = note.comments.find(c => c.id === commentId);
+
+            const subcommentText = prompt('Digite o subcomentário:');
+            if (!subcommentText) {
+                return;
+            }
+
+            const subcomment = {
+                id: Date.now().toString(),
+                text: utils.sanitizeInput(subcommentText),
+                dateTime: utils.getCurrentDateTime(),
+                author: this.currentUser.email
+            };
+
+            if (!Array.isArray(comment.subcomments)) {
+                comment.subcomments = [];
+            }
+
+            comment.subcomments.unshift(subcomment);
+
+            this.saveToLocalStorage();
+            this.renderSubcomments(noteKey, commentId);
+            utils.showNotification('Subcomentário adicionado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao adicionar subcomentário:', error);
+            utils.showNotification('Erro ao adicionar subcomentário', 'error');
+        }
+    }
+
+handleCommentSubmit() {
+        try {
+            const commentText = document.getElementById('commentText').value.trim();
+            if (!commentText) {
+                return;
+            }
+
+            const noteKey = document.getElementById('noteDetailsContent')
+                .querySelector('p strong + span').textContent;
+
+            const comment = {
+                id: Date.now().toString(),
+                text: utils.sanitizeInput(commentText),
+                dateTime: utils.getCurrentDateTime(),
+                author: this.currentUser.email
+            };
+
+            if (!Array.isArray(this.notes[noteKey].comments)) {
+                this.notes[noteKey].comments = [];
+            }
+
+            this.notes[noteKey].comments.unshift(comment);
+
+            // Update status to 'verified_today' only if the current status is not 'scheduled'
+            if (this.notes[noteKey].status !== 'scheduled') {
+                this.notes[noteKey].status = 'verified_today';
+            }
+
+            // Move to 'Andamento' if in 'Novo' and a comment is added
+            if (this.notes[noteKey].subject === 'Novo') {
+                this.notes[noteKey].subject = 'Andamento';
+            }
+
+            // Move to 'Tratativa' if in 'Andamento' and there are 3 or more comments
+            if (this.notes[noteKey].subject === 'Andamento' && this.notes[noteKey].comments.length >= 3) {
+                this.notes[noteKey].subject = 'Tratativa';
+            }
+
+            this.saveToLocalStorage();
+            this.renderComments(noteKey);
+            this.updateNoteButton(noteKey);
+            document.getElementById('commentForm').reset();
+            document.getElementById('commentText').focus();
+            utils.showNotification('Comentário adicionado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao adicionar comentário:', error);
+            utils.showNotification('Erro ao adicionar comentário', 'error');
+        }
+    }
+
+    updateNoteStatusAndModule(noteKey, newStatus) {
+        try {
+            const note = this.notes[noteKey];
+            note.status = newStatus;
+
+            // Update subject based on status changes
+            if (newStatus === 'scheduled') {
+                note.subject = 'Em Execução';
+            } else if (newStatus === 'closed') {
+                note.subject = 'Conclusão';
+            }
+
+            this.saveToLocalStorage();
+            this.renderNotes();
+            this.showNoteDetails(noteKey);
+            utils.showNotification(`Status atualizado para ${newStatus} e matéria ajustada!`, 'success');
+        } catch (error) {
+            console.error('Erro ao atualizar status e matéria:', error);
+            utils.showNotification('Erro ao atualizar status e matéria', 'error');
+        }
+    }
+
+    editComment(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+                return;
+            }
+
+            const commentIndex = note.comments.findIndex(c => c.id === commentId);
+            if (commentIndex === -1) {
+                utils.showNotification('Comentário não encontrado.', 'error');
+                return;
+            }
+
+            // Create edit modal
+            const editModal = document.createElement('div');
+            editModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            editModal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                    <h3 class="text-lg font-semibold mb-4">Editar Comentário</h3>
+                    <form id="editCommentForm" class="space-y-4">
+                        <textarea 
+                            id="editCommentText" 
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"
+                            required
+                        >${note.comments[commentIndex].text}</textarea>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancelEditComment" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                                <i class="fas fa-times mr-2"></i>Cancelar
+                            </button>
+                            <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                                <i class="fas fa-save mr-2"></i>Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            // Add modal to the document
+            document.body.appendChild(editModal);
+
+            // Get form elements
+            const form = document.getElementById('editCommentForm');
+            const cancelBtn = document.getElementById('cancelEditComment');
+            const textarea = document.getElementById('editCommentText');
+
+            // Handle cancel
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(editModal);
+            });
+
+            // Handle ESC key and Del key
+            document.addEventListener('keydown', function escAndDelListener(e) {
+                if (e.key === 'Escape' || e.key === 'Delete') {
+                    document.body.removeChild(editModal);
+                    document.removeEventListener('keydown', escAndDelListener);
+                }
+            });
+
+            // Handle form submit
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newText = textarea.value.trim();
+
+                if (newText) {
+                    note.comments[commentIndex].text = utils.sanitizeInput(newText);
+                    note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
+                    // Update status to 'verified_today' only if the current status is not 'scheduled'
+                    if (note.status !== 'scheduled') {
+                        note.status = 'verified_today';
+                    }
+                    this.saveToLocalStorage();
+                    this.renderComments(noteKey);
+                    this.updateNoteButton(noteKey);
+                    document.body.removeChild(editModal);
+                    utils.showNotification('Comentário atualizado com sucesso!', 'success');
+                } else {
+                    utils.showNotification('O comentário não pode estar vazio.', 'error');
+                }
+            });
+
+            textarea.focus();
+        } catch (error) {
+            console.error('Erro ao editar comentário:', error);
+            utils.showNotification('Erro ao editar comentário', 'error');
+        }
+    }
+
+    deleteComment(noteKey, commentId) {
+        try {
+            const note = this.notes[noteKey];
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+                return;
+            }
+
+            const commentIndex = note.comments.findIndex(c => c.id === commentId);
+            if (commentIndex === -1) {
+                utils.showNotification('Comentário não encontrado.', 'error');
+                return;
+            }
+
+            note.comments.splice(commentIndex, 1);
+            this.saveToLocalStorage();
+            this.renderComments(noteKey);
+            this.updateNoteButton(noteKey);
+            utils.showNotification('Comentário excluído com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao excluir comentário:', error);
+            utils.showNotification('Erro ao excluir comentário', 'error');
+        }
+    }
+
+    editSubcomment(noteKey, commentId, subcommentId) {
+        try {
+            const note = this.notes[noteKey];
+            const comment = note.comments.find(c => c.id === commentId);
+            if (!comment || !Array.isArray(comment.subcomments)) {
+                comment.subcomments = [];
+                return;
+            }
+
+            const subcommentIndex = comment.subcomments.findIndex(sc => sc.id === subcommentId);
+            if (subcommentIndex === -1) {
+                utils.showNotification('Subcomentário não encontrado.', 'error');
+                return;
+            }
+
+            const editModal = document.createElement('div');
+            editModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            editModal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                    <h3 class="text-lg font-semibold mb-4">Editar Subcomentário</h3>
+                    <form id="editSubcommentForm" class="space-y-4">
+                        <textarea 
+                            id="editSubcommentText" 
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"
+                            required
+                        >${comment.subcomments[subcommentIndex].text}</textarea>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancelEditSubcomment" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                                <i class="fas fa-times mr-2"></i>Cancelar
+                            </button>
+                            <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                                <i class="fas fa-save mr-2"></i>Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+
+            document.body.appendChild(editModal);
+
+            const form = document.getElementById('editSubcommentForm');
+            const cancelBtn = document.getElementById('cancelEditSubcomment');
+            const textarea = document.getElementById('editSubcommentText');
+
+            cancelBtn.addEventListener('click', () => {
+                document.body.removeChild(editModal);
+            });
+
+            document.addEventListener('keydown', function escAndDelListener(e) {
+                if (e.key === 'Escape' || e.key === 'Delete') {
+                    document.body.removeChild(editModal);
+                    document.removeEventListener('keydown', escAndDelListener);
+                }
+            });
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newText = textarea.value.trim();
+
+                if (newText) {
+                    comment.subcomments[subcommentIndex].text = utils.sanitizeInput(newText);
+                    comment.subcomments[subcommentIndex].editedAt = utils.getCurrentDateTime();
+                    this.saveToLocalStorage();
+                    this.renderSubcomments(noteKey, commentId);
+                    document.body.removeChild(editModal);
+                    utils.showNotification('Subcomentário atualizado com sucesso!', 'success');
+                } else {
+                    utils.showNotification('O subcomentário não pode estar vazio.', 'error');
+                }
+            });
+
+            textarea.focus();
+        } catch (error) {
+            console.error('Erro ao editar subcomentário:', error);
+            utils.showNotification('Erro ao editar subcomentário', 'error');
+        }
+    }
+
+    deleteSubcomment(noteKey, commentId, subcommentId) {
+        try {
+            const note = this.notes[noteKey];
+            const comment = note.comments.find(c => c.id === commentId);
+            if (!comment || !Array.isArray(comment.subcomments)) {
+                comment.subcomments = [];
+                return;
+            }
+
+            const subcommentIndex = comment.subcomments.findIndex(sc => sc.id === subcommentId);
+            if (subcommentIndex === -1) {
+                utils.showNotification('Subcomentário não encontrado.', 'error');
+                return;
+            }
+
+            comment.subcomments.splice(subcommentIndex, 1);
+            this.saveToLocalStorage();
+            this.renderSubcomments(noteKey, commentId);
+            utils.showNotification('Subcomentário excluído com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao excluir subcomentário:', error);
+            utils.showNotification('Erro ao excluir subcomentário', 'error');
+        }
+    }
+
+    updateNoteSubject(noteKey, newSubject) {
+        try {
+            const note = this.notes[noteKey];
+            note.subject = newSubject;
+
+            this.saveToLocalStorage();
+            this.renderNotes();
+            this.showNoteDetails(noteKey);
+            utils.showNotification('Matéria da anotação atualizada com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao atualizar matéria da anotação:', error);
+            utils.showNotification('Erro ao atualizar matéria da anotação', 'error');
+        }
+    }
+
+    cancelReviewSchedule(noteKey) {
+        try {
+            this.updateNoteStatusAndModule(noteKey, 'open');
+        } catch (error) {
+            console.error('Erro ao cancelar agendamento:', error);
+            utils.showNotification('Erro ao cancelar agendamento', 'error');
+        }
+    }
+
+    deleteNote(noteKey) {
+        try {
+            if (!confirm('Tem certeza que deseja excluir esta anotação?')) {
+                return;
+            }
+
+            delete this.notes[noteKey];
+            this.saveToLocalStorage();
+            this.renderNotes();
+            this.toggleModal('noteDetailsModal');
+            utils.showNotification('Anotação excluída com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao excluir nota:', error);
+            utils.showNotification('Erro ao excluir anotação', 'error');
+        }
+    }
+
+    finalizeNote(noteKey) {
+        try {
+            this.updateNoteStatusAndModule(noteKey, 'closed');
+        } catch (error) {
+            console.error('Erro ao finalizar nota:', error);
+            utils.showNotification('Erro ao finalizar nota', 'error');
+        }
+    }
+
+    reopenNote(noteKey) {
+        try {
+            this.updateNoteStatusAndModule(noteKey, 'open');
+        } catch (error) {
+            console.error('Erro ao reabrir nota:', error);
+            utils.showNotification('Erro ao reabrir nota', 'error');
+        }
+    }
+
+    transformToFlashcard(noteKey) {
+        try {
+            const note = this.notes[noteKey];
+            if (note.status !== 'special_clause') {
+                note.status = 'special_clause';
+                this.saveToLocalStorage();
+                this.renderNotes();
+                this.showNoteDetails(noteKey);
+                utils.showNotification('Nota transformada em flashcard com sucesso!', 'success');
+            } else {
+                utils.showNotification('A nota já é um flashcard.', 'alert');
+            }
+        } catch (error) {
+            console.error('Erro ao transformar nota em flashcard:', error);
+            utils.showNotification('Erro ao transformar nota em flashcard', 'error');
+        }
+    }
+
+    saveToLocalStorage() {
+        try {
+            localStorage.setItem('notes', JSON.stringify(this.notes));
+            localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+            utils.showNotification('Dados salvos localmente com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+            utils.showNotification('Erro ao salvar dados localmente', 'error');
+        }
+    }
+
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedNotes) {
+                this.notes = JSON.parse(savedNotes);
+                this.fixOldNotes();
+                this.renderNotes();
+            }
+            if (savedUser) {
+                this.currentUser = JSON.parse(savedUser);
+                this.updateUserInfo();
+                this.showMainLayout();
+            }
+            this.updateReviewedNotes();
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            utils.showNotification('Erro ao carregar dados locais', 'error');
+        }
+    }
+
+    fixOldNotes() {
+        Object.keys(this.notes).forEach(noteKey => {
+            const note = this.notes[noteKey];
+            if (!note.hasOwnProperty('status')) {
+                note.status = 'open';
+            }
+            if (!note.hasOwnProperty('comments')) {
+                note.comments = [];
+            }
+            if (!note.hasOwnProperty('createdAt')) {
+                note.createdAt = utils.getCurrentDateTime();
+            }
+            if (!note.hasOwnProperty('createdBy')) {
+                note.createdBy = this.currentUser ? this.currentUser.email : 'unknown';
+            }
+            if (!note.hasOwnProperty('providerName')) {
+                note.providerName = '';
+            }
+            if (!note.hasOwnProperty('scheduleDate')) {
+                note.scheduleDate = '';
+            }
+            if (!note.hasOwnProperty('scheduleDescription')) {
+                note.scheduleDescription = '';
+            }
+            if (!note.hasOwnProperty('subject')) {
+                note.subject = 'Novo';
+            }
+        });
+        this.saveToLocalStorage();
+    }
+
+    updateUserInfo() {
+        const userInfo = document.getElementById('userInfo');
+        const loggedUser = document.getElementById('loggedUser');
+        const userIcon = document.getElementById('userIcon');
+        if (this.currentUser) {
+            loggedUser.textContent = `Logado: ${this.currentUser.email}`;
+            userIcon.src = this.getUserIcon(this.currentUser.email);
+            userInfo.classList.remove('hidden');
+        } else {
+            userInfo.classList.add('hidden');
+        }
+    }
+
+    getUserIcon(email) {
+        if (email === 'manutencao@madia.com.br') {
+            return 'https://i.imgur.com/kooxTdN.jpeg';
+        } else if (email === 'manutencao1@madia.com.br') {
+            return 'https://i.imgur.com/kooxTdN.jpeg';
+        }
+        return 'https://i.imgur.com/kooxTdN.jpeg';
+    }
+
+    updateReviewedNotes() {
+        try {
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+
+            Object.values(this.notes).forEach(note => {
+                const hasCommentsToday = note.comments && note.comments.some(comment => {
+                    const commentDate = new Date(comment.dateTime);
+                    const commentDateStr = commentDate.toISOString().split('T')[0];
+                    return commentDateStr === todayStr;
+                });
+
+                if (hasCommentsToday && note.status !== 'scheduled' && note.status !== 'closed') {
+                    note.status = 'verified_today';
+                } else if (!hasCommentsToday && note.status === 'verified_today') {
+                    note.status = 'open';
+                }
+            });
+
+            this.saveToLocalStorage();
+            this.renderNotes();
+        } catch (error) {
+            console.error('Erro ao atualizar notas verificadas:', error);
+            utils.showNotification('Erro ao atualizar status das notas', 'error');
+        }
+    }
+
+    handleSearch(searchTerm) {
+        this.filterNotes();
+    }
+
+filterNotes() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+        const notes = document.querySelectorAll('.note-button');
+        notes.forEach(noteBtn => {
+            const noteKey = noteBtn.dataset.contract;
+            const note = this.notes[noteKey];
+
+            const matchesSearch = [
+                noteKey,
+                noteBtn.dataset.locator,
+                noteBtn.dataset.tenant,
+                noteBtn.dataset.address
+            ].join(' ').toLowerCase().includes(searchTerm);
+
+            noteBtn.classList.toggle('hidden', !matchesSearch);
+        });
+
+        this.sortNotes();
+    }
+
+    sortNotes() {
+        const container = document.getElementById('notesContainer');
+
+        const notes = Array.from(container.children);
+        const dateFilter = document.getElementById('dateFilter').value;
+
+        notes.sort((a, b) => {
+            const dateA = new Date(a.dataset.date);
+            const dateB = new Date(b.dataset.date);
+
+            if (dateFilter === 'newest') {
+                return dateB - dateA;
+            } else {
+                return dateA - dateB;
+            }
+        });
+
+        container.innerHTML = '';
+        notes.forEach(note => container.appendChild(note));
+    }
+
+    updateNoteButton(noteKey) {
+        const noteButton = document.querySelector(`[data-contract="${noteKey}"]`);
+        if (noteButton) {
+            const note = this.notes[noteKey];
+            const commentCount = Array.isArray(note.comments) ? note.comments.length : 0;
+            const commentCountSpan = noteButton.querySelector('span:last-child');
+            if (commentCountSpan) {
+                commentCountSpan.textContent = `${commentCount} comentário(s)`;
+            }
+
+            noteButton.className = `note-button ${
+                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+                (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
+                (note.status === 'special_clause' ? 'status-clausula-especial' :
+                'bg-red-900 hover:bg-red-700')))
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
+        }
+    }
+
+    nextPage() {
+        const filteredNotes = Object.keys(this.notes).filter(noteKey => {
+            const note = this.notes[noteKey];
+            const statusFilter = document.getElementById('statusFilter').value;
+            return statusFilter === 'all' || note.status === statusFilter;
+        });
+
+        const totalNotes = filteredNotes.length;
+        const totalPages = Math.ceil(totalNotes / this.notesPerPage);
+
+        if (this.currentPage < totalPages - 1) {
+            this.currentPage++;
+            this.renderNotes();
+        }
+    }
+
+    prevPage() {
+        if (this.currentPage > 0) {
+            this.currentPage--;
+            this.renderNotes();
+        }
+    }
+
+    handleReviewScheduleFormSubmit() {
+        try {
+            const existingContract = document.getElementById('existingContract').value;
+            const providerName = document.getElementById('providerName').value;
+            const scheduleDate = document.getElementById('scheduleDate').value;
+            const scheduleDescription = document.getElementById('scheduleDescription').value;
+
+            if (!existingContract || !providerName || !scheduleDescription) {
+                utils.showNotification('Todos os campos são obrigatórios', 'error');
+                return;
+            }
+
+            const note = this.notes[existingContract];
+            if (!note) {
+                utils.showNotification('Contrato não encontrado', 'error');
+                return;
+            }
+
+            note.status = 'scheduled';
+            note.providerName = utils.sanitizeInput(providerName);
+            note.scheduleDate = scheduleDate;
+            note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
+
+            // Update module to 'Em Execução'
+            note.subject = 'Em Execução';
+
+            this.saveToLocalStorage();
+            this.renderNotes();
+            document.getElementById('scheduleForm').reset();
+            this.toggleModal('scheduleModal');
+            utils.showNotification('Agendamento criado com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao criar agendamento:', error);
+            utils.showNotification('Erro ao criar agendamento', 'error');
+        }
+    }
+
+    populateSubjectDropdown() {
+        const existingContractDropdown = document.getElementById('existingContract');
+        existingContractDropdown.innerHTML = '<option value="">Selecione um contrato...</option>';
+
+        Object.keys(this.notes).forEach(noteKey => {
+            const note = this.notes[noteKey];
+            if (note.status === 'open' || note.status === 'verified_today') {
+                const option = document.createElement('option');
+                option.value = noteKey;
+                option.textContent = noteKey;
+                existingContractDropdown.appendChild(option);
+            }
+        });
+    }
+
+    filterSubjectDropdown(searchTerm) {
+        const existingContractDropdown = document.getElementById('existingContract');
+        const options = existingContractDropdown.querySelectorAll('option');
+
+        options.forEach(option => {
+            const isVisible = option.value.includes(searchTerm) || option.textContent.toLowerCase().includes(searchTerm);
+            option.style.display = isVisible ? '' : 'none';
+        });
+    }
+
+    handleFileImport(event) {
+        try {
+            const file = event.target.files[0];
+            if (!file) {
+                utils.showNotification('Nenhum arquivo selecionado', 'error');
+                return;
+            }
+
+            if (!file.name.endsWith('.json')) {
+                utils.showNotification('Por favor, selecione um arquivo JSON válido', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const importedNotes = JSON.parse(e.target.result);
+
+                    if (!importedNotes || typeof importedNotes !== 'object') {
+                        throw new Error('Formato de arquivo inválido');
+                    }
+
+                    let importCount = 0;
+                    const totalNotes = Object.keys(importedNotes).length;
+
+                    for (const [noteKey, note] of Object.entries(importedNotes)) {
+                        try {
+                            if (!this.notes[noteKey] && this.validateImportedNote(note, noteKey)) {
+                                this.notes[noteKey] = {
+                                    ...note,
+                                    createdAt: note.createdAt || utils.getCurrentDateTime(),
+                                    createdBy: this.currentUser.email,
+                                    status: note.status || 'open',
+                                    providerName: note.providerName || '',
+                                    scheduleDate: note.scheduleDate || '',
+                                    scheduleDescription: note.scheduleDescription || '',
+                                    subject: note.subject || 'Novo',
+                                    comments: Array.isArray(note.comments) ? note.comments : []
+                                };
+                                importCount++;
+                            }
+                        } catch (error) {
+                            console.warn(`Erro ao importar nota ${noteKey}:`, error);
+                        }
+                    }
+
+                    this.saveToLocalStorage();
+                    this.renderNotes();
+                    utils.showNotification(`${importCount} anotações importadas com sucesso!`, 'success');
+                } catch (error) {
+                    console.error('Erro ao processar arquivo:', error);
+                    utils.showNotification(`Erro ao processar arquivo: ${error.message}`, 'error');
+                }
+            };
+
+            reader.onerror = () => {
+                utils.showNotification('Erro ao ler o arquivo', 'error');
+            };
+
+            reader.readAsText(file);
+        } catch (error) {
+            console.error('Erro na importação:', error);
+            utils.showNotification(`Erro ao importar arquivo: ${error.message}`, 'error');
+        } finally {
+            event.target.value = '';
+        }
+    }
+
+    validateImportedNote(note, noteKey) {
+        try {
+            if (!note || typeof note !== 'object') {
+                throw new Error('Dados da nota inválidos');
+            }
+
+            const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
+            const missingFields = requiredFields.filter(field => !note[field]);
+
+            if (missingFields.length > 0) {
+                throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
+            }
+
+            if (!Array.isArray(note.comments)) {
+                note.comments = [];
+            }
+
+            note.comments = note.comments.map(comment => ({
+                id: comment.id || Date.now().toString(),
+                text: utils.sanitizeInput(comment.text || ''),
+                dateTime: comment.dateTime || utils.getCurrentDateTime(),
+                author: comment.author || this.currentUser.email,
+                editedAt: comment.editedAt || null
+            }));
+
+            return true;
+        } catch (error) {
+            console.warn(`Nota ${noteKey} inválida:`, error);
+            return false;
+        }
+    }
+
+    exportNotes() {
+        try {
+            if (Object.keys(this.notes).length === 0) {
+                utils.showNotification('Não há anotações para exportar', 'error');
+                return;
+            }
+
+            const exportData = {};
+            Object.entries(this.notes).forEach(([key, note]) => {
+                if (!note) return;
+
+                const contractNumber = note.contractNumber || key.split('#')[0];
+
+                const cleanedNote = {
+                    contractNumber: utils.sanitizeInput(contractNumber),
+                    locator: utils.sanitizeInput(note.locator || 'Não especificado'),
+                    tenant: utils.sanitizeInput(note.tenant || 'Não especificado'),
+                    problem: utils.sanitizeInput(note.problem || 'Não especificado'),
+                    address: utils.sanitizeInput(note.address || 'Não especificado'),
+                    status: note.status || 'open',
+                    createdAt: note.createdAt || utils.getCurrentDateTime(),
+                    createdBy: note.createdBy || this.currentUser.email,
+                    providerName: note.providerName || '',
+                    scheduleDate: note.scheduleDate || '',
+                    scheduleDescription: note.scheduleDescription || '',
+                    subject: note.subject || 'Novo',
+                    comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
+                        id: comment.id || Date.now().toString(),
+                        text: utils.sanitizeInput(comment.text || ''),
+                        dateTime: comment.dateTime || utils.getCurrentDateTime(),
+                        author: comment.author || this.currentUser.email,
+                        editedAt: comment.editedAt || null
+                    })) : []
+                };
+
+                if (note.closedAt) {
+                    cleanedNote.closedAt = note.closedAt;
+                }
+
+                exportData[key] = cleanedNote;
+            });
+
+            const notesJson = JSON.stringify(exportData, null, 2);
+            const filename = `anotacoes_${this.currentDateTime}.json`;
+            utils.downloadFile(notesJson, filename, 'application/json');
+            utils.showNotification('Anotações exportadas com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro na exportação:', error);
+            utils.showNotification(`Erro ao exportar anotações: ${error.message}`, 'error');
+        }
+    }
+
+    renderDashboard() {
+        const statusData = {
+            open: 0,
+            closed: 0,
+            scheduled: 0,
+            verified_today: 0,
+            special_clause: 0
+        };
+
+        Object.values(this.notes).forEach(note => {
+            statusData[note.status] = (statusData[note.status] || 0) + 1;
+        });
+
+        if (this.chart) {
+            this.chart.destroy();
+        }
+
+        const statusChartCtx = document.getElementById('statusChart').getContext('2d');
+        this.chart = new Chart(statusChartCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje', 'Flashcards'],
+                datasets: [{
+                    label: 'Quantidade de Anotações',
+                    data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today, statusData.special_clause],
+                    backgroundColor: ['#1E90FF', '#32CD32', '#FFD700', '#800080', '#D900FF'],
+                    borderColor: ['#1C7ED6', '#2E8B57', '#DAA520', '#6A0DAD', '#B800DB'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        document.getElementById('openCount').textContent = `Abertos: ${statusData.open}`;
+        document.getElementById('closedCount').textContent = `Fechados: ${statusData.closed}`;
+        document.getElementById('scheduledCount').textContent = `Em Agendamento: ${statusData.scheduled}`;
+        document.getElementById('verifiedCount').textContent = `Verificados Hoje: ${statusData.verified_today}`;
+        document.getElementById('specialClauseCount').textContent = `Flashcards: ${statusData.special_clause}`;
+    }
+
+    showMainLayout() {
+        document.getElementById('loginModal').classList.add('hidden');
+        document.getElementById('logoSection').classList.remove('hidden');
+        document.getElementById('mainLayout').classList.remove('hidden');
+        this.renderDashboard();
+    }
+
+    showLogin() {
+        this.closeAllModals();
+        document.getElementById('loginModal').classList.remove('hidden');
+        document.getElementById('logoSection').classList.add('hidden');
+        document.getElementById('mainLayout').classList.add('hidden');
+    }
+
+    logout() {
+        this.currentUser = null;
+        localStorage.removeItem('currentUser');
+        this.showLogin();
+    }
+}
+
+// Inicializa a aplicação
+const noteManager = new StudyNoteManager();
+
+// Atualiza o status das notas verificadas a cada minuto
+setInterval(() => {
+    if (noteManager.isAuthenticated()) {
+        noteManager.updateReviewedNotes();
+    }
+}, 60000);
+
+// Login handling
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    if ((email === 'manutencao@madia.com.br' && password === 'password123') || (email === 'manutencao1@madia.com.br' && password === 'password123')) {
+        noteManager.currentUser = { email };
+        noteManager.saveToLocalStorage();
+        noteManager.showMainLayout();
+        utils.showNotification('Login bem-sucedido!', 'success');
+    } else {
+        utils.showNotification('E-mail ou senha incorretos.', 'error');
+    }
+});
+
+// Event listener for global search
+document.getElementById('searchInput').addEventListener('input', () => {
+    if (noteManager.isAuthenticated()) {
+        const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+        const results = noteManager.searchAllContracts(searchQuery);
+        noteManager.currentPage = 0;
+        noteManager.renderNotes(results);
+        if (results.length > 0) {
+            const notes = document.querySelectorAll('.note-button');
+            notes.forEach(noteBtn => {
+                const noteKey = noteBtn.dataset.contract;
+                noteBtn.classList.toggle('hidden', !results.includes(noteKey));
+            });
+        } else {
+            utils.showNotification('Nenhuma anotação encontrada.', 'alert');
+        }
+    }
+});
+
+noteManager.copyNoteComments = (noteKey) => {
+    try {
+        const note = noteManager.notes[noteKey];
+        const comments = note.comments.map(comment =>
+            `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
+        ).join('\n\n');
+        navigator.clipboard.writeText(comments).then(() => {
+            utils.showNotification('Comentários copiados para a área de transferência!', 'success');
+        }).catch(err => {
+            console.error('Erro ao copiar comentários:', err);
+            utils.showNotification('Erro ao copiar comentários', 'error');
+        });
+    } catch (error) {
+        console.error('Erro ao copiar comentários:', error);
+        utils.showNotification('Erro ao copiar comentários', 'error');
+    }
+}
+
+noteManager.downloadSingleContract = (noteKey) => {
+    try {
+        const note = noteManager.notes[noteKey];
+        const comments = note.comments.map(comment =>
+            `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
+        ).join('\n\n');
+        const details = `
+Número de Contrato: ${noteKey}
+Locador: ${note.locator}
+Locatário: ${note.tenant}
+Problema: ${note.problem}
+Endereço: ${note.address}
+Status: ${note.status}
+${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
+${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
+${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
+Comentários:
+${comments}
+        `.trim();
+
+        const filename = `${noteKey}.txt`;
+        utils.downloadFile(details, filename, 'text/plain');
+        utils.showNotification('Anotação exportada com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao baixar anotação:', error);
+        utils.showNotification('Erro ao baixar anotação', 'error');
+    }
+}
+
+noteManager.searchAllContracts = (searchTerm) => {
+    const results = [];
+    Object.keys(noteManager.notes).forEach(noteKey => {
+        const note = noteManager.notes[noteKey];
+        const combinedFields = [
+            noteKey,
+            note.locator.toLowerCase(),
+            note.tenant.toLowerCase(),
+            note.address.toLowerCase(),
+            note.problem.toLowerCase(),
+            ...note.comments.map(comment => comment.text.toLowerCase())
+        ].join(' ');
+
+        if (combinedFields.includes(searchTerm)) {
+            results.push(noteKey);
+        }
+    });
+
+    results.sort((a, b) => {
+        const aContainsComment = noteManager.notes[a].comments.some(comment => comment.text.toLowerCase().includes(searchTerm));
+        const bContainsComment = noteManager.notes[b].comments.some(comment => comment.text.toLowerCase().includes(searchTerm));
+        return bContainsComment - aContainsComment;
+    });
+
+    return results;
+};
+</script>
+
 </body>
 </html>
