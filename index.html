@@ -71,6 +71,23 @@
             border-radius: 50%;
             margin-right: 8px;
         }
+
+        /* Module colors */
+        .module-criacao {
+            background-color: #1e90ff; /* DodgerBlue */
+        }
+        .module-analise {
+            background-color: #32cd32; /* LimeGreen */
+        }
+        .module-negociacao {
+            background-color: #ffa500; /* Orange */
+        }
+        .module-execucao {
+            background-color: #ff1493; /* DeepPink */
+        }
+        .module-finalizacao {
+            background-color: #8b4513; /* SaddleBrown */
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 text-black">
@@ -903,8 +920,6 @@ class NoteManager {
         const notesToDisplay = filteredNotes.slice(start, end);
 
         notesToDisplay.forEach(note => {
-            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
-
             const noteButton = document.createElement('button');
             noteButton.className = `note-button ${
                 note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
@@ -912,7 +927,7 @@ class NoteManager {
                 (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
                 (note.status === 'special_clause' ? 'status-clausula-especial' :
                 'bg-red-900 hover:bg-red-700')))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200 module-${note.module.toLowerCase()}`;
 
             const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
@@ -923,7 +938,7 @@ class NoteManager {
                 <span class="block text-sm">Módulo: ${utils.sanitizeInput(note.module)}</span>
                 <span class="block text-xs mt-1">${displayDate}</span>
                 <span class="block text-xs mt-1">
-                    ${note.status === 'open' ? `Aberto há ${daysOpen} dias` : 
+                    ${note.status === 'open' ? `Aberto` : 
                     (note.status === 'scheduled' ? 'Em agendamento' : 
                     (note.status === 'verified_today' ? 'Verificado Hoje' : 
                     (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
@@ -956,7 +971,6 @@ class NoteManager {
     showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
-            const daysOpen = note.status === 'open' ? utils.calculateDaysOpen(note.createdAt) : null;
             const detailsContent = document.getElementById('noteDetailsContent');
 
             detailsContent.innerHTML = `
@@ -980,7 +994,7 @@ class NoteManager {
                             (note.status === 'verified_today' ? 'text-purple-600' :
                             (note.status === 'special_clause' ? 'text-orange-600' : 'text-green-600')))
                         }">
-                            ${note.status === 'open' ? `Aberto (${daysOpen} dias)` : 
+                            ${note.status === 'open' ? 'Aberto' : 
                             (note.status === 'scheduled' ? 'Em agendamento' : 
                             (note.status === 'verified_today' ? 'Verificado Hoje' : 
                             (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
@@ -1026,7 +1040,7 @@ class NoteManager {
         }
     }
 
-renderComments(noteKey) {
+    renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -1071,7 +1085,7 @@ renderComments(noteKey) {
 
                 commentsContainer.appendChild(commentElement);
 
-                // Add click event listener for editing comments
+// Add click event listener for editing comments
                 document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
                     if (this.isAuthenticated()) {
                         this.editComment(noteKey, comment.id);
@@ -1486,7 +1500,7 @@ renderComments(noteKey) {
         }
     }
 
-cancelSchedule(noteKey) {
+    cancelSchedule(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'scheduled') {
@@ -1543,7 +1557,7 @@ cancelSchedule(noteKey) {
         }
     }
 
-    reopenNote(noteKey) {
+reopenNote(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status === 'closed') {
@@ -1760,7 +1774,7 @@ cancelSchedule(noteKey) {
                 (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
                 (note.status === 'special_clause' ? 'status-clausula-especial' :
                 'bg-red-900 hover:bg-red-700')))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200 module-${note.module.toLowerCase()}`;
         }
     }
 
@@ -1999,7 +2013,7 @@ cancelSchedule(noteKey) {
         }
     }
 
-renderDashboard() {
+    renderDashboard() {
         const statusData = {
             open: 0,
             closed: 0,
@@ -2063,7 +2077,7 @@ renderDashboard() {
         this.renderDashboard(); // Ensure the dashboard is rendered when showing the main layout
     }
 
-    showLogin() {
+showLogin() {
         this.closeAllModals();
         document.getElementById('loginModal').classList.remove('hidden');
         document.getElementById('logoSection').classList.add('hidden');
