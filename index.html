@@ -29,7 +29,7 @@
             --details-text-color: #000000;
             --comment-background-color: #e6e6e6;
             --comment-text-color: #000000;
-            --comment-border-color: #c2c2c2; /* Modernized border color */
+            --comment-border-color: #b4b3b3; /* Modernized border color */
         }
 
         body {
@@ -404,32 +404,32 @@
                     <div>
                         <label for="contractNumber" class="block">Número de Contrato: *</label>
                         <input type="text" id="contractNumber" required pattern="[A-Za-z0-9-]+" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                        <span id="contractNumberError" class="text-red-500 hidden">Número de contrato inválido - use apenas letras, números e hífen</span>
+                        <span id="contractNumberError" class="text-red-900 hidden">Número de contrato inválido - use apenas letras, números e hífen</span>
                     </div>
 
                     <div class="flex space-x-4">
                         <div class="w-1/2">
                             <label for="locator" class="block">Locador: *</label>
                             <input type="text" id="locator" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                            <span id="locatorError" class="text-red-500 hidden">Nome do Locador deve ter ao menos 3 caracteres</span>
+                            <span id="locatorError" class="text-red-900 hidden">Nome do Locador deve ter ao menos 3 caracteres</span>
                         </div>
                         <div class="w-1/2">
                             <label for="tenant" class="block">Locatário: *</label>
                             <input type="text" id="tenant" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                            <span id="tenantError" class="text-red-500 hidden">Nome do Locatário deve ter ao menos 3 caracteres</span>
+                            <span id="tenantError" class="text-red-900 hidden">Nome do Locatário deve ter ao menos 3 caracteres</span>
                         </div>
                     </div>
 
                     <div>
                         <label for="address" class="block">Endereço: *</label>
                         <input type="text" id="address" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                        <span id="addressError" class="text-red-500 hidden">Endereço deve ter ao menos 5 caracteres</span>
+                        <span id="addressError" class="text-red-900 hidden">Endereço deve ter ao menos 5 caracteres</span>
                     </div>
 
                     <div>
                         <label for="problem" class="block">Problema: *</label>
                         <textarea id="problem" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"></textarea>
-                        <span id="problemError" class="text-red-500 hidden">Problema deve ter ao menos 10 caracteres</span>
+                        <span id="problemError" class="text-red-900 hidden">Problema deve ter ao menos 10 caracteres</span>
                     </div>
 
                     <div>
@@ -520,10 +520,10 @@
     <button type="button" id="downloadContractBtn" class="bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
         <i class="fas fa-file-download mr-1"></i>Baixar
     </button>
-    <button type="button" id="cancelScheduleBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+    <button type="button" id="cancelScheduleBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
         <i class="fas fa-calendar-times mr-1"></i>Cancelar Agendamento
     </button>
-    <button type="button" id="deleteNoteBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+    <button type="button" id="deleteNoteBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
         <i class="fas fa-trash mr-1"></i>Excluir
     </button>
     <button type="button" id="finalizeNoteBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 hidden">
@@ -559,8 +559,8 @@
                                 </button>
                             </form>
                             <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
-                            <button id="showMoreCommentsBtn" class="text-red-500 cursor-pointer">Mostrar Mais Comentários</button>
-                            <button id="backToTopBtn" class="text-red-500 cursor-pointer hidden">Voltar ao Novo dos Comentários</button>
+                            <button id="showMoreCommentsBtn" class="text-red-900 cursor-pointer">Mostrar Mais Comentários</button>
+                            <button id="backToTopBtn" class="text-red-900 cursor-pointer hidden">Voltar ao Novo dos Comentários</button>
                         </div>
                     </div>
                 </div>
@@ -1180,7 +1180,7 @@ class NoteManager {
                         <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
                         <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
                         <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
-                            <button class="ml-2 text-red-500 hover:text-red-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
+                            <button class="ml-2 text-red-900 hover:text-red-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
                                 <i class="fas fa-search"></i>
                             </button></p>
                         <p><strong>Status:</strong> <span class="font-semibold ${
@@ -1264,7 +1264,7 @@ renderComments(noteKey) {
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button id="edit-comment-${comment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Editar Comentário">
+                            <button id="edit-comment-${comment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Editar Comentário">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button id="delete-comment-${comment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Excluir Comentário">
@@ -1352,10 +1352,10 @@ renderComments(noteKey) {
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button id="edit-subcomment-${subcomment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Editar Subcomentário">
+                            <button id="edit-subcomment-${subcomment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Editar Subcomentário">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button id="delete-subcomment-${subcomment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Excluir Subcomentário">
+                            <button id="delete-subcomment-${subcomment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Excluir Subcomentário">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
