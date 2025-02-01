@@ -3,275 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cain Study</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Site de Estudos Futurista</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Poppins:wght@400;500;700&family=SF+Pro+Display:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-</head>
-<body class="font-inter bg-gray-100 min-h-screen">
+    <style>
+        :root {
+            --bg-light: #F8F9FA;
+            --bg-dark: #0D1117;
+            --highlight-light: #0EA5E9;
+            --highlight-dark: #F4C430;
+            --font-primary: 'Inter', sans-serif;
+            --font-secondary: 'Poppins', sans-serif;
+            --font-tertiary: 'SF Pro Display', sans-serif;
+        }
 
-    <!-- Header -->
-    <header class="bg-white shadow-sm">
-        <nav class="container mx-auto px-4 py-3">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold text-blue-600">Cain Study</h1>
-                <button onclick="openModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors">
-                    <i class="fas fa-plus mr-2"></i>Novo Estudo
-                </button>
-            </div>
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-light);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .dark-mode {
+            background-color: var(--bg-dark);
+            color: #eee;
+        }
+
+        header {
+            position: fixed;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .dark-mode header {
+            background: rgba(13, 17, 23, 0.8);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--highlight-light);
+        }
+
+        .dark-mode .logo {
+            color: var(--highlight-dark);
+        }
+
+        .toggle-dark-mode {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        main {
+            margin-top: 80px;
+            padding: 2rem;
+        }
+
+        .card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-mode .card {
+            background: #1f2937;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .card:hover {
+            box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn {
+            background: var(--highlight-light);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #0077b6;
+        }
+
+        .dark-mode .btn {
+            background: var(--highlight-dark);
+        }
+
+        .dark-mode .btn:hover {
+            background: #d4af37;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">StudyHub</div>
+            <button class="toggle-dark-mode" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
         </nav>
     </header>
 
-    <main class="container mx-auto p-4">
-        <div class="flex flex-col md:flex-row gap-4">
-            <!-- Sidebar -->
-            <aside class="w-full md:w-1/4 space-y-4">
-                <div class="bg-white p-4 rounded-lg shadow-sm">
-                    <h2 class="text-xl font-semibold mb-4">Filtros</h2>
-                    <div class="space-y-2">
-                        <input type="text" id="searchInput" placeholder="Buscar estudos..." 
-                               class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <select id="sortSelect" class="w-full p-2 border rounded-md">
-                            <option value="recent">Mais Recentes</option>
-                            <option value="alphabetical">Ordem Alfabética</option>
-                            <option value="priority">Prioridade</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="bg-white p-4 rounded-lg shadow-sm">
-                    <h2 class="text-xl font-semibold mb-4">Estatísticas</h2>
-                    <div class="space-y-2">
-                        <p>Total de estudos: <span id="totalNotes">0</span></p>
-                        <p>Estudos concluídos: <span id="completedNotes">0</span></p>
-                    </div>
-                </div>
-            </aside>
-
-            <!-- Main Content -->
-            <section class="w-full md:w-3/4">
-                <div class="bg-white p-4 rounded-lg shadow-sm">
-                    <h2 class="text-xl font-semibold mb-4">Meus Estudos</h2>
-                    <div id="notesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Notes will be dynamically added here -->
-                    </div>
-                </div>
-            </section>
+    <main>
+        <div class="grid">
+            <div class="card">
+                <h2>Estudo 1</h2>
+                <p>Descrição do estudo 1.</p>
+                <button class="btn">Ver Mais</button>
+            </div>
+            <div class="card">
+                <h2>Estudo 2</h2>
+                <p>Descrição do estudo 2.</p>
+                <button class="btn">Ver Mais</button>
+            </div>
+            <!-- Adicione mais cards conforme necessário -->
         </div>
     </main>
 
-    <!-- Modal -->
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
-                <div class="p-6">
-                    <h2 class="text-2xl font-bold mb-4">Criar Novo Estudo</h2>
-                    <form id="noteForm" class="space-y-4">
-                        <div>
-                            <label for="noteTitle" class="block text-sm font-medium text-gray-700">Título</label>
-                            <input type="text" id="noteTitle" required
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        </div>
-                        
-                        <div>
-                            <label for="noteDescription" class="block text-sm font-medium text-gray-700">Descrição</label>
-                            <textarea id="noteDescription" rows="4" required
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
-                        </div>
-
-                        <div>
-                            <label for="notePriority" class="block text-sm font-medium text-gray-700">Prioridade</label>
-                            <select id="notePriority" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <option value="low">Baixa</option>
-                                <option value="medium">Média</option>
-                                <option value="high">Alta</option>
-                            </select>
-                        </div>
-
-                        <div class="flex justify-end space-x-2">
-                            <button type="button" onclick="closeModal()" 
-                                    class="px-4 py-2 border rounded-md hover:bg-gray-100">
-                                Cancelar
-                            </button>
-                            <button type="submit"
-                                    class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                                Salvar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Estado da aplicação
-        let notes = JSON.parse(localStorage.getItem('notes')) || [];
-
-        // Funções auxiliares
-        function saveToLocalStorage() {
-            localStorage.setItem('notes', JSON.stringify(notes));
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
         }
-
-        function updateStatistics() {
-            document.getElementById('totalNotes').textContent = notes.length;
-            document.getElementById('completedNotes').textContent = 
-                notes.filter(note => note.completed).length;
-        }
-
-        // Manipulação do modal
-        function openModal() {
-            document.getElementById('modal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('modal').classList.add('hidden');
-            document.getElementById('noteForm').reset();
-        }
-
-        // Criação e renderização de notas
-        function createNote(event) {
-            event.preventDefault();
-            
-            const note = {
-                id: Date.now(),
-                title: document.getElementById('noteTitle').value,
-                description: document.getElementById('noteDescription').value,
-                priority: document.getElementById('notePriority').value,
-                created: new Date().toISOString(),
-                completed: false
-            };
-
-            // Adiciona a nova nota ao array de notas
-            notes.push(note);
-            // Salva as notas no localStorage
-            saveToLocalStorage();
-            // Renderiza as notas na interface
-            renderNotes();
-            // Fecha o modal
-            closeModal();
-        }
-
-        function renderNotes() {
-            const container = document.getElementById('notesContainer');
-            container.innerHTML = '';
-
-            notes.forEach(note => {
-                const noteEl = document.createElement('div');
-                noteEl.className = `border rounded-lg p-4 ${getPriorityColor(note.priority)} transition-transform hover:scale-102`;
-                noteEl.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="text-lg font-semibold">${note.title}</h3>
-                        <div class="flex space-x-2">
-                            <button onclick="toggleComplete(${note.id})" class="text-sm">
-                                <i class="fas fa-check ${note.completed ? 'text-green-500' : 'text-gray-400'}"></i>
-                            </button>
-                            <button onclick="deleteNote(${note.id})" class="text-sm text-red-500">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-2">${note.description}</p>
-                    <div class="flex justify-between items-center text-xs text-gray-500">
-                        <span>${new Date(note.created).toLocaleDateString()}</span>
-                        <span class="capitalize">${note.priority}</span>
-                    </div>
-                `;
-                container.appendChild(noteEl);
-            });
-
-            // Atualiza as estatísticas após renderizar as notas
-            updateStatistics();
-        }
-
-        function getPriorityColor(priority) {
-            const colors = {
-                low: 'bg-green-50',
-                medium: 'bg-yellow-50',
-                high: 'bg-red-50'
-            };
-            return colors[priority] || 'bg-white';
-        }
-
-        function toggleComplete(id) {
-            const note = notes.find(n => n.id === id);
-            if (note) {
-                note.completed = !note.completed;
-                saveToLocalStorage();
-                renderNotes();
-            }
-        }
-
-        function deleteNote(id) {
-            if (confirm('Tem certeza que deseja excluir este estudo?')) {
-                notes = notes.filter(n => n.id !== id);
-                saveToLocalStorage();
-                renderNotes();
-            }
-        }
-
-        // Event Listeners
-        document.getElementById('noteForm').addEventListener('submit', createNote);
-        document.getElementById('searchInput').addEventListener('input', event => {
-            const searchTerm = event.target.value.toLowerCase();
-            const filteredNotes = notes.filter(note => 
-                note.title.toLowerCase().includes(searchTerm) ||
-                note.description.toLowerCase().includes(searchTerm)
-            );
-            renderFilteredNotes(filteredNotes);
-        });
-
-        document.getElementById('sortSelect').addEventListener('change', event => {
-            const sortBy = event.target.value;
-            notes.sort((a, b) => {
-                switch (sortBy) {
-                    case 'recent':
-                        return new Date(b.created) - new Date(a.created);
-                    case 'alphabetical':
-                        return a.title.localeCompare(b.title);
-                    case 'priority':
-                        const priority = { high: 3, medium: 2, low: 1 };
-                        return priority[b.priority] - priority[a.priority];
-                    default:
-                        return 0;
-                }
-            });
-            renderNotes();
-        });
-
-        function renderFilteredNotes(filteredNotes) {
-            const container = document.getElementById('notesContainer');
-            container.innerHTML = '';
-
-            filteredNotes.forEach(note => {
-                const noteEl = document.createElement('div');
-                noteEl.className = `border rounded-lg p-4 ${getPriorityColor(note.priority)} transition-transform hover:scale-102`;
-                noteEl.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="text-lg font-semibold">${note.title}</h3>
-                        <div class="flex space-x-2">
-                            <button onclick="toggleComplete(${note.id})" class="text-sm">
-                                <i class="fas fa-check ${note.completed ? 'text-green-500' : 'text-gray-400'}"></i>
-                            </button>
-                            <button onclick="deleteNote(${note.id})" class="text-sm text-red-500">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-2">${note.description}</p>
-                    <div class="flex justify-between items-center text-xs text-gray-500">
-                        <span>${new Date(note.created).toLocaleDateString()}</span>
-                        <span class="capitalize">${note.priority}</span>
-                    </div>
-                `;
-                container.appendChild(noteEl);
-            });
-
-            updateStatistics();
-        }
-
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', renderNotes);
     </script>
 </body>
 </html>
