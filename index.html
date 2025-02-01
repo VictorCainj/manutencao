@@ -333,14 +333,14 @@
         <form id="loginForm" class="space-y-4">
             <div>
                 <label for="loginEmail" class="block">E-mail: *</label>
-                <input type="email" id="loginEmail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="email" id="loginEmail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
             </div>
             <div>
                 <label for="loginPassword" class="block">Senha: *</label>
-                <input type="password" id="loginPassword" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="password" id="loginPassword" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
             </div>
             <div class="flex justify-end space-x-2">
-                <button type="submit" class="px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 bg-blue-900 hover:bg-blue-700 focus:ring-blue-400">
+                <button type="submit" class="px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 bg-red-900 hover:bg-red-700 focus:ring-red-400">
                     <i class="fas fa-sign-in-alt mr-2"></i>Entrar
                 </button>
             </div>
@@ -403,38 +403,38 @@
                 <form id="noteForm" class="space-y-4">
                     <div>
                         <label for="contractNumber" class="block">Número de Contrato: *</label>
-                        <input type="text" id="contractNumber" required pattern="[A-Za-z0-9-]+" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="text" id="contractNumber" required pattern="[A-Za-z0-9-]+" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                         <span id="contractNumberError" class="text-red-500 hidden">Número de contrato inválido - use apenas letras, números e hífen</span>
                     </div>
 
                     <div class="flex space-x-4">
                         <div class="w-1/2">
                             <label for="locator" class="block">Locador: *</label>
-                            <input type="text" id="locator" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <input type="text" id="locator" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                             <span id="locatorError" class="text-red-500 hidden">Nome do Locador deve ter ao menos 3 caracteres</span>
                         </div>
                         <div class="w-1/2">
                             <label for="tenant" class="block">Locatário: *</label>
-                            <input type="text" id="tenant" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <input type="text" id="tenant" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                             <span id="tenantError" class="text-red-500 hidden">Nome do Locatário deve ter ao menos 3 caracteres</span>
                         </div>
                     </div>
 
                     <div>
                         <label for="address" class="block">Endereço: *</label>
-                        <input type="text" id="address" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="text" id="address" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                         <span id="addressError" class="text-red-500 hidden">Endereço deve ter ao menos 5 caracteres</span>
                     </div>
 
                     <div>
                         <label for="problem" class="block">Problema: *</label>
-                        <textarea id="problem" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
+                        <textarea id="problem" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"></textarea>
                         <span id="problemError" class="text-red-500 hidden">Problema deve ter ao menos 10 caracteres</span>
                     </div>
 
                     <div>
                         <label for="module" class="block">Módulo: *</label>
-                        <select id="module" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <select id="module" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                             <option value="Novo">Novo</option>
                             <option value="Em Andamento">Em Andamento</option>
                             <option value="Em Tratativa">Em Tratativa</option>
@@ -447,7 +447,7 @@
                         <button type="button" id="cancelNoteBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
 <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
-                        <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                        <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
                             <i class="fas fa-save mr-2"></i>Salvar
                         </button>
                     </div>
@@ -464,31 +464,31 @@
                 <form id="scheduleForm" class="space-y-4">
                     <div>
                         <label for="searchContract" class="block">Pesquisar Contrato:</label>
-                        <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Buscar contrato...">
+                        <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400" placeholder="Buscar contrato...">
                     </div>
                     <div>
                         <label for="existingContract" class="block">Selecionar Contrato: *</label>
-                        <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                             <option value="">Selecione um contrato...</option>
                         </select>
                     </div>
                     <div>
                         <label for="providerName" class="block">Nome do Prestador: *</label>
-                        <input type="text" id="providerName" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="text" id="providerName" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                     </div>
                     <div>
                         <label for="scheduleDate" class="block">Data do Agendamento: *</label>
-                        <input type="date" id="scheduleDate" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <input type="date" id="scheduleDate" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                     </div>
                     <div>
                         <label for="scheduleDescription" class="block">Descrição do Agendamento: *</label>
-                        <textarea id="scheduleDescription" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"></textarea>
+                        <textarea id="scheduleDescription" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"></textarea>
                     </div>
                     <div class="flex justify-end space-x-2">
                         <button type="button" id="cancelScheduleModalBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
                             <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
-                        <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                        <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
                             <i class="fas fa-save mr-2"></i>Salvar
                         </button>
                     </div>
@@ -538,7 +538,7 @@
 </div>
                         <div>
                             <label for="moduleDetail" class="block">Módulo: *</label>
-                            <select id="moduleDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <select id="moduleDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                                 <option value="Novo">Novo</option>
                                 <option value="Em Andamento">Em Andamento</option>
                                 <option value="Em Tratativa">Em Tratativa</option>
@@ -553,14 +553,14 @@
                         <div class="bg-dark-900 p-4 rounded-lg shadow-md">
                             <h3 class="text-lg font-semibold mb-4">Comentários</h3>
                             <form id="commentForm" class="mb-4">
-                                <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
-                                <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 w-full mt-2">
+                                <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[80px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
+                                <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 w-full mt-2">
                                     <i class="fas fa-comment mr-2"></i>Adicionar Comentário
                                 </button>
                             </form>
                             <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
-                            <button id="showMoreCommentsBtn" class="text-blue-500 cursor-pointer">Mostrar Mais Comentários</button>
-                            <button id="backToTopBtn" class="text-blue-500 cursor-pointer hidden">Voltar ao Novo dos Comentários</button>
+                            <button id="showMoreCommentsBtn" class="text-red-500 cursor-pointer">Mostrar Mais Comentários</button>
+                            <button id="backToTopBtn" class="text-red-500 cursor-pointer hidden">Voltar ao Novo dos Comentários</button>
                         </div>
                     </div>
                 </div>
@@ -573,17 +573,17 @@
         <!-- Search and Filter Controls -->
         <div class="flex flex-wrap items-center justify-between mb-4 space-x-4">
             <div class="relative flex-1">
-                <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" aria-label="Pesquisar contratos">
+                <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400" aria-label="Pesquisar contratos">
                 <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
             </div>
             <div>
-                <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                     <option value="newest">Mais Recentes</option>
                     <option value="oldest">Mais Antigos</option>
                 </select>
             </div>
             <div>
-                <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                     <option value="all">Todos os Chamados</option>
                     <option value="open">Abertos</option>
                     <option value="scheduled">Em Agendamento</option>
@@ -593,7 +593,7 @@
                 </select>
             </div>
             <div>
-                <select id="moduleFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <select id="moduleFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                     <option value="all">Todos os Módulos</option>
                     <option value="Novo">Novo</option>
                     <option value="Em Andamento">Em Andamento</option>
@@ -608,8 +608,8 @@
 
         <!-- Pagination Controls -->
         <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
-            <button id="prevPageBtn" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-left"></i></button>
-            <button id="nextPageBtn" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-right"></i></button>
+            <button id="prevPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-left"></i></button>
+            <button id="nextPageBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
 </div>
@@ -1122,8 +1122,8 @@ class NoteManager {
                 (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
                 (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
                 (note.status === 'special_clause' ? 'status-clausula-especial' :
-                'bg-blue-900 hover:bg-blue-700')))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
+                'bg-red-900 hover:bg-red-700')))
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
 
             const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
@@ -1180,11 +1180,11 @@ class NoteManager {
                         <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
                         <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
                         <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
-                            <button class="ml-2 text-blue-500 hover:text-blue-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
+                            <button class="ml-2 text-red-500 hover:text-red-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
                                 <i class="fas fa-search"></i>
                             </button></p>
                         <p><strong>Status:</strong> <span class="font-semibold ${
-                            note.status === 'open' ? 'text-blue-900' :
+                            note.status === 'open' ? 'text-red-900' :
                             (note.status === 'scheduled' ? 'text-yellow-600' :
                             (note.status === 'verified_today' ? 'text-purple-600' :
                             (note.status === 'special_clause' ? 'text-orange-600' : 'text-green-600')))
@@ -1264,7 +1264,7 @@ renderComments(noteKey) {
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button id="edit-comment-${comment.id}" class="ml-2 text-blue-500 hover:text-blue-700" aria-label="Editar Comentário">
+                            <button id="edit-comment-${comment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Editar Comentário">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button id="delete-comment-${comment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Excluir Comentário">
@@ -1352,7 +1352,7 @@ renderComments(noteKey) {
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button id="edit-subcomment-${subcomment.id}" class="ml-2 text-blue-500 hover:text-blue-700" aria-label="Editar Subcomentário">
+                            <button id="edit-subcomment-${subcomment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Editar Subcomentário">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button id="delete-subcomment-${subcomment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Excluir Subcomentário">
@@ -1511,14 +1511,14 @@ renderComments(noteKey) {
                     <form id="editCommentForm" class="space-y-4">
                         <textarea 
                             id="editCommentText" 
-                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"
                             required
                         >${note.comments[commentIndex].text}</textarea>
                         <div class="flex justify-end space-x-2">
                             <button type="button" id="cancelEditComment" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
                                 <i class="fas fa-times mr-2"></i>Cancelar
                             </button>
-                            <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
+                            <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
                                 <i class="fas fa-save mr-2"></i>Salvar
                             </button>
                         </div>
@@ -1626,14 +1626,14 @@ renderComments(noteKey) {
                     <form id="editSubcommentForm" class="space-y-4">
                         <textarea 
                             id="editSubcommentText" 
-                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[100px]"
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"
                             required
                         >${comment.subcomments[subcommentIndex].text}</textarea>
                         <div class="flex justify-end space-x-2">
                             <button type="button" id="cancelEditSubcomment" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
                                 <i class="fas fa-times mr-2"></i>Cancelar
                             </button>
-                            <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
+                            <button type="submit" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
                                 <i class="fas fa-save mr-2"></i>Salvar
                             </button>
                         </div>
@@ -1968,8 +1968,8 @@ deleteSubcomment(noteKey, commentId, subcommentId) {
                 (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
                 (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
                 (note.status === 'special_clause' ? 'status-clausula-especial' :
-                'bg-blue-900 hover:bg-blue-700')))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200`;
+                'bg-red-900 hover:bg-red-700')))
+            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
         }
     }
 
