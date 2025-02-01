@@ -964,94 +964,94 @@ document.getElementById('downloadContractBtn').addEventListener('click', () => {
     }
 
 renderComments(noteKey) {
-        try {
-            const commentsContainer = document.getElementById('commentsContainer');
-            commentsContainer.innerHTML = '';
+    try {
+        const commentsContainer = document.getElementById('commentsContainer');
+        commentsContainer.innerHTML = '';
 
-            const note = this.notes[noteKey];
-            if (!Array.isArray(note.comments)) {
-                note.comments = [];
-            }
+        const note = this.notes[noteKey];
+        if (!Array.isArray(note.comments)) {
+            note.comments = [];
+        }
 
-            const start = (this.currentCommentPage - 1) * this.commentsPerPage;
-            const end = start + this.commentsPerPage;
-            const commentsToShow = note.comments.slice(start, end);
+        const start = (this.currentCommentPage - 1) * this.commentsPerPage;
+        const end = start + this.commentsPerPage;
+        const commentsToShow = note.comments.slice(start, end);
 
-            commentsToShow.forEach((comment) => {
-                const commentElement = document.createElement('div');
-                commentElement.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200';
+        commentsToShow.forEach((comment) => {
+            const commentElement = document.createElement('div');
+            commentElement.className = 'comment';
 
-                commentElement.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex-grow">
-                            <p class="text-gray-800 whitespace-pre-wrap">${utils.applyBoldFormatting(utils.sanitizeInput(comment.text))}</p>
-                            <div class="mt-2 text-sm text-gray-500">
-                                <span>${utils.formatDate(comment.dateTime)}</span>
-                                <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
-                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button id="edit-comment-${comment.id}" class="ml-2 text-blue-500 hover:text-blue-700" aria-label="Editar Comentário">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button id="delete-comment-${comment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Excluir Comentário">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <button id="add-subcomment-${comment.id}" class="ml-2 text-green-500 hover:text-green-700" aria-label="Adicionar Subcomentário">
-                                <i class="fas fa-comment-dots"></i>
-                            </button>
+            commentElement.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex-grow">
+                        <p class="comment-text">${utils.applyBoldFormatting(utils.sanitizeInput(comment.text))}</p>
+                        <div class="mt-2 text-sm text-gray-500">
+                            <span>${utils.formatDate(comment.dateTime)}</span>
+                            <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
+                            ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
                         </div>
                     </div>
-                    <div id="subcomments-${comment.id}" class="ml-6 mt-2 space-y-2"></div>
-                `;
+                    <div class="flex space-x-2">
+                        <button id="edit-comment-${comment.id}" class="ml-2 text-blue-500 hover:text-blue-700" aria-label="Editar Comentário">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button id="delete-comment-${comment.id}" class="ml-2 text-red-500 hover:text-red-700" aria-label="Excluir Comentário">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button id="add-subcomment-${comment.id}" class="ml-2 text-green-500 hover:text-green-700" aria-label="Adicionar Subcomentário">
+                            <i class="fas fa-comment-dots"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="subcomments-${comment.id}" class="ml-6 mt-2 space-y-2"></div>
+            `;
 
-                commentsContainer.appendChild(commentElement);
+            commentsContainer.appendChild(commentElement);
 
-                // Add click event listener for editing comments
-                document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
-                    if (this.isAuthenticated()) {
-                        this.editComment(noteKey, comment.id);
-                    }
-                });
-
-                // Add click event listener for deleting comments
-                document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
-                    if (this.isAuthenticated()) {
-                        this.deleteComment(noteKey, comment.id);
-                    }
-                });
-
-                // Add click event listener for adding subcomments
-                document.getElementById(`add-subcomment-${comment.id}`).addEventListener('click', () => {
-                    if (this.isAuthenticated()) {
-                        this.addSubcomment(noteKey, comment.id);
-                    }
-                });
-
-                // Render subcomments if any
-                this.renderSubcomments(noteKey, comment.id);
+            // Add click event listener for editing comments
+            document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
+                if (this.isAuthenticated()) {
+                    this.editComment(noteKey, comment.id);
+                }
             });
 
-            // Mostrar/ocultar botão "Mostrar Mais Comentários"
-            const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
-            const backToTopBtn = document.getElementById('backToTopBtn');
-            if (end >= note.comments.length) {
-                showMoreCommentsBtn.style.display = 'none';
-                if (this.currentCommentPage > 1) {
-                    backToTopBtn.style.display = 'block';
-                } else {
-                    backToTopBtn.style.display = 'none';
+            // Add click event listener for deleting comments
+            document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
+                if (this.isAuthenticated()) {
+                    this.deleteComment(noteKey, comment.id);
                 }
+            });
+
+            // Add click event listener for adding subcomments
+            document.getElementById(`add-subcomment-${comment.id}`).addEventListener('click', () => {
+                if (this.isAuthenticated()) {
+                    this.addSubcomment(noteKey, comment.id);
+                }
+            });
+
+            // Render subcomments if any
+            this.renderSubcomments(noteKey, comment.id);
+        });
+
+        // Mostrar/ocultar botão "Mostrar Mais Comentários"
+        const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
+        const backToTopBtn = document.getElementById('backToTopBtn');
+        if (end >= note.comments.length) {
+            showMoreCommentsBtn.style.display = 'none';
+            if (this.currentCommentPage > 1) {
+                backToTopBtn.style.display = 'block';
             } else {
-                showMoreCommentsBtn.style.display = 'block';
                 backToTopBtn.style.display = 'none';
             }
-        } catch (error) {
-            console.error('Erro ao renderizar comentários:', error);
-            utils.showNotification('Erro ao carregar comentários', 'error');
+        } else {
+            showMoreCommentsBtn.style.display = 'block';
+            backToTopBtn.style.display = 'none';
         }
+    } catch (error) {
+        console.error('Erro ao renderizar comentários:', error);
+        utils.showNotification('Erro ao carregar comentários', 'error');
     }
+}
 
     renderSubcomments(noteKey, commentId) {
         try {
