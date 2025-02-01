@@ -107,7 +107,11 @@
             const studyForm = document.getElementById('study-form');
             const studiesContainer = document.getElementById('studies-container');
             const toggleThemeBtn = document.getElementById('toggle-theme');
-            const studies = JSON.parse(localStorage.getItem('studies')) || [];
+            let studies = JSON.parse(localStorage.getItem('studies')) || [];
+
+            const saveStudiesToLocalStorage = () => {
+                localStorage.setItem('studies', JSON.stringify(studies));
+            };
 
             const renderStudies = () => {
                 studiesContainer.innerHTML = '';
@@ -138,7 +142,7 @@
                     color: document.getElementById('color').value,
                 };
                 studies.push(newStudy);
-                localStorage.setItem('studies', JSON.stringify(studies));
+                saveStudiesToLocalStorage();
                 renderStudies();
                 studyForm.reset();
             });
