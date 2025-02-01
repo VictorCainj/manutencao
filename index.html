@@ -498,74 +498,75 @@
 
         <div class="my-4 border-t-2 border-gray-300"></div>
 
-<!-- Note Details Modal -->
-<div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
-    <div class="details-container transform transition-all duration-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-end">
-            <button type="button" id="closeDetailsBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
-                <i class="fas fa-times mr-2"></i>Fechar
-            </button>
-        </div>
-        <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Coluna da esquerda - Detalhes -->
-            <div class="space-y-4">
-                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative text-black"></div>
-
-                <div class="flex space-x-2">
-                    <button type="button" id="copyDetailsBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
-                        <i class="fas fa-copy mr-1"></i>Copiar
-                    </button>
-                    <button type="button" id="downloadContractBtn" class="bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
-                        <i class="fas fa-file-download mr-1"></i>Baixar
-                    </button>
-                    <button type="button" id="cancelScheduleBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
-                        <i class="fas fa-calendar-times mr-1"></i>Cancelar Agendamento
-                    </button>
-                    <button type="button" id="deleteNoteBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
-                        <i class="fas fa-trash mr-1"></i>Excluir
-                    </button>
-                    <button type="button" id="finalizeNoteBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 hidden">
-                        <i class="fas fa-check mr-1"></i>Finalizar
-                    </button>
-                    <button type="button" id="reopenNoteBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 hidden">
-                        <i class="fas fa-undo mr-1"></i>Reabrir
-                    </button>
-                    <button type="button" id="specialClauseBtn" class="bg-orange-500 hover:bg-orange-700 focus:ring-orange-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
-                        <i class="fas fa-star mr-1"></i>Transformar em Cláusula Especial
+        <!-- Note Details Modal -->
+        <div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+            <div class="details-container transform transition-all duration-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-end">
+                    <button type="button" id="closeDetailsBtn" class="bg-gray-500 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+                        <i class="fas fa-times mr-2"></i>Fechar
                     </button>
                 </div>
-                <div>
-                    <label for="moduleDetail" class="block">Módulo: *</label>
-                    <select id="moduleDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        <option value="Criacao">Criação</option>
-                        <option value="Analise">Análise</option>
-                        <option value="Negociacao">Negociação</option>
-                        <option value="Execucao">Execução</option>
-                        <option value="Finalizacao">Finalização</option>
-                    </select>
-                </div>
-            </div>
+                <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
 
-            <!-- Coluna da direita - Comentários -->
-            <div class="space-y-4">
-                <div class="bg-dark-900 p-4 rounded-lg shadow-md">
-                    <h3 class="text-lg font-semibold mb-4">Comentários</h3>
-                    <form id="commentForm" class="mb-4">
-                        <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
-                        <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 w-full mt-2">
-                            <i class="fas fa-comment mr-2"></i>Adicionar Comentário
-                        </button>
-                    </form>
-                    <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
-                    <button id="showMoreCommentsBtn" class="text-blue-500 cursor-pointer">Mostrar Mais Comentários</button>
-                    <button id="backToTopBtn" class="text-blue-500 cursor-pointer hidden">Voltar ao Início dos Comentários</button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Coluna da esquerda - Detalhes -->
+                    <div class="space-y-4">
+                        <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative text-black"></div>
+
+<div class="flex space-x-2">
+    <button type="button" id="copyDetailsBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+        <i class="fas fa-copy mr-1"></i>Copiar
+    </button>
+    <button type="button" id="downloadContractBtn" class="bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+        <i class="fas fa-file-download mr-1"></i>Baixar
+    </button>
+    <button type="button" id="cancelScheduleBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+        <i class="fas fa-calendar-times mr-1"></i>Cancelar Agendamento
+    </button>
+    <button type="button" id="deleteNoteBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+        <i class="fas fa-trash mr-1"></i>Excluir
+    </button>
+    <button type="button" id="finalizeNoteBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 hidden">
+        <i class="fas fa-check mr-1"></i>Finalizar
+    </button>
+    <button type="button" id="reopenNoteBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 hidden">
+        <i class="fas fa-undo mr-1"></i>Reabrir
+    </button>
+    <button type="button" id="specialClauseBtn" class="bg-orange-500 hover:bg-orange-700 focus:ring-orange-400 px-2 py-1 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
+        <i class="fas fa-star mr-1"></i>Transformar em Cláusula Especial
+    </button>
+</div>
+                        <div>
+                            <label for="moduleDetail" class="block">Módulo: *</label>
+                            <select id="moduleDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                <option value="Criacao">Criação</option>
+                                <option value="Analise">Análise</option>
+                                <option value="Negociacao">Negociação</option>
+                                <option value="Execucao">Execução</option>
+                                <option value="Finalizacao">Finalização</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Coluna da direita - Comentários -->
+                    <div class="space-y-4">
+                        <div class="bg-dark-900 p-4 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold mb-4">Comentários</h3>
+                            <form id="commentForm" class="mb-4">
+                                <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 min-h-[80px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
+                                <button type="submit" class="bg-blue-900 hover:bg-blue-700 focus:ring-blue-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200 w-full mt-2">
+                                    <i class="fas fa-comment mr-2"></i>Adicionar Comentário
+                                </button>
+                            </form>
+                            <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+                            <button id="showMoreCommentsBtn" class="text-blue-500 cursor-pointer">Mostrar Mais Comentários</button>
+                            <button id="backToTopBtn" class="text-blue-500 cursor-pointer hidden">Voltar ao Início dos Comentários</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
     <!-- Notes Section -->
     <div class="flex-1 p-4">
