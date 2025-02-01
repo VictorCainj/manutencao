@@ -74,36 +74,36 @@
         }
 
         /* Module colors */
-    /* Button colors for modules */
-    .module-criacao {
-        color: white;
-        background-color: #1e90ff; /* Azul */
-    }
-    .module-analise {
-        color: white;
-        background-color: #1e90ff; /* Azul */
-    }
-    .module-negociacao {
-        color: white;
-        background-color: #1e90ff; /* Azul */
-    }
-    .module-execucao {
-        color: white;
-        background-color: #ff0000; /* Vermelho */
-    }
-    .module-finalizacao {
-        color: white;
-        background-color: #32cd32; /* Verde */
-    }
+        /* Button colors for modules */
+        .module-criacao {
+            color: white;
+            background-color: #1e90ff; /* Azul */
+        }
+        .module-analise {
+            color: white;
+            background-color: #1e90ff; /* Azul */
+        }
+        .module-negociacao {
+            color: white;
+            background-color: #1e90ff; /* Azul */
+        }
+        .module-execucao {
+            color: white;
+            background-color: #ff0000; /* Vermelho */
+        }
+        .module-finalizacao {
+            color: white;
+            background-color: #32cd32; /* Verde */
+        }
 
-    .module-status {
-        font-size: 0.9rem;
-        font-weight: bold;
-        padding: 4px 8px;
-        border-radius: 4px;
-        display: inline-block;
-        margin-bottom: 8px;
-    }
+        .module-status {
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 text-black">
@@ -152,16 +152,11 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col items-center p-4">
 
-<!-- User Info -->
-<div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden flex items-center">
-    <img id="userIcon" class="user-icon" src="https://i.imgur.com/kooxTdN.jpeg" alt="User Icon">
-    <span id="loggedUser" class="ml-2"></span>
-</div>
-<!-- User Info -->
-<div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden flex items-center">
-    <img id="userIcon" class="user-icon" src="https://i.imgur.com/kooxTdN.jpeg" alt="User Icon">
-    <span id="loggedUser" class="ml-2"></span>
-</div>
+        <!-- User Info -->
+        <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden flex items-center">
+            <img id="userIcon" class="user-icon" src="https://i.imgur.com/kooxTdN.jpeg" alt="User Icon">
+            <span id="loggedUser" class="ml-2"></span>
+        </div>
 
         <!-- Main Controls -->
         <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
@@ -326,7 +321,7 @@
 
         <div class="my-4 border-t-2 border-gray-300"></div>
 
-        <!-- Note Details Modal -->
+<!-- Note Details Modal -->
         <div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duração-300 z-40 hidden">
             <div class="bg-white rounded-lg shadow-lg transform transition-all duração-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-end">
@@ -337,33 +332,33 @@
                 <h2 class="text-2xl font-semibold mb-4 text-center text-black">Detalhes da Anotação</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-<!-- Coluna da esquerda - Detalhes -->
+                    <!-- Coluna da esquerda - Detalhes -->
                     <div class="space-y-4">
                         <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative"></div>
 
-<div class="flex space-x-2">
-    <button type="button" id="copyDetailsBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
-        <i class="fas fa-copy"></i> <!-- Ícone de dois documentos sobrepostos -->
-    </button>
-    <button type="button" id="downloadContractBtn" class="bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
-        <i class="fas fa-arrow-circle-down"></i> <!-- Ícone de seta para baixo dentro de um círculo -->
-    </button>
-    <button type="button" id="cancelScheduleBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
-        <i class="fas fa-calendar-times"></i> <!-- Ícone de cancelamento de calendário (permanece o mesmo) -->
-    </button>
-    <button type="button" id="deleteNoteBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
-        <i class="fas fa-trash-alt"></i> <!-- Ícone de lixeira minimalista -->
-    </button>
-    <button type="button" id="finalizeNoteBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1 hidden">
-        <i class="fas fa-check"></i> <!-- Ícone de check minimalista -->
-    </button>
-    <button type="button" id="reopenNoteBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1 hidden">
-        <i class="fas fa-undo"></i> <!-- Ícone de reabrir (permanece o mesmo) -->
-    </button>
-    <button type="button" id="specialClauseBtn" class="bg-orange-500 hover:bg-orange-700 focus:ring-orange-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
-        <i class="fas fa-file-alt"></i> <!-- Ícone de documento com estrela ou chave -->
-    </button>
-</div>
+                        <div class="flex space-x-2">
+                            <button type="button" id="copyDetailsBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
+                                <i class="fas fa-copy"></i> <!-- Ícone de dois documentos sobrepostos -->
+                            </button>
+                            <button type="button" id="downloadContractBtn" class="bg-yellow-500 hover:bg-yellow-700 focus:ring-yellow-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
+                                <i class="fas fa-arrow-circle-down"></i> <!-- Ícone de seta para baixo dentro de um círculo -->
+                            </button>
+                            <button type="button" id="cancelScheduleBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
+                                <i class="fas fa-calendar-times"></i> <!-- Ícone de cancelamento de calendário -->
+                            </button>
+                            <button type="button" id="deleteNoteBtn" class="bg-red-500 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
+                                <i class="fas fa-trash-alt"></i> <!-- Ícone de lixeira minimalista -->
+                            </button>
+                            <button type="button" id="finalizeNoteBtn" class="bg-green-500 hover:bg-green-700 focus:ring-green-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1 hidden">
+                                <i class="fas fa-check"></i> <!-- Ícone de check minimalista -->
+                            </button>
+                            <button type="button" id="reopenNoteBtn" class="bg-red-900 hover:bg-red-700 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1 hidden">
+                                <i class="fas fa-undo"></i> <!-- Ícone de reabrir -->
+                            </button>
+                            <button type="button" id="specialClauseBtn" class="bg-orange-500 hover:bg-orange-700 focus:ring-orange-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200 flex-1">
+                                <i class="fas fa-file-alt"></i> <!-- Ícone de documento com estrela ou chave -->
+                            </button>
+                        </div>
                         <div>
                             <label for="moduleDetail" class="block text-gray-700">Módulo: *</label>
                             <select id="moduleDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-black">
@@ -699,7 +694,7 @@ class NoteManager {
             this.toggleModal('noteDetailsModal');
         });
 
-        // Event Listeners para ações nos detalhes
+// Event Listeners para ações nos detalhes
         document.getElementById('copyDetailsBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
                 const noteKey = document.getElementById('noteDetailsContent')
@@ -732,7 +727,7 @@ class NoteManager {
             }
         });
 
-document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
+        document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
                 const noteKey = document.getElementById('noteDetailsContent')
                     .querySelector('p strong + span').textContent;
@@ -974,20 +969,20 @@ document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
 
             const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
-noteButton.innerHTML = `
-    <span class="module-status module-${note.module.toLowerCase()}">${note.module}</span>
-    <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
-    <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
-    <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-    <span class="block text-xs mt-1">${displayDate}</span>
-    <span class="block text-xs mt-1">
-        ${note.status === 'open' ? `Aberto` : 
-        (note.status === 'scheduled' ? 'Em agendamento' : 
-        (note.status === 'verified_today' ? 'Verificado Hoje' : 
-        (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
-    </span>
-    <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
-`;
+            noteButton.innerHTML = `
+                <span class="module-status module-${note.module.toLowerCase()}">${note.module}</span>
+                <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
+                <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
+                <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
+                <span class="block text-xs mt-1">${displayDate}</span>
+                <span class="block text-xs mt-1">
+                    ${note.status === 'open' ? `Aberto` : 
+                    (note.status === 'scheduled' ? 'Em agendamento' : 
+                    (note.status === 'verified_today' ? 'Verificado Hoje' : 
+                    (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
+                </span>
+                <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
+            `;
             noteButton.dataset.contract = note.key;
             noteButton.dataset.locator = note.locator.toLowerCase();
             noteButton.dataset.tenant = note.tenant.toLowerCase();
@@ -1082,7 +1077,7 @@ noteButton.innerHTML = `
         }
     }
 
-    renderComments(noteKey) {
+renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -1152,7 +1147,7 @@ noteButton.innerHTML = `
                 this.renderSubcomments(noteKey, comment.id);
             });
 
-// Mostrar/ocultar botão "Mostrar Mais Comentários"
+            // Mostrar/ocultar botão "Mostrar Mais Comentários"
             const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
             const backToTopBtn = document.getElementById('backToTopBtn');
             if (end >= note.comments.length) {
@@ -1286,8 +1281,8 @@ noteButton.innerHTML = `
 
             this.notes[noteKey].comments.unshift(comment);
 
-            // Update status to 'verified_today' only if the current status is not 'scheduled'
-            if (this.notes[noteKey].status !== 'scheduled') {
+            // Update status to 'verified_today' only if the current status is not 'scheduled' or 'special_clause'
+            if (this.notes[noteKey].status !== 'scheduled' && this.notes[noteKey].status !== 'special_clause') {
                 this.notes[noteKey].status = 'verified_today';
             }
 
@@ -1370,8 +1365,8 @@ noteButton.innerHTML = `
                 if (newText) {
                     note.comments[commentIndex].text = utils.sanitizeInput(newText);
                     note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
-                    // Update status to 'verified_today' only if the current status is not 'scheduled'
-                    if (note.status !== 'scheduled') {
+                    // Update status to 'verified_today' only if the current status is not 'scheduled' or 'special_clause'
+                    if (note.status !== 'scheduled' && note.status !== 'special_clause') {
                         note.status = 'verified_today';
                     }
                     this.saveToLocalStorage();
@@ -1527,7 +1522,7 @@ noteButton.innerHTML = `
         }
     }
 
-    updateNoteModule(noteKey, newModule) {
+updateNoteModule(noteKey, newModule) {
         try {
             const note = this.notes[noteKey];
             note.module = newModule;
@@ -1586,6 +1581,7 @@ noteButton.innerHTML = `
             if (note.status !== 'closed') {
                 note.status = 'closed';
                 note.closedAt = utils.getCurrentDateTime();
+                note.module = 'Finalizacao'; // Move to 'Finalização' module
                 this.saveToLocalStorage();
                 this.renderNotes();
                 this.showNoteDetails(noteKey);
@@ -1618,7 +1614,7 @@ noteButton.innerHTML = `
         }
     }
 
-transformToSpecialClause(noteKey) {
+    transformToSpecialClause(noteKey) {
         try {
             const note = this.notes[noteKey];
             if (note.status !== 'special_clause') {
@@ -1735,8 +1731,8 @@ transformToSpecialClause(noteKey) {
                     return commentDateStr === todayStr;
                 });
 
-                // Se houver comentários de hoje e o status não for 'scheduled', marcar como verified_today
-                if (hasCommentsToday && note.status !== 'scheduled' && note.status !== 'closed') {
+                // Se houver comentários de hoje e o status não for 'scheduled' ou 'special_clause', marcar como verified_today
+                if (hasCommentsToday && note.status !== 'scheduled' && note.status !== 'special_clause' && note.status !== 'closed') {
                     note.status = 'verified_today';
                 }
                 // Se não houver comentários hoje e o status for verified_today, voltar para open
@@ -2055,7 +2051,7 @@ transformToSpecialClause(noteKey) {
         }
     }
 
-    renderDashboard() {
+renderDashboard() {
         const statusData = {
             open: 0,
             closed: 0,
