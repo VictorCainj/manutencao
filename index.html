@@ -192,19 +192,19 @@
             margin-right: 8px;
         }
 
-        .module-criacao,
-        .module-analise,
-        .module-negociacao {
+        .module-Início,
+        .module-Análise,
+        .module-Negociação {
             color: var(--icon-color);
             background-color: #1e90ff;
         }
 
-        .module-execucao {
+        .module-Execução {
             color: var (--icon-color);
             background-color: #ff0000;
         }
 
-        .module-finalizacao {
+        .module-Conclusão {
             color: var(--icon-color);
             background-color: #32cd32;
         }
@@ -435,11 +435,11 @@
                     <div>
                         <label for="module" class="block">Módulo: *</label>
                         <select id="module" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="Criacao">Criação</option>
-                            <option value="Analise">Análise</option>
-                            <option value="Negociacao">Negociação</option>
-                            <option value="Execucao">Execução</option>
-                            <option value="Finalizacao">Finalização</option>
+                            <option value="Início">Início</option>
+                            <option value="Análise">Análise</option>
+                            <option value="Negociação">Negociação</option>
+                            <option value="Execução">Execução</option>
+                            <option value="Conclusão">Conclusão</option>
                         </select>
                     </div>
 
@@ -539,11 +539,11 @@
                         <div>
                             <label for="moduleDetail" class="block">Módulo: *</label>
                             <select id="moduleDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-                                <option value="Criacao">Criação</option>
-                                <option value="Analise">Análise</option>
-                                <option value="Negociacao">Negociação</option>
-                                <option value="Execucao">Execução</option>
-                                <option value="Finalizacao">Finalização</option>
+                                <option value="Início">Início</option>
+                                <option value="Análise">Análise</option>
+                                <option value="Negociação">Negociação</option>
+                                <option value="Execução">Execução</option>
+                                <option value="Conclusão">Conclusão</option>
                             </select>
                         </div>
                     </div>
@@ -595,11 +595,11 @@
             <div>
                 <select id="moduleFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
                     <option value="all">Todos os Módulos</option>
-                    <option value="Criacao">Criação</option>
-                    <option value="Analise">Análise</option>
-                    <option value="Negociacao">Negociação</option>
-                    <option value="Execucao">Execução</option>
-                    <option value="Finalizacao">Finalização</option>
+                    <option value="Início">Início</option>
+                    <option value="Análise">Análise</option>
+                    <option value="Negociação">Negociação</option>
+                    <option value="Execução">Execução</option>
+                    <option value="Conclusão">Conclusão</option>
                 </select>
             </div>
         </div>
@@ -1444,14 +1444,14 @@ renderComments(noteKey) {
                 this.notes[noteKey].status = 'verified_today';
             }
 
-            // Move to 'Análise' if in 'Criação' and a comment is added
-            if (this.notes[noteKey].module === 'Criacao') {
-                this.notes[noteKey].module = 'Analise';
+            // Move to 'Análise' if in 'Início' and a comment is added
+            if (this.notes[noteKey].module === 'Início') {
+                this.notes[noteKey].module = 'Análise';
             }
 
             // Move to 'Negociação' if in 'Análise' and there are 3 or more comments
-            if (this.notes[noteKey].module === 'Analise' && this.notes[noteKey].comments.length >= 3) {
-                this.notes[noteKey].module = 'Negociacao';
+            if (this.notes[noteKey].module === 'Análise' && this.notes[noteKey].comments.length >= 3) {
+                this.notes[noteKey].module = 'Negociação';
             }
 
             this.saveToLocalStorage();
@@ -1473,9 +1473,9 @@ renderComments(noteKey) {
 
             // Update module based on status changes
             if (newStatus === 'scheduled') {
-                note.module = 'Execucao';
+                note.module = 'Execução';
             } else if (newStatus === 'closed') {
-                note.module = 'Finalizacao';
+                note.module = 'Conclusão';
             }
 
             this.saveToLocalStorage();
@@ -1847,7 +1847,7 @@ deleteSubcomment(noteKey, commentId, subcommentId) {
                 note.scheduleDescription = '';
             }
             if (!note.hasOwnProperty('module')) {
-                note.module = 'Criacao';
+                note.module = 'Início';
             }
         });
         this.saveToLocalStorage();
@@ -2020,7 +2020,7 @@ deleteSubcomment(noteKey, commentId, subcommentId) {
             note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
 
             // Update module to 'Execução'
-            note.module = 'Execucao';
+            note.module = 'Execução';
 
             this.saveToLocalStorage();
             this.renderNotes();
@@ -2094,7 +2094,7 @@ deleteSubcomment(noteKey, commentId, subcommentId) {
                                     providerName: note.providerName || '',
                                     scheduleDate: note.scheduleDate || '',
                                     scheduleDescription: note.scheduleDescription || '',
-                                    module: note.module || 'Criacao',
+                                    module: note.module || 'Início',
                                     comments: Array.isArray(note.comments) ? note.comments : []
                                 };
                                 importCount++;
@@ -2184,7 +2184,7 @@ deleteSubcomment(noteKey, commentId, subcommentId) {
                     providerName: note.providerName || '',
                     scheduleDate: note.scheduleDate || '',
                     scheduleDescription: note.scheduleDescription || '',
-                    module: note.module || 'Criacao',
+                    module: note.module || 'Início',
                     comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
