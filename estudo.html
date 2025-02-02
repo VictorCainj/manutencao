@@ -5,45 +5,168 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Anotações de Estudo</title>
     <style>
-        /* Adicione aqui seus estilos personalizados */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        #app {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .note {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            background-color: #fafafa;
+        }
+
+        .note h3 {
+            margin: 0;
+        }
+
+        .note p {
+            margin: 5px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 5px 0;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
     <div id="app">
-        <!-- Adicione aqui sua estrutura HTML -->
+        <h1>Sistema de Anotações de Estudo</h1>
+
+        <div id="loginContainer">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password:</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+        </div>
+
+        <div id="mainContainer" class="hidden">
+            <div id="userInfo"></div>
+            <button id="logoutBtn" class="btn">Logout</button>
+
+            <h2>Criar Anotação</h2>
+            <form id="noteForm">
+                <div class="form-group">
+                    <label for="subject">Matéria:</label>
+                    <input type="text" id="subject" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">Conteúdo:</label>
+                    <textarea id="content" required></textarea>
+                </div>
+                <button type="submit" class="btn">Salvar</button>
+            </form>
+
+            <h2>Anotações</h2>
+            <div id="notesContainer"></div>
+        </div>
     </div>
 
     <script>
         class StudyNoteManager {
             constructor() {
                 this.notes = {};
-                this.currentPage = 0;
-                this.commentsPerPage = 5;
                 this.currentUser = null;
                 this.loadFromLocalStorage();
                 this.initializeEventListeners();
             }
 
-            // Funções de Inicialização
             initializeEventListeners() {
-                document.getElementById('createNoteBtn').addEventListener('click', () => this.handleFormSubmit());
-                document.getElementById('searchInput').addEventListener('input', () => this.handleSearch());
-                // Adicione outros listeners aqui
+                document.getElementById('loginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('loginEmail').value;
+                    const password = document.getElementById('loginPassword').value;
+
+                    // Simples verificação de login
+                    if ((email === 'user@example.com' && password === 'password123')) {
+                        this.currentUser = { email };
+                        this.saveToLocalStorage();
+                        this.showMainLayout();
+                    } else {
+                        alert('E-mail ou senha incorretos.');
+                    }
+                });
+
+                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
+
+                document.getElementById('noteForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleFormSubmit();
+                });
             }
 
-            // Funções de Autenticação
             isAuthenticated() {
                 return !!this.currentUser;
             }
 
             showMainLayout() {
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('mainContainer').style.display = 'block';
+                document.getElementById('loginContainer').classList.add('hidden');
+                document.getElementById('mainContainer').classList.remove('hidden');
+                this.updateUserInfo();
+                this.renderNotes();
             }
 
             showLogin() {
-                document.getElementById('loginContainer').style.display = 'block';
-                document.getElementById('mainContainer').style.display = 'none';
+                document.getElementById('loginContainer').classList.remove('hidden');
+                document.getElementById('mainContainer').classList.add('hidden');
             }
 
             logout() {
@@ -52,21 +175,20 @@
                 this.showLogin();
             }
 
-            // Funções de Criação e Renderização
             handleFormSubmit() {
-                const noteForm = document.getElementById('noteForm');
-                const formData = new FormData(noteForm);
+                const subject = document.getElementById('subject').value;
+                const content = document.getElementById('content').value;
                 const note = {
                     id: Date.now().toString(),
-                    subject: formData.get('subject'),
-                    content: formData.get('content'),
+                    subject,
+                    content,
                     createdAt: new Date().toISOString(),
                     comments: []
                 };
                 this.notes[note.id] = note;
                 this.saveToLocalStorage();
                 this.renderNotes();
-                noteForm.reset();
+                document.getElementById('noteForm').reset();
             }
 
             renderNotes() {
@@ -78,7 +200,7 @@
                     noteElement.innerHTML = `
                         <h3>${note.subject}</h3>
                         <p>${note.content}</p>
-                        <button onclick="studyNoteManager.showNoteDetails('${note.id}')">Detalhes</button>
+                        <button class="btn" onclick="studyNoteManager.showNoteDetails('${note.id}')">Detalhes</button>
                     `;
                     notesContainer.appendChild(noteElement);
                 });
@@ -86,12 +208,14 @@
 
             showNoteDetails(noteId) {
                 const note = this.notes[noteId];
-                const noteDetailsContainer = document.getElementById('noteDetailsContainer');
+                const noteDetailsContainer = document.createElement('div');
                 noteDetailsContainer.innerHTML = `
                     <h3>${note.subject}</h3>
                     <p>${note.content}</p>
-                    <button onclick="studyNoteManager.addSubcomment('${note.id}')">Adicionar Comentário</button>
+                    <button class="btn" onclick="studyNoteManager.addComment('${note.id}')">Adicionar Comentário</button>
+                    <div id="commentsContainer"></div>
                 `;
+                document.getElementById('notesContainer').appendChild(noteDetailsContainer);
                 this.renderComments(noteId);
             }
 
@@ -104,24 +228,14 @@
                     commentElement.className = 'comment';
                     commentElement.innerHTML = `
                         <p>${comment.text}</p>
-                        <button onclick="studyNoteManager.editComment('${note.id}', ${index})">Editar</button>
-                        <button onclick="studyNoteManager.deleteComment('${note.id}', ${index})">Excluir</button>
+                        <button class="btn" onclick="studyNoteManager.editComment('${note.id}', ${index})">Editar</button>
+                        <button class="btn" onclick="studyNoteManager.deleteComment('${note.id}', ${index})">Excluir</button>
                     `;
                     commentsContainer.appendChild(commentElement);
                 });
             }
 
-            addSubcomment(noteId) {
-                const commentText = prompt('Digite seu comentário:');
-                if (commentText) {
-                    const note = this.notes[noteId];
-                    note.comments.push({ text: commentText });
-                    this.saveToLocalStorage();
-                    this.renderComments(noteId);
-                }
-            }
-
-            handleCommentSubmit(noteId) {
+            addComment(noteId) {
                 const commentText = prompt('Digite seu comentário:');
                 if (commentText) {
                     const note = this.notes[noteId];
@@ -150,38 +264,6 @@
                 }
             }
 
-            updateNoteSubject(noteId, newSubject) {
-                const note = this.notes[noteId];
-                note.subject = newSubject;
-                this.saveToLocalStorage();
-                this.renderNotes();
-            }
-
-            cancelReviewSchedule(noteId) {
-                // Implementação da função de cancelar agendamento de revisão
-            }
-
-            deleteNote(noteId) {
-                if (confirm('Tem certeza que deseja excluir esta anotação?')) {
-                    delete this.notes[noteId];
-                    this.saveToLocalStorage();
-                    this.renderNotes();
-                }
-            }
-
-            finalizeNote(noteId) {
-                // Implementação da função de finalizar anotação
-            }
-
-            reopenNote(noteId) {
-                // Implementação da função de reabrir anotação
-            }
-
-            transformToFlashcard(noteId) {
-                // Implementação da função de transformar em flashcard
-            }
-
-            // Funções de Persistência
             saveToLocalStorage() {
                 localStorage.setItem('notes', JSON.stringify(this.notes));
                 localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
@@ -196,116 +278,16 @@
                 if (savedUser) {
                     this.currentUser = JSON.parse(savedUser);
                 }
-                this.renderNotes();
+                if (this.isAuthenticated()) {
+                    this.showMainLayout();
+                } else {
+                    this.showLogin();
+                }
             }
 
-            fixOldNotes() {
-                // Implementação da função de corrigir anotações antigas
-            }
-
-            // Funções de Utilidade
             updateUserInfo() {
                 const userInfoElement = document.getElementById('userInfo');
                 userInfoElement.textContent = `Usuário: ${this.currentUser.email}`;
-            }
-
-            getUserIcon(email) {
-                // Implementação da função de obter ícone do usuário
-            }
-
-            updateReviewedNotes() {
-                // Implementação da função de atualizar anotações revisadas
-            }
-
-            handleSearch() {
-                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-                this.filterNotes(searchTerm);
-            }
-
-            filterNotes(searchTerm) {
-                const notesContainer = document.getElementById('notesContainer');
-                notesContainer.innerHTML = '';
-                Object.values(this.notes).forEach(note => {
-                    if (note.subject.toLowerCase().includes(searchTerm) || note.content.toLowerCase().includes(searchTerm)) {
-                        const noteElement = document.createElement('div');
-                        noteElement.className = 'note';
-                        noteElement.innerHTML = `
-                            <h3>${note.subject}</h3>
-                            <p>${note.content}</p>
-                            <button onclick="studyNoteManager.showNoteDetails('${note.id}')">Detalhes</button>
-                        `;
-                        notesContainer.appendChild(noteElement);
-                    }
-                });
-            }
-
-            sortNotes() {
-                // Implementação da função de ordenar anotações
-            }
-
-            updateNoteButton(noteId) {
-                // Implementação da função de atualizar botão de anotação
-            }
-
-            nextPage() {
-                this.currentPage++;
-                this.renderNotes();
-            }
-
-            prevPage() {
-                if (this.currentPage > 0) {
-                    this.currentPage--;
-                    this.renderNotes();
-                }
-            }
-
-            handleReviewScheduleFormSubmit() {
-                // Implementação da função de enviar formulário de revisão agendada
-            }
-
-            populateSubjectDropdown() {
-                // Implementação da função de popular dropdown de matérias
-            }
-
-            filterSubjectDropdown(searchTerm) {
-                // Implementação da função de filtrar dropdown de matérias
-            }
-
-            handleFileImport(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const importedNotes = JSON.parse(e.target.result);
-                        Object.keys(importedNotes).forEach(key => {
-                            this.notes[key] = importedNotes[key];
-                        });
-                        this.saveToLocalStorage();
-                        this.renderNotes();
-                    };
-                    reader.readAsText(file);
-                }
-            }
-
-            validateImportedNote() {
-                // Implementação da função de validar anotação importada
-            }
-
-            exportNotes() {
-                const notesJson = JSON.stringify(this.notes, null, 2);
-                const blob = new Blob([notesJson], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'anotacoes.json';
-                document.body.appendChild(a);
-                a.click();
-                URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-            }
-
-            renderDashboard() {
-                // Implementação da função de renderizar dashboard
             }
         }
 
