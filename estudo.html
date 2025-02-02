@@ -3,120 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Anotações de Estudo</title>
+    <meta name="description" content="Sistema de Anotações de Estudo - Gerenciamento eficiente de estudos">
+    <meta name="author" content="VictorCainj">
+    <meta name="last-modified" content="2025-02-02">
+    <title>Sistema Avançado de Anotações de Estudo</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+        /* Core Styles */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --background-color: #f8f9fa;
+            --text-color: #212529;
+            --border-radius: 4px;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        #app {
-            max-width: 800px;
-            margin: 20px auto;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+
+        /* Layout Components */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        h1 {
+        .header {
+            background-color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .app-title {
+            color: var(--primary-color);
             text-align: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
         }
 
-        .note-card {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            background-color: #fafafa;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-            width: 48%;
-            box-sizing: border-box;
-            margin-right: 2%;
-        }
-
-        .note-card:nth-child(2n) {
-            margin-right: 0;
-        }
-
-        .note-card h3 {
-            margin: 0 0 10px 0;
-        }
-
-        .note-card p {
-            margin: 0 0 10px 0;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            margin: 5px 0;
-            font-size: 14px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 4px;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-delete-all {
-            background-color: #dc3545;
-        }
-
-        .btn-delete-all:hover {
-            background-color: #c82333;
-        }
-
-        .hidden {
-            display: none;
+        /* Form Styles */
+        .form-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 1rem;
         }
 
-        .form-group label {
+        .form-label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
         }
 
-        .form-group input, .form-group textarea {
+        .form-control {
             width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border-color var(--transition-speed);
         }
 
-        .toolbar {
-            margin-bottom: 10px;
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
         }
 
-        .toolbar button {
-            margin-right: 5px;
+        /* Button Styles */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-speed);
         }
 
-        #notesContainer {
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        /* Note Card Styles */
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .note-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform var(--transition-speed);
+        }
+
+        .note-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .note-title {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .note-content {
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .note-footer {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
         }
 
-        #searchInput {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-        }
-
-        /* Estilos para o modal */
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -124,94 +168,115 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
         }
 
         .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 500px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        .modal-header h3 {
-            margin: 0;
+            background-color: white;
+            width: 90%;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            position: relative;
         }
 
         .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
             cursor: pointer;
-            font-size: 1.5em;
+        }
+
+        /* Rich Text Editor */
+        .editor-toolbar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+        }
+
+        .editor-content {
+            min-height: 200px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none;
+        }
+
+        .mt-2 {
+            margin-top: 2rem;
+        }
+
+        .text-center {
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <h1>Sistema de Anotações de Estudo</h1>
+    <div class="container">
+        <header class="header">
+            <h1 class="app-title">Sistema Avançado de Anotações de Estudo</h1>
+            <div id="userInfo" class="text-center"></div>
+        </header>
 
-        <div id="loginContainer">
+        <div id="loginContainer" class="form-container">
             <h2>Login</h2>
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="loginEmail">Email:</label>
-                    <input type="email" id="loginEmail" required>
+                    <label class="form-label" for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="loginPassword">Password:</label>
-                    <input type="password" id="loginPassword" required>
+                    <label class="form-label" for="loginPassword">Senha:</label>
+                    <input type="password" id="loginPassword" class="form-control" required>
                 </div>
-                <button type="submit" class="btn">Login</button>
+                <button type="submit" class="btn btn-primary">Entrar</button>
             </form>
         </div>
 
         <div id="mainContainer" class="hidden">
-            <div id="userInfo"></div>
-            <button id="logoutBtn" class="btn">Logout</button>
-
-            <h2>Criar Anotação</h2>
-            <form id="noteForm">
-                <div class="form-group">
-                    <label for="subject">Tema:</label>
-                    <input type="text" id="subject" required>
-                </div>
-                <div class="form-group">
-                    <label for="content">Conteúdo:</label>
-                    <div class="toolbar">
-                        <button type="button" onclick="document.execCommand('bold')">Negrito</button>
-                        <button type="button" onclick="document.execCommand('italic')">Itálico</button>
-                        <button type="button" onclick="document.execCommand('underline')">Sublinhado</button>
+            <div class="form-container">
+                <h2>Nova Anotação</h2>
+                <form id="noteForm">
+                    <div class="form-group">
+                        <label class="form-label" for="subject">Tema:</label>
+                        <input type="text" id="subject" class="form-control" required>
                     </div>
-                    <div id="content" contenteditable="true" style="border: 1px solid #ddd; padding: 8px; min-height: 100px;"></div>
-                </div>
-                <button type="submit" class="btn">Salvar</button>
-            </form>
+                    <div class="form-group">
+                        <label class="form-label">Conteúdo:</label>
+                        <div class="editor-toolbar">
+                            <button type="button" class="btn btn-primary" data-command="bold">B</button>
+                            <button type="button" class="btn btn-primary" data-command="italic">I</button>
+                            <button type="button" class="btn btn-primary" data-command="underline">U</button>
+                        </div>
+                        <div id="content" class="editor-content" contenteditable="true"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </form>
+            </div>
 
-            <button id="deleteAllNotesBtn" class="btn btn-delete-all">Excluir Todos os Estudos</button>
+            <div class="mt-2">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar por tema...">
+                <div id="notesContainer" class="notes-grid"></div>
+            </div>
 
-            <h2>Anotações</h2>
-            <input type="text" id="searchInput" placeholder="Buscar por Tema...">
-            <div id="notesContainer"></div>
+            <button id="deleteAllNotesBtn" class="btn btn-danger mt-2">Excluir Todas as Anotações</button>
         </div>
 
-        <!-- Modal para detalhes da anotação -->
         <div id="detailsModal" class="modal">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h3 id="modalTitle">Detalhes da Anotação</h3>
-                    <span class="modal-close" onclick="studyNoteManager.closeModal()">&times;</span>
-                </div>
+                <span class="modal-close">&times;</span>
+                <h3 id="modalTitle"></h3>
                 <div id="modalBody"></div>
                 <div id="commentsContainer"></div>
             </div>
@@ -219,210 +284,347 @@
     </div>
 
     <script>
-        class StudyNoteManager {
+        // Constants
+        const STORAGE_KEYS = {
+            NOTES: 'study_notes',
+            USER: 'current_user'
+        };
+
+        class NotificationService {
+            static success(message) {
+                alert(message); // In a real app, use a proper notification system
+            }
+
+            static error(message) {
+                alert(`Erro: ${message}`);
+            }
+        }
+
+        class StorageService {
+            static save(key, data) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                    return true;
+                } catch (error) {
+                    console.error('Error saving data:', error);
+                    return false;
+                }
+            }
+
+            static get(key) {
+                try {
+                    const data = localStorage.getItem(key);
+                    return data ? JSON.parse(data) : null;
+                } catch (error) {
+                    console.error('Error retrieving data:', error);
+                    return null;
+                }
+            }
+
+            static remove(key) {
+                localStorage.removeItem(key);
+            }
+        }
+
+        class Note {
+            constructor(subject, content, userId) {
+                this.id = Date.now().toString();
+                this.subject = subject;
+                this.content = content;
+                this.userId = userId;
+                this.createdAt = new Date().toISOString();
+                this.updatedAt = new Date().toISOString();
+                this.comments = [];
+            }
+
+            addComment(text) {
+                this.comments.push({
+                    id: Date.now().toString(),
+                    text,
+                    createdAt: new Date().toISOString()
+                });
+                this.updatedAt = new Date().toISOString();
+            }
+        }
+
+        class StudyNoteApp {
             constructor() {
                 this.notes = {};
                 this.currentUser = null;
-                this.loadFromLocalStorage();
-                this.initializeEventListeners();
+                this.initializeApp();
             }
 
-            initializeEventListeners() {
+            initializeApp() {
+                this.loadFromStorage();
+                this.setupEventListeners();
+                this.checkAuth();
+            }
+
+            setupEventListeners() {
+                // Login form
                 document.getElementById('loginForm').addEventListener('submit', (e) => {
                     e.preventDefault();
-                    const email = document.getElementById('loginEmail').value;
-                    const password = document.getElementById('loginPassword').value;
-
-                    // Simples verificação de login
-                    if ((email === 'user@example.com' && password === 'password123')) {
-                        this.currentUser = { email };
-                        this.saveToLocalStorage();
-                        this.showMainLayout();
-                    } else {
-                        alert('E-mail ou senha incorretos.');
-                    }
+                    this.handleLogin();
                 });
 
-                document.getElementById('logoutBtn').addEventListener('click', () => this.logout());
-
+                // Note form
                 document.getElementById('noteForm').addEventListener('submit', (e) => {
                     e.preventDefault();
-                    this.handleFormSubmit();
+                    this.handleNoteSubmit();
                 });
 
-                document.getElementById('deleteAllNotesBtn').addEventListener('click', () => this.deleteAllNotes());
+                // Search
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.handleSearch(e.target.value);
+                });
 
-                document.getElementById('searchInput').addEventListener('input', () => this.handleSearch());
+                // Delete all notes
+                document.getElementById('deleteAllNotesBtn').addEventListener('click', () => {
+                    this.handleDeleteAllNotes();
+                });
+
+                // Editor toolbar buttons
+                document.querySelectorAll('[data-command]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        document.execCommand(button.dataset.command, false, null);
+                    });
+                });
+
+                // Modal close button
+                document.querySelector('.modal-close').addEventListener('click', () => {
+                    this.closeModal();
+                });
             }
 
-            isAuthenticated() {
-                return !!this.currentUser;
+            handleLogin() {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                // Simple validation (in a real app, use proper authentication)
+                if (email === 'user@example.com' && password === 'password123') {
+                    this.currentUser = { email };
+                    this.saveToStorage();
+                    this.showMainContainer();
+                    NotificationService.success('Login realizado com sucesso!');
+                } else {
+                    NotificationService.error('Credenciais inválidas');
+                }
             }
 
-            showMainLayout() {
-                document.getElementById('loginContainer').classList.add('hidden');
-                document.getElementById('mainContainer').classList.remove('hidden');
-                this.updateUserInfo();
-                this.renderNotes();
-            }
-
-            showLogin() {
-                document.getElementById('loginContainer').classList.remove('hidden');
-                document.getElementById('mainContainer').classList.add('hidden');
-            }
-
-            logout() {
-                this.currentUser = null;
-                this.saveToLocalStorage();
-                this.showLogin();
-            }
-
-            handleFormSubmit() {
+            handleNoteSubmit() {
                 const subject = document.getElementById('subject').value;
                 const content = document.getElementById('content').innerHTML;
-                const note = {
-                    id: Date.now().toString(),
-                    subject,
-                    content,
-                    createdAt: new Date().toISOString(),
-                    comments: []
-                };
+
+                const note = new Note(subject, content, this.currentUser.email);
                 this.notes[note.id] = note;
-                this.saveToLocalStorage();
+                this.saveToStorage();
                 this.renderNotes();
-                document.getElementById('noteForm').reset();
-                document.getElementById('content').innerHTML = '';
+                this.clearNoteForm();
+                NotificationService.success('Nota salva com sucesso!');
             }
 
-            renderNotes(searchTerm = '') {
-                const notesContainer = document.getElementById('notesContainer');
-                notesContainer.innerHTML = '';
-                Object.values(this.notes).forEach(note => {
-                    if (note.subject.toLowerCase().includes(searchTerm.toLowerCase())) {
-                        const noteElement = document.createElement('div');
-                        noteElement.className = 'note-card';
-                        noteElement.innerHTML = `
-                            <h3>${note.subject}</h3>
-                            <p>${note.content}</p>
-                            <button class="btn" onclick="studyNoteManager.showNoteDetails('${note.id}')">Detalhes</button>
-                        `;
-                        notesContainer.appendChild(noteElement);
-                    }
-                });
+            handleSearch(searchTerm) {
+                this.renderNotes(searchTerm);
+            }
+
+            handleDeleteAllNotes() {
+                if (confirm('Tem certeza que deseja excluir todas as anotações?')) {
+                    this.notes = {};
+                    this.saveToStorage();
+                    this.renderNotes();
+                    NotificationService.success('Todas as notas foram excluídas');
+                }
             }
 
             showNoteDetails(noteId) {
                 const note = this.notes[noteId];
-                if (note) {
-                    const modalTitle = document.getElementById('modalTitle');
-                    const modalBody = document.getElementById('modalBody');
-                    modalTitle.textContent = `Detalhes do Tema: ${note.subject}`;
-                    modalBody.innerHTML = `
-                        <p><strong>Conteúdo:</strong></p>
-                        <p>${note.content}</p>
-                        <button class="btn" onclick="studyNoteManager.addComment('${note.id}')">Adicionar Comentário</button>
-                    `;
-                    this.renderComments(noteId);
-                    this.openModal();
-                } else {
-                    alert('Erro ao carregar os detalhes da anotação.');
-                }
+                if (!note) return;
+
+                document.getElementById('modalTitle').textContent = note.subject;
+                document.getElementById('modalBody').innerHTML = `
+                    <div class="note-content">${note.content}</div>
+                    <div class="note-footer">
+                        <small>Criado em: ${new Date(note.createdAt).toLocaleString()}</small>
+                    </div>
+                `;
+
+                this.renderComments(note);
+                this.openModal();
             }
 
-            renderComments(noteId) {
-                const note = this.notes[noteId];
-                const commentsContainer = document.getElementById('commentsContainer');
-                commentsContainer.innerHTML = '';
-                note.comments.forEach((comment, index) => {
-                    const commentElement = document.createElement('div');
-                    commentElement.className = 'comment';
-                    commentElement.innerHTML = `
-                        <p>${comment.text}</p>
-                        <button class="btn" onclick="studyNoteManager.editComment('${note.id}', ${index})">Editar</button>
-                        <button class="btn" onclick="studyNoteManager.deleteComment('${note.id}', ${index})">Excluir</button>
-                    `;
-                    commentsContainer.appendChild(commentElement);
-                });
+            renderComments(note) {
+                const container = document.getElementById('commentsContainer');
+                container.innerHTML = `
+                    <h4>Comentários</h4>
+                    <div class="form-group">
+                        <button class="btn btn-primary" onclick="app.addComment('${note.id}')">
+                            Adicionar Comentário
+                        </button>
+                    </div>
+                    <div class="comments-list">
+                        ${note.comments.map(comment => `
+                            <div class="comment">
+                                <p>${comment.text}</p>
+                                <small>${new Date(comment.createdAt).toLocaleString()}</small>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
             }
 
-            addComment(noteId) {
-                const commentText = prompt('Digite seu comentário:');
-                if (commentText) {
+addComment(noteId) {
+                const text = prompt('Digite seu comentário:');
+                if (text) {
                     const note = this.notes[noteId];
-                    note.comments.push({ text: commentText });
-                    this.saveToLocalStorage();
-                    this.renderComments(noteId);
+                    note.addComment(text);
+                    this.saveToStorage();
+                    this.renderComments(note);
+                    NotificationService.success('Comentário adicionado com sucesso!');
                 }
             }
 
-            editComment(noteId, commentIndex) {
-                const note = this.notes[noteId];
-                const commentText = prompt('Edite seu comentário:', note.comments[commentIndex].text);
-                if (commentText) {
-                    note.comments[commentIndex].text = commentText;
-                    this.saveToLocalStorage();
-                    this.renderComments(noteId);
-                }
+            renderNotes(searchTerm = '') {
+                const container = document.getElementById('notesContainer');
+                container.innerHTML = '';
+
+                Object.values(this.notes)
+                    .filter(note => note.subject.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .forEach(note => {
+                        const card = document.createElement('div');
+                        card.className = 'note-card';
+                        card.innerHTML = `
+                            <h3 class="note-title">${note.subject}</h3>
+                            <div class="note-content">${this.truncateContent(note.content)}</div>
+                            <div class="note-footer">
+                                <small>Criado em: ${new Date(note.createdAt).toLocaleString()}</small>
+                                <button class="btn btn-primary" onclick="app.showNoteDetails('${note.id}')">
+                                    Ver Detalhes
+                                </button>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
             }
 
-            deleteComment(noteId, commentIndex) {
-                const note = this.notes[noteId];
-                if (confirm('Tem certeza que deseja excluir este comentário?')) {
-                    note.comments.splice(commentIndex, 1);
-                    this.saveToLocalStorage();
-                    this.renderComments(noteId);
-                }
-            }
-
-            deleteAllNotes() {
-                if (confirm('Tem certeza que deseja excluir todas as anotações?')) {
-                    this.notes = {};
-                    this.saveToLocalStorage();
-                    this.renderNotes();
-                }
-            }
-
-            handleSearch() {
-                const searchTerm = document.getElementById('searchInput').value;
-                this.renderNotes(searchTerm);
+            truncateContent(content, maxLength = 150) {
+                const div = document.createElement('div');
+                div.innerHTML = content;
+                const text = div.textContent;
+                return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
             }
 
             openModal() {
-                document.getElementById('detailsModal').style.display = 'flex';
+                document.getElementById('detailsModal').style.display = 'block';
             }
 
             closeModal() {
                 document.getElementById('detailsModal').style.display = 'none';
             }
 
-            saveToLocalStorage() {
-                localStorage.setItem('notes', JSON.stringify(this.notes));
-                localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+            clearNoteForm() {
+                document.getElementById('subject').value = '';
+                document.getElementById('content').innerHTML = '';
             }
 
-            loadFromLocalStorage() {
-                const savedNotes = localStorage.getItem('notes');
-                const savedUser = localStorage.getItem('currentUser');
-                if (savedNotes) {
-                    this.notes = JSON.parse(savedNotes);
-                }
-                if (savedUser) {
-                    this.currentUser = JSON.parse(savedUser);
-                }
-                if (this.isAuthenticated()) {
-                    this.showMainLayout();
+            checkAuth() {
+                if (this.currentUser) {
+                    this.showMainContainer();
                 } else {
-                    this.showLogin();
+                    this.showLoginContainer();
                 }
+            }
+
+            showMainContainer() {
+                document.getElementById('loginContainer').classList.add('hidden');
+                document.getElementById('mainContainer').classList.remove('hidden');
+                this.updateUserInfo();
+                this.renderNotes();
+            }
+
+            showLoginContainer() {
+                document.getElementById('loginContainer').classList.remove('hidden');
+                document.getElementById('mainContainer').classList.add('hidden');
             }
 
             updateUserInfo() {
-                const userInfoElement = document.getElementById('userInfo');
-                userInfoElement.textContent = `Usuário: ${this.currentUser.email}`;
+                const userInfo = document.getElementById('userInfo');
+                userInfo.innerHTML = `
+                    <div class="user-info">
+                        <span>Usuário: ${this.currentUser.email}</span>
+                        <button class="btn btn-danger" onclick="app.handleLogout()">Sair</button>
+                    </div>
+                `;
+            }
+
+            handleLogout() {
+                this.currentUser = null;
+                StorageService.remove(STORAGE_KEYS.USER);
+                this.showLoginContainer();
+                NotificationService.success('Logout realizado com sucesso!');
+            }
+
+            saveToStorage() {
+                StorageService.save(STORAGE_KEYS.NOTES, this.notes);
+                StorageService.save(STORAGE_KEYS.USER, this.currentUser);
+            }
+
+            loadFromStorage() {
+                this.notes = StorageService.get(STORAGE_KEYS.NOTES) || {};
+                this.currentUser = StorageService.get(STORAGE_KEYS.USER);
+            }
+
+            getCurrentTimestamp() {
+                return new Date().toISOString();
+            }
+
+            formatDate(dateString) {
+                return new Date(dateString).toLocaleString();
             }
         }
 
-        const studyNoteManager = new StudyNoteManager();
+        // Initialize the application
+        const app = new StudyNoteApp();
+
+        // Handle outside clicks on modal
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailsModal');
+            if (event.target === modal) {
+                app.closeModal();
+            }
+        };
+
+        // Prevent closing the modal when clicking inside it
+        document.querySelector('.modal-content').addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+
+        // Add some keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            // Escape key closes modal
+            if (event.key === 'Escape') {
+                app.closeModal();
+            }
+
+            // Ctrl/Cmd + S for quick save (when creating/editing a note)
+            if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+                event.preventDefault();
+                const noteForm = document.getElementById('noteForm');
+                if (noteForm && !noteForm.classList.contains('hidden')) {
+                    noteForm.dispatchEvent(new Event('submit'));
+                }
+            }
+        });
+
+        // Console message for developers
+        console.log(
+            '%cStudy Notes App v2.0.0',
+            'color: #007bff; font-size: 20px; font-weight: bold;'
+        );
+        console.log(
+            `%cLast updated: ${new Date('2025-02-02').toLocaleDateString()}`,
+            'color: #6c757d;'
+        );
     </script>
 </body>
 </html>
