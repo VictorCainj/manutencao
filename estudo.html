@@ -32,6 +32,14 @@
             border-radius: 4px;
             background-color: #fafafa;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            width: 48%;
+            box-sizing: border-box;
+            margin-right: 2%;
+        }
+
+        .note-card:nth-child(2n) {
+            margin-right: 0;
         }
 
         .note-card h3 {
@@ -86,6 +94,27 @@
             padding: 8px;
             box-sizing: border-box;
         }
+
+        .toolbar {
+            margin-bottom: 10px;
+        }
+
+        .toolbar button {
+            margin-right: 5px;
+        }
+
+        #notesContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
@@ -114,12 +143,17 @@
             <h2>Criar Anotação</h2>
             <form id="noteForm">
                 <div class="form-group">
-                    <label for="subject">Matéria:</label>
+                    <label for="subject">Tema:</label>
                     <input type="text" id="subject" required>
                 </div>
                 <div class="form-group">
                     <label for="content">Conteúdo:</label>
-                    <textarea id="content" required></textarea>
+                    <div class="toolbar">
+                        <button type="button" onclick="document.execCommand('bold')">Negrito</button>
+                        <button type="button" onclick="document.execCommand('italic')">Itálico</button>
+                        <button type="button" onclick="document.execCommand('underline')">Sublinhado</button>
+                    </div>
+                    <div id="content" contenteditable="true" style="border: 1px solid #ddd; padding: 8px; min-height: 100px;"></div>
                 </div>
                 <button type="submit" class="btn">Salvar</button>
             </form>
@@ -127,6 +161,7 @@
             <button id="deleteAllNotesBtn" class="btn btn-delete-all">Excluir Todos os Estudos</button>
 
             <h2>Anotações</h2>
+            <input type="text" id="searchInput" placeholder="Buscar por Tema...">
             <div id="notesContainer"></div>
         </div>
     </div>
@@ -164,6 +199,8 @@
                 });
 
                 document.getElementById('deleteAllNotesBtn').addEventListener('click', () => this.deleteAllNotes());
+
+                document.getElementById('searchInput').addEventListener('input', () => this.handleSearch());
             }
 
             isAuthenticated() {
@@ -190,7 +227,7 @@
 
             handleFormSubmit() {
                 const subject = document.getElementById('subject').value;
-                const content = document.getElementById('content').value;
+                const content = document.getElementById('content').innerHTML;
                 const note = {
                     id: Date.now().toString(),
                     subject,
@@ -202,20 +239,23 @@
                 this.saveToLocalStorage();
                 this.renderNotes();
                 document.getElementById('noteForm').reset();
+                document.getElementById('content').innerHTML = '';
             }
 
-            renderNotes() {
+            renderNotes(searchTerm = '') {
                 const notesContainer = document.getElementById('notesContainer');
                 notesContainer.innerHTML = '';
                 Object.values(this.notes).forEach(note => {
-                    const noteElement = document.createElement('div');
-                    noteElement.className = 'note-card';
-                    noteElement.innerHTML = `
-                        <h3>${note.subject}</h3>
-                        <p>${note.content}</p>
-                        <button class="btn" onclick="studyNoteManager.showNoteDetails('${note.id}')">Detalhes</button>
-                    `;
-                    notesContainer.appendChild(noteElement);
+                    if (note.subject.toLowerCase().includes(searchTerm.toLowerCase())) {
+                        const noteElement = document.createElement('div');
+                        noteElement.className = 'note-card';
+                        noteElement.innerHTML = `
+                            <h3>${note.subject}</h3>
+                            <p>${note.content}</p>
+                            <button class="btn" onclick="studyNoteManager.showNoteDetails('${note.id}')">Detalhes</button>
+                        `;
+                        notesContainer.appendChild(noteElement);
+                    }
                 });
             }
 
@@ -284,6 +324,11 @@
                     this.saveToLocalStorage();
                     this.renderNotes();
                 }
+            }
+
+            handleSearch() {
+                const searchTerm = document.getElementById('searchInput').value;
+                this.renderNotes(searchTerm);
             }
 
             saveToLocalStorage() {
