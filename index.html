@@ -21,9 +21,9 @@
             --notification-success: #38a169;
             --notification-alert: #d69e2e;
             --notification-error: #e53e3e;
-            --details-background-color: rgba(255, 255, 255, 0.1);
+            --details-background-color: #1a1a1a00;
             --details-text-color: #f0f0f0;
-            --comment-background-color: #2c2c2c;
+            --comment-background-color: #ffffff;
             --comment-text-color: #f0f0f0;
             --comment-border-color: #4d4d4d;
         }
@@ -72,7 +72,7 @@
             padding: 1rem;
             background-color: var(--background-color);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 20px;
             box-shadow: 0 4px 8px var(--shadow-color);
         }
 
@@ -88,7 +88,7 @@ main {
     background-color: var(--background-color);
     color: black; /* Cor do texto preta */
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 20px;
     box-shadow: 0 4px 8px var(--shadow-color);
     background-color: var(--primary-button-color); /* Cor de fundo adicionada */
 }
@@ -126,7 +126,7 @@ main {
         .container {
             padding: 1rem;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 20px;
             margin-bottom: 1rem;
             box-shadow: 0 4px 8px var(--shadow-color);
         }
@@ -146,7 +146,7 @@ main {
             flex-direction: column;
             justify-content: space-between;
             padding: 16px;
-            border-radius: 8px;
+            border-radius: 20px;
             box-shadow: 0 4px 8px var(--shadow-color);
             transition: transform 0.2s, box-shadow 0.2s;
         }
@@ -213,10 +213,10 @@ main {
             color: #ffffff;
             padding: 4px 8px;
             border-radius: 12px;
-            font-size: 0.6rem;
+            font-size: 0.8rem;
             font-weight: bold;
             display: inline-block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         #loader {
@@ -284,7 +284,7 @@ main {
             background-color: var(--details-background-color);
             color: var(--details-text-color);
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: 20px;
             box-shadow: 0 4px 8px var(--shadow-color);
             border: 1px solid var(--border-color);
         }
@@ -294,7 +294,7 @@ main {
             color: #000000;
             border: 1px solid #7c7c7c;
             padding: 10px;
-            border-radius: 8px;
+            border-radius: 20px;
             margin-bottom: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
@@ -392,9 +392,9 @@ main {
 
         <!-- Dashboard Section -->
         <div id="dashboard" class="w-full max-w-2xl mb-6 text-center bg-transparent p-6 rounded-lg shadow-lg">
-            <h2 class="text-1xl font-semibold mb-4">Dashboard</h2>
+            <h2 class="text-2xl font-bold mb-4">Painel de Controle de Anotações</h2>
             <div class="relative w-full h-96 mx-auto">
-                <canvas id="statusChart" style="background: transparent;"></canvas>
+            <canvas id="statusChart" style="background: transparent;"></canvas>
             </div>
         </div>
 
@@ -518,25 +518,25 @@ main {
                 <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative text-black"></div>
 
                 <div class="flex space-x-2">
-                    <button type="button" id="copyDetailsBtn" class="btn-gray">
+                    <button type="button" id="copyDetailsBtn" class="btn-gray" aria-label="Copiar Detalhes">
                         <i class="fas fa-copy"></i>
                     </button>
-                    <button type="button" id="downloadContractBtn" class="btn-gray">
+                    <button type="button" id="downloadContractBtn" class="btn-gray" aria-label="Baixar Contrato">
                         <i class="fas fa-file-download"></i>
                     </button>
-                    <button type="button" id="cancelScheduleBtn" class="btn-gray">
+                    <button type="button" id="cancelScheduleBtn" class="btn-gray" aria-label="Cancelar Agendamento">
                         <i class="fas fa-calendar-times"></i>
                     </button>
-                    <button type="button" id="deleteNoteBtn" class="btn-gray">
+                    <button type="button" id="deleteNoteBtn" class="btn-gray" aria-label="Excluir Anotação">
                         <i class="fas fa-trash"></i>
                     </button>
-                    <button type="button" id="finalizeNoteBtn" class="btn-gray hidden">
+                    <button type="button" id="finalizeNoteBtn" class="btn-gray hidden" aria-label="Finalizar Anotação">
                         <i class="fas fa-check"></i>
                     </button>
-                    <button type="button" id="reopenNoteBtn" class="btn-gray hidden">
+                    <button type="button" id="reopenNoteBtn" class="btn-gray hidden" aria-label="Reabrir Anotação">
                         <i class="fas fa-undo"></i>
                     </button>
-                    <button type="button" id="specialClauseBtn" class="btn-gray">
+                    <button type="button" id="specialClauseBtn" class="btn-gray" aria-label="Transformar em Cláusula Especial"></button>
                         <i class="fas fa-star"></i>
                     </button>
                 </div>
@@ -737,7 +737,7 @@ this.initializeEventListeners();
 this.updateVerifiedNotes();
 this.chart = null; // Add this line to keep track of the chart instance
 
-// Atualiza o dashboard automaticamente a cada 3 segundos
+// Atualiza o dashboard automaticamente a cada 1 minuto.
 setInterval(() => this.renderDashboard(), 60000);
 }
 
@@ -1870,7 +1870,7 @@ fixOldNotes() {
         const loggedUser = document.getElementById('loggedUser');
         const userIcon = document.getElementById('userIcon');
         if (this.currentUser) {
-            loggedUser.textContent = `Logado: ${this.currentUser.email}`;
+            loggedUser.textContent = `Usuário logado: ${this.currentUser.email}`;
             userIcon.src = this.getUserIcon(this.currentUser.email);
             userInfo.classList.remove('hidden');
         } else {
@@ -2322,7 +2322,7 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
         noteManager.currentUser = { email };
         noteManager.saveToLocalStorage();
         noteManager.showMainLayout();
-        utils.showNotification('Login bem-sucedido!', 'success');
+        utils.showNotification('Login realizado com sucesso!', 'success');
     } else {
         utils.showNotification('E-mail ou senha incorretos.', 'error');
     }
@@ -2363,14 +2363,14 @@ noteManager.copyNoteComments = (noteKey) => {
         }).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
 
         navigator.clipboard.writeText(commentsWithSubcomments).then(() => {
-            utils.showNotification('Comentários copiados para a área de transferência!', 'success');
+            utils.showNotification('Comentários copiados para a área de transferência com sucesso!', 'success');
         }).catch(err => {
             console.error('Erro ao copiar comentários:', err);
-            utils.showNotification('Erro ao copiar comentários', 'error');
+            utils.showNotification('Erro ao copiar comentários para a área de transferência', 'error');
         });
     } catch (error) {
         console.error('Erro ao copiar comentários:', error);
-        utils.showNotification('Erro ao copiar comentários', 'error');
+        utils.showNotification('Erro ao copiar comentários para a área de transferência', 'error');
     }
 }
 
@@ -2387,12 +2387,16 @@ Locador: ${note.locator}
 Locatário: ${note.tenant}
 Problema: ${note.problem}
 Endereço: ${note.address}
-Status: ${note.status}
+Status: ${note.status === 'open' ? 'Em Aberto' : 
+        (note.status === 'scheduled' ? 'Em Agendamento' : 
+        (note.status === 'verified_today' ? 'Verificado Hoje' : 
+        (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
 ${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
 ${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
 ${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
 ${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
-Comentários:
+Comentários :
+
 ${comments}
         `.trim();
 
@@ -2435,4 +2439,4 @@ noteManager.searchAllContracts = (searchTerm) => {
 };
 </script>
 </body>
-</html> 
+</html>
