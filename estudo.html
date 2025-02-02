@@ -25,20 +25,21 @@
             text-align: center;
         }
 
-        .note {
+        .note-card {
             border: 1px solid #ddd;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 4px;
             background-color: #fafafa;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
 
-        .note h3 {
-            margin: 0;
+        .note-card h3 {
+            margin: 0 0 10px 0;
         }
 
-        .note p {
-            margin: 5px 0;
+        .note-card p {
+            margin: 0 0 10px 0;
         }
 
         .btn {
@@ -57,6 +58,14 @@
 
         .btn:hover {
             background-color: #0056b3;
+        }
+
+        .btn-delete-all {
+            background-color: #dc3545;
+        }
+
+        .btn-delete-all:hover {
+            background-color: #c82333;
         }
 
         .hidden {
@@ -115,6 +124,8 @@
                 <button type="submit" class="btn">Salvar</button>
             </form>
 
+            <button id="deleteAllNotesBtn" class="btn btn-delete-all">Excluir Todos os Estudos</button>
+
             <h2>Anotações</h2>
             <div id="notesContainer"></div>
         </div>
@@ -151,6 +162,8 @@
                     e.preventDefault();
                     this.handleFormSubmit();
                 });
+
+                document.getElementById('deleteAllNotesBtn').addEventListener('click', () => this.deleteAllNotes());
             }
 
             isAuthenticated() {
@@ -196,7 +209,7 @@
                 notesContainer.innerHTML = '';
                 Object.values(this.notes).forEach(note => {
                     const noteElement = document.createElement('div');
-                    noteElement.className = 'note';
+                    noteElement.className = 'note-card';
                     noteElement.innerHTML = `
                         <h3>${note.subject}</h3>
                         <p>${note.content}</p>
@@ -209,6 +222,7 @@
             showNoteDetails(noteId) {
                 const note = this.notes[noteId];
                 const noteDetailsContainer = document.createElement('div');
+                noteDetailsContainer.className = 'note-card';
                 noteDetailsContainer.innerHTML = `
                     <h3>${note.subject}</h3>
                     <p>${note.content}</p>
@@ -261,6 +275,14 @@
                     note.comments.splice(commentIndex, 1);
                     this.saveToLocalStorage();
                     this.renderComments(noteId);
+                }
+            }
+
+            deleteAllNotes() {
+                if (confirm('Tem certeza que deseja excluir todas as anotações?')) {
+                    this.notes = {};
+                    this.saveToLocalStorage();
+                    this.renderNotes();
                 }
             }
 
