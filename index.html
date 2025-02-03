@@ -574,17 +574,17 @@ main {
 <!-- Search and Filter Controls -->
 <div class="flex flex-wrap items-center justify-between mb-4 space-x-4">
     <div class="relative flex-1">
-        <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400" aria-label="Pesquisar contratos">
+        <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" aria-label="Pesquisar contratos">
         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
     </div>
     <div>
-        <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400" style="color: black;">
+        <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
             <option value="newest" style="color: black;">Mais Recentes</option>
             <option value="oldest" style="color: black;">Mais Antigos</option>
         </select>
     </div>
     <div>
-        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400" style="color: black;">
+        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
             <option value="all" style="color: black;">Todos os Chamados</option>
             <option value="open" style="color: black;">Abertos</option>
             <option value="scheduled" style="color: black;">Em Agendamento</option>
@@ -594,7 +594,7 @@ main {
         </select>
     </div>
     <div>
-        <select id="moduleFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400" style="color: black;">
+        <select id="moduleFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
             <option value="all" style="color: black;">Todos os Módulos</option>
             <option value="Chamado Novo" style="color: black;">Chamado Novo</option>
             <option value="Em Andamento" style="color: black;">Em Andamento</option>
@@ -1269,20 +1269,20 @@ showNoteDetails(noteKey) {
                     <div class="flex justify-between items-start">
                         <div class="flex-grow">
                             <p class="comment-text">${utils.applyBoldFormatting(utils.sanitizeInput(comment.text))}</p>
-                            <div class="mt-2 text-sm text-gray-700">
+                            <div class="mt-2 text-sm text-white-500">
                                 <span>${utils.formatDate(comment.dateTime)}</span>
                                 <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
                                 ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button id="edit-comment-${comment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Editar Comentário">
+                            <button id="edit-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Editar Comentário">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button id="delete-comment-${comment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Excluir Comentário">
+                            <button id="delete-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Excluir Comentário">
                                 <i class="fas fa-trash"></i>
                             </button>
-                            <button id="add-subcomment-${comment.id}" class="ml-2 text-red-900 hover:text-green-700" aria-label="Adicionar Subcomentário">
+                            <button id="add-subcomment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Adicionar Subcomentário">
                                 <i class="fas fa-comment-dots"></i>
                             </button>
                         </div>
@@ -1357,17 +1357,17 @@ showNoteDetails(noteKey) {
                     <div class="flex justify-between items-start">
                         <div class="flex-grow">
                             <p class="comment-text">${utils.applyBoldFormatting(utils.sanitizeInput(subcomment.text))}</p>
-                            <div class="mt-2 text-sm text-gray-700">
+                            <div class="mt-2 text-sm text-white-900">
                                 <span>${utils.formatDate(subcomment.dateTime)}</span>
                                 <span class="italic">(por ${utils.sanitizeInput(subcomment.author)})</span>
                                 ${subcomment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(subcomment.editedAt)})</span>` : ''}
                             </div>
                         </div>
                         <div class="flex space-x-2">
-                            <button id="edit-subcomment-${subcomment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Editar Subcomentário">
+                            <button id="edit-subcomment-${subcomment.id}" class="ml-2 text-white-900 hover:text-white-900" aria-label="Editar Subcomentário">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button id="delete-subcomment-${subcomment.id}" class="ml-2 text-red-900 hover:text-red-700" aria-label="Excluir Subcomentário">
+                            <button id="delete-subcomment-${subcomment.id}" class="ml-2 text-white-900 hover:text-white-900" aria-label="Excluir Subcomentário">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -2352,10 +2352,10 @@ noteManager.copyNoteComments = (noteKey) => {
     try {
         const note = noteManager.notes[noteKey];
         const commentsWithSubcomments = note.comments.map(comment => {
-            let commentText = `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`;
+            let commentText = `${utils.formatDate(comment.dateTime)}: ${comment.text}`;
             if (comment.subcomments && comment.subcomments.length > 0) {
                 const subcommentsText = comment.subcomments.map(subcomment => 
-                    `  - Subcomentário de ${subcomment.author} em ${utils.formatDate(subcomment.dateTime)}: ${subcomment.text}`
+                    `  - Subcomentário em ${utils.formatDate(subcomment.dateTime)}: ${subcomment.text}`
                 ).join('\n'); // Adiciona uma linha em branco entre cada subcomentário
                 commentText += `\n${subcommentsText}`;
             }
@@ -2378,9 +2378,17 @@ noteManager.copyNoteComments = (noteKey) => {
 noteManager.downloadSingleContract = (noteKey) => {
     try {
         const note = noteManager.notes[noteKey];
-        const comments = note.comments.map(comment =>
-            `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`
-        ).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
+        const commentsWithSubcomments = note.comments.map(comment => {
+            let commentText = `Comentário de ${comment.author} em ${utils.formatDate(comment.dateTime)}: ${comment.text}`;
+            if (comment.subcomments && comment.subcomments.length > 0) {
+                const subcommentsText = comment.subcomments.map(subcomment => 
+                    `  - Subcomentário de ${subcomment.author} em ${utils.formatDate(subcomment.dateTime)}: ${subcomment.text}`
+                ).join('\n'); // Adiciona uma linha em branco entre cada subcomentário
+                commentText += `\n${subcommentsText}`;
+            }
+            return commentText;
+        }).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
+
         const details = `
 Número de Contrato: ${noteKey}
 Locador: ${note.locator}
@@ -2395,9 +2403,9 @@ ${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
 ${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
 ${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
 ${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
-Comentários :
+Comentários:
 
-${comments}
+${commentsWithSubcomments}
         `.trim();
 
         const filename = `${noteKey}.txt`;
