@@ -17,11 +17,11 @@
             --primary-button-color: #333333;
             --primary-button-hover: #4d4d4d;
             --border-color: #ffffff;
-            --shadow-color: rgba(0, 0, 0, 0.5);
+            --shadow-color: rgba(255, 255, 255, 0.5);
             --notification-success: #38a169;
             --notification-alert: #d69e2e;
             --notification-error: #e53e3e;
-            --details-background-color: #42424277;
+            --details-background-color: #4f485f77;
             --details-text-color: #f0f0f0;
             --comment-background-color: #ffffff;
             --comment-text-color: #f0f0f0;
@@ -209,14 +209,14 @@ main {
         }
 
         .module-status {
-            background-color: #5b73b4;
+            background-color: #555555;
             color: #ffffff;
             padding: 4px 8px;
-            border-radius: 12px;
+            border-radius: 10px;
             font-size: 0.8rem;
             font-weight: bold;
             display: inline-block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         #loader {
@@ -292,16 +292,16 @@ main {
         .comment {
             background-color: #ffffff;
             color: #000000;
-            border: 1px solid #7c7c7c;
+            border: 4px solid #8d8d8db2;
             padding: 10px;
-            border-radius: 20px;
+            border-radius: 15px;
             margin-bottom: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
         }
 
         .comment .comment-author {
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .comment .comment-date {
@@ -311,9 +311,9 @@ main {
         }
 
         #commentText {
-            background-color: #FFFFFF;
+            background-color: #ffffff;
             color: #000000;
-            border: 1px solid var(--comment-border-color);
+            border: 4px solid var(--comment-border-color);
         }
 
         #module, #moduleDetail {
@@ -557,7 +557,7 @@ main {
                 <div class="bg-dark-900 p-4 rounded-lg shadow-md">
                     <h3 class="text-lg font-semibold mb-4">Comentários</h3>
                     <form id="commentForm" class="mb-4">
-                        <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-900 min-h-[50px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
+                        <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-900 min-h-[50px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
                     </form>
                     <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
                     <button id="showMoreCommentsBtn" class="text-white-900 cursor-pointer">Mostrar Mais Comentários</button>
