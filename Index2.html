@@ -81,17 +81,6 @@
         }
 
         .btn {
-main {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 1rem;
-    background-color: var(--background-color);
-    color: black; /* Cor do texto preta */
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    box-shadow: 0 4px 8px var(--shadow-color);
-    background-color: var(--primary-button-color); /* Cor de fundo adicionada */
-}
             color: var(--icon-color);
             border: none;
             padding: 0.5rem;
@@ -191,21 +180,13 @@ main {
             margin-right: 8px;
         }
 
-        .module-Chamado\ Novo,
-        .module-Em\ Andamento,
-        .module-Em\ Acordo {
+        .module-Manutenção,
+        .module-Contestação,
+        .module-Cláusula\ Especial,
+        .module-Autorização,
+        .module-Notificação {
             color: var(--icon-color);
             background-color: #1e90ff;
-        }
-
-        .module-Em\ Execução {
-            color: var(--icon-color);
-            background-color: #ff0000;
-        }
-
-        .module-Chamado\ Finalizado {
-            color: var(--icon-color);
-            background-color: #32cd32;
         }
 
         .module-status {
@@ -235,10 +216,10 @@ main {
         }
 
         input, select, textarea {
-    background-color: var(--secondary-button-color);
-    color: black;  /* Cor preta */
-    border: 1px solid var(--border-color);
-}
+            background-color: var(--secondary-button-color);
+            color: black;  
+            border: 1px solid var(--border-color);
+        }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
@@ -398,7 +379,7 @@ main {
         <div id="dashboard" class="w-full max-w-2xl mb-6 text-center bg-transparent p-6 rounded-lg shadow-lg">
             <h2 class="text-2xl font-bold mb-4">Painel de Controle de Anotações</h2>
             <div class="relative w-full h-96 mx-auto">
-            <canvas id="statusChart" style="background: transparent;"></canvas>
+                <canvas id="statusChart" style="background: transparent;"></canvas>
             </div>
         </div>
 
@@ -441,13 +422,13 @@ main {
                     </div>
 
                     <div>
-                        <label for="module" class="block">Módulo: *</label>
-                        <select id="module" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                            <option value="Chamado Novo">Chamado Novo</option>
-                            <option value="Em Andamento">Em Andamento</option>
-                            <option value="Em Acordo">Em Acordo</option>
-                            <option value="Em Execução">Em Execução</option>
-                            <option value="Chamado Finalizado">Chamado Finalizado</option>
+                        <label for="category" class="block">Categoria: *</label>
+                        <select id="category" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                            <option value="Manutenção">Manutenção</option>
+                            <option value="Contestação">Contestação</option>
+                            <option value="Cláusula Especial">Cláusula Especial</option>
+                            <option value="Autorização">Autorização</option>
+                            <option value="Notificação">Notificação</option>
                         </select>
                     </div>
 
@@ -466,424 +447,425 @@ main {
         <div class="my-4 border-t-2 border-gray-300"></div>
 
 <!-- Schedule Creation Modal -->
-<div id="scheduleModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
-    <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md">
-        <h2 class="text-xl font-semibold mb-4 text-center">Criar Agendamento</h2>
-        <form id="scheduleForm" class="space-y-4">
-            <div>
-                <label for="searchContract" class="block">Pesquisar Contrato:</label>
-                <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400" placeholder="Buscar contrato...">
-            </div>
-            <div>
-                <label for="existingContract" class="block">Selecionar Contrato: *</label>
-                <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                    <option value="">Selecione um contrato...</option>
-                </select>
-            </div>
-            <div>
-                <label for="providerName" class="block">Nome do Prestador: *</label>
-                <input type="text" id="providerName" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-            </div>
-            <div>
-                <label for="scheduleDate" class="block">Data do Agendamento: *</label>
-                <input type="date" id="scheduleDate" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-            </div>
-            <div>
-                <label for="scheduleDescription" class="block">Descrição do Agendamento: *</label>
-                <textarea id="scheduleDescription" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"></textarea>
-            </div>
-            <div class="flex justify-end space-x-2">
-                <button type="button" id="cancelScheduleModalBtn" class="btn-gray">
-                    <i class="fas fa-times"></i>
-                </button>
-                <button type="submit" class="btn-wine-red">
-                    <i class="fas fa-save"></i>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="my-4 border-t-2 border-gray-300"></div>
-
-<!-- Note Details Modal -->
-<div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
-    <div class="details-container transform transition-all duration-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-end">
-            <button type="button" id="closeDetailsBtn" class="btn-gray">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Coluna da esquerda - Detalhes -->
-            <div class="space-y-4">
-                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative text-black"></div>
-
-                <div class="flex space-x-2">
-                    <button type="button" id="copyDetailsBtn" class="btn-gray" aria-label="Copiar Detalhes">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                    <button type="button" id="downloadContractBtn" class="btn-gray" aria-label="Baixar Contrato">
-                        <i class="fas fa-file-download"></i>
-                    </button>
-                    <button type="button" id="cancelScheduleBtn" class="btn-gray" aria-label="Cancelar Agendamento">
-                        <i class="fas fa-calendar-times"></i>
-                    </button>
-                    <button type="button" id="deleteNoteBtn" class="btn-gray" aria-label="Excluir Anotação">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                    <button type="button" id="finalizeNoteBtn" class="btn-gray hidden" aria-label="Finalizar Anotação">
-                        <i class="fas fa-check"></i>
-                    </button>
-                    <button type="button" id="reopenNoteBtn" class="btn-gray hidden" aria-label="Reabrir Anotação">
-                        <i class="fas fa-undo"></i>
-                    </button>
-                    <button type="button" id="specialClauseBtn" class="btn-gray" aria-label="Transformar em Cláusula Especial"></button>
-                        <i class="fas fa-star"></i>
-                    </button>
-                </div>
-                <div>
-                    <label for="moduleDetail" class="block">Módulo: *</label>
-                    <select id="moduleDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                        <option value="Chamado Novo">Chamado Novo</option>
-                        <option value="Em Andamento">Em Andamento</option>
-                        <option value="Em Acordo">Em Acordo</option>
-                        <option value="Em Execução">Em Execução</option>
-                        <option value="Chamado Finalizado">Chamado Finalizado</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Coluna da direita - Comentários -->
-            <div class="space-y-4">
-                <div class="bg-dark-900 p-4 rounded-lg shadow-md">
-                    <h3 class="text-lg font-semibold mb-4">Comentários</h3>
-                    <form id="commentForm" class="mb-4">
-                        <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-900 min-h-[50px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
-                    </form>
-                    <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
-                    <button id="showMoreCommentsBtn" class="text-white-900 cursor-pointer">Mostrar Mais Comentários</button>
-                    <button id="backToTopBtn" class="text-red-900 cursor-pointer hidden">Voltar ao Chamado Novo dos Comentários</button>
-                </div>
+        <div id="scheduleModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+            <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md">
+                <h2 class="text-xl font-semibold mb-4 text-center">Criar Agendamento</h2>
+                <form id="scheduleForm" class="space-y-4">
+                    <div>
+                        <label for="searchContract" class="block">Pesquisar Contrato:</label>
+                        <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400" placeholder="Buscar contrato...">
+                    </div>
+                    <div>
+                        <label for="existingContract" class="block">Selecionar Contrato: *</label>
+                        <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                            <option value="">Selecione um contrato...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="providerName" class="block">Nome do Prestador: *</label>
+                        <input type="text" id="providerName" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                    </div>
+                    <div>
+                        <label for="scheduleDate" class="block">Data do Agendamento: *</label>
+                        <input type="date" id="scheduleDate" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                    </div>
+                    <div>
+                        <label for="scheduleDescription" class="block">Descrição do Agendamento: *</label>
+                        <textarea id="scheduleDescription" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button type="button" id="cancelScheduleModalBtn" class="btn-gray">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <button type="submit" class="btn-wine-red">
+                            <i class="fas fa-save"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
+
+        <div class="my-4 border-t-2 border-gray-300"></div>
+
+        <!-- Note Details Modal -->
+        <div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+            <div class="details-container transform transition-all duration-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-end">
+                    <button type="button" id="closeDetailsBtn" class="btn-gray">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Coluna da esquerda - Detalhes -->
+                    <div class="space-y-4">
+                        <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative text-black space-y-3 border-4 rounded-lg p-4"></div>
+
+                        <div class="flex space-x-2">
+                            <button type="button" id="copyDetailsBtn" class="btn-gray" aria-label="Copiar Detalhes">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button type="button" id="downloadContractBtn" class="btn-gray" aria-label="Baixar Contrato">
+                                <i class="fas fa-file-download"></i>
+                            </button>
+                            <button type="button" id="cancelScheduleBtn" class="btn-gray" aria-label="Cancelar Agendamento">
+                                <i class="fas fa-calendar-times"></i>
+                            </button>
+                            <button type="button" id="deleteNoteBtn" class="btn-gray" aria-label="Excluir Anotação">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button type="button" id="finalizeNoteBtn" class="btn-gray hidden" aria-label="Finalizar Anotação">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button type="button" id="reopenNoteBtn" class="btn-gray hidden" aria-label="Reabrir Anotação">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button type="button" id="specialClauseBtn" class="btn-gray" aria-label="Transformar em Cláusula Especial">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <label for="categoryDetail" class="block">Categoria: *</label>
+                            <select id="categoryDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                                <option value="Manutenção">Manutenção</option>
+                                <option value="Contestação">Contestação</option>
+                                <option value="Cláusula Especial">Cláusula Especial</option>
+                                <option value="Autorização">Autorização</option>
+                                <option value="Notificação">Notificação</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Coluna da direita - Comentários -->
+                    <div class="space-y-4">
+                        <div class="bg-dark-900 p-4 rounded-lg shadow-md">
+                            <h3 class="text-lg font-semibold mb-4">Comentários</h3>
+                            <form id="commentForm" class="mb-4">
+                                <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-900 min-h-[50px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
+                            </form>
+                            <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+                            <button id="showMoreCommentsBtn" class="text-white-900 cursor-pointer">Mostrar Mais Comentários</button>
+                            <button id="backToTopBtn" class="text-red-900 cursor-pointer hidden">Voltar ao Chamado Novo dos Comentários</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 </div>
 
 <!-- Notes Section -->
 <div class="flex-1 p-4">
-<!-- Search and Filter Controls -->
-<div class="flex flex-wrap items-center justify-between mb-4 space-x-4">
-    <div class="relative flex-1">
-        <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" aria-label="Pesquisar contratos">
-        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+    <!-- Search and Filter Controls -->
+    <div class="flex flex-wrap items-center justify-between mb-4 space-x-4">
+        <div class="relative flex-1">
+            <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" aria-label="Pesquisar contratos">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+        <div>
+            <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
+                <option value="newest" style="color: black;">Mais Recentes</option>
+                <option value="oldest" style="color: black;">Mais Antigos</option>
+            </select>
+        </div>
+        <div>
+            <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
+                <option value="all" style="color: black;">Todos os Chamados</option>
+                <option value="open" style="color: black;">Abertos</option>
+                <option value="scheduled" style="color: black;">Em Agendamento</option>
+                <option value="verified_today" style="color: black;">Verificados Hoje</option>
+                <option value="closed" style="color: black;">Fechados</option>
+                <option value="special_clause" style="color: black;">Cláusula Especial</option>
+            </select>
+        </div>
+        <div>
+            <select id="moduleFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
+                <option value="all" style="color: black;">Todos os Módulos</option>
+                <option value="Chamado Novo" style="color: black;">Chamado Novo</option>
+                <option value="Em Andamento" style="color: black;">Em Andamento</option>
+                <option value="Em Acordo" style="color: black;">Em Acordo</option>
+                <option value="Em Execução" style="color: black;">Em Execução</option>
+                <option value="Chamado Finalizado" style="color: black;">Chamado Finalizado</option>
+            </select>
+        </div>
     </div>
-    <div>
-        <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
-            <option value="newest" style="color: black;">Mais Recentes</option>
-            <option value="oldest" style="color: black;">Mais Antigos</option>
-        </select>
-    </div>
-    <div>
-        <select id="statusFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
-            <option value="all" style="color: black;">Todos os Chamados</option>
-            <option value="open" style="color: black;">Abertos</option>
-            <option value="scheduled" style="color: black;">Em Agendamento</option>
-            <option value="verified_today" style="color: black;">Verificados Hoje</option>
-            <option value="closed" style="color: black;">Fechados</option>
-            <option value="special_clause" style="color: black;">Cláusula Especial</option>
-        </select>
-    </div>
-    <div>
-        <select id="moduleFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
-            <option value="all" style="color: black;">Todos os Módulos</option>
-            <option value="Chamado Novo" style="color: black;">Chamado Novo</option>
-            <option value="Em Andamento" style="color: black;">Em Andamento</option>
-            <option value="Em Acordo" style="color: black;">Em Acordo</option>
-            <option value="Em Execução" style="color: black;">Em Execução</option>
-            <option value="Chamado Finalizado" style="color: black;">Chamado Finalizado</option>
-        </select>
-    </div>
-</div>
 
-<div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+    <div id="notesContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
 
-<!-- Pagination Controls -->
-<div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
-    <button id="prevPageBtn" class="btn-gray"><i class="fas fa-chevron-left"></i></button>
-    <button id="nextPageBtn" class="btn-gray"><i class="fas fa-chevron-right"></i></button>
-</div>
+    <!-- Pagination Controls -->
+    <div id="paginationControls" class="mt-4 flex justify-center items-center space-x-4">
+        <button id="prevPageBtn" class="btn-gray"><i class="fas fa-chevron-left"></i></button>
+        <button id="nextPageBtn" class="btn-gray"><i class="fas fa-chevron-right"></i></button>
+    </div>
 </div>
 </div>
 
 <script>
 // Utility Functions
 const utils = {
-showNotification: (message, type = 'success') => {
-const notificationArea = document.getElementById('notificationArea');
-notificationArea.innerHTML = ''; // Clear existing notifications
+    showNotification: (message, type = 'success') => {
+        const notificationArea = document.getElementById('notificationArea');
+        notificationArea.innerHTML = ''; // Clear existing notifications
 
-const notification = document.createElement('div');
-notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
-notification.textContent = message;
-notificationArea.appendChild(notification);
-setTimeout(() => notificationArea.removeChild(notification), 5000);
-},
+        const notification = document.createElement('div');
+        notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
+        notification.textContent = message;
+        notificationArea.appendChild(notification);
+        setTimeout(() => notificationArea.removeChild(notification), 5000);
+    },
 
-sanitizeInput: (input) => {
-if (typeof input !== 'string') return '';
-const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-};
-return input.replace(/[&<>"']/g, (m) => map[m]);
-},
+    sanitizeInput: (input) => {
+        if (typeof input !== 'string') return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return input.replace(/[&<>"']/g, (m) => map[m]);
+    },
 
-validateForm: (formData) => {
-const errors = [];
+    validateForm: (formData) => {
+        const errors = [];
 
-if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
-    errors.push('Número de contrato inválido - use apenas letras, números e hífen');
-}
+        if (!formData.contractNumber.match(/^[A-Za-z0-9-]+$/)) {
+            errors.push('Número de contrato inválido - use apenas letras, números e hífen');
+        }
 
-if (formData.locator.length < 3) {
-    errors.push('Nome do Locador deve ter ao menos 3 caracteres');
-}
+        if (formData.locator.length < 3) {
+            errors.push('Nome do Locador deve ter ao menos 3 caracteres');
+        }
 
-if (formData.tenant.length < 3) {
-    errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
-}
+        if (formData.tenant.length < 3) {
+            errors.push('Nome do Locatário deve ter ao menos 3 caracteres');
+        }
 
-if (formData.problem.length < 10) {
-    errors.push('Problema deve ter ao menos 10 caracteres');
-}
+        if (formData.problem.length < 10) {
+            errors.push('Problema deve ter ao menos 10 caracteres');
+        }
 
-if (formData.address.length < 5) {
-    errors.push('Endereço deve ter ao menos 5 caracteres');
-}
+        if (formData.address.length < 5) {
+            errors.push('Endereço deve ter ao menos 5 caracteres');
+        }
 
-return errors;
-},
+        return errors;
+    },
 
-formatDate: (dateString) => {
-try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return 'Data inválida';
+    formatDate: (dateString) => {
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Data inválida';
 
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
 
-    return `${day}/${month}/${year}`;
-} catch (e) {
-    console.error('Error formatting date:', e);
-    return 'Data inválida';
-}
-},
+            return `${day}/${month}/${year}`;
+        } catch (e) {
+            console.error('Error formatting date:', e);
+            return 'Data inválida';
+        }
+    },
 
-calculateDaysOpen: (dateString) => {
-const start = new Date(dateString);
-const today = new Date();
-const diffTime = Math.abs(today - start);
-const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-return diffDays;
-},
+    calculateDaysOpen: (dateString) => {
+        const start = new Date(dateString);
+        const today = new Date();
+        const diffTime = Math.abs(today - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    },
 
-getCurrentDateTime: () => {
-const now = new Date();
-const day = String(now.getDate()).padStart(2, '0');
-const month = String(now.getMonth() + 1).padStart(2, '0');
-const year = now.getFullYear();
-const hours = String(now.getHours()).padStart(2, '0');
-const minutes = String(now.getMinutes()).padStart(2, '0');
-const seconds = String(now.getSeconds()).padStart(2, '0');
-return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-},
+    getCurrentDateTime: () => {
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    },
 
-downloadFile: (content, filename, type = 'text/plain') => {
-const blob = new Blob([content], { type });
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = filename;
-document.body.appendChild(a);
-a.click();
-setTimeout(() => {
-    URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-}, 100);
-},
+    downloadFile: (content, filename, type = 'text/plain') => {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }, 100);
+    },
 
-applyBoldFormatting: (text) => {
-return text.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-}
+    applyBoldFormatting: (text) => {
+        return text.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
+    }
 };
 
 // Note Manager Class
 class NoteManager {
-constructor() {
-this.notes = {};
-this.currentPage = 0;
-this.notesPerPage = 9; // 3 notes per row * 3 rows
-this.commentsPerPage = 4;  // Número de comentários por vez
-this.currentUser = null;
-this.currentDateTime = utils.getCurrentDateTime();
-this.selectedNoteKey = null; // Adiciona uma propriedade para acompanhar a nota selecionada
-this.loadFromLocalStorage();
-this.cleanInvalidNotes();
-this.initializeEventListeners();
-this.updateVerifiedNotes();
-this.chart = null; // Add this line to keep track of the chart instance
+    constructor() {
+        this.notes = {};
+        this.currentPage = 0;
+        this.notesPerPage = 9; // 3 notes per row * 3 rows
+        this.commentsPerPage = 4;  // Número de comentários por vez
+        this.currentUser = null;
+        this.currentDateTime = utils.getCurrentDateTime();
+        this.selectedNoteKey = null; // Adiciona uma propriedade para acompanhar a nota selecionada
+        this.loadFromLocalStorage();
+        this.cleanInvalidNotes();
+        this.initializeEventListeners();
+        this.updateVerifiedNotes();
+        this.chart = null; // Add this line to keep track of the chart instance
 
-// Atualiza o dashboard automaticamente a cada 1 minuto.
-setInterval(() => this.renderDashboard(), 60000);
-}
-
-cleanInvalidNotes() {
-const validNotes = {};
-Object.entries(this.notes).forEach(([key, note]) => {
-    if (note && note.contractNumber) {
-        validNotes[key] = note;
+        // Atualiza o dashboard automaticamente a cada 1 minuto.
+        setInterval(() => this.renderDashboard(), 60000);
     }
-});
-this.notes = validNotes;
-this.saveToLocalStorage();
-}
 
-initializeEventListeners() {
-// Event Listeners para os botões principais
-document.getElementById('createNoteBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        this.closeAllModals();
-        this.toggleModal('noteModal');
-        document.getElementById('contractNumber').focus();
+    cleanInvalidNotes() {
+        const validNotes = {};
+        Object.entries(this.notes).forEach(([key, note]) => {
+            if (note && note.contractNumber) {
+                validNotes[key] = note;
+            }
+        });
+        this.notes = validNotes;
+        this.saveToLocalStorage();
     }
-});
 
-document.getElementById('cancelNoteBtn').addEventListener('click', () => {
-    this.toggleModal('noteModal');
-    document.getElementById('noteForm').reset();
-});
+    initializeEventListeners() {
+        // Event Listeners para os botões principais
+        document.getElementById('createNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.toggleModal('noteModal');
+                document.getElementById('contractNumber').focus();
+            }
+        });
 
-document.getElementById('noteForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (this.isAuthenticated()) {
-        this.handleFormSubmit();
-    }
-});
+        document.getElementById('cancelNoteBtn').addEventListener('click', () => {
+            this.toggleModal('noteModal');
+            document.getElementById('noteForm').reset();
+        });
 
-// Event Listeners para criar agendamento
-document.getElementById('createScheduleBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        this.closeAllModals();
-        this.populateContractDropdown();
-        this.toggleModal('scheduleModal');
-        document.getElementById('existingContract').focus();
-    }
-});
+        document.getElementById('noteForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (this.isAuthenticated()) {
+                this.handleFormSubmit();
+            }
+        });
 
-document.getElementById('cancelScheduleModalBtn').addEventListener('click', () => {
-    this.toggleModal('scheduleModal');
-    document.getElementById('scheduleForm').reset();
-});
+        // Event Listeners para criar agendamento
+        document.getElementById('createScheduleBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.closeAllModals();
+                this.populateContractDropdown();
+                this.toggleModal('scheduleModal');
+                document.getElementById('existingContract').focus();
+            }
+        });
 
-document.getElementById('scheduleForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (this.isAuthenticated()) {
-        this.handleScheduleFormSubmit();
-    }
-});
+        document.getElementById('cancelScheduleModalBtn').addEventListener('click', () => {
+            this.toggleModal('scheduleModal');
+            document.getElementById('scheduleForm').reset();
+        });
 
-document.getElementById('searchContract').addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    this.filterContractDropdown(searchTerm);
-});
+        document.getElementById('scheduleForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (this.isAuthenticated()) {
+                this.handleScheduleFormSubmit();
+            }
+        });
 
-// Event Listeners para busca e filtros
-document.getElementById('searchInput').addEventListener('input', () => {
-    if (this.isAuthenticated()) {
-        this.filterNotes();
-    }
-});
+        document.getElementById('searchContract').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            this.filterContractDropdown(searchTerm);
+        });
 
-document.getElementById('statusFilter').addEventListener('change', () => {
-    if (this.isAuthenticated()) {
-        this.renderNotes();
-    }
-});
+        // Event Listeners para busca e filtros
+        document.getElementById('searchInput').addEventListener('input', () => {
+            if (this.isAuthenticated()) {
+                this.filterNotes();
+            }
+        });
 
-document.getElementById('dateFilter').addEventListener('change', () => {
-    if (this.isAuthenticated()) {
-        this.renderNotes();
-    }
-});
+        document.getElementById('statusFilter').addEventListener('change', () => {
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
+        });
 
-document.getElementById('moduleFilter').addEventListener('change', () => {
-    if (this.isAuthenticated()) {
-        this.renderNotes();
-    }
-});
+        document.getElementById('dateFilter').addEventListener('change', () => {
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
+        });
 
-// Event Listeners para importação/exportação
-document.getElementById('importNotesBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        document.getElementById('fileInput').click();
-    }
-});
+        document.getElementById('moduleFilter').addEventListener('change', () => {
+            if (this.isAuthenticated()) {
+                this.renderNotes();
+            }
+        });
 
-document.getElementById('fileInput').addEventListener('change', (e) => {
-    if (this.isAuthenticated()) {
-        this.handleFileImport(e);
-    }
-});
+        // Event Listeners para importação/exportação
+        document.getElementById('importNotesBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                document.getElementById('fileInput').click();
+            }
+        });
 
-document.getElementById('downloadNotesBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        this.exportNotes();
-    }
-});
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (this.isAuthenticated()) {
+                this.handleFileImport(e);
+            }
+        });
 
-document.getElementById('logoutBtn').addEventListener('click', () => {
-    this.logout();
-});
+        document.getElementById('downloadNotesBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.exportNotes();
+            }
+        });
 
-// Event Listeners para comentários e detalhes
-document.getElementById('commentForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (this.isAuthenticated()) {
-        this.handleCommentSubmit();
-    }
-});
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            this.logout();
+        });
+
+        // Event Listeners para comentários e detalhes
+        document.getElementById('commentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (this.isAuthenticated()) {
+                this.handleCommentSubmit();
+            }
+        });
 
 document.getElementById('commentText').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        if (this.isAuthenticated()) {
-            document.getElementById('commentForm').dispatchEvent(new Event('submit'));
-        }
-    }
-});
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (this.isAuthenticated()) {
+                    document.getElementById('commentForm').dispatchEvent(new Event('submit'));
+                }
+            }
+        });
 
-document.getElementById('closeDetailsBtn').addEventListener('click', () => {
-    this.toggleModal('noteDetailsModal');
-});
+        document.getElementById('closeDetailsBtn').addEventListener('click', () => {
+            this.toggleModal('noteDetailsModal');
+        });
 
-// Event Listeners para ações nos detalhes
-document.getElementById('copyDetailsBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        const noteKey = document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent;
-        this.copyNoteComments(noteKey);
-    }
-});
+        // Event Listeners para ações nos detalhes
+        document.getElementById('copyDetailsBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.copyNoteComments(noteKey);
+            }
+        });
 
-document.getElementById('downloadContractBtn').addEventListener('click', () => {
+        document.getElementById('downloadContractBtn').addEventListener('click', () => {
             if (this.isAuthenticated()) {
                 const noteKey = document.getElementById('noteDetailsContent')
                     .querySelector('p strong + span').textContent;
@@ -924,18 +906,18 @@ document.getElementById('downloadContractBtn').addEventListener('click', () => {
         });
 
         document.getElementById('specialClauseBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        const noteKey = document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent;
-        this.transformToSpecialClause(noteKey);
-    }
-});
-
-        document.getElementById('moduleDetail').addEventListener('change', (e) => {
             if (this.isAuthenticated()) {
                 const noteKey = document.getElementById('noteDetailsContent')
                     .querySelector('p strong + span').textContent;
-                this.updateNoteModule(noteKey, e.target.value);
+                this.transformToSpecialClause(noteKey);
+            }
+        });
+
+        document.getElementById('categoryDetail').addEventListener('change', (e) => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.updateNoteCategory(noteKey, e.target.value);
             }
         });
 
@@ -1038,7 +1020,7 @@ document.getElementById('downloadContractBtn').addEventListener('click', () => {
             tenant: document.getElementById('tenant').value,
             problem: document.getElementById('problem').value,
             address: document.getElementById('address').value,
-            module: document.getElementById('module').value,
+            category: document.getElementById('category').value,
             createdAt: utils.getCurrentDateTime()
         };
 
@@ -1071,7 +1053,7 @@ document.getElementById('downloadContractBtn').addEventListener('click', () => {
             tenant: utils.sanitizeInput(formData.tenant),
             problem: utils.sanitizeInput(formData.problem),
             address: utils.sanitizeInput(formData.address),
-            module: utils.sanitizeInput(formData.module),
+            category: utils.sanitizeInput(formData.category),
             createdAt: formData.createdAt
         };
 
@@ -1111,10 +1093,10 @@ document.getElementById('downloadContractBtn').addEventListener('click', () => {
             filteredNotes = notesArray.filter(note => note.status === statusFilter);
         }
 
-        // Filter notes based on module
-        const moduleFilter = document.getElementById('moduleFilter').value;
-        if (moduleFilter !== 'all') {
-            filteredNotes = filteredNotes.filter(note => note.module === moduleFilter);
+        // Filter notes based on category
+        const categoryFilter = document.getElementById('moduleFilter').value;
+        if (categoryFilter !== 'all') {
+            filteredNotes = filteredNotes.filter(note => note.category === categoryFilter);
         }
 
         // Apply search results if provided
@@ -1139,7 +1121,7 @@ document.getElementById('downloadContractBtn').addEventListener('click', () => {
             const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
             noteButton.innerHTML = `
-                <span class="module-status module-${note.module.toLowerCase()}">${note.module}</span>
+                <span class="module-status module-${note.category.toLowerCase().replace(/\s+/g, '-')}">${note.category}</span>
                 <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
                 <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
                 <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
@@ -1179,13 +1161,23 @@ document.getElementById('downloadContractBtn').addEventListener('click', () => {
         }
     }
 
-showNoteDetails(noteKey) {
+    showNoteDetails(noteKey) {
         try {
             const note = this.notes[noteKey];
             const detailsContent = document.getElementById('noteDetailsContent');
 
+            // Alterar status para "Verificado Hoje"
+            note.status = 'verified_today';
+            this.saveToLocalStorage();
+            this.renderNotes();
+
             detailsContent.innerHTML = `
-                <div class="space-y-3">
+                <div class="space-y-3 border-4 rounded-lg p-4" style="border-color: ${
+                    note.status === 'open' ? '#ff0000' :
+                    (note.status === 'scheduled' ? '#ffd700' :
+                    (note.status === 'verified_today' ? '#800080' :
+                    (note.status === 'special_clause' ? '#d900ff' : '#32cd32')))
+                };">
                     <div class="pb-2 border-b border-gray-200">
                         <h3 class="text-lg font-semibold">Informações do Contrato</h3>
                     </div>
@@ -1218,8 +1210,8 @@ showNoteDetails(noteKey) {
                 </div>
             `;
 
-            // Update the module dropdown in the details modal
-            document.getElementById('moduleDetail').value = note.module;
+            // Update the category dropdown in the details modal
+            document.getElementById('categoryDetail').value = note.category;
 
             // Mostrar/ocultar botões "Finalizar" e "Reabrir" com base no status
             const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
@@ -1251,7 +1243,7 @@ showNoteDetails(noteKey) {
         }
     }
 
-    renderComments(noteKey) {
+renderComments(noteKey) {
         try {
             const commentsContainer = document.getElementById('commentsContainer');
             commentsContainer.innerHTML = '';
@@ -1460,16 +1452,6 @@ showNoteDetails(noteKey) {
                 this.notes[noteKey].status = 'verified_today';
             }
 
-            // Move to 'Em Andamento' if in 'Chamado Novo' and a comment is added
-            if (this.notes[noteKey].module === 'Chamado Novo') {
-                this.notes[noteKey].module = 'Em Andamento';
-            }
-
-            // Move to 'Em Acordo' if in 'Em Andamento' and there are 3 or more comments
-            if (this.notes[noteKey].module === 'Em Andamento' && this.notes[noteKey].comments.length >= 3) {
-                this.notes[noteKey].module = 'Em Acordo';
-            }
-
             this.saveToLocalStorage();
             this.renderComments(noteKey);
             this.updateNoteButton(noteKey);
@@ -1482,25 +1464,18 @@ showNoteDetails(noteKey) {
         }
     }
 
-    updateNoteStatusAndModule(noteKey, newStatus) {
+    updateNoteStatusAndCategory(noteKey, newStatus) {
         try {
             const note = this.notes[noteKey];
             note.status = newStatus;
 
-            // Update module based on status changes
-            if (newStatus === 'scheduled') {
-                note.module = 'Em Execução';
-            } else if (newStatus === 'closed') {
-                note.module = 'Chamado Finalizado';
-            }
-
             this.saveToLocalStorage();
             this.renderNotes();
             this.showNoteDetails(noteKey);
-            utils.showNotification(`Status atualizado para ${newStatus} e módulo ajustado!`, 'success');
+            utils.showNotification(`Status atualizado para ${newStatus}!`, 'success');
         } catch (error) {
-            console.error('Erro ao atualizar status e módulo:', error);
-            utils.showNotification('Erro ao atualizar status e módulo', 'error');
+            console.error('Erro ao atualizar status e categoria:', error);
+            utils.showNotification('Erro ao atualizar status e categoria', 'error');
         }
     }
 
@@ -1593,7 +1568,7 @@ showNoteDetails(noteKey) {
         }
     }
 
-deleteComment(noteKey, commentId) {
+    deleteComment(noteKey, commentId) {
         try {
             const note = this.notes[noteKey];
             if (!Array.isArray(note.comments)) {
@@ -1728,24 +1703,24 @@ deleteComment(noteKey, commentId) {
         }
     }
 
-    updateNoteModule(noteKey, newModule) {
+updateNoteCategory(noteKey, newCategory) {
         try {
             const note = this.notes[noteKey];
-            note.module = newModule;
+            note.category = newCategory;
 
             this.saveToLocalStorage();
             this.renderNotes();
             this.showNoteDetails(noteKey);
-            utils.showNotification('Módulo da anotação atualizado com sucesso!', 'success');
+            utils.showNotification('Categoria da anotação atualizada com sucesso!', 'success');
         } catch (error) {
-            console.error('Erro ao atualizar módulo da anotação:', error);
-            utils.showNotification('Erro ao atualizar módulo da anotação', 'error');
+            console.error('Erro ao atualizar categoria da anotação:', error);
+            utils.showNotification('Erro ao atualizar categoria da anotação', 'error');
         }
     }
 
     cancelSchedule(noteKey) {
         try {
-            this.updateNoteStatusAndModule(noteKey, 'open');
+            this.updateNoteStatusAndCategory(noteKey, 'open');
         } catch (error) {
             console.error('Erro ao cancelar agendamento:', error);
             utils.showNotification('Erro ao cancelar agendamento', 'error');
@@ -1771,7 +1746,7 @@ deleteComment(noteKey, commentId) {
 
     finalizeNote(noteKey) {
         try {
-            this.updateNoteStatusAndModule(noteKey, 'closed');
+            this.updateNoteStatusAndCategory(noteKey, 'closed');
         } catch (error) {
             console.error('Erro ao finalizar nota:', error);
             utils.showNotification('Erro ao finalizar nota', 'error');
@@ -1780,7 +1755,7 @@ deleteComment(noteKey, commentId) {
 
     reopenNote(noteKey) {
         try {
-            this.updateNoteStatusAndModule(noteKey, 'open');
+            this.updateNoteStatusAndCategory(noteKey, 'open');
         } catch (error) {
             console.error('Erro ao reabrir nota:', error);
             utils.showNotification('Erro ao reabrir nota', 'error');
@@ -1788,86 +1763,86 @@ deleteComment(noteKey, commentId) {
     }
 
     transformToSpecialClause(noteKey) {
-    try {
-        const note = this.notes[noteKey];
-        if (note.status !== 'special_clause') {
-            note.status = 'special_clause';
-            this.saveToLocalStorage();
-            this.renderNotes();
-            this.showNoteDetails(noteKey);
-            utils.showNotification('Nota transformada em cláusula especial com sucesso!', 'success');
-        } else {
-            utils.showNotification('A nota já é uma cláusula especial.', 'alert');
+        try {
+            const note = this.notes[noteKey];
+            if (note.status !== 'special_clause') {
+                note.status = 'special_clause';
+                this.saveToLocalStorage();
+                this.renderNotes();
+                this.showNoteDetails(noteKey);
+                utils.showNotification('Nota transformada em cláusula especial com sucesso!', 'success');
+            } else {
+                utils.showNotification('A nota já é uma cláusula especial.', 'alert');
+            }
+        } catch (error) {
+            console.error('Erro ao transformar nota em cláusula especial:', error);
+            utils.showNotification('Erro ao transformar nota em cláusula especial', 'error');
         }
-    } catch (error) {
-        console.error('Erro ao transformar nota em cláusula especial:', error);
-        utils.showNotification('Erro ao transformar nota em cláusula especial', 'error');
     }
-}
 
-saveToLocalStorage() {
-    try {
-        localStorage.setItem('notes', JSON.stringify(this.notes));
-        localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
-        utils.showNotification('Dados salvos localmente com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro ao salvar no localStorage:', error);
-        utils.showNotification('Erro ao salvar dados localmente', 'error');
+    saveToLocalStorage() {
+        try {
+            localStorage.setItem('notes', JSON.stringify(this.notes));
+            localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+            utils.showNotification('Dados salvos localmente com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+            utils.showNotification('Erro ao salvar dados localmente', 'error');
+        }
     }
-}
 
-loadFromLocalStorage() {
-    try {
-        const savedNotes = localStorage.getItem('notes');
-        const savedUser = localStorage.getItem('currentUser');
-        if (savedNotes) {
-            this.notes = JSON.parse(savedNotes);
-            this.fixOldNotes();
-            this.renderNotes();
+    loadFromLocalStorage() {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedNotes) {
+                this.notes = JSON.parse(savedNotes);
+                this.fixOldNotes();
+                this.renderNotes();
+            }
+            if (savedUser) {
+                this.currentUser = JSON.parse(savedUser);
+                this.updateUserInfo();
+                this.showMainLayout();
+            }
+            this.updateVerifiedNotes();
+        } catch (error) {
+            console.error('Erro ao carregar do localStorage:', error);
+            utils.showNotification('Erro ao carregar dados locais', 'error');
         }
-        if (savedUser) {
-            this.currentUser = JSON.parse(savedUser);
-            this.updateUserInfo();
-            this.showMainLayout();
-        }
-        this.updateVerifiedNotes();
-    } catch (error) {
-        console.error('Erro ao carregar do localStorage:', error);
-        utils.showNotification('Erro ao carregar dados locais', 'error');
     }
-}
 
-fixOldNotes() {
-    Object.keys(this.notes).forEach(noteKey => {
-        const note = this.notes[noteKey];
-        // Adiciona campos ausentes com valores padrão
-        if (!note.hasOwnProperty('status')) {
-            note.status = 'open';
-        }
-        if (!note.hasOwnProperty('comments')) {
-            note.comments = [];
-        }
-        if (!note.hasOwnProperty('createdAt')) {
-            note.createdAt = utils.getCurrentDateTime();
-        }
-        if (!note.hasOwnProperty('createdBy')) {
-            note.createdBy = this.currentUser ? this.currentUser.email : 'unknown';
-        }
-        if (!note.hasOwnProperty('providerName')) {
-            note.providerName = '';
-        }
-        if (!note.hasOwnProperty('scheduleDate')) {
-            note.scheduleDate = '';
-        }
-        if (!note.hasOwnProperty('scheduleDescription')) {
-            note.scheduleDescription = '';
-        }
-        if (!note.hasOwnProperty('module')) {
-            note.module = 'Chamado Novo';
-        }
-    });
-    this.saveToLocalStorage();
-}
+    fixOldNotes() {
+        Object.keys(this.notes).forEach(noteKey => {
+            const note = this.notes[noteKey];
+            // Adiciona campos ausentes com valores padrão
+            if (!note.hasOwnProperty('status')) {
+                note.status = 'open';
+            }
+            if (!note.hasOwnProperty('comments')) {
+                note.comments = [];
+            }
+            if (!note.hasOwnProperty('createdAt')) {
+                note.createdAt = utils.getCurrentDateTime();
+            }
+            if (!note.hasOwnProperty('createdBy')) {
+                note.createdBy = this.currentUser ? this.currentUser.email : 'unknown';
+            }
+            if (!note.hasOwnProperty('providerName')) {
+                note.providerName = '';
+            }
+            if (!note.hasOwnProperty('scheduleDate')) {
+                note.scheduleDate = '';
+            }
+            if (!note.hasOwnProperty('scheduleDescription')) {
+                note.scheduleDescription = '';
+            }
+            if (!note.hasOwnProperty('category')) {
+                note.category = 'Manutenção';
+            }
+        });
+        this.saveToLocalStorage();
+    }
 
     updateUserInfo() {
         const userInfo = document.getElementById('userInfo');
@@ -2035,9 +2010,6 @@ fixOldNotes() {
             note.scheduleDate = scheduleDate;
             note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
 
-            // Update module to 'Em Execução'
-            note.module = 'Em Execução';
-
             this.saveToLocalStorage();
             this.renderNotes();
             document.getElementById('scheduleForm').reset();
@@ -2074,7 +2046,7 @@ fixOldNotes() {
         });
     }
 
-handleFileImport(event) {
+    handleFileImport(event) {
         try {
             const file = event.target.files[0];
             if (!file) {
@@ -2110,7 +2082,7 @@ handleFileImport(event) {
                                     providerName: note.providerName || '',
                                     scheduleDate: note.scheduleDate || '',
                                     scheduleDescription: note.scheduleDescription || '',
-                                    module: note.module || 'Chamado Novo',
+                                    category: note.category || 'Manutenção',
                                     comments: Array.isArray(note.comments) ? note.comments : []
                                 };
                                 importCount++;
@@ -2200,7 +2172,7 @@ handleFileImport(event) {
                     providerName: note.providerName || '',
                     scheduleDate: note.scheduleDate || '',
                     scheduleDescription: note.scheduleDescription || '',
-                    module: note.module || 'Chamado Novo',
+                    category: note.category || 'Manutenção',
                     comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
@@ -2227,7 +2199,7 @@ handleFileImport(event) {
         }
     }
 
-    renderDashboard() {
+renderDashboard() {
         const statusData = {
             open: 0,
             closed: 0,
