@@ -83,17 +83,6 @@
         }
 
         .btn {
-main {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 1rem;
-    background-color: var(--background-color);
-    color: black; /* Cor do texto preta */
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    box-shadow: 0 4px 8px var(--shadow-color);
-    background-color: var(--primary-button-color); /* Cor de fundo adicionada */
-}
             color: var(--icon-color);
             border: none;
             padding: 0.5rem;
@@ -146,11 +135,13 @@ main {
         .note-button {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            align-items: center;
+            justify-content: center;
             padding: 16px;
             border-radius: 20px;
             box-shadow: 0 4px 8px var(--shadow-color);
             transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
         }
 
         .note-button:hover {
@@ -160,7 +151,20 @@ main {
 
         .status-clausula-especial {
             background-color: #d900ff;
-            color: var(--icon-color);
+            color: #ffffff;
+        }
+
+        .note-button .text-center {
+            text-align: center;
+        }
+
+        .note-button .font-bold {
+            font-size: 1.50rem; /* Tamanho maior para destacar */
+        }
+
+        .note-button .block {
+            display: block;
+            margin: 0.5rem 0;
         }
 
         .status-clausula-especial:hover {
@@ -210,6 +214,7 @@ main {
             background-color: #32cd32;
         }
 
+        /* Estilos para as categorias */
         .module-status {
             background-color: #2b75c9;
             color: #ffffff;
@@ -237,10 +242,10 @@ main {
         }
 
         input, select, textarea {
-    background-color: var(--secondary-button-color);
-    color: black;  /* Cor preta */
-    border: 1px solid var(--border-color);
-}
+            background-color: var(--secondary-button-color);
+            color: black;  /* Cor preta */
+            border: 1px solid var(--border-color);
+        }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
@@ -282,13 +287,15 @@ main {
             background-color: var(--secondary-button-hover);
         }
 
+        /* Estilos para o contêiner de detalhes */
         .details-container {
             background-color: var(--details-background-color);
             color: var(--details-text-color);
-            padding: 1rem;
-            border-radius: 20px;
-            box-shadow: 0 4px 8px var(--shadow-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-color);
             border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
         }
 
         .comment {
@@ -323,6 +330,50 @@ main {
             color: #000000;
             border: 1px solid var(--comment-border-color);
         }
+
+        /* Nova classe para ajustar o espaço */
+        .reduce-space {
+            margin-bottom: 10px; /* Ajuste este valor conforme necessário */
+        }
+
+        /* Estilos para as informações do contrato */
+#noteDetailsContent {
+    background-color: #ffffff;
+    color: #333333;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+/* Estilos para os títulos */
+#noteDetailsContent h3 {
+    color: #000000; /* Altere a cor para preto */
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Estilos para os parágrafos */
+#noteDetailsContent p {
+    margin: 0.5rem 0;
+    line-height: 1.5;
+}
+
+/* Estilos para os botões */
+#noteDetailsContent button {
+    background-color: var(--primary-button-color);
+    color: var(--icon-color);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 0.5rem;
+}
+
+#noteDetailsContent button:hover {
+    background-color: var(--primary-button-hover);
+}
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white transition">
@@ -505,7 +556,23 @@ main {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Coluna da esquerda - Detalhes -->
             <div class="space-y-4">
-                <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative text-black"></div>
+                <div id="noteDetailsContent" class="details-container">
+                    <h3>Informações do Contrato</h3>
+                    <p><strong>Número de Contrato:</strong> <span>12345</span></p>
+                    <p><strong>Locador:</strong> <span>Nome do Locador</span></p>
+                    <p><strong>Locatário:</strong> <span>Nome do Locatário</span></p>
+                    <p><strong>Problema:</strong> <span>Descrição do problema</span></p>
+                    <p><strong>Endereço:</strong> <span>Endereço completo</span>
+                        <button onclick="window.open('https://www.google.com/search?q=Endereço completo', '_blank')">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </p>
+                    <p><strong>Status:</strong> <span class="module-status">Em Aberto</span></p>
+                    <p><strong>Finalizado em:</strong> <span>Data de finalização</span></p>
+                    <p><strong>Prestador:</strong> <span>Nome do Prestador</span></p>
+                    <p><strong>Data do Agendamento:</strong> <span>Data do Agendamento</span></p>
+                    <p><strong>Descrição do Agendamento:</strong> <span>Descrição do Agendamento</span></p>
+                </div>
 
                 <div class="flex space-x-2">
                     <button type="button" id="copyDetailsBtn" class="btn-gray" aria-label="Copiar Detalhes">
@@ -1104,33 +1171,32 @@ renderNotes(searchResults = null) {
         filteredNotes = filteredNotes.filter(note => note.module === moduleFilter);
     }
 
-        // Apply search results if provided
-        if (searchResults) {
-            filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
-        }
+    // Apply search results if provided
+    if (searchResults) {
+        filteredNotes = filteredNotes.filter(note => searchResults.includes(note.key));
+    }
 
-        const start = this.currentPage * this.notesPerPage;
-        const end = start + this.notesPerPage;
-        const notesToDisplay = filteredNotes.slice(start, end);
+    const start = this.currentPage * this.notesPerPage;
+    const end = start + this.notesPerPage;
+    const notesToDisplay = filteredNotes.slice(start, end);
 
-        notesToDisplay.forEach(note => {
-            const noteButton = document.createElement('button');
-            noteButton.className = `note-button ${
-                note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
-                (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
-                (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
-                (note.status === 'special_clause' ? 'status-clausula-especial' :
-                'bg-red-900 hover:bg-red-900')))
-            } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
+    notesToDisplay.forEach(note => {
+        const noteButton = document.createElement('button');
+        noteButton.className = `note-button ${note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+            (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+            (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
+            (note.status === 'special_clause' ? 'status-clausula-especial' :
+            'bg-red-900 hover:bg-red-900')))} text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
 
-            const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
+        const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
-            noteButton.innerHTML = `
+        noteButton.innerHTML = `
+            <div class="p-4 text-center">
                 <span class="module-status module-${note.module.toLowerCase()}">${note.module}</span>
-                <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
-                <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
-                <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-                <span class="block text-xs mt-1">${displayDate}</span>
+                <span class="block font-bold text-xl mt-2">${utils.sanitizeInput(note.key)}</span>
+                <span class="block text-sm mt-1"><strong>Locador:</strong> ${utils.sanitizeInput(note.locator)}</span>
+                <span class="block text-sm"><strong>Locatário:</strong> ${utils.sanitizeInput(note.tenant)}</span>
+                <span class="block text-xs mt-1"><strong>Data:</strong> ${displayDate}</span>
                 <span class="block text-xs mt-1">
                     ${note.status === 'open' ? `Em Aberto` : 
                     (note.status === 'scheduled' ? 'Em Agendamento' : 
@@ -1138,33 +1204,34 @@ renderNotes(searchResults = null) {
                     (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
                 </span>
                 <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
-            `;
-            noteButton.dataset.contract = note.key;
-            noteButton.dataset.locator = note.locator.toLowerCase();
-            noteButton.dataset.tenant = note.tenant.toLowerCase();
-            noteButton.dataset.address = note.address.toLowerCase();
-            noteButton.dataset.date = note.createdAt; // Store the date in a consistent format for sorting
-            noteButton.dataset.status = note.status;
+            </div>
+        `;
+        noteButton.dataset.contract = note.key;
+        noteButton.dataset.locator = note.locator.toLowerCase();
+        noteButton.dataset.tenant = note.tenant.toLowerCase();
+        noteButton.dataset.address = note.address.toLowerCase();
+        noteButton.dataset.date = note.createdAt; // Store the date in a consistent format for sorting
+        noteButton.dataset.status = note.status;
 
-            noteButton.addEventListener('click', () => {
-                if (this.isAuthenticated()) {
-                    this.showNoteDetails(note.key);
-                }
-            });
-
-            // Atualiza a nota selecionada ao clicar no botão da nota
-            noteButton.addEventListener('click', () => {
-                this.selectedNoteKey = note.key;
-            });
-
-            container.appendChild(noteButton);
+        noteButton.addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.showNoteDetails(note.key);
+            }
         });
 
-        this.sortNotes(); // Apply initial sorting
-        if (!this.isAuthenticated()) {
-            this.showNotesBlurred();
-        }
+        // Atualiza a nota selecionada ao clicar no botão da nota
+        noteButton.addEventListener('click', () => {
+            this.selectedNoteKey = note.key;
+        });
+
+        container.appendChild(noteButton);
+    });
+
+    this.sortNotes(); // Apply initial sorting
+    if (!this.isAuthenticated()) {
+        this.showNotesBlurred();
     }
+}
 
     showNoteDetails(noteKey) {
     const note = this.notes[noteKey];
