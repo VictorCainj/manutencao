@@ -1008,6 +1008,8 @@ document.getElementById('moduleDetail').addEventListener('change', (e) => {
             }
         });
 
+
+        
         // Event listener to close all modals with the 'Esc' key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -1028,17 +1030,22 @@ document.getElementById('moduleDetail').addEventListener('change', (e) => {
             }
         });
 
-        // Event listener for keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (this.isAuthenticated()) {
-                if (e.key === 'ArrowLeft') {
-                    this.prevPage();
-                } else if (e.key === 'ArrowRight') {
-                    this.nextPage();
-                } else if (e.key === 'Delete') {
-                    const noteKey = this.selectedNoteKey;
-                    if (noteKey) {
-                        this.deleteNote(noteKey);
+// Event listener for keyboard navigation
+document.addEventListener('keydown', (e) => {
+    const noteDetailsModal = document.getElementById('noteDetailsModal');
+    const isModalOpen = !noteDetailsModal.classList.contains('hidden');
+
+    if (noteManager.isAuthenticated()) {
+        if (!isModalOpen && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+            if (e.key === 'ArrowLeft') {
+                noteManager.prevPage();
+            } else if (e.key === 'ArrowRight') {
+                noteManager.nextPage();
+            }
+        } else if (isModalOpen && e.key === 'Delete') {
+            const noteKey = noteManager.selectedNoteKey;
+            if (noteKey) {
+                noteManager.deleteNote(noteKey);
                     }
                 }
             }
