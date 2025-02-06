@@ -197,18 +197,6 @@
             margin-right: 8px;
         }
 
-        .module-Chamado\ Novo,
-        .module-Em\ Andamento,
-        .module-Em\ Acordo {
-            color: var(--icon-color);
-            background-color: #1e90ff;
-        }
-
-        .module-Em\ Execução {
-            color: var(--icon-color);
-            background-color: #ff0000;
-        }
-
         .module-Chamado\ Finalizado {
             color: var(--icon-color);
             background-color: #32cd32;
@@ -766,19 +754,19 @@ return errors;
 },
 
 formatDate: (dateString) => {
-try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return 'Data inválida';
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Data inválida';
 
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
 
-    return `${day}/${month}/${year}`;
-} catch (e) {
-    console.error('Error formatting date:', e);
-    return 'Data inválida';
-}
+        return `${day}/${month}/${year}`;
+    } catch (e) {
+        console.error('Error formatting date:', e);
+        return 'Data inválida';
+    }
 },
 
 calculateDaysOpen: (dateString) => {
@@ -1253,7 +1241,7 @@ renderNotes(searchResults = null) {
             (note.status === 'special_clause' ? 'status-clausula-especial' :
             'bg-red-900 hover:bg-red-900')))} text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
 
-        const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
+            const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
         noteButton.innerHTML = `
             <div class="p-4 text-center">
@@ -1298,43 +1286,35 @@ renderNotes(searchResults = null) {
     }
 }
 
-    showNoteDetails(noteKey) {
+showNoteDetails(noteKey) {
     const note = this.notes[noteKey];
     const detailsContent = document.getElementById('noteDetailsContent');
 
     detailsContent.innerHTML = `
-        <div class="space-y-3">
-            <div class="pb-2 border-b border-gray-200">
-                <h3 class="text-lg font-semibold">Informações do Contrato</h3>
-            </div>
-            <div class="grid grid-cols-1 gap-2">
-                <div class="absolute top-2 right-2 text-gray-700 text-sm">${utils.formatDate(note.createdAt)}</div>
-                <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
-                <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
-                <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
-                <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
-                <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
-                    <button class="ml-2 text-red-900 hover:text-red-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
-                        <i class="fas fa-search"></i>
-                    </button></p>
-                <p><strong>Status:</strong> <span class="font-semibold ${
-                    note.status === 'open' ? 'text-red-900' :
-                    (note.status === 'scheduled' ? 'text-yellow-600' :
-                    (note.status === 'verified_today' ? 'text-purple-600' :
-                    (note.status === 'special_clause' ? 'text-orange-600' : 'text-green-600')))
-                }">
-                    ${note.status === 'open' ? 'Em Aberto' : 
-                    (note.status === 'scheduled' ? 'Em agendamento' : 
-                    (note.status === 'verified_today' ? 'Verificado Hoje' : 
-                    (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
-                </span></p>
-                ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
-                ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
-                ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
-                ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
-            </div>
+    <div class="space-y-3">
+        <div class="pb-2 border-b border-gray-200">
+            <h3 class="text-lg font-semibold">Informações do Contrato</h3>
         </div>
-    `;
+        <div class="grid grid-cols-1 gap-2">
+            <div class="absolute top-2 right-2 text-gray-700 text-sm">${utils.formatDate(note.createdAt)}</div>
+            <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
+            <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
+            <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
+            <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
+            <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
+                <button class="ml-2 text-red-900 hover:text-red-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
+                    <i class="fas fa-search"></i>
+                </button></p>
+            <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-red-900' : (note.status === 'scheduled' ? 'text-yellow-600' : (note.status === 'verified_today' ? 'text-purple-600' : (note.status === 'special_clause' ? 'text-orange-600' : 'text-green-600')))}">
+                ${note.status === 'open' ? 'Em Aberto' : (note.status === 'scheduled' ? 'Em agendamento' : (note.status === 'verified_today' ? 'Verificado Hoje' : (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
+            </span></p>
+            ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
+            ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
+            ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
+            ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
+        </div>
+    </div>
+`;
 
     // Update the category dropdown in the details modal
     document.getElementById('moduleDetail').value = note.module;
@@ -1368,95 +1348,95 @@ renderNotes(searchResults = null) {
             utils.showNotification('Erro ao carregar detalhes', 'error');
         }
 
-    renderComments(noteKey) {
-        try {
-            const commentsContainer = document.getElementById('commentsContainer');
-            commentsContainer.innerHTML = '';
+        renderComments(noteKey) {
+    try {
+        const commentsContainer = document.getElementById('commentsContainer');
+        commentsContainer.innerHTML = '';
 
-            const note = this.notes[noteKey];
-            if (!Array.isArray(note.comments)) {
-                note.comments = [];
-            }
+        const note = this.notes[noteKey];
+        if (!Array.isArray(note.comments)) {
+            note.comments = [];
+        }
 
-            const start = (this.currentCommentPage - 1) * this.commentsPerPage;
-            const end = start + this.commentsPerPage;
-            const commentsToShow = note.comments.slice(start, end);
+        const start = (this.currentCommentPage - 1) * this.commentsPerPage;
+        const end = start + this.commentsPerPage;
+        const commentsToShow = note.comments.slice(start, end);
 
-            commentsToShow.forEach((comment) => {
-                const commentElement = document.createElement('div');
-                commentElement.className = 'comment';
+        commentsToShow.forEach((comment) => {
+            const commentElement = document.createElement('div');
+            commentElement.className = 'comment';
 
-                commentElement.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex-grow">
-                            <p class="comment-text">${utils.applyBoldFormatting(utils.sanitizeInput(comment.text))}</p>
-                            <div class="mt-2 text-sm text-white-500">
-                                <span>${utils.formatDate(comment.dateTime)}</span>
-                                <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
-                                ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button id="edit-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Editar Comentário">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button id="delete-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Excluir Comentário">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <button id="add-subcomment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Adicionar Subcomentário">
-                                <i class="fas fa-comment-dots"></i>
-                            </button>
+            commentElement.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex-grow">
+                        <p class="comment-text">${utils.applyBoldFormatting(utils.sanitizeInput(comment.text))}</p>
+                        <div class="mt-2 text-sm text-white-500">
+                            <span>${utils.formatDate(comment.dateTime)}</span>
+                            <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
+                            ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
                         </div>
                     </div>
-                    <div id="subcomments-${comment.id}" class="ml-6 mt-2 space-y-2"></div>
-                `;
+                    <div class="flex space-x-2">
+                        <button id="edit-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Editar Comentário">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button id="delete-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Excluir Comentário">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button id="add-subcomment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Adicionar Subcomentário">
+                            <i class="fas fa-comment-dots"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="subcomments-${comment.id}" class="ml-6 mt-2 space-y-2"></div>
+            `;
 
-                commentsContainer.appendChild(commentElement);
+            commentsContainer.appendChild(commentElement);
 
-                // Add click event listener for editing comments
-                document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
-                    if (this.isAuthenticated()) {
-                        this.editComment(noteKey, comment.id);
-                    }
-                });
-
-                // Add click event listener for deleting comments
-                document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
-                    if (this.isAuthenticated()) {
-                        this.deleteComment(noteKey, comment.id);
-                    }
-                });
-
-                // Add click event listener for adding subcomments
-                document.getElementById(`add-subcomment-${comment.id}`).addEventListener('click', () => {
-                    if (this.isAuthenticated()) {
-                        this.addSubcomment(noteKey, comment.id);
-                    }
-                });
-
-                // Render subcomments if any
-                this.renderSubcomments(noteKey, comment.id);
+            // Add click event listener for editing comments
+            document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
+                if (this.isAuthenticated()) {
+                    this.editComment(noteKey, comment.id);
+                }
             });
 
-            // Mostrar/ocultar botão "Mostrar Mais Comentários"
-            const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
-            const backToTopBtn = document.getElementById('backToTopBtn');
-            if (end >= note.comments.length) {
-                showMoreCommentsBtn.style.display = 'none';
-                if (this.currentCommentPage > 1) {
-                    backToTopBtn.style.display = 'block';
-                } else {
-                    backToTopBtn.style.display = 'none';
+            // Add click event listener for deleting comments
+            document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
+                if (this.isAuthenticated()) {
+                    this.deleteComment(noteKey, comment.id);
                 }
+            });
+
+            // Add click event listener for adding subcomments
+            document.getElementById(`add-subcomment-${comment.id}`).addEventListener('click', () => {
+                if (this.isAuthenticated()) {
+                    this.addSubcomment(noteKey, comment.id);
+                }
+            });
+
+            // Render subcomments if any
+            this.renderSubcomments(noteKey, comment.id);
+        });
+
+        // Mostrar/ocultar botão "Mostrar Mais Comentários"
+        const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
+        const backToTopBtn = document.getElementById('backToTopBtn');
+        if (end >= note.comments.length) {
+            showMoreCommentsBtn.style.display = 'none';
+            if (this.currentCommentPage > 1) {
+                backToTopBtn.style.display = 'block';
             } else {
-                showMoreCommentsBtn.style.display = 'block';
                 backToTopBtn.style.display = 'none';
             }
-        } catch (error) {
-            console.error('Erro ao renderizar comentários:', error);
-            utils.showNotification('Erro ao carregar comentários', 'error');
+        } else {
+            showMoreCommentsBtn.style.display = 'block';
+            backToTopBtn.style.display = 'none';
         }
+    } catch (error) {
+        console.error('Erro ao renderizar comentários:', error);
+        utils.showNotification('Erro ao carregar comentários', 'error');
     }
+}
 
     renderSubcomments(noteKey, commentId) {
         try {
@@ -1475,25 +1455,25 @@ renderNotes(searchResults = null) {
                 subcommentElement.className = 'comment'; // Use the same comment class to apply consistent styling
 
                 subcommentElement.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div class="flex-grow">
-                            <p class="comment-text">${utils.applyBoldFormatting(utils.sanitizeInput(subcomment.text))}</p>
-                            <div class="mt-2 text-sm text-white-900">
-                                <span>${utils.formatDate(subcomment.dateTime)}</span>
-                                <span class="italic">(por ${utils.sanitizeInput(subcomment.author)})</span>
-                                ${subcomment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(subcomment.editedAt)})</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button id="edit-subcomment-${subcomment.id}" class="ml-2 text-white-900 hover:text-white-900" aria-label="Editar Subcomentário">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button id="delete-subcomment-${subcomment.id}" class="ml-2 text-white-900 hover:text-white-900" aria-label="Excluir Subcomentário">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
+    <div class="flex justify-between items-start">
+        <div class="flex-grow">
+            <p class="comment-text">${utils.applyBoldFormatting(utils.sanitizeInput(subcomment.text))}</p>
+            <div class="mt-2 text-sm text-white-900">
+                <span>${utils.formatDate(subcomment.dateTime)}</span>
+                <span class="italic">(por ${utils.sanitizeInput(subcomment.author)})</span>
+                ${subcomment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(subcomment.editedAt)})</span>` : ''}
+            </div>
+        </div>
+        <div class="flex space-x-2">
+            <button id="edit-subcomment-${subcomment.id}" class="ml-2 text-white-900 hover:text-white-900" aria-label="Editar Subcomentário">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button id="delete-subcomment-${subcomment.id}" class="ml-2 text-white-900 hover:text-white-900" aria-label="Excluir Subcomentário">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    </div>
+`;
 
                 subcommentsContainer.appendChild(subcommentElement);
 
@@ -1518,108 +1498,96 @@ renderNotes(searchResults = null) {
     }
 
     addSubcomment(noteKey, commentId) {
-        try {
-            const note = this.notes[noteKey];
-            const comment = note.comments.find(c => c.id === commentId);
+    try {
+        const note = this.notes[noteKey];
+        const comment = note.comments.find(c => c.id === commentId);
 
-            const subcommentText = prompt('Digite o subcomentário:');
-            if (!subcommentText) {
-                return;
-            }
-
-            const subcomment = {
-                id: Date.now().toString(),
-                text: utils.sanitizeInput(subcommentText),
-                dateTime: utils.getCurrentDateTime(),
-                author: this.currentUser.email
-            };
-
-            if (!Array.isArray(comment.subcomments)) {
-                comment.subcomments = [];
-            }
-
-            comment.subcomments.unshift(subcomment);
-
-            this.saveToLocalStorage();
-            this.renderSubcomments(noteKey, commentId);
-            utils.showNotification('Subcomentário adicionado com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao adicionar subcomentário:', error);
-            utils.showNotification('Erro ao adicionar subcomentário', 'error');
+        const subcommentText = prompt('Digite o subcomentário:');
+        if (!subcommentText) {
+            return;
         }
+
+        const subcomment = {
+            id: Date.now().toString(),
+            text: utils.sanitizeInput(subcommentText),
+            dateTime: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), // Set date to 1 day before
+            author: this.currentUser.email
+        };
+
+        if (!Array.isArray(comment.subcomments)) {
+            comment.subcomments = [];
+        }
+
+        comment.subcomments.unshift(subcomment);
+
+        this.saveToLocalStorage();
+        this.renderSubcomments(noteKey, commentId);
+        utils.showNotification('Subcomentário adicionado com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao adicionar subcomentário:', error);
+        utils.showNotification('Erro ao adicionar subcomentário', 'error');
     }
+}
 
     handleCommentSubmit() {
-        try {
-            const commentText = document.getElementById('commentText').value.trim();
-            if (!commentText) {
-                return;
-            }
-
-            const noteKey = document.getElementById('noteDetailsContent')
-                .querySelector('p strong + span').textContent;
-
-            const comment = {
-                id: Date.now().toString(),
-                text: utils.sanitizeInput(commentText),
-                dateTime: utils.getCurrentDateTime(),
-                author: this.currentUser.email
-            };
-
-            if (!Array.isArray(this.notes[noteKey].comments)) {
-                this.notes[noteKey].comments = [];
-            }
-
-            this.notes[noteKey].comments.unshift(comment);
-
-            // Update status to 'verified_today' only if the current status is not 'scheduled'
-            if (this.notes[noteKey].status !== 'scheduled') {
-                this.notes[noteKey].status = 'verified_today';
-            }
-
-            // Move to 'Em Andamento' if in 'Chamado Novo' and a comment is added
-            if (this.notes[noteKey].module === 'Chamado Novo') {
-                this.notes[noteKey].module = 'Em Andamento';
-            }
-
-            // Move to 'Em Acordo' if in 'Em Andamento' and there are 3 or more comments
-            if (this.notes[noteKey].module === 'Em Andamento' && this.notes[noteKey].comments.length >= 3) {
-                this.notes[noteKey].module = 'Em Acordo';
-            }
-
-            this.saveToLocalStorage();
-            this.renderComments(noteKey);
-            this.updateNoteButton(noteKey);
-            document.getElementById('commentForm').reset();
-            document.getElementById('commentText').focus();
-            utils.showNotification('Comentário adicionado com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao adicionar comentário:', error);
-            utils.showNotification('Erro ao adicionar comentário', 'error');
+    try {
+        const commentText = document.getElementById('commentText').value.trim();
+        if (!commentText) {
+            return;
         }
+
+        const noteKey = document.getElementById('noteDetailsContent')
+            .querySelector('p strong + span').textContent;
+
+        const comment = {
+            id: Date.now().toString(),
+            text: utils.sanitizeInput(commentText),
+            dateTime: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), // Set date to 1 day before
+            author: this.currentUser.email
+        };
+
+        if (!Array.isArray(this.notes[noteKey].comments)) {
+            this.notes[noteKey].comments = [];
+        }
+
+        this.notes[noteKey].comments.unshift(comment);
+
+        // Update status to 'verified_today' only if the current status is not 'scheduled'
+        if (this.notes[noteKey].status !== 'scheduled') {
+            this.notes[noteKey].status = 'verified_today';
+        }
+
+        this.saveToLocalStorage();
+        this.renderComments(noteKey);
+        this.updateNoteButton(noteKey);
+        document.getElementById('commentForm').reset();
+        document.getElementById('commentText').focus();
+        utils.showNotification('Comentário adicionado com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao adicionar comentário:', error);
+        utils.showNotification('Erro ao adicionar comentário', 'error');
     }
+}
 
     updateNoteStatusAndModule(noteKey, newStatus) {
-        try {
-            const note = this.notes[noteKey];
-            note.status = newStatus;
+    try {
+        const note = this.notes[noteKey];
+        note.status = newStatus;
 
-            // Update module based on status changes
-            if (newStatus === 'scheduled') {
-                note.module = 'Em Execução';
-            } else if (newStatus === 'closed') {
-                note.module = 'Chamado Finalizado';
-            }
-
-            this.saveToLocalStorage();
-            this.renderNotes();
-            this.showNoteDetails(noteKey);
-            utils.showNotification(`Status atualizado para ${newStatus} e módulo ajustado!`, 'success');
-        } catch (error) {
-            console.error('Erro ao atualizar status e módulo:', error);
-            utils.showNotification('Erro ao atualizar status e módulo', 'error');
+        // Update module based on status changes
+        if (newStatus === 'closed') {
+            note.module = 'Chamado Finalizado';
         }
+
+        this.saveToLocalStorage();
+        this.renderNotes();
+        this.showNoteDetails(noteKey);
+        utils.showNotification(`Status atualizado para ${newStatus} e módulo ajustado!`, 'success');
+    } catch (error) {
+        console.error('Erro ao atualizar status e módulo:', error);
+        utils.showNotification('Erro ao atualizar status e módulo', 'error');
     }
+}
 
     editComment(noteKey, commentId) {
         try {
@@ -1975,9 +1943,6 @@ fixOldNotes() {
         if (!note.hasOwnProperty('scheduleDescription')) {
             note.scheduleDescription = '';
         }
-        if (!note.hasOwnProperty('module')) {
-            note.module = 'Chamado Novo';
-        }
     });
     this.saveToLocalStorage();
 }
@@ -2126,41 +2091,42 @@ fixOldNotes() {
     }
 
     handleScheduleFormSubmit() {
-        try {
-            const existingContract = document.getElementById('existingContract').value;
-            const providerName = document.getElementById('providerName').value;
-            const scheduleDate = document.getElementById('scheduleDate').value;
-            const scheduleDescription = document.getElementById('scheduleDescription').value;
+    try {
+        const existingContract = document.getElementById('existingContract').value;
+        const providerName = document.getElementById('providerName').value;
+        const scheduleDate = document.getElementById('scheduleDate').value;
+        const scheduleDescription = document.getElementById('scheduleDescription').value;
 
-            if (!existingContract || !providerName || !scheduleDescription) {
-                utils.showNotification('Todos os campos são obrigatórios', 'error');
-                return;
-            }
-
-            const note = this.notes[existingContract];
-            if (!note) {
-                utils.showNotification('Contrato não encontrado', 'error');
-                return;
-            }
-
-            note.status = 'scheduled';
-            note.providerName = utils.sanitizeInput(providerName);
-            note.scheduleDate = scheduleDate;
-            note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
-
-            // Update module to 'Em Execução'
-            note.module = 'Em Execução';
-
-            this.saveToLocalStorage();
-            this.renderNotes();
-            document.getElementById('scheduleForm').reset();
-            this.toggleModal('scheduleModal');
-            utils.showNotification('Agendamento criado com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro ao criar agendamento:', error);
-            utils.showNotification('Erro ao criar agendamento', 'error');
+        if (!existingContract || !providerName || !scheduleDescription) {
+            utils.showNotification('Todos os campos são obrigatórios', 'error');
+            return;
         }
+
+        const note = this.notes[existingContract];
+        if (!note) {
+            utils.showNotification('Contrato não encontrado', 'error');
+            return;
+        }
+
+        note.status = 'scheduled';
+        note.providerName = utils.sanitizeInput(providerName);
+
+        // Ajuste para garantir que a data seja armazenada corretamente
+        const adjustedScheduleDate = new Date(scheduleDate + 'T00:00:00Z').toISOString();
+        note.scheduleDate = adjustedScheduleDate;
+
+        note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
+
+        this.saveToLocalStorage();
+        this.renderNotes();
+        document.getElementById('scheduleForm').reset();
+        this.toggleModal('scheduleModal');
+        utils.showNotification('Agendamento criado com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao criar agendamento:', error);
+        utils.showNotification('Erro ao criar agendamento', 'error');
     }
+}
 
     populateContractDropdown() {
         const existingContractDropdown = document.getElementById('existingContract');
@@ -2223,7 +2189,6 @@ handleFileImport(event) {
                                     providerName: note.providerName || '',
                                     scheduleDate: note.scheduleDate || '',
                                     scheduleDescription: note.scheduleDescription || '',
-                                    module: note.module || 'Chamado Novo',
                                     comments: Array.isArray(note.comments) ? note.comments : []
                                 };
                                 importCount++;
@@ -2313,7 +2278,6 @@ handleFileImport(event) {
                     providerName: note.providerName || '',
                     scheduleDate: note.scheduleDate || '',
                     scheduleDescription: note.scheduleDescription || '',
-                    module: note.module || 'Chamado Novo',
                     comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                         id: comment.id || Date.now().toString(),
                         text: utils.sanitizeInput(comment.text || ''),
@@ -2505,23 +2469,20 @@ noteManager.downloadSingleContract = (noteKey) => {
         }).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
 
         const details = `
-Número de Contrato: ${noteKey}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Problema: ${note.problem}
-Endereço: ${note.address}
-Status: ${note.status === 'open' ? 'Em Aberto' : 
-        (note.status === 'scheduled' ? 'Em Agendamento' : 
-        (note.status === 'verified_today' ? 'Verificado Hoje' : 
-        (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
-${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
-${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
-${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
-${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
-Comentários:
-
-${commentsWithSubcomments}
-        `.trim();
+    Número de Contrato: ${noteKey}
+    Locador: ${note.locator}
+    Locatário: ${note.tenant}
+    Problema: ${note.problem}
+    Endereço: ${note.address}
+    Status: ${note.status === 'open' ? 'Em Aberto' : (note.status === 'scheduled' ? 'Em Agendamento' : (note.status === 'verified_today' ? 'Verificado Hoje' : (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
+    ${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
+    ${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
+    ${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+    ${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
+    Comentários:
+    
+    ${commentsWithSubcomments}
+`.trim();
 
         const filename = `${noteKey}.txt`;
         utils.downloadFile(details, filename, 'text/plain');
