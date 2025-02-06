@@ -374,6 +374,44 @@
 #noteDetailsContent button:hover {
     background-color: var(--primary-button-hover);
 }
+
+/* Adicione estas classes de animação ao seu arquivo de estilo */
+
+/* Adicione estas classes de animação ao seu arquivo de estilo */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.scale-in {
+    animation: scaleIn 0.1s ease-in-out;
+}
+
+/* Classe para desativar a rolagem */
+.no-scroll {
+    overflow: hidden;
+}
+
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white transition">
@@ -1070,25 +1108,41 @@ document.addEventListener('keydown', (e) => {
         document.getElementById('notesContainer').classList.remove('blurred-notes');
     }
 
-    toggleModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            // Toggle the visibility of the modal
-            modal.classList.toggle('hidden');
+// Adicione as classes de animação ao elemento modal no JavaScript
 
-            // Reset form if cancelling note creation
-            if (modalId === 'noteModal' && modal.classList.contains('hidden')) {
-                document.getElementById('noteForm').reset();
-            }
+toggleModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        // Toggle the visibility of the modal
+        modal.classList.toggle('hidden');
+
+        if (!modal.classList.contains('hidden')) {
+            // Adicione as classes de animação quando o modal for exibido
+            modal.classList.add('fade-in', 'scale-in');
+            // Adicione a classe no-scroll ao body
+            document.body.classList.add('no-scroll');
+        } else {
+            // Remova as classes de animação quando o modal for oculto
+            modal.classList.remove('fade-in', 'scale-in');
+            // Remova a classe no-scroll do body
+            document.body.classList.remove('no-scroll');
+        }
+
+        // Reset form if cancelling note creation
+        if (modalId === 'noteModal' && modal.classList.contains('hidden')) {
+            document.getElementById('noteForm').reset();
         }
     }
+}
 
-    closeAllModals() {
-        // Close all modals
-        document.querySelectorAll('.modal-overlay').forEach(modal => {
-            modal.classList.add('hidden');
-        });
-    }
+closeAllModals() {
+    // Close all modals
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+        modal.classList.add('hidden');
+    });
+    // Remova a classe no-scroll do body
+    document.body.classList.remove('no-scroll');
+}
 
     handleFormSubmit() {
     const formData = {
