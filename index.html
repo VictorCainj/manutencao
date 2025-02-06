@@ -7,8 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    
     <link rel="icon" href="https://i.imgur.com/78ZTh4S.png" type="image/x-icon">
     <style>
         :root {
@@ -202,6 +204,8 @@
             background-color: #32cd32;
         }
 
+
+        
         /* Estilos para as categorias */
         .module-status {
             background-color: #2b75c9;
@@ -363,7 +367,7 @@
     background-color: var(--primary-button-hover);
 }
 
-/* Adicione estas classes de animação ao seu arquivo de estilo */
+
 
 /* Adicione estas classes de animação ao seu arquivo de estilo */
 
@@ -400,9 +404,63 @@
     overflow: hidden;
 }
 
+.notification {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.notification-success {
+    background-color: #38a169;
+    color: #fff;
+}
+
+.notification-alert {
+    background-color: #d69e2e;
+    color: #fff;
+}
+
+.notification-error {
+    background-color: #e53e3e;
+    color: #fff;
+}
+
+#reportsSection .flex-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#statusChart,
+#moduleChart {
+    width: 55%;
+    max-width: 600px;
+}
+
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white transition">
+
+    <div id="reportsSection" class="w-full max-w-4xl mt-6 bg-dark-800 rounded-lg shadow-lg p-6 hidden mx-auto fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center z-50">
+        <div class="bg-dark-800 rounded-lg shadow-lg p-6 w-full max-w-4xl transform transition-all duration-300">
+            <div class="flex justify-end">
+                <button type="button" id="closeReportsBtn" class="btn-gray">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <h2 class="text-xl font-semibold mb-4 text-center">Relatórios e Estatísticas</h2>
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-center">
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="flex justify-center">
+                    <canvas id="moduleChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <!-- Loader -->
 <div id="loader" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
@@ -459,6 +517,9 @@
             </button>
             <button id="downloadNotesBtn" class="btn-gray" aria-label="Baixar Todos os Contratos" title="Baixar todos os contratos como um arquivo JSON">
                 <i class="fas fa-download"></i>
+            </button>
+            <button id="toggleReportsBtn" class="btn-wine-white" aria-label="Ver Relatórios" title="Ver Relatórios">
+                <i class="fas fa-chart-bar"></i>
             </button>
             <button id="logoutBtn" class="btn-gray" aria-label="Logout" title="Deslogar da aplicação">
                 <i class="fas fa-sign-out-alt"></i>
@@ -703,16 +764,16 @@
 <script>
 // Utility Functions
 const utils = {
-showNotification: (message, type = 'success') => {
-const notificationArea = document.getElementById('notificationArea');
-notificationArea.innerHTML = ''; // Clear existing notifications
+    showNotification: (message, type = 'success') => {
+        const notificationArea = document.getElementById('notificationArea');
+        notificationArea.innerHTML = ''; // Clear existing notifications
 
-const notification = document.createElement('div');
-notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
-notification.textContent = message;
-notificationArea.appendChild(notification);
-setTimeout(() => notificationArea.removeChild(notification), 5000);
-},
+        const notification = document.createElement('div');
+        notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
+        notification.textContent = message;
+        notificationArea.appendChild(notification);
+        setTimeout(() => notificationArea.removeChild(notification), 5000);
+    },
 
 sanitizeInput: (input) => {
 if (typeof input !== 'string') return '';
@@ -838,7 +899,19 @@ this.saveToLocalStorage();
 }
 
 initializeEventListeners() {
-// Event Listeners para os botões principais
+    // Event Listeners para os botões principais
+    document.getElementById('toggleReportsBtn').addEventListener('click', () => {
+        const reportsSection = document.getElementById('reportsSection');
+        reportsSection.classList.toggle('hidden');
+        if (!reportsSection.classList.contains('hidden')) {
+            this.renderReports();
+        }
+    });
+
+    document.getElementById('closeReportsBtn').addEventListener('click', () => {
+        document.getElementById('reportsSection').classList.add('hidden');
+    });
+
 document.getElementById('createNoteBtn').addEventListener('click', () => {
     if (this.isAuthenticated()) {
         this.closeAllModals();
@@ -2304,79 +2377,147 @@ handleFileImport(event) {
     }
 
     renderDashboard() {
-        const statusData = {
-            open: 0,
-            closed: 0,
-            scheduled: 0,
-            verified_today: 0,
-            special_clause: 0
-        };
+    const statusData = {
+        open: 0,
+        closed: 0,
+        scheduled: 0,
+        verified_today: 0,
+        special_clause: 0
+    };
 
-        Object.values(this.notes).forEach(note => {
-            statusData[note.status] = (statusData[note.status] || 0) + 1;
-        });
+    Object.values(this.notes).forEach(note => {
+        statusData[note.status] = (statusData[note.status] || 0) + 1;
+    });
 
-        // Destroy the existing chart instance if it exists
-        if (this.chart) {
-            this.chart.destroy();
-        }
+    // Destroy the existing chart instance if it exists
+    if (this.chart) {
+        this.chart.destroy();
+    }
 
-        const statusChartCtx = document.getElementById('statusChart').getContext('2d');
-        this.chart = new Chart(statusChartCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje', 'Cláusula Especial'],
-                datasets: [{
-                    label: 'Quantidade de Chamados',
-                    data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today, statusData.special_clause],
-                    backgroundColor: ['#1E90FF', '#32CD32', '#FFD700', '#800080', '#D900FF'],
-                    borderColor: ['#1C7ED6', '#2E8B57', '#DAA520', '#6A0DAD', '#B800DB'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0 // Ensure ticks are integer values
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
+    const statusChartCtx = document.getElementById('statusChart').getContext('2d');
+    this.chart = new Chart(statusChartCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje', 'Cláusula Especial'],
+            datasets: [{
+                data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today, statusData.special_clause],
+                backgroundColor: ['#1E90FF', '#32CD32', '#FFD700', '#800080', '#D900FF'],
+                borderColor: ['#1C7ED6', '#2E8B57', '#DAA520', '#6A0DAD', '#B800DB'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0 // Ensure ticks are integer values
                     }
                 }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
             }
-        });
+        }
+    });
 
-        // Update the dashboard info
-        document.getElementById('openCount').textContent = `Abertos: ${statusData.open}`;
-        document.getElementById('closedCount').textContent = `Fechados: ${statusData.closed}`;
-        document.getElementById('scheduledCount').textContent = `Em Agendamento: ${statusData.scheduled}`;
-        document.getElementById('verifiedCount').textContent = `Verificados Hoje: ${statusData.verified_today}`;
-        document.getElementById('specialClauseCount').textContent = `Cláusula Especial: ${statusData.special_clause}`;
-    }
+    // Update the dashboard info
+    document.getElementById('openCount').textContent = `Abertos: ${statusData.open}`;
+    document.getElementById('closedCount').textContent = `Fechados: ${statusData.closed}`;
+    document.getElementById('scheduledCount').textContent = `Em Agendamento: ${statusData.scheduled}`;
+    document.getElementById('verifiedCount').textContent = `Verificados Hoje: ${statusData.verified_today}`;
+    document.getElementById('specialClauseCount').textContent = `Cláusula Especial: ${statusData.special_clause}`;
+}
 
-    showMainLayout() {
-        document.getElementById('loginModal').classList.add('hidden');
-        document.getElementById('mainLayout').classList.remove('hidden');
-        this.renderDashboard(); // Ensure the dashboard is rendered when showing the main layout
-    }
+showMainLayout() {
+    document.getElementById('loginModal').classList.add('hidden');
+    document.getElementById('mainLayout').classList.remove('hidden');
+    // Comente ou remova esta linha:
+    // this.renderDashboard();
+}
 
-    showLogin() {
-        this.closeAllModals();
-        document.getElementById('loginModal').classList.remove('hidden');
-        document.getElementById('mainLayout').classList.add('hidden');
-    }
+showLogin() {
+    this.closeAllModals();
+    document.getElementById('loginModal').classList.remove('hidden');
+    document.getElementById('mainLayout').classList.add('hidden');
+}
 
-    logout() {
-        this.currentUser = null;
-        localStorage.removeItem('currentUser');
-        this.showLogin();
-    }
+logout() {
+    this.currentUser = null;
+    localStorage.removeItem('currentUser');
+    this.showLogin();
+}
+
+renderReports() {
+    this.renderStatusChart();
+    this.renderModuleChart();
+    this.renderTimelineChart();
+}
+
+renderStatusChart() {
+    const statusData = {
+        open: 0,
+        closed: 0,
+        scheduled: 0,
+        verified_today: 0,
+        special_clause: 0
+    };
+
+    Object.values(this.notes).forEach(note => {
+        statusData[note.status] = (statusData[note.status] || 0) + 1;
+    });
+
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje', 'Cláusula Especial'],
+            datasets: [{
+                data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today, statusData.special_clause],
+                backgroundColor: ['#1E90FF', '#32CD32', '#FFD700', '#800080', '#D900FF']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+renderModuleChart() {
+    const moduleData = {};
+
+    Object.values(this.notes).forEach(note => {
+        moduleData[note.module] = (moduleData[note.module] || 0) + 1;
+    });
+
+    const ctx = document.getElementById('moduleChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(moduleData),
+            datasets: [{
+                label: 'Quantidade',
+                data: Object.values(moduleData),
+                backgroundColor: ['#1E90FF', '#32CD32', '#FFD700', '#800080', '#D900FF']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+
 }
 
 // Inicializa a aplicação
@@ -2490,6 +2631,110 @@ noteManager.downloadSingleContract = (noteKey) => {
         console.error('Erro ao baixar contrato:', error);
         utils.showNotification('Erro ao baixar contrato', 'error');
     }
+}
+
+function renderStatusChart() {
+    const statusData = {
+        open: 0,
+        closed: 0,
+        scheduled: 0,
+        verified_today: 0,
+        special_clause: 0
+    };
+
+    Object.values(this.notes).forEach(note => {
+        statusData[note.status] = (statusData[note.status] || 0) + 1;
+    });
+
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje', 'Cláusula Especial'],
+            datasets: [{
+                data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today, statusData.special_clause],
+                backgroundColor: ['#1E90FF', '#32CD32', '#FFD700', '#800080', '#D900FF']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    color: '#ffffff',
+                    anchor: 'end',
+                    align: 'start',
+                    offset: -10,
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    borderRadius: 25,
+                    backgroundColor: (context) => {
+                        return context.dataset.backgroundColor;
+                    },
+                    font: {
+                        weight: 'bold',
+                        size: '10'
+                    },
+                    formatter: (value) => {
+                        return value;
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
+function renderModuleChart() {
+    const moduleData = {};
+
+    Object.values(this.notes).forEach(note => {
+        moduleData[note.module] = (moduleData[note.module] || 0) + 1;
+    });
+
+    const ctx = document.getElementById('moduleChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(moduleData),
+            datasets: [{
+                label: 'Quantidade',
+                data: Object.values(moduleData),
+                backgroundColor: ['#1E90FF', '#32CD32','#FFD700','#800080','#D900FF']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                datalabels: {
+                    color: '#ffffff',
+                    anchor: 'end',
+                    align: 'start',
+                    offset: -10,
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    borderRadius: 25,
+                    backgroundColor: (context) => {
+                        return context.dataset.backgroundColor;
+                    },
+                    font: {
+                        weight: 'bold',
+                        size: '10'
+                    },
+                    formatter: (value) => {
+                        return value;
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
 }
 
 // Function to search all contracts and prioritize comments
