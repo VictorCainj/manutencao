@@ -323,11 +323,6 @@
             border: 1px solid var(--comment-border-color);
         }
 
-        /* Nova classe para ajustar o espaço */
-        .reduce-space {
-            margin-bottom: 10px; /* Ajuste este valor conforme necessário */
-        }
-
         /* Estilos para as informações do contrato */
 #noteDetailsContent {
     background-color: #ffffff;
@@ -1986,6 +1981,7 @@ saveToLocalStorage() {
     try {
         localStorage.setItem('notes', JSON.stringify(this.notes));
         localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+        localStorage.setItem('reportStats', JSON.stringify(this.generateReportStats()));
         utils.showNotification('Dados salvos localmente com sucesso!', 'success');
     } catch (error) {
         console.error('Erro ao salvar no localStorage:', error);
@@ -1993,10 +1989,35 @@ saveToLocalStorage() {
     }
 }
 
+// Método para gerar estatísticas do relatório
+generateReportStats() {
+    const statusData = {
+        open: 0,
+        closed: 0,
+        scheduled: 0,
+        verified_today: 0,
+        special_clause: 0
+    };
+
+    const moduleData = {};
+
+    Object.values(this.notes).forEach(note => {
+        statusData[note.status] = (statusData[note.status] || 0) + 1;
+        moduleData[note.module] = (moduleData[note.module] || 0) + 1;
+    });
+
+    return {
+        statusData,
+        moduleData
+    };
+}
+
 loadFromLocalStorage() {
     try {
         const savedNotes = localStorage.getItem('notes');
         const savedUser = localStorage.getItem('currentUser');
+        const savedReportStats = localStorage.getItem('reportStats');
+        
         if (savedNotes) {
             this.notes = JSON.parse(savedNotes);
             this.fixOldNotes();
@@ -2006,6 +2027,9 @@ loadFromLocalStorage() {
             this.currentUser = JSON.parse(savedUser);
             this.updateUserInfo();
             this.showMainLayout();
+        }
+        if (savedReportStats) {
+            this.reportStats = JSON.parse(savedReportStats);
         }
         this.updateVerifiedNotes();
     } catch (error) {
