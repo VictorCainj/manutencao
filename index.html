@@ -1509,7 +1509,7 @@ showNoteDetails(noteKey) {
         const subcomment = {
             id: Date.now().toString(),
             text: utils.sanitizeInput(subcommentText),
-            dateTime: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), // Set date to 1 day before
+            dateTime: new Date().toISOString(), // Use current date
             author: this.currentUser.email
         };
 
@@ -1528,7 +1528,7 @@ showNoteDetails(noteKey) {
     }
 }
 
-    handleCommentSubmit() {
+handleCommentSubmit() {
     try {
         const commentText = document.getElementById('commentText').value.trim();
         if (!commentText) {
@@ -1541,7 +1541,7 @@ showNoteDetails(noteKey) {
         const comment = {
             id: Date.now().toString(),
             text: utils.sanitizeInput(commentText),
-            dateTime: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), // Set date to 1 day before
+            dateTime: new Date().toISOString(), // Use current date
             author: this.currentUser.email
         };
 
