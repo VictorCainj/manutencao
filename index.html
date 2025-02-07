@@ -1251,8 +1251,19 @@ document.addEventListener('keydown', (e) => {
     filteredNotes.forEach((noteKey, index) => {
         const note = this.notes[noteKey];
         const listItem = document.createElement('div');
-        listItem.className = 'contract-list-item';
+        listItem.className = 'contract-list-item flex justify-between items-center';
         listItem.innerHTML = `<span>${noteKey} (${note.pendente || 'PENDENTE'})</span>`;
+
+        // Add edit icon
+        const editIcon = document.createElement('i');
+        editIcon.className = 'fas fa-edit cursor-pointer ml-2 text-gray-500 hover:text-gray-700';
+        editIcon.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent triggering the parent click event
+            this.editPendenteText(noteKey);
+        });
+
+        listItem.appendChild(editIcon);
+
         listItem.addEventListener('click', () => {
             this.showNoteDetails(noteKey);
             this.toggleModal('contractListModal');
