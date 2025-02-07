@@ -407,6 +407,22 @@
     max-width: 600px;
 }
 
+.contract-column {
+        flex: 1;
+    }
+
+    .contract-list-item {
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .contract-list-item:hover {
+        background-color: var(--primary-button-hover);
+    }
+
     </style>
 </head>
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white transition">
@@ -480,6 +496,9 @@
             <button id="createScheduleBtn" class="btn-wine-white" aria-label="Criar Agendamento" title="Criar um novo agendamento">
                 <i class="fas fa-calendar-alt icon-hover"></i>
             </button>
+            <button id="viewContractsBtn" class="btn-wine-white" aria-label="Ver Contratos" title="Ver Contratos">
+                <i class="fas fa-list icon-hover"></i>
+            </button>
             <button id="importNotesBtn" class="btn-gray" aria-label="Importar Contratos" title="Importar contratos de um arquivo JSON">
                 <i class="fas fa-file-import icon-hover"></i>
             </button>
@@ -499,6 +518,25 @@
         <div id="notificationArea" class="w-full max-w-4xl mb-4 text-center"></div>
 
         <div class="my-4 border-t-2 border-gray-300"></div>
+
+<!-- Contract List Modal -->
+<div id="contractListModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+    <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-3xl bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
+        <h2 class="text-xl font-semibold mb-4 text-center">Lista de Contratos</h2>
+        <!-- Search Bar -->
+        <div class="mb-4">
+            <input type="text" id="contractSearchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+        </div>
+        <div id="contractList" class="space-y-2 max-h-96 overflow-y-auto">
+            <!-- Contract list items will be appended here -->
+        </div>
+        <div class="flex justify-end space-x-2 mt-4">
+            <button type="button" id="closeContractListBtn" class="btn-gray">
+                <i class="fas fa-times icon-hover"></i>
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- Note Creation Modal -->
 <div id="noteModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
@@ -654,6 +692,9 @@
                     </button>
                     <button type="button" id="specialClauseBtn" class="btn-gray" aria-label="Transformar em Cláusula Especial">
                         <i class="fas fa-star icon-hover"></i>
+                    </button>
+                    <button type="button" id="editPendenteBtn" class="btn-gray" aria-label="Editar Pendente">
+                        <i class="fas fa-edit icon-hover"></i>
                     </button>
                 </div>
                 <div>
@@ -855,6 +896,10 @@ this.chart = null; // Add this line to keep track of the chart instance
 setInterval(() => this.renderDashboard(), 60000);
 }
 
+filterContractList(searchTerm) {
+    this.renderContractList(searchTerm);
+}
+
 cleanInvalidNotes() {
 const validNotes = {};
 Object.entries(this.notes).forEach(([key, note]) => {
@@ -879,6 +924,29 @@ initializeEventListeners() {
     }
 });
 
+document.getElementById('contractSearchInput').addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    noteManager.filterContractList(searchTerm);
+});
+
+        // Event listener for viewing contract list
+        document.getElementById('viewContractsBtn').addEventListener('click', () => {
+            this.renderContractList();
+            this.toggleModal('contractListModal');
+        });
+
+        // Event listener for closing contract list modal
+        document.getElementById('closeContractListBtn').addEventListener('click', () => {
+            this.toggleModal('contractListModal');
+        });
+
+        // Event listener for editing pendente text
+        document.getElementById('editPendenteBtn').addEventListener('click', () => {
+            const noteKey = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+            this.editPendenteText(noteKey);
+        });
+
+
 document.getElementById('closeReportsBtn').addEventListener('click', () => {
     const reportsSection = document.getElementById('reportsSection');
     reportsSection.classList.add('hidden');
@@ -896,6 +964,7 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
 
 document.getElementById('createNoteBtn').addEventListener('click', () => {
     if (this.isAuthenticated()) {
@@ -1146,6 +1215,65 @@ document.addEventListener('keydown', (e) => {
         });
     }
 
+    renderContractList(searchTerm = '') {
+        const contractList = document.getElementById('contractList');
+        contractList.innerHTML = '';
+
+        const columns = 2;  // Define the number of columns
+        const columnWrappers = Array.from({ length: columns }, () => {
+            const column = document.createElement('div');
+            column.className = 'contract-column space-y-2';
+            contractList.appendChild(column);
+            return column;
+        });
+
+        // Obtenha os contratos em ordem de edição
+        const sortedNotes = Object.keys(this.notes).sort((a, b) => {
+            const noteA = this.notes[a];
+            const noteB = this.notes[b];
+            const dateA = new Date(noteA.lastEdited || noteA.createdAt);
+            const dateB = new Date(noteB.lastEdited || noteB.createdAt);
+            return dateB - dateA;
+        });
+
+        // Filtrar contratos com base no termo de pesquisa
+        const filteredNotes = sortedNotes.filter(noteKey => {
+            const note = this.notes[noteKey];
+            return noteKey.toLowerCase().includes(searchTerm) ||
+                note.locator.toLowerCase().includes(searchTerm) ||
+                note.tenant.toLowerCase().includes(searchTerm) ||
+                note.address.toLowerCase().includes(searchTerm) ||
+                note.problem.toLowerCase().includes(searchTerm);
+        });
+
+        filteredNotes.forEach((noteKey, index) => {
+            const note = this.notes[noteKey];
+            const listItem = document.createElement('div');
+            listItem.className = 'contract-list-item';
+            listItem.innerHTML = `<span>${noteKey} (${note.pendente || 'PENDENTE'})</span>`;
+            listItem.addEventListener('click', () => {
+                this.showNoteDetails(noteKey);
+                this.toggleModal('contractListModal');
+            });
+
+            // Append the list item to one of the columns
+            const columnIndex = index % columns;
+            columnWrappers[columnIndex].appendChild(listItem);
+        });
+    }
+
+editPendenteText(noteKey) {
+    const note = this.notes[noteKey];
+    const newPendenteText = prompt('Digite o novo texto do pendente:', note.pendente || '');
+    if (newPendenteText !== null) {
+        note.pendente = newPendenteText;
+        note.lastEdited = new Date().toISOString(); // Adicione a data de edição
+        this.saveToLocalStorage();
+        this.showNoteDetails(noteKey);
+        utils.showNotification('Texto do pendente atualizado com sucesso!', 'success');
+    }
+}
+
     isAuthenticated() {
         if (!this.currentUser) {
             this.showNotesBlurred();
@@ -1355,62 +1483,60 @@ showNoteDetails(noteKey) {
     const detailsContent = document.getElementById('noteDetailsContent');
 
     detailsContent.innerHTML = `
-    <div class="space-y-3">
-        <div class="pb-2 border-b border-gray-200">
-<h3 class="text-lg font-semibold mb-4 text-center">Informações do Contrato</h3>
+        <div class="space-y-3">
+            <div class="pb-2 border-b border-gray-200">
+                <h3 class="text-lg font-semibold mb-4 text-center">Informações do Contrato</h3>
+            </div>
+            <div class="grid grid-cols-1 gap-2">
+                <div class="absolute top-2 right-2 text-gray-700 text-sm">${utils.formatDate(note.createdAt)}</div>
+                <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
+                <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
+                <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
+                <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
+                <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
+                    <button class="ml-2 text-red-900 hover:text-red-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
+                        <i class="fas fa-search"></i>
+                    </button></p>
+                <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-red-900' : (note.status === 'scheduled' ? 'text-yellow-600' : (note.status === 'verified_today' ? 'text-purple-600' : (note.status === 'special_clause' ? 'text-orange-600' : 'text-green-600')))}">
+                    ${note.status === 'open' ? 'Em Aberto' : (note.status === 'scheduled' ? 'Em agendamento' : (note.status === 'verified_today' ? 'Verificado Hoje' : (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
+                </span></p>
+                ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
+                ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
+                ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
+                ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
+                <p><strong>Pendente:</strong> <span>${utils.sanitizeInput(note.pendente || 'PENDENTE')}</span></p>
+            </div>
         </div>
-        <div class="grid grid-cols-1 gap-2">
-            <div class="absolute top-2 right-2 text-gray-700 text-sm">${utils.formatDate(note.createdAt)}</div>
-            <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
-            <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
-            <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
-            <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
-            <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
-                <button class="ml-2 text-red-900 hover:text-red-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
-                    <i class="fas fa-search"></i>
-                </button></p>
-            <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-red-900' : (note.status === 'scheduled' ? 'text-yellow-600' : (note.status === 'verified_today' ? 'text-purple-600' : (note.status === 'special_clause' ? 'text-orange-600' : 'text-green-600')))}">
-                ${note.status === 'open' ? 'Em Aberto' : (note.status === 'scheduled' ? 'Em agendamento' : (note.status === 'verified_today' ? 'Verificado Hoje' : (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
-            </span></p>
-            ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
-            ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
-            ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
-            ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
-        </div>
-    </div>
-`;
+    `;
 
     // Update the category dropdown in the details modal
     document.getElementById('moduleDetail').value = note.module;
 
-            // Mostrar/ocultar botões "Finalizar" e "Reabrir" com base no status
-            const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
-            const reopenNoteBtn = document.getElementById('reopenNoteBtn');
-            if (note.status === 'closed') {
-                finalizeNoteBtn.classList.add('hidden');
-                reopenNoteBtn.classList.remove('hidden');
-            } else {
-                finalizeNoteBtn.classList.remove('hidden');
-                reopenNoteBtn.classList.add('hidden');
-            }
+    // Mostrar/ocultar botões "Finalizar" e "Reabrir" com base no status
+    const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
+    const reopenNoteBtn = document.getElementById('reopenNoteBtn');
+    if (note.status === 'closed') {
+        finalizeNoteBtn.classList.add('hidden');
+        reopenNoteBtn.classList.remove('hidden');
+    } else {
+        finalizeNoteBtn.classList.remove('hidden');
+        reopenNoteBtn.classList.add('hidden');
+    }
 
-            // Mostrar/ocultar botão "Cancelar Agendamento" com base no status
-            const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
-            if (note.status === 'scheduled') {
-                cancelScheduleBtn.style.display = 'flex';
-            } else {
-                cancelScheduleBtn.style.display = 'none';
-            }
+    // Mostrar/ocultar botão "Cancelar Agendamento" com base no status
+    const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
+    if (note.status === 'scheduled') {
+        cancelScheduleBtn.style.display = 'flex';
+    } else {
+        cancelScheduleBtn.style.display = 'none';
+    }
 
-            // Inicialize a página atual de comentários
-            this.currentCommentPage = 1;
-            this.renderComments(noteKey);
-            this.toggleModal('noteDetailsModal');
-            document.getElementById('commentText').focus();
-        } catch (error) {
-            console.error('Erro ao exibir detalhes da nota:', error);
-            utils.showNotification('Erro ao carregar detalhes', 'error');
-        }
+    // Inicialize a página atual de comentários
+    this.currentCommentPage = 1;
+    this.renderComments(noteKey);
+    this.toggleModal('noteDetailsModal');
+    document.getElementById('commentText').focus();
+}
 
         renderComments(noteKey) {
     try {
