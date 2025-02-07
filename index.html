@@ -386,6 +386,23 @@
     }
 }
 
+@keyframes iconHover {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.2);
+    }
+}
+
+.icon-hover {
+    transition: transform 0.3s ease-in-out;
+}
+
+.icon-hover:hover {
+    animation: iconHover 0.3s forwards;
+}
+
 .fade-in {
     animation: fadeIn 0.5s ease-in-out;
 }
@@ -477,7 +494,7 @@
             </div>
             <div class="flex justify-end space-x-2">
                 <button type="submit" class="btn-wine-red">
-                    <i class="fas fa-sign-in-alt"></i>
+                    <i class="fas fa-sign-in-alt icon-hover"></i>
                 </button>
             </div>
         </form>
@@ -502,22 +519,22 @@
         <!-- Main Controls -->
         <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
             <button id="createNoteBtn" class="btn-wine-white" aria-label="Criar Anotação" title="Criar uma nova anotação">
-                <i class="fas fa-plus"></i>
+                <i class="fas fa-plus icon-hover"></i>
             </button>
             <button id="createScheduleBtn" class="btn-wine-white" aria-label="Criar Agendamento" title="Criar um novo agendamento">
-                <i class="fas fa-calendar-alt"></i>
+                <i class="fas fa-calendar-alt icon-hover"></i>
             </button>
             <button id="importNotesBtn" class="btn-gray" aria-label="Importar Contratos" title="Importar contratos de um arquivo JSON">
-                <i class="fas fa-file-import"></i>
+                <i class="fas fa-file-import icon-hover"></i>
             </button>
             <button id="downloadNotesBtn" class="btn-gray" aria-label="Baixar Todos os Contratos" title="Baixar todos os contratos como um arquivo JSON">
-                <i class="fas fa-download"></i>
+                <i class="fas fa-download icon-hover"></i>
             </button>
             <button id="toggleReportsBtn" class="btn-wine-white" aria-label="Ver Relatórios" title="Ver Relatórios">
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-chart-bar icon-hover"></i>
             </button>
             <button id="logoutBtn" class="btn-gray" aria-label="Logout" title="Deslogar da aplicação">
-                <i class="fas fa-sign-out-alt"></i>
+                <i class="fas fa-sign-out-alt icon-hover"></i>
             </button>
             <input type="file" id="fileInput" class="hidden" accept=".json">
         </div>
@@ -576,7 +593,7 @@
 
             <div class="flex justify-end space-x-2">
                 <button type="button" id="cancelNoteBtn" class="btn-gray">
-                    <i class="fas fa-times"></i>
+                    <i class="fas fa-times icon-hover"></i>
                 </button>
                 <button type="submit" class="btn-wine-red">
                     <i class="fas fa-save"></i>
@@ -662,25 +679,25 @@
 
                 <div class="flex space-x-2">
                     <button type="button" id="copyDetailsBtn" class="btn-gray" aria-label="Copiar Detalhes">
-                        <i class="fas fa-copy"></i>
+                        <i class="fas fa-copy icon-hover"></i>
                     </button>
                     <button type="button" id="downloadContractBtn" class="btn-gray" aria-label="Baixar Contrato">
-                        <i class="fas fa-file-download"></i>
+                        <i class="fas fa-file-download icon-hover"></i>
                     </button>
                     <button type="button" id="cancelScheduleBtn" class="btn-gray" aria-label="Cancelar Agendamento">
-                        <i class="fas fa-calendar-times"></i>
+                        <i class="fas fa-calendar-times icon-hover"></i>
                     </button>
                     <button type="button" id="deleteNoteBtn" class="btn-gray" aria-label="Excluir Anotação">
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash icon-hover"></i>
                     </button>
                     <button type="button" id="finalizeNoteBtn" class="btn-gray hidden" aria-label="Finalizar Anotação">
-                        <i class="fas fa-check"></i>
+                        <i class="fas fa-check icon-hover"></i>
                     </button>
                     <button type="button" id="reopenNoteBtn" class="btn-gray hidden" aria-label="Reabrir Anotação">
-                        <i class="fas fa-undo"></i>
+                        <i class="fas fa-undo icon-hover"></i>
                     </button>
                     <button type="button" id="specialClauseBtn" class="btn-gray" aria-label="Transformar em Cláusula Especial">
-                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star icon-hover"></i>
                     </button>
                 </div>
                 <div>
@@ -716,7 +733,7 @@
 <div class="flex flex-wrap items-center justify-between mb-4 space-x-4">
     <div class="relative flex-1">
         <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" aria-label="Pesquisar contratos">
-        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        <i class="fas fa-search icon-hover absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
     </div>
     <div>
         <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
@@ -1384,7 +1401,7 @@ showNoteDetails(noteKey) {
     detailsContent.innerHTML = `
     <div class="space-y-3">
         <div class="pb-2 border-b border-gray-200">
-            <h3 class="text-lg font-semibold">Informações do Contrato</h3>
+<h3 class="text-lg font-semibold mb-4 text-center">Informações do Contrato</h3>
         </div>
         <div class="grid grid-cols-1 gap-2">
             <div class="absolute top-2 right-2 text-gray-700 text-sm">${utils.formatDate(note.createdAt)}</div>
@@ -1469,13 +1486,13 @@ showNoteDetails(noteKey) {
                     </div>
                     <div class="flex space-x-2">
                         <button id="edit-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Editar Comentário">
-                            <i class="fas fa-edit"></i>
+                            <i class="fas fa-edit icon-hover"></i>
                         </button>
                         <button id="delete-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Excluir Comentário">
-                            <i class="fas fa-trash"></i>
+                            <i class="fas fa-trash icon-hover"></i>
                         </button>
                         <button id="add-subcomment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Adicionar Subcomentário">
-                            <i class="fas fa-comment-dots"></i>
+                            <i class="fas fa-comment-dots icon-hover"></i>
                         </button>
                     </div>
                 </div>
