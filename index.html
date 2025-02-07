@@ -2386,156 +2386,183 @@ fixOldNotes() {
         });
     }
 
-handleFileImport(event) {
-        try {
-            const file = event.target.files[0];
-            if (!file) {
-                utils.showNotification('Nenhum arquivo selecionado', 'error');
-                return;
-            }
+    handleFileImport(event) {
+    try {
+        const file = event.target.files[0];
+        if (!file) {
+            utils.showNotification('Nenhum arquivo selecionado', 'error');
+            return;
+        }
 
-            if (!file.name.endsWith('.json')) {
-                utils.showNotification('Por favor, selecione um arquivo JSON válido', 'error');
-                return;
-            }
+        if (!file.name.endsWith('.json')) {
+            utils.showNotification('Por favor, selecione um arquivo JSON válido', 'error');
+            return;
+        }
 
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                try {
-                    const importedNotes = JSON.parse(e.target.result);
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const importedNotes = JSON.parse(e.target.result);
 
-                    if (!importedNotes || typeof importedNotes !== 'object') {
-                        throw new Error('Formato de arquivo inválido');
-                    }
-
-                    let importCount = 0;
-                    const totalNotes = Object.keys(importedNotes).length;
-
-                    for (const [noteKey, note] of Object.entries(importedNotes)) {
-                        try {
-                            if (!this.notes[noteKey] && this.validateImportedNote(note, noteKey)) {
-                                this.notes[noteKey] = {
-                                    ...note,
-                                    createdAt: note.createdAt || utils.getCurrentDateTime(),
-                                    createdBy: this.currentUser.email,
-                                    status: note.status || 'open',
-                                    providerName: note.providerName || '',
-                                    scheduleDate: note.scheduleDate || '',
-                                    scheduleDescription: note.scheduleDescription || '',
-                                    comments: Array.isArray(note.comments) ? note.comments : []
-                                };
-                                importCount++;
-                            }
-                        } catch (error) {
-                            console.warn(`Erro ao importar nota ${noteKey}:`, error);
-                        }
-                    }
-
-                    this.saveToLocalStorage();
-                    this.renderNotes();
-                    utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
-                } catch (error) {
-                    console.error('Erro ao processar arquivo:', error);
-                    utils.showNotification(`Erro ao processar arquivo: ${error.message}`, 'error');
+                if (!importedNotes || typeof importedNotes !== 'object') {
+                    throw new Error('Formato de arquivo inválido');
                 }
-            };
 
-            reader.onerror = () => {
-                utils.showNotification('Erro ao ler o arquivo', 'error');
-            };
+                let importCount = 0;
+                const totalNotes = Object.keys(importedNotes).length;
 
-            reader.readAsText(file);
-        } catch (error) {
-            console.error('Erro na importação:', error);
-            utils.showNotification(`Erro ao importar arquivo: ${error.message}`, 'error');
-        } finally {
-            event.target.value = '';
-        }
+                for (const [noteKey, note] of Object.entries(importedNotes)) {
+                    try {
+                        if (!this.notes[noteKey] && this.validateImportedNote(note, noteKey)) {
+                            this.notes[noteKey] = {
+                                ...note,
+                                createdAt: note.createdAt || utils.getCurrentDateTime(),
+                                createdBy: note.createdBy || this.currentUser.email,
+                                status: note.status || 'open',
+                                providerName: note.providerName || '',
+                                scheduleDate: note.scheduleDate || '',
+                                scheduleDescription: note.scheduleDescription || '',
+                                comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
+                                    id: comment.id || Date.now().toString(),
+                                    text: utils.sanitizeInput(comment.text || ''),
+                                    dateTime: comment.dateTime || utils.getCurrentDateTime(),
+                                    author: comment.author || this.currentUser.email,
+                                    editedAt: comment.editedAt || null,
+                                    subcomments: Array.isArray(comment.subcomments) ? comment.subcomments.map(subcomment => ({
+                                        id: subcomment.id || Date.now().toString(),
+                                        text: utils.sanitizeInput(subcomment.text || ''),
+                                        dateTime: subcomment.dateTime || utils.getCurrentDateTime(),
+                                        author: subcomment.author || this.currentUser.email,
+                                        editedAt: subcomment.editedAt || null
+                                    })) : []
+                                })) : []
+                            };
+                            importCount++;
+                        }
+                    } catch (error) {
+                        console.warn(`Erro ao importar nota ${noteKey}:`, error);
+                    }
+                }
+
+                this.saveToLocalStorage();
+                this.renderNotes();
+                utils.showNotification(`${importCount} contratos importados com sucesso!`, 'success');
+            } catch (error) {
+                console.error('Erro ao processar arquivo:', error);
+                utils.showNotification(`Erro ao processar arquivo: ${error.message}`, 'error');
+            }
+        };
+
+        reader.onerror = () => {
+            utils.showNotification('Erro ao ler o arquivo', 'error');
+        };
+
+        reader.readAsText(file);
+    } catch (error) {
+        console.error('Erro na importação:', error);
+        utils.showNotification(`Erro ao importar arquivo: ${error.message}`, 'error');
+    } finally {
+        event.target.value = '';
     }
+}
 
-    validateImportedNote(note, noteKey) {
-        try {
-            if (!note || typeof note !== 'object') {
-                throw new Error('Dados da nota inválidos');
-            }
-
-            const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
-            const missingFields = requiredFields.filter(field => !note[field]);
-
-            if (missingFields.length > 0) {
-                throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
-            }
-
-            // Normalizar os comentários
-            if (!Array.isArray(note.comments)) {
-                note.comments = [];
-            }
-
-            note.comments = note.comments.map(comment => ({
-                id: comment.id || Date.now().toString(),
-                text: utils.sanitizeInput(comment.text || ''),
-                dateTime: comment.dateTime || utils.getCurrentDateTime(),
-                author: comment.author || this.currentUser.email,
-                editedAt: comment.editedAt || null
-            }));
-
-            return true;
-        } catch (error) {
-            console.warn(`Nota ${noteKey} inválida:`, error);
-            return false;
+validateImportedNote(note, noteKey) {
+    try {
+        if (!note || typeof note !== 'object') {
+            throw new Error('Dados da nota inválidos');
         }
+
+        const requiredFields = ['contractNumber', 'locator', 'tenant', 'problem', 'address'];
+        const missingFields = requiredFields.filter(field => !note[field]);
+
+        if (missingFields.length > 0) {
+            throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
+        }
+
+        // Normalizar os comentários e subcomentários
+        if (!Array.isArray(note.comments)) {
+            note.comments = [];
+        }
+
+        note.comments = note.comments.map(comment => ({
+            id: comment.id || Date.now().toString(),
+            text: utils.sanitizeInput(comment.text || ''),
+            dateTime: comment.dateTime || utils.getCurrentDateTime(),
+            author: comment.author || this.currentUser.email,
+            editedAt: comment.editedAt || null,
+            subcomments: Array.isArray(comment.subcomments) ? comment.subcomments.map(subcomment => ({
+                id: subcomment.id || Date.now().toString(),
+                text: utils.sanitizeInput(subcomment.text || ''),
+                dateTime: subcomment.dateTime || utils.getCurrentDateTime(),
+                author: subcomment.author || this.currentUser.email,
+                editedAt: subcomment.editedAt || null
+            })) : []
+        }));
+
+        return true;
+    } catch (error) {
+        console.warn(`Nota ${noteKey} inválida:`, error);
+        return false;
     }
+}
 
     exportNotes() {
-        try {
-            if (Object.keys(this.notes).length === 0) {
-                utils.showNotification('Não há contratos para exportar', 'error');
-                return;
+    try {
+        if (Object.keys(this.notes).length === 0) {
+            utils.showNotification('Não há contratos para exportar', 'error');
+            return;
+        }
+
+        const exportData = {};
+        Object.entries(this.notes).forEach(([key, note]) => {
+            if (!note) return;
+
+            const contractNumber = note.contractNumber || key.split('#')[0];
+
+            const cleanedNote = {
+                contractNumber: utils.sanitizeInput(contractNumber),
+                locator: utils.sanitizeInput(note.locator || 'Não especificado'),
+                tenant: utils.sanitizeInput(note.tenant || 'Não especificado'),
+                problem: utils.sanitizeInput(note.problem || 'Não especificado'),
+                address: utils.sanitizeInput(note.address || 'Não especificado'),
+                status: note.status || 'open',
+                createdAt: note.createdAt || utils.getCurrentDateTime(),
+                createdBy: note.createdBy || this.currentUser.email,
+                providerName: note.providerName || '',
+                scheduleDate: note.scheduleDate || '',
+                scheduleDescription: note.scheduleDescription || '',
+                comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
+                    id: comment.id || Date.now().toString(),
+                    text: utils.sanitizeInput(comment.text || ''),
+                    dateTime: comment.dateTime || utils.getCurrentDateTime(),
+                    author: comment.author || this.currentUser.email,
+                    editedAt: comment.editedAt || null,
+                    subcomments: Array.isArray(comment.subcomments) ? comment.subcomments.map(subcomment => ({
+                        id: subcomment.id || Date.now().toString(),
+                        text: utils.sanitizeInput(subcomment.text || ''),
+                        dateTime: subcomment.dateTime || utils.getCurrentDateTime(),
+                        author: subcomment.author || this.currentUser.email,
+                        editedAt: subcomment.editedAt || null
+                    })) : []
+                })) : []
+            };
+
+            if (note.closedAt) {
+                cleanedNote.closedAt = note.closedAt;
             }
 
-            const exportData = {};
-            Object.entries(this.notes).forEach(([key, note]) => {
-                if (!note) return;
+            exportData[key] = cleanedNote;
+        });
 
-                const contractNumber = note.contractNumber || key.split('#')[0];
-
-                const cleanedNote = {
-                    contractNumber: utils.sanitizeInput(contractNumber),
-                    locator: utils.sanitizeInput(note.locator || 'Não especificado'),
-                    tenant: utils.sanitizeInput(note.tenant || 'Não especificado'),
-                    problem: utils.sanitizeInput(note.problem || 'Não especificado'),
-                    address: utils.sanitizeInput(note.address || 'Não especificado'),
-                    status: note.status || 'open',
-                    createdAt: note.createdAt || utils.getCurrentDateTime(),
-                    createdBy: note.createdBy || this.currentUser.email,
-                    providerName: note.providerName || '',
-                    scheduleDate: note.scheduleDate || '',
-                    scheduleDescription: note.scheduleDescription || '',
-                    comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
-                        id: comment.id || Date.now().toString(),
-                        text: utils.sanitizeInput(comment.text || ''),
-                        dateTime: comment.dateTime || utils.getCurrentDateTime(),
-                        author: comment.author || this.currentUser.email,
-                        editedAt: comment.editedAt || null
-                    })) : []
-                };
-
-                if (note.closedAt) {
-                    cleanedNote.closedAt = note.closedAt;
-                }
-
-                exportData[key] = cleanedNote;
-            });
-
-            const notesJson = JSON.stringify(exportData, null, 2);
-            const filename = `contratos_${this.currentDateTime}.json`;
-            utils.downloadFile(notesJson, filename, 'application/json');
-            utils.showNotification('Contratos exportados com sucesso!', 'success');
-        } catch (error) {
-            console.error('Erro na exportação:', error);
-            utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
-        }
+        const notesJson = JSON.stringify(exportData, null, 2);
+        const filename = `contratos_${this.currentDateTime}.json`;
+        utils.downloadFile(notesJson, filename, 'application/json');
+        utils.showNotification('Contratos exportados com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro na exportação:', error);
+        utils.showNotification(`Erro ao exportar contratos: ${error.message}`, 'error');
     }
+}
 
     renderDashboard() {
     const statusData = {
