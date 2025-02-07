@@ -140,9 +140,10 @@
         }
 
         .status-clausula-especial {
-            background-color: #d900ff;
-            color: #ffffff;
-        }
+    background-color: #d900ff;
+    color: #ffffff;
+    animation: glow 1.0s infinite alternate;
+}
 
         .note-button .text-center {
             text-align: center;
@@ -311,6 +312,15 @@
 
 
 /* Adicione estas classes de animação ao seu arquivo de estilo */
+
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 2px #d900ff, 0 0 3px #d900ff, 0 0 4px #d900ff, 0 0 5px #d900ff, 0 0 6px #d900ff, 0 0 7x #d900ff, 0 0 8px #d900ff;
+    }
+    100% {
+        box-shadow: 0 0 2px #d900ff, 0 0 3px #d900ff, 0 0 4px #d900ff, 0 0 5px #d900ff, 0 0 6px #d900ff, 0 0 7px #d900ff, 0 0 8px #d900ff;
+    }
+}
 
 @keyframes fadeIn {
     from {
@@ -1623,7 +1633,7 @@ handleCommentSubmit() {
     }
 }
 
-    updateNoteStatusAndModule(noteKey, newStatus) {
+updateNoteStatusAndModule(noteKey, newStatus) {
     try {
         const note = this.notes[noteKey];
         note.status = newStatus;
@@ -1631,6 +1641,8 @@ handleCommentSubmit() {
         // Update module based on status changes
         if (newStatus === 'closed') {
             note.module = 'Chamado Finalizado';
+        } else if (newStatus === 'special_clause') {
+            note.module = 'Cláusula Especial';
         }
 
         this.saveToLocalStorage();
@@ -1925,8 +1937,18 @@ updateNoteModule(noteKey, newModule) {
     transformToSpecialClause(noteKey) {
     try {
         const note = this.notes[noteKey];
+        
+        // Verificar e adicionar campos ausentes
+        if (!note.hasOwnProperty('status')) {
+            note.status = 'open';
+        }
+        if (!note.hasOwnProperty('module')) {
+            note.module = ''; // Adicione um valor padrão apropriado aqui
+        }
+
         if (note.status !== 'special_clause') {
             note.status = 'special_clause';
+            note.module = 'Cláusula Especial'; // Certifique-se de atualizar o módulo também
             this.saveToLocalStorage();
             this.renderNotes();
             this.showNoteDetails(noteKey);
