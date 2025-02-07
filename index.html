@@ -1216,51 +1216,53 @@ document.addEventListener('keydown', (e) => {
     }
 
     renderContractList(searchTerm = '') {
-        const contractList = document.getElementById('contractList');
-        contractList.innerHTML = '';
+    const contractList = document.getElementById('contractList');
+    contractList.innerHTML = '';
 
-        const columns = 2;  // Define the number of columns
-        const columnWrappers = Array.from({ length: columns }, () => {
-            const column = document.createElement('div');
-            column.className = 'contract-column space-y-2';
-            contractList.appendChild(column);
-            return column;
+    const columns = 2;  // Define the number of columns
+    const columnWrappers = Array.from({ length: columns }, () => {
+        const column = document.createElement('div');
+        column.className = 'contract-column space-y-2';
+        contractList.appendChild(column);
+        return column;
+    });
+
+    // Obtenha os contratos em ordem de edição
+    const sortedNotes = Object.keys(this.notes).sort((a, b) => {
+        const noteA = this.notes[a];
+        const noteB = this.notes[b];
+        const dateA = new Date(noteA.lastEdited || noteA.createdAt);
+        const dateB = new Date(noteB.lastEdited || noteB.createdAt);
+        return dateB - dateA;
+    });
+
+    // Filtrar contratos com base no termo de pesquisa e que não estejam finalizados
+    const filteredNotes = sortedNotes.filter(noteKey => {
+        const note = this.notes[noteKey];
+        return note.status !== 'closed' && (
+            noteKey.toLowerCase().includes(searchTerm) ||
+            note.locator.toLowerCase().includes(searchTerm) ||
+            note.tenant.toLowerCase().includes(searchTerm) ||
+            note.address.toLowerCase().includes(searchTerm) ||
+            note.problem.toLowerCase().includes(searchTerm)
+        );
+    });
+
+    filteredNotes.forEach((noteKey, index) => {
+        const note = this.notes[noteKey];
+        const listItem = document.createElement('div');
+        listItem.className = 'contract-list-item';
+        listItem.innerHTML = `<span>${noteKey} (${note.pendente || 'PENDENTE'})</span>`;
+        listItem.addEventListener('click', () => {
+            this.showNoteDetails(noteKey);
+            this.toggleModal('contractListModal');
         });
 
-        // Obtenha os contratos em ordem de edição
-        const sortedNotes = Object.keys(this.notes).sort((a, b) => {
-            const noteA = this.notes[a];
-            const noteB = this.notes[b];
-            const dateA = new Date(noteA.lastEdited || noteA.createdAt);
-            const dateB = new Date(noteB.lastEdited || noteB.createdAt);
-            return dateB - dateA;
-        });
-
-        // Filtrar contratos com base no termo de pesquisa
-        const filteredNotes = sortedNotes.filter(noteKey => {
-            const note = this.notes[noteKey];
-            return noteKey.toLowerCase().includes(searchTerm) ||
-                note.locator.toLowerCase().includes(searchTerm) ||
-                note.tenant.toLowerCase().includes(searchTerm) ||
-                note.address.toLowerCase().includes(searchTerm) ||
-                note.problem.toLowerCase().includes(searchTerm);
-        });
-
-        filteredNotes.forEach((noteKey, index) => {
-            const note = this.notes[noteKey];
-            const listItem = document.createElement('div');
-            listItem.className = 'contract-list-item';
-            listItem.innerHTML = `<span>${noteKey} (${note.pendente || 'PENDENTE'})</span>`;
-            listItem.addEventListener('click', () => {
-                this.showNoteDetails(noteKey);
-                this.toggleModal('contractListModal');
-            });
-
-            // Append the list item to one of the columns
-            const columnIndex = index % columns;
-            columnWrappers[columnIndex].appendChild(listItem);
-        });
-    }
+        // Append the list item to one of the columns
+        const columnIndex = index % columns;
+        columnWrappers[columnIndex].appendChild(listItem);
+    });
+}
 
 editPendenteText(noteKey) {
     const note = this.notes[noteKey];
