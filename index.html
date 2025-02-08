@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Anotações By Victor</title>
+    <title>Controle Manutenção 2025</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.min.js"></script>
@@ -31,7 +31,7 @@
             --comment-text-color: #f0f0f0;
             --comment-border-color: #4d4d4d;
         }
-
+    
         body {
             background-color: var(--background-color);
             color: var(--primary-text-color);
@@ -40,36 +40,36 @@
             padding: 0;
             transition: background-color 0.3s, color 0.3s;
         }
-
+    
         header {
             background-color: var(--border-color);
             padding: 1rem;
             text-align: center;
             box-shadow: 0 2px 4px var(--shadow-color);
         }
-
+    
         header h1 {
             margin: 0;
             font-size: 2rem;
             color: var(--icon-color);
         }
-
+    
         nav {
             margin: 1rem 0;
             text-align: center;
         }
-
+    
         nav a {
             color: var(--icon-color);
             text-decoration: none;
             margin: 0 1rem;
             transition: color 0.3s;
         }
-
+    
         nav a:hover {
             color: var(--secondary-text-color);
         }
-
+    
         main {
             max-width: 800px;
             margin: 2rem auto;
@@ -79,11 +79,11 @@
             border-radius: 20px;
             box-shadow: 0 4px 8px var(--shadow-color);
         }
-
+    
         main h2 {
             margin-top: 0;
         }
-
+    
         .btn {
             color: var(--icon-color);
             border: none;
@@ -95,33 +95,33 @@
             align-items: center;
             justify-content: center;
         }
-
+    
         .btn i {
             font-size: 1rem;
         }
-
+    
         .btn:hover {
             background-color: var(--primary-button-hover);
         }
-
+    
         footer {
             text-align: center;
             padding: 1rem;
             background-color: var(--border-color);
             box-shadow: 0 -2px 4px var(--shadow-color);
         }
-
+    
         footer p {
             margin: 0;
             color: var(--icon-color);
         }
-
+    
         #notesContainer {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
         }
-
+    
         .note-button {
             display: flex;
             flex-direction: column;
@@ -133,42 +133,42 @@
             transition: transform 0.2s, box-shadow 0.2s;
             text-align: center;
         }
-
+    
         .note-button:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 16px var(--shadow-color);
         }
-
+    
         .status-clausula-especial {
-    background-color: #d900ff;
-    color: #ffffff;
-    animation: glow 1.0s infinite alternate;
-}
-
+            background-color: #d900ff;
+            color: #ffffff;
+            animation: glow 1.0s infinite alternate;
+        }
+    
         .note-button .text-center {
             text-align: center;
         }
-
+    
         .note-button .font-bold {
             font-size: 1.50rem; /* Tamanho maior para destacar */
         }
-
+    
         .note-button .block {
             display: block;
             margin: 0.5rem 0;
         }
-
+    
         .status-clausula-especial:hover {
             background-color: #b800db;
         }
-
+    
         .user-icon {
             width: 32px;
             height: 32px;
             border-radius: 50%;
             margin-right: 8px;
         }
-
+    
         /* Estilos para as categorias */
         .module-status {
             background-color: #2b75c9;
@@ -180,29 +180,29 @@
             display: inline-block;
             margin-bottom: 8px;
         }
-
+    
         #loginModal {
             background-color: var(--background-color);
             color: var(--primary-text-color);
         }
-
+    
         #noteModal, #scheduleModal, #noteDetailsModal {
             background-color: var(--background-color);
             color: var(--primary-text-color);
         }
-
+    
         input, select, textarea {
             background-color: var(--secondary-button-color);
             color: black;  /* Cor preta */
             border: 1px solid var(--border-color);
         }
-
+    
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary-button-hover);
             box-shadow: 0 0 5px var(--primary-button-hover);
         }
-
+    
         .btn-wine-red {
             background-color: var(--primary-button-color);
             color: var(--icon-color);
@@ -215,11 +215,11 @@
             align-items: center;
             justify-content: center;
         }
-
+    
         .btn-wine-red:hover {
             background-color: var(--primary-button-hover);
         }
-
+    
         .btn-gray {
             background-color: var(--secondary-button-color);
             color: var(--primary-text-color);
@@ -232,11 +232,11 @@
             align-items: center;
             justify-content: center;
         }
-
+    
         .btn-gray:hover {
             background-color: var(--secondary-button-hover);
         }
-
+    
         /* Estilos para o contêiner de detalhes */
         .details-container {
             background-color: var(--details-background-color);
@@ -247,7 +247,7 @@
             border: 1px solid var(--border-color);
             margin-bottom: 1.5rem;
         }
-
+    
         .comment {
             background-color: #ffffff;
             color: #000000;
@@ -257,192 +257,193 @@
             margin-bottom: 10px;
             box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
         }
-
+    
         .comment .comment-date {
             font-size: 0.85rem;
             color: #9ca3af;
             margin-bottom: 10px;
         }
-
+    
         #commentText {
             background-color: #ffffff;
             color: #000000;
             border: 4px solid var(--comment-border-color);
         }
-
+    
         /* Estilos para as informações do contrato */
-#noteDetailsContent {
-    background-color: #ffffff;
-    color: #333333;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1rem;
-}
-
-/* Estilos para os títulos */
-#noteDetailsContent h3 {
-    color: #000000; /* Altere a cor para preto */
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
-}
-
-/* Estilos para os parágrafos */
-#noteDetailsContent p {
-    margin: 0.5rem 0;
-    line-height: 1.5;
-}
-
-/* Estilos para os botões */
-#noteDetailsContent button {
-    background-color: var(--primary-button-color);
-    color: var(--icon-color);
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-left: 0.5rem;
-}
-
-#noteDetailsContent button:hover {
-    background-color: var(--primary-button-hover);
-}
-
-
-
-/* Adicione estas classes de animação ao seu arquivo de estilo */
-
-@keyframes glow {
-    0% {
-        box-shadow: 0 0 2px #d900ff, 0 0 3px #d900ff, 0 0 4px #d900ff, 0 0 5px #d900ff, 0 0 6px #d900ff, 0 0 7x #d900ff, 0 0 8px #d900ff;
-    }
-    100% {
-        box-shadow: 0 0 2px #d900ff, 0 0 3px #d900ff, 0 0 4px #d900ff, 0 0 5px #d900ff, 0 0 6px #d900ff, 0 0 7px #d900ff, 0 0 8px #d900ff;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes scaleIn {
-    from {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-@keyframes iconHover {
-    from {
-        transform: scale(1);
-    }
-    to {
-        transform: scale(1.2);
-    }
-}
-
-.icon-hover {
-    transition: transform 0.3s ease-in-out;
-}
-
-.icon-hover:hover {
-    animation: iconHover 0.3s forwards;
-}
-
-.fade-in {
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-.scale-in {
-    animation: scaleIn 0.1s ease-in-out;
-}
-
-/* Classe para desativar a rolagem */
-.no-scroll {
-    overflow: hidden;
-}
-
-.notification {
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    text-align: center;
-    font-weight: bold;
-}
-
-.notification-success {
-    background-color: #38a169;
-    color: #fff;
-}
-
-.notification-alert {
-    background-color: #d69e2e;
-    color: #fff;
-}
-
-.notification-error {
-    background-color: #e53e3e;
-    color: #fff;
-}
-
-#reportsSection .flex-col {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-#statusChart,
-#moduleChart {
-    width: 55%;
-    max-width: 600px;
-}
-
-.contract-column {
-        flex: 1;
-    }
-
-    .contract-list-item {
-        padding: 8px;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .contract-list-item:hover {
-        background-color: var(--primary-button-hover);
-    }
-
-    .not-verified-today {
-        background-color: #ffcccc; /* Vermelho claro */
-    }
-
-    .verified-today {
-        background-color: #ccffcc; /* Verde claro */
-    }
-
-    .not-verified-today {
-        background-color: #FFA500; /* Laranja */
-        color: #000000; /* Preto */
-    }
-
-    .verified-today {
-        background-color: #32CD32; /* Verde */
-        color: #000000; /* Preto */
-    }
-
+        #noteDetailsContent {
+            background-color: #ffffff;
+            color: #333333;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+    
+        /* Estilos para os títulos */
+        #noteDetailsContent h3 {
+            color: #000000; /* Altere a cor para preto */
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+    
+        /* Estilos para os parágrafos */
+        #noteDetailsContent p {
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+    
+        /* Estilos para os botões */
+        #noteDetailsContent button {
+            background-color: var(--primary-button-color);
+            color: var(--icon-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-left: 0.5rem;
+        }
+    
+        #noteDetailsContent button:hover {
+            background-color: var(--primary-button-hover);
+        }
+    
+        /* Adicione estas classes de animação ao seu arquivo de estilo */
+    
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 2px #d900ff, 0 0 3px #d900ff, 0 0 4px #d900ff, 0 0 5px #d900ff, 0 0 6px #d900ff, 0 0 7x #d900ff, 0 0 8px #d900ff;
+            }
+            100% {
+                box-shadow: 0 0 2px #d900ff, 0 0 3px #d900ff, 0 0 4px #d900ff, 0 0 5px #d900ff, 0 0 6px #d900ff, 0 0 7px #d900ff, 0 0 8px #d900ff;
+            }
+        }
+    
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    
+        @keyframes iconHover {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.2);
+            }
+        }
+    
+        .icon-hover {
+            transition: transform 0.3s ease-in-out;
+        }
+    
+        .icon-hover:hover {
+            animation: iconHover 0.3s forwards;
+        }
+    
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+    
+        .scale-in {
+            animation: scaleIn 0.1s ease-in-out;
+        }
+    
+        /* Classe para desativar a rolagem */
+        .no-scroll {
+            overflow: hidden;
+        }
+    
+        .notification {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+    
+        .notification-success {
+            background-color: #38a169;
+            color: #fff;
+        }
+    
+        .notification-alert {
+            background-color: #d69e2e;
+            color: #fff;
+        }
+    
+        .notification-error {
+            background-color: #e53e3e;
+            color: #fff;
+        }
+    
+        #reportsSection .flex-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+    
+        #statusChart,
+        #moduleChart {
+            width: 55%;
+            max-width: 600px;
+        }
+    
+        .contract-column {
+            flex: 1;
+        }
+    
+        .contract-list-item {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+    
+        .contract-list-item:hover {
+            background-color: var(--primary-button-hover);
+        }
+    
+        .not-verified-today {
+            background-color: #ffcccc; /* Vermelho claro */
+        }
+    
+        .verified-today {
+            background-color: #ccffcc; /* Verde claro */
+        }
+    
+        .not-verified-today {
+            background-color: #FFA500; /* Laranja */
+            color: #000000; /* Preto */
+        }
+    
+        .verified-today {
+            background-color: #32CD32; /* Verde */
+            color: #000000; /* Preto */
+        }
     </style>
+
+</body>
+
 </head>
+
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white transition">
 
     <div id="reportsSection" class="w-full max-w-4xl mt-6 bg-dark-800 rounded-lg p-6 hidden mx-auto fixed inset-0 flex flex-col items-center justify-center z-50">
@@ -464,260 +465,260 @@
         </div>
     </div>
 
-<!-- Loader -->
-<div id="loader" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="w-16 h-16 border-4 border-t-4 border-t-transparent border-white rounded-full animate-spin"></div>
-</div>
-
-<!-- Login Modal -->
-<div id="loginModal" class="fixed inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white flex items-center justify-center z-40">
-    <div class="bg-dark-800 rounded-lg shadow-lg p-6 w-full max-w-md transform transition-all duration-300">
-        <h2 class="text-xl font-semibold mb-4 text-center">Login</h2>
-        <form id="loginForm" class="space-y-4">
-            <div>
-                <label for="loginEmail" class="block">E-mail: *</label>
-                <input type="email" id="loginEmail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-            </div>
-            <div>
-                <label for="loginPassword" class="block">Senha: *</label>
-                <input type="password" id="loginPassword" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-            </div>
-            <div class="flex justify-end space-x-2">
-                <button type="submit" class="btn-wine-red">
-                    <i class="fas fa-sign-in-alt icon-hover"></i>
-                </button>
-            </div>
-        </form>
+    <!-- Loader -->
+    <div id="loader" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="w-16 h-16 border-4 border-t-4 border-t-transparent border-white rounded-full animate-spin"></div>
     </div>
-</div>
 
-<!-- Main Layout -->
-<div id="mainLayout" class="flex flex-1 w-full hidden">
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col items-center p-4">
-        <!-- User Info -->
-        <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden flex items-center flex-col">
-            <!-- Logo -->
-            <img src="https://i.imgur.com/RFP2esb.png" alt="Logo" class="mb-2" style="width: 100px; height: auto;">
-            <!-- User Icon and Text -->
-            <div class="flex items-center">
-                <img id="userIcon" class="user-icon" src="https://i.imgur.com/kooxTdN.jpeg" alt="User Icon">
-                <span id="loggedUser" class="ml-2"></span>
-            </div>
-        </div>
-
-        <!-- Main Controls -->
-        <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
-            <button id="createNoteBtn" class="btn-wine-white" aria-label="Criar Anotação" title="Criar uma nova anotação">
-                <i class="fas fa-plus icon-hover"></i>
-            </button>
-            <button id="createScheduleBtn" class="btn-wine-white" aria-label="Criar Agendamento" title="Criar um novo agendamento">
-                <i class="fas fa-calendar-alt icon-hover"></i>
-            </button>
-            <button id="viewContractsBtn" class="btn-wine-white" aria-label="Ver Contratos" title="Ver Contratos">
-                <i class="fas fa-list icon-hover"></i>
-            </button>
-            <button id="importNotesBtn" class="btn-gray" aria-label="Importar Contratos" title="Importar contratos de um arquivo JSON">
-                <i class="fas fa-file-import icon-hover"></i>
-            </button>
-            <button id="downloadNotesBtn" class="btn-gray" aria-label="Baixar Todos os Contratos" title="Baixar todos os contratos como um arquivo JSON">
-                <i class="fas fa-download icon-hover"></i>
-            </button>
-            <button id="toggleReportsBtn" class="btn-wine-white" aria-label="Ver Relatórios" title="Ver Relatórios">
-                <i class="fas fa-chart-bar icon-hover"></i>
-            </button>
-            <button id="logoutBtn" class="btn-gray" aria-label="Logout" title="Deslogar da aplicação">
-                <i class="fas fa-sign-out-alt icon-hover"></i>
-            </button>
-            <input type="file" id="fileInput" class="hidden" accept=".json">
-        </div>
-
-        <!-- Notification Area -->
-        <div id="notificationArea" class="w-full max-w-4xl mb-4 text-center"></div>
-
-        <div class="my-4 border-t-2 border-gray-300"></div>
-
-<!-- Contract List Modal -->
-<div id="contractCount" class="text-center text-white mb-4"></div>
-<div id="contractListModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
-    <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-3xl bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
-        <h2 class="text-xl font-semibold mb-4 text-center">Lista de Contratos</h2>
-        <!-- Search Bar -->
-        <div class="mb-4">
-            <input type="text" id="contractSearchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
-        </div>
-        <div id="contractList" class="space-y-2 max-h-96 overflow-y-auto">
-            <!-- Contract list items will be appended here -->
-        </div>
-        <div class="flex justify-end space-x-2 mt-4">
-            <button type="button" id="closeContractListBtn" class="btn-gray">
-                <i class="fas fa-times icon-hover"></i>
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Note Creation Modal -->
-<div id="noteModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
-    <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
-        <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
-        <form id="noteForm" class="space-y-4">
-            <div>
-                <label for="contractNumber" class="block">Número de Contrato: *</label>
-                <input type="text" id="contractNumber" required pattern="[A-Za-z0-9-]+" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
-                <span id="contractNumberError" class="text-red-900 hidden">Número de contrato inválido - use apenas letras, números e hífen</span>
-            </div>
-
-            <div class="flex space-x-4">
-                <div class="w-1/2">
-                    <label for="locator" class="block">Locador: *</label>
-                    <input type="text" id="locator" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
-                    <span id="locatorError" class="text-red-900 hidden">Nome do Locador deve ter ao menos 3 caracteres</span>
-                </div>
-                <div class="w-1/2">
-                    <label for="tenant" class="block">Locatário: *</label>
-                    <input type="text" id="tenant" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
-                    <span id="tenantError" class="text-red-900 hidden">Nome do Locatário deve ter ao menos 3 caracteres</span>
-                </div>
-            </div>
-
-            <div>
-                <label for="address" class="block">Endereço: *</label>
-                <input type="text" id="address" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
-                <span id="addressError" class="text-red-900 hidden">Endereço deve ter ao menos 5 caracteres</span>
-            </div>
-
-            <div>
-                <label for="problem" class="block">Problema: *</label>
-                <textarea id="problem" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400 min-h-[100px]"></textarea>
-                <span id="problemError" class="text-red-900 hidden">Problema deve ter ao menos 10 caracteres</span>
-            </div>
-
-            <div>
-                <label for="module" class="block">Categoria: *</label>
-                <select id="module" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-900">
-                    <option value="Manutenção">Manutenção</option>
-                    <option value="Contestação">Contestação</option>
-                    <option value="Cláusula Especial">Cláusula Especial</option>
-                    <option value="Autorização">Autorização</option>
-                    <option value="Notificação">Notificação</option>
-                </select>
-            </div>
-
-            <div class="flex justify-end space-x-2">
-                <button type="button" id="cancelNoteBtn" class="btn-gray">
-                    <i class="fas fa-times icon-hover"></i>
-                </button>
-                <button type="submit" class="btn-wine-red">
-                    <i class="fas fa-save"></i>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-        <div class="my-4 border-t-2 border-gray-300"></div>
-
-<!-- Schedule Creation Modal -->
-<div id="scheduleModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
-    <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
-        <h2 class="text-xl font-semibold mb-4 text-center">Criar Agendamento</h2>
-        <form id="scheduleForm" class="space-y-4">
-            <div>
-                <label for="searchContract" class="block">Pesquisar Contrato:</label>
-                <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" placeholder="Buscar contrato...">
-            </div>
-            <div>
-                <label for="existingContract" class="block">Selecionar Contrato: *</label>
-                <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
-                    <option value="">Selecione um contrato...</option>
-                </select>
-            </div>
-            <div>
-                <label for="providerName" class="block">Nome do Prestador: *</label>
-                <input type="text" id="providerName" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
-            </div>
-            <div>
-                <label for="scheduleDate" class="block">Data do Agendamento: *</label>
-                <input type="date" id="scheduleDate" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
-            </div>
-            <div>
-                <label for="scheduleDescription" class="block">Descrição do Agendamento: *</label>
-                <textarea id="scheduleDescription" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400 min-h-[100px]"></textarea>
-            </div>
-            <div class="flex justify-end space-x-2">
-                <button type="button" id="cancelScheduleModalBtn" class="btn-gray">
-                    <i class="fas fa-times"></i>
-                </button>
-                <button type="submit" class="btn-wine-red">
-                    <i class="fas fa-save"></i>
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="my-4 border-t-2 border-gray-300"></div>
-
-<!-- Note Details Modal -->
-<div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
-    <div class="details-container transform transition-all duration-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
-        <div class="flex justify-end">
-            <button type="button" id="closeDetailsBtn" class="btn-gray">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Coluna da esquerda - Detalhes -->
-            <div class="space-y-4">
-                <div id="noteDetailsContent" class="details-container">
-                    <h3>Informações do Contrato</h3>
-                    <p><strong>Número de Contrato:</strong> <span>12345</span></p>
-                    <p><strong>Locador:</strong> <span>Nome do Locador</span></p>
-                    <p><strong>Locatário:</strong> <span>Nome do Locatário</span></p>
-                    <p><strong>Problema:</strong> <span>Descrição do problema</span></p>
-                    <p><strong>Endereço:</strong> 
-                        <a href="https://www.google.com/maps/search/?api=1&query=Endereço completo" target="_blank" class="text-red-900 hover:text-red-700">
-                            Endereço completo
-                        </a>
-                    </p>
-                    <!-- Remova esta linha -->
-                    <!-- <p><strong>Status:</strong> <span class="font-semibold text-red-900">Em Aberto</span></p> -->
-                    <p><strong>Finalizado em:</strong> <span>Data de finalização</span></p>
-                    <p><strong>Prestador:</strong> <span>Nome do Prestador</span></p>
-                    <p><strong>Data do Agendamento:</strong> <span>Data do Agendamento</span></p>
-                    <p><strong>Descrição do Agendamento:</strong> <span>Descrição do Agendamento</span></p>
-                </div>
-
-                <div class="flex space-x-2">
-                    <button type="button" id="copyDetailsBtn" class="btn-gray" aria-label="Copiar Detalhes">
-                        <i class="fas fa-copy icon-hover"></i>
-                    </button>
-                    <button type="button" id="downloadContractBtn" class="btn-gray" aria-label="Baixar Contrato">
-                        <i class="fas fa-file-download icon-hover"></i>
-                    </button>
-                    <button type="button" id="cancelScheduleBtn" class="btn-gray" aria-label="Cancelar Agendamento">
-                        <i class="fas fa-calendar-times icon-hover"></i>
-                    </button>
-                    <button type="button" id="deleteNoteBtn" class="btn-gray" aria-label="Excluir Anotação">
-                        <i class="fas fa-trash icon-hover"></i>
-                    </button>
-                    <button type="button" id="finalizeNoteBtn" class="btn-gray hidden" aria-label="Finalizar Anotação">
-                        <i class="fas fa-check icon-hover"></i>
-                    </button>
-                    <button type="button" id="reopenNoteBtn" class="btn-gray hidden" aria-label="Reabrir Anotação">
-                        <i class="fas fa-undo icon-hover"></i>
-                    </button>
-                    <button type="button" id="specialClauseBtn" class="btn-gray" aria-label="Transformar em Cláusula Especial">
-                        <i class="fas fa-star icon-hover"></i>
-                    </button>
-                    <button type="button" id="editPendenteBtn" class="btn-gray" aria-label="Editar Pendente">
-                        <i class="fas fa-edit icon-hover"></i>
-                    </button>
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white flex items-center justify-center z-40">
+        <div class="bg-dark-800 rounded-lg shadow-lg p-6 w-full max-w-md transform transition-all duration-300">
+            <h2 class="text-xl font-semibold mb-4 text-center">Login</h2>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label for="loginEmail" class="block">E-mail: *</label>
+                    <input type="email" id="loginEmail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                 </div>
                 <div>
+                    <label for="loginPassword" class="block">Senha: *</label>
+                    <input type="password" id="loginPassword" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="submit" class="btn-wine-red">
+                        <i class="fas fa-sign-in-alt icon-hover"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div id="mainLayout" class="flex flex-1 w-full hidden">
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col items-center p-4">
+            <!-- User Info -->
+            <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden flex items-center flex-col">
+                <!-- Logo -->
+                <img src="https://i.imgur.com/RFP2esb.png" alt="Logo" class="mb-2" style="width: 100px; height: auto;">
+                <!-- User Icon and Text -->
+                <div class="flex items-center">
+                    <img id="userIcon" class="user-icon" src="https://i.imgur.com/kooxTdN.jpeg" alt="User Icon">
+                    <span id="loggedUser" class="ml-2"></span>
+                </div>
+            </div>
+
+            <!-- Main Controls -->
+            <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
+                <button id="createNoteBtn" class="btn-wine-white" aria-label="Criar Anotação" title="Criar uma nova anotação">
+                    <i class="fas fa-plus icon-hover"></i>
+                </button>
+                <button id="createScheduleBtn" class="btn-wine-white" aria-label="Criar Agendamento" title="Criar um novo agendamento">
+                    <i class="fas fa-calendar-alt icon-hover"></i>
+                </button>
+                <button id="viewContractsBtn" class="btn-wine-white" aria-label="Ver Contratos" title="Ver Contratos">
+                    <i class="fas fa-list icon-hover"></i>
+                </button>
+                <button id="importNotesBtn" class="btn-gray" aria-label="Importar Contratos" title="Importar contratos de um arquivo JSON">
+                    <i class="fas fa-file-import icon-hover"></i>
+                </button>
+                <button id="downloadNotesBtn" class="btn-gray" aria-label="Baixar Todos os Contratos" title="Baixar todos os contratos como um arquivo JSON">
+                    <i class="fas fa-download icon-hover"></i>
+                </button>
+                <button id="toggleReportsBtn" class="btn-wine-white" aria-label="Ver Relatórios" title="Ver Relatórios">
+                    <i class="fas fa-chart-bar icon-hover"></i>
+                </button>
+                <button id="logoutBtn" class="btn-gray" aria-label="Logout" title="Deslogar da aplicação">
+                    <i class="fas fa-sign-out-alt icon-hover"></i>
+                </button>
+                <input type="file" id="fileInput" class="hidden" accept=".json">
+            </div>
+
+            <!-- Notification Area -->
+            <div id="notificationArea" class="w-full max-w-4xl mb-4 text-center"></div>
+
+            <div class="my-4 border-t-2 border-gray-300"></div>
+
+            <!-- Contract List Modal -->
+            <div id="contractCount" class="text-center text-white mb-4"></div>
+            <div id="contractListModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+                <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-3xl bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
+                    <h2 class="text-xl font-semibold mb-4 text-center">Lista de Contratos</h2>
+                    <!-- Search Bar -->
+                    <div class="mb-4">
+                        <input type="text" id="contractSearchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                    </div>
+                    <div id="contractList" class="space-y-2 max-h-96 overflow-y-auto">
+                        <!-- Contract list items will be appended here -->
+                    </div>
+                    <div class="flex justify-end space-x-2 mt-4">
+                        <button type="button" id="closeContractListBtn" class="btn-gray">
+                            <i class="fas fa-times icon-hover"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Note Creation Modal -->
+            <div id="noteModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+                <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
+                    <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
+                    <form id="noteForm" class="space-y-4">
+                        <div>
+                            <label for="contractNumber" class="block">Número de Contrato: *</label>
+                            <input type="text" id="contractNumber" required pattern="[A-Za-z0-9-]+" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                            <span id="contractNumberError" class="text-red-900 hidden">Número de contrato inválido - use apenas letras, números e hífen</span>
+                        </div>
+
+                        <div class="flex space-x-4">
+                            <div class="w-1/2">
+                                <label for="locator" class="block">Locador: *</label>
+                                <input type="text" id="locator" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                                <span id="locatorError" class="text-red-900 hidden">Nome do Locador deve ter ao menos 3 caracteres</span>
+                            </div>
+                            <div class="w-1/2">
+                                <label for="tenant" class="block">Locatário: *</label>
+                                <input type="text" id="tenant" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                                <span id="tenantError" class="text-red-900 hidden">Nome do Locatário deve ter ao menos 3 caracteres</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="address" class="block">Endereço: *</label>
+                            <input type="text" id="address" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                            <span id="addressError" class="text-red-900 hidden">Endereço deve ter ao menos 5 caracteres</span>
+                        </div>
+
+                        <div>
+                            <label for="problem" class="block">Problema: *</label>
+                            <textarea id="problem" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400 min-h-[100px]"></textarea>
+                            <span id="problemError" class="text-red-900 hidden">Problema deve ter ao menos 10 caracteres</span>
+                        </div>
+
+                        <div>
+                            <label for="module" class="block">Categoria: *</label>
+                            <select id="module" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-900">
+                                <option value="Manutenção">Manutenção</option>
+                                <option value="Contestação">Contestação</option>
+                                <option value="Cláusula Especial">Cláusula Especial</option>
+                                <option value="Autorização">Autorização</option>
+                                <option value="Notificação">Notificação</option>
+                            </select>
+                        </div>
+
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancelNoteBtn" class="btn-gray">
+                                <i class="fas fa-times icon-hover"></i>
+                            </button>
+                            <button type="submit" class="btn-wine-red">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="my-4 border-t-2 border-gray-300"></div>
+
+            <!-- Schedule Creation Modal -->
+            <div id="scheduleModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+                <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
+                    <h2 class="text-xl font-semibold mb-4 text-center">Criar Agendamento</h2>
+                    <form id="scheduleForm" class="space-y-4">
+                        <div>
+                            <label for="searchContract" class="block">Pesquisar Contrato:</label>
+                            <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" placeholder="Buscar contrato...">
+                        </div>
+                        <div>
+                            <label for="existingContract" class="block">Selecionar Contrato: *</label>
+                            <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                                <option value="">Selecione um contrato...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="providerName" class="block">Nome do Prestador: *</label>
+                            <input type="text" id="providerName" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                        </div>
+                        <div>
+                            <label for="scheduleDate" class="block">Data do Agendamento: *</label>
+                            <input type="date" id="scheduleDate" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                        </div>
+                        <div>
+                            <label for="scheduleDescription" class="block">Descrição do Agendamento: *</label>
+                            <textarea id="scheduleDescription" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400 min-h-[100px]"></textarea>
+                        </div>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancelScheduleModalBtn" class="btn-gray">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button type="submit" class="btn-wine-red">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="my-4 border-t-2 border-gray-300"></div>
+
+            <!-- Note Details Modal -->
+            <div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+                <div class="details-container transform transition-all duration-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
+                    <div class="flex justify-end">
+                        <button type="button" id="closeDetailsBtn" class="btn-gray">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Coluna da esquerda - Detalhes -->
+                        <div class="space-y-4">
+                            <div id="noteDetailsContent" class="details-container">
+                                <h3>Informações do Contrato</h3>
+                                <p><strong>Número de Contrato:</strong> <span>12345</span></p>
+                                <p><strong>Locador:</strong> <span>Nome do Locador</span></p>
+                                <p><strong>Locatário:</strong> <span>Nome do Locatário</span></p>
+                                <p><strong>Problema:</strong> <span>Descrição do problema</span></p>
+                                <p><strong>Endereço:</strong> 
+                                    <a href="https://www.google.com/maps/search/?api=1&query=Endereço completo" target="_blank" class="text-red-900 hover:text-red-700">
+                                        Endereço completo
+                                    </a>
+                                </p>
+                                <!-- Remova esta linha -->
+                                <!-- <p><strong>Status:</strong> <span class="font-semibold text-red-900">Em Aberto</span></p> -->
+                                <p><strong>Finalizado em:</strong> <span>Data de finalização</span></p>
+                                <p><strong>Prestador:</strong> <span>Nome do Prestador</span></p>
+                                <p><strong>Data do Agendamento:</strong> <span>Data do Agendamento</span></p>
+                                <p><strong>Descrição do Agendamento:</strong> <span>Descrição do Agendamento</span></p>
+                            </div>
+
+                            <div class="flex space-x-2">
+                                <button type="button" id="copyDetailsBtn" class="btn-gray" aria-label="Copiar Detalhes">
+                                    <i class="fas fa-copy icon-hover"></i>
+                                </button>
+                                <button type="button" id="downloadContractBtn" class="btn-gray" aria-label="Baixar Contrato">
+                                    <i class="fas fa-file-download icon-hover"></i>
+                                </button>
+                                <button type="button" id="cancelScheduleBtn" class="btn-gray" aria-label="Cancelar Agendamento">
+                                    <i class="fas fa-calendar-times icon-hover"></i>
+                                </button>
+                                <button type="button" id="deleteNoteBtn" class="btn-gray" aria-label="Excluir Anotação">
+                                    <i class="fas fa-trash icon-hover"></i>
+                                </button>
+                                <button type="button" id="finalizeNoteBtn" class="btn-gray hidden" aria-label="Finalizar Anotação">
+                                    <i class="fas fa-check icon-hover"></i>
+                                </button>
+                                <button type="button" id="reopenNoteBtn" class="btn-gray hidden" aria-label="Reabrir Anotação">
+                                    <i class="fas fa-undo icon-hover"></i>
+                                </button>
+                                <button type="button" id="specialClauseBtn" class="btn-gray" aria-label="Transformar em Cláusula Especial">
+                                    <i class="fas fa-star icon-hover"></i>
+                                </button>
+                                <button type="button" id="editPendenteBtn" class="btn-gray" aria-label="Editar Pendente">
+                                    <i class="fas fa-edit icon-hover"></i>
+                                </button>
+                            </div>
+                            <div>
                     <label for="moduleDetail" class="block">Categoria: *</label>
                     <select id="moduleDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
                         <option value="Manutenção">Manutenção</option>
