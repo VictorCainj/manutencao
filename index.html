@@ -659,10 +659,11 @@
                     <p><strong>Locador:</strong> <span>Nome do Locador</span></p>
                     <p><strong>Locatário:</strong> <span>Nome do Locatário</span></p>
                     <p><strong>Problema:</strong> <span>Descrição do problema</span></p>
-                    <p><strong>Endereço:</strong> <span>Endereço completo</span>
-                        <button onclick="window.open('https://www.google.com/search?q=Endereço completo', '_blank')">
-                            <i class="fas fa-search"></i>
-                        </button>
+                    <p>
+                        <strong>Endereço:</strong> 
+                        <a href="https://www.google.com/maps/search/?api=1&query=Endereço completo" target="_blank" class="text-red-900 hover:text-red-700">
+                            Endereço completo
+                        </a>
                     </p>
                     <p><strong>Status:</strong> <span class="module-status">Em Aberto</span></p>
                     <p><strong>Finalizado em:</strong> <span>Data de finalização</span></p>
@@ -1496,31 +1497,32 @@ showNoteDetails(noteKey) {
     const detailsContent = document.getElementById('noteDetailsContent');
 
     detailsContent.innerHTML = `
-        <div class="space-y-3">
-            <div class="pb-2 border-b border-gray-200">
-                <h3 class="text-lg font-semibold mb-4 text-center">Informações do Contrato</h3>
-            </div>
-            <div class="grid grid-cols-1 gap-2">
-                <div class="absolute top-2 right-2 text-gray-700 text-sm">${utils.formatDate(note.createdAt)}</div>
-                <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
-                <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
-                <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
-                <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
-                <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
-                    <button class="ml-2 text-red-900 hover:text-red-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
-                        <i class="fas fa-search"></i>
-                    </button></p>
-                <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-red-900' : (note.status === 'scheduled' ? 'text-yellow-600' : (note.status === 'verified_today' ? 'text-purple-600' : (note.status === 'special_clause' ? 'text-orange-600' : 'text-green-600')))}">
-                    ${note.status === 'open' ? 'Em Aberto' : (note.status === 'scheduled' ? 'Em agendamento' : (note.status === 'verified_today' ? 'Verificado Hoje' : (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
-                </span></p>
-                ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
-                ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
-                ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
-                ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
-                <p><strong>Pendente:</strong> <span>${utils.sanitizeInput(note.pendente || 'PENDENTE')}</span></p>
-            </div>
+    <div class="space-y-3">
+        <div class="pb-2 border-b border-gray-200">
+            <h3 class="text-lg font-semibold mb-4 text-center">Informações do Contrato</h3>
         </div>
-    `;
+        <div class="grid grid-cols-1 gap-2">
+            <div class="absolute top-2 right-2 text-gray-700 text-sm">${utils.formatDate(note.createdAt)}</div>
+            <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
+            <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
+            <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
+            <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
+            <p><strong>Endereço:</strong> 
+                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(note.address)}" target="_blank" class="text-red-900 hover:text-red-700">
+                    ${utils.sanitizeInput(note.address)}
+                </a>
+            </p>
+            <p><strong>Status:</strong> <span class="font-semibold ${note.status === 'open' ? 'text-red-900' : (note.status === 'scheduled' ? 'text-yellow-600' : (note.status === 'verified_today' ? 'text-purple-600' : (note.status === 'special_clause' ? 'text-orange-600' : 'text-green-600')))}">
+                ${note.status === 'open' ? 'Em Aberto' : (note.status === 'scheduled' ? 'Em agendamento' : (note.status === 'verified_today' ? 'Verificado Hoje' : (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
+            </span></p>
+            ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
+            ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
+            ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
+            ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
+            <p><strong>Pendente:</strong> <span>${utils.sanitizeInput(note.pendente || 'PENDENTE')}</span></p>
+        </div>
+    </div>
+`;
 
     // Update the category dropdown in the details modal
     document.getElementById('moduleDetail').value = note.module;
