@@ -1352,24 +1352,19 @@ document.addEventListener('keydown', (e) => {
         return dateB - dateA;
     });
 
-    // Filtrar contratos com base no termo de pesquisa
+    // Filtrar contratos com base no termo de pesquisa e status
     const filteredNotes = sortedNotes.filter(noteKey => {
         const note = this.notes[noteKey];
-        return noteKey.toLowerCase().includes(searchTerm) ||
-            note.locator.toLowerCase().includes(searchTerm) ||
-            note.tenant.toLowerCase().includes(searchTerm) ||
-            note.address.toLowerCase().includes(searchTerm) ||
-            note.problem.toLowerCase().includes(searchTerm);
+        const matchesSearchTerm = noteKey.toLowerCase().includes(searchTerm) ||
+                                  note.locator.toLowerCase().includes(searchTerm) ||
+                                  note.tenant.toLowerCase().includes(searchTerm) ||
+                                  note.address.toLowerCase().includes(searchTerm) ||
+                                  note.problem.toLowerCase().includes(searchTerm);
+        const isNotFinalized = note.status !== 'closed' && note.module !== 'Chamado Finalizado';
+        return matchesSearchTerm && isNotFinalized;
     });
 
-    // Separar os contratos finalizados dos não finalizados
-    const nonFinalizedNotes = filteredNotes.filter(noteKey => this.notes[noteKey].status !== 'closed');
-    const finalizedNotes = filteredNotes.filter(noteKey => this.notes[noteKey].status === 'closed');
-
-    // Combinar as listas, colocando os finalizados no final
-    const allNotes = [...nonFinalizedNotes, ...finalizedNotes];
-
-    allNotes.forEach((noteKey, index) => {
+    filteredNotes.forEach((noteKey, index) => {
         const note = this.notes[noteKey];
         const listItem = document.createElement('div');
         listItem.className = 'contract-list-item flex justify-between items-center';
@@ -1569,7 +1564,7 @@ renderNotes(searchResults = null) {
             (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
             (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
             (note.status === 'special_clause' ? 'status-clausula-especial' :
-            'bg-red-900 hover:bg-red-900')))} text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
+            (note.status === 'finished' ? 'bg-blue-500 hover:bg-blue-700' : 'bg-red-900 hover:bg-red-900'))))} text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
 
         const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
@@ -1584,7 +1579,8 @@ renderNotes(searchResults = null) {
                     ${note.status === 'open' ? `Em Aberto` : 
                     (note.status === 'scheduled' ? 'Em Agendamento' : 
                     (note.status === 'verified_today' ? 'Verificado Hoje' : 
-                    (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
+                    (note.status === 'special_clause' ? 'Cláusula Especial' : 
+                    (note.status === 'finished' ? 'Chamado Finalizado' : 'Finalizado'))))}
                 </span>
                 <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
             </div>
@@ -2181,6 +2177,10 @@ deleteNote(noteKey) {
 finalizeNote(noteKey) {
     try {
         this.updateNoteStatusAndModule(noteKey, 'closed');
+        this.notes[noteKey].module = 'Chamado Finalizado'; // Define a nova categoria aqui
+        this.saveToLocalStorage();
+        this.renderNotes();
+        utils.showNotification('Nota finalizada com sucesso!', 'success');
     } catch (error) {
         console.error('Erro ao finalizar nota:', error);
         utils.showNotification('Erro ao finalizar nota', 'error');
