@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Anotações By Victor</title>
+    <title>Scrum</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    
     <link rel="icon" href="https://i.imgur.com/78ZTh4S.png" type="image/x-icon">
     <style>
         :root {
@@ -17,7 +21,7 @@
             --primary-button-color: #333333;
             --primary-button-hover: #4d4d4d;
             --border-color: #ffffff;
-            --shadow-color: rgba(0, 0, 0, 0.5);
+            --shadow-color: rgb(82, 76, 76);
             --notification-success: #38a169;
             --notification-alert: #d69e2e;
             --notification-error: #e53e3e;
@@ -27,7 +31,7 @@
             --comment-text-color: #f0f0f0;
             --comment-border-color: #4d4d4d;
         }
-
+    
         body {
             background-color: var(--background-color);
             color: var(--primary-text-color);
@@ -36,36 +40,36 @@
             padding: 0;
             transition: background-color 0.3s, color 0.3s;
         }
-
+    
         header {
             background-color: var(--border-color);
             padding: 1rem;
             text-align: center;
             box-shadow: 0 2px 4px var(--shadow-color);
         }
-
+    
         header h1 {
             margin: 0;
             font-size: 2rem;
             color: var(--icon-color);
         }
-
+    
         nav {
             margin: 1rem 0;
             text-align: center;
         }
-
+    
         nav a {
             color: var(--icon-color);
             text-decoration: none;
             margin: 0 1rem;
             transition: color 0.3s;
         }
-
+    
         nav a:hover {
             color: var(--secondary-text-color);
         }
-
+    
         main {
             max-width: 800px;
             margin: 2rem auto;
@@ -75,23 +79,12 @@
             border-radius: 20px;
             box-shadow: 0 4px 8px var(--shadow-color);
         }
-
+    
         main h2 {
             margin-top: 0;
         }
-
+    
         .btn {
-main {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 1rem;
-    background-color: var(--background-color);
-    color: black; /* Cor do texto preta */
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    box-shadow: 0 4px 8px var(--shadow-color);
-    background-color: var(--primary-button-color); /* Cor de fundo adicionada */
-}
             color: var(--icon-color);
             border: none;
             padding: 0.5rem;
@@ -102,114 +95,83 @@ main {
             align-items: center;
             justify-content: center;
         }
-
+    
         .btn i {
             font-size: 1rem;
         }
-
+    
         .btn:hover {
             background-color: var(--primary-button-hover);
         }
-
+    
         footer {
             text-align: center;
             padding: 1rem;
             background-color: var(--border-color);
             box-shadow: 0 -2px 4px var(--shadow-color);
         }
-
+    
         footer p {
             margin: 0;
             color: var(--icon-color);
         }
-
-        .container {
-            padding: 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 8px var(--shadow-color);
-        }
-
-        .transition {
-            transition: all 0.3s ease;
-        }
-
+    
         #notesContainer {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 16px;
         }
-
+    
         .note-button {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            align-items: center;
+            justify-content: center;
             padding: 16px;
             border-radius: 20px;
             box-shadow: 0 4px 8px var(--shadow-color);
             transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
         }
-
+    
         .note-button:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 16px var(--shadow-color);
         }
-
+    
         .status-clausula-especial {
             background-color: #d900ff;
-            color: var(--icon-color);
+            color: #ffffff;
+            animation: glow 1.0s infinite alternate;
         }
-
+    
+        .note-button .text-center {
+            text-align: center;
+        }
+    
+        .note-button .font-bold {
+            font-size: 1.50rem; /* Tamanho maior para destacar */
+        }
+    
+        .note-button .block {
+            display: block;
+            margin: 0.5rem 0;
+        }
+    
         .status-clausula-especial:hover {
             background-color: #b800db;
         }
-
-        .notification-success {
-            background-color: var(--notification-success);
-            color: var(--icon-color);
-        }
-
-        .notification-alert {
-            background-color: var(--notification-alert);
-            color: var(--icon-color);
-        }
-
-        .notification-error {
-            background-color: var(--notification-error);
-            color: var(--icon-color);
-        }
-
-        .blurred-notes {
-            filter: blur(5px);
-        }
-
+    
         .user-icon {
             width: 32px;
             height: 32px;
             border-radius: 50%;
             margin-right: 8px;
         }
-
-        .module-Chamado\ Novo,
-        .module-Em\ Andamento,
-        .module-Em\ Acordo {
-            color: var(--icon-color);
-            background-color: #1e90ff;
-        }
-
-        .module-Em\ Execução {
-            color: var(--icon-color);
-            background-color: #ff0000;
-        }
-
-        .module-Chamado\ Finalizado {
-            color: var(--icon-color);
-            background-color: #32cd32;
-        }
-
+    
+        /* Estilos para as categorias */
         .module-status {
-            background-color: #555555;
+            background-color: #2b75c9;
             color: #ffffff;
             padding: 4px 8px;
             border-radius: 10px;
@@ -218,34 +180,29 @@ main {
             display: inline-block;
             margin-bottom: 8px;
         }
-
-        #loader {
-            background-color: var(--background-color);
-            color: var(--primary-text-color);
-        }
-
+    
         #loginModal {
             background-color: var(--background-color);
             color: var(--primary-text-color);
         }
-
+    
         #noteModal, #scheduleModal, #noteDetailsModal {
             background-color: var(--background-color);
             color: var(--primary-text-color);
         }
-
+    
         input, select, textarea {
-    background-color: var(--secondary-button-color);
-    color: black;  /* Cor preta */
-    border: 1px solid var(--border-color);
-}
-
+            background-color: var(--secondary-button-color);
+            color: black;  /* Cor preta */
+            border: 1px solid var(--border-color);
+        }
+    
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary-button-hover);
             box-shadow: 0 0 5px var(--primary-button-hover);
         }
-
+    
         .btn-wine-red {
             background-color: var(--primary-button-color);
             color: var(--icon-color);
@@ -258,11 +215,11 @@ main {
             align-items: center;
             justify-content: center;
         }
-
+    
         .btn-wine-red:hover {
             background-color: var(--primary-button-hover);
         }
-
+    
         .btn-gray {
             background-color: var(--secondary-button-color);
             color: var(--primary-text-color);
@@ -275,20 +232,22 @@ main {
             align-items: center;
             justify-content: center;
         }
-
+    
         .btn-gray:hover {
             background-color: var(--secondary-button-hover);
         }
-
+    
+        /* Estilos para o contêiner de detalhes */
         .details-container {
             background-color: var(--details-background-color);
             color: var(--details-text-color);
-            padding: 1rem;
-            border-radius: 20px;
-            box-shadow: 0 4px 8px var(--shadow-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow-color);
             border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
         }
-
+    
         .comment {
             background-color: #ffffff;
             color: #000000;
@@ -298,276 +257,560 @@ main {
             margin-bottom: 10px;
             box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
         }
-
-        .comment .comment-author {
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
+    
         .comment .comment-date {
             font-size: 0.85rem;
             color: #9ca3af;
             margin-bottom: 10px;
         }
-
+    
         #commentText {
             background-color: #ffffff;
             color: #000000;
             border: 4px solid var(--comment-border-color);
         }
-
-        #module, #moduleDetail {
+    
+        /* Estilos para as informações do contrato */
+        #noteDetailsContent {
             background-color: #ffffff;
-            color: #000000;
-            border: 1px solid var(--comment-border-color);
+            color: #333333;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+    
+        /* Estilos para os títulos */
+        #noteDetailsContent h3 {
+            color: #000000; /* Altere a cor para preto */
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+    
+        /* Estilos para os parágrafos */
+        #noteDetailsContent p {
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+    
+        /* Estilos para os botões */
+        #noteDetailsContent button {
+            background-color: var(--primary-button-color);
+            color: var(--icon-color);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-left: 0.5rem;
+        }
+    
+        #noteDetailsContent button:hover {
+            background-color: var(--primary-button-hover);
+        }
+    
+        /* Adicione estas classes de animação ao seu arquivo de estilo */
+    
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 2px #d900ff, 0 0 3px #d900ff, 0 0 4px #d900ff, 0 0 5px #d900ff, 0 0 6px #d900ff, 0 0 7x #d900ff, 0 0 8px #d900ff;
+            }
+            100% {
+                box-shadow: 0 0 2px #d900ff, 0 0 3px #d900ff, 0 0 4px #d900ff, 0 0 5px #d900ff, 0 0 6px #d900ff, 0 0 7px #d900ff, 0 0 8px #d900ff;
+            }
+        }
+    
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    
+        @keyframes iconHover {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.2);
+            }
+        }
+    
+        .icon-hover {
+            transition: transform 0.3s ease-in-out;
+        }
+    
+        .icon-hover:hover {
+            animation: iconHover 0.3s forwards;
+        }
+    
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+    
+        .scale-in {
+            animation: scaleIn 0.1s ease-in-out;
+        }
+    
+        /* Classe para desativar a rolagem */
+        .no-scroll {
+            overflow: hidden;
+        }
+    
+        .notification {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+    
+        .notification-success {
+            background-color: #38a169;
+            color: #fff;
+        }
+    
+        .notification-alert {
+            background-color: #d69e2e;
+            color: #fff;
+        }
+    
+        .notification-error {
+            background-color: #e53e3e;
+            color: #fff;
+        }
+    
+        #reportsSection .flex-col {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+    
+        #statusChart,
+        #moduleChart {
+            width: 55%;
+            max-width: 600px;
+        }
+    
+        .contract-column {
+            flex: 1;
+        }
+    
+        .contract-list-item {
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+    
+        .contract-list-item:hover {
+            background-color: var(--primary-button-hover);
+        }
+    
+        .not-verified-today {
+            background-color: #ffcccc; /* Vermelho claro */
+        }
+    
+        .verified-today {
+            background-color: #ccffcc; /* Verde claro */
+        }
+    
+        .not-verified-today {
+            background-color: #FFA500; /* Laranja */
+            color: #000000; /* Preto */
+        }
+    
+        .verified-today {
+            background-color: #32CD32; /* Verde */
+            color: #000000; /* Preto */
         }
     </style>
+
+</body>
+
 </head>
+
 <body class="flex flex-col min-h-screen bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white transition">
 
-<!-- Loader -->
-<div id="loader" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="w-16 h-16 border-4 border-t-4 border-t-transparent border-white rounded-full animate-spin"></div>
-</div>
-
-<!-- Login Modal -->
-<div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
-    <div class="bg-dark-800 rounded-lg shadow-lg p-6 w-full max-w-md transform transition-all duration-300">
-        <div class="mb-4 text-center">
-            <img src="https://i.imgur.com/RFP2esb.png" alt="Logo" class="mx-auto h-24">
-        </div>
-        <h2 class="text-xl font-semibold mb-4 text-center">Login</h2>
-        <form id="loginForm" class="space-y-4">
-            <div>
-                <label for="loginEmail" class="block">E-mail: *</label>
-                <input type="email" id="loginEmail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-            </div>
-            <div>
-                <label for="loginPassword" class="block">Senha: *</label>
-                <input type="password" id="loginPassword" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-            </div>
-            <p class="text-center text-red-500 mb-4">Apenas pessoas autorizadas podem acessar o conteúdo.</p>
-            <div class="flex justify-end space-x-2">
-                <button type="submit" class="btn-wine-red">
-                    <i class="fas fa-sign-in-alt"></i>
+    <div id="reportsSection" class="w-full max-w-4xl mt-6 bg-dark-800 rounded-lg p-6 hidden mx-auto fixed inset-0 flex flex-col items-center justify-center z-50">
+        <div class="bg-dark-800 rounded-lg p-6 w-full max-w-4xl transform transition-all duration-300 bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white transition" style="border: 2px solid var(--border-color);">
+            <div class="flex justify-end">
+                <button type="button" id="closeReportsBtn" class="btn-gray">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
+            <h2 class="text-xl font-semibold mb-4 text-center">Relatórios e Estatísticas</h2>
+            <div class="flex flex-col gap-4">
+                <div class="flex justify-center">
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="flex justify-center">
+                    <canvas id="moduleChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="w-16 h-16 border-4 border-t-4 border-t-transparent border-white rounded-full animate-spin"></div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white flex items-center justify-center z-40">
+        <div class="bg-dark-800 rounded-lg shadow-lg p-6 w-full max-w-md transform transition-all duration-300">
+            <h2 class="text-xl font-semibold mb-4 text-center">Login</h2>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label for="loginEmail" class="block">E-mail: *</label>
+                    <input type="email" id="loginEmail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                </div>
+                <div>
+                    <label for="loginPassword" class="block">Senha: *</label>
+                    <input type="password" id="loginPassword" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="submit" class="btn-wine-red">
+                        <i class="fas fa-sign-in-alt icon-hover"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div id="mainLayout" class="flex flex-1 w-full hidden">
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col items-center p-4">
+            <!-- User Info -->
+            <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden flex items-center flex-col">
+                <!-- Logo -->
+                <img src="https://i.imgur.com/RFP2esb.png" alt="Logo" class="mb-2" style="width: 100px; height: auto;">
+                <!-- User Icon and Text -->
+                <div class="flex items-center">
+                    <img id="userIcon" class="user-icon" src="https://i.imgur.com/kooxTdN.jpeg" alt="User Icon">
+                    <span id="loggedUser" class="ml-2"></span>
+                </div>
+            </div>
+
+            <!-- Main Controls -->
+            <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
+                <button id="createNoteBtn" class="btn-wine-white" aria-label="Criar Anotação" title="Criar uma nova anotação">
+                    <i class="fas fa-plus icon-hover"></i>
+                </button>
+                <button id="createScheduleBtn" class="btn-wine-white" aria-label="Criar Agendamento" title="Criar um novo agendamento">
+                    <i class="fas fa-calendar-alt icon-hover"></i>
+                </button>
+                <button id="createContestationBtn" class="btn-wine-white" aria-label="Criar Contestação" title="Criar uma nova contestação">
+                    <i class="fas fa-exclamation-circle icon-hover"></i>
+                </button>
+                <button id="viewContractsBtn" class="btn-wine-white" aria-label="Ver Contratos" title="Ver Contratos">
+                    <i class="fas fa-list icon-hover"></i>
+                </button>
+                <button id="importNotesBtn" class="btn-gray" aria-label="Importar Contratos" title="Importar contratos de um arquivo JSON">
+                    <i class="fas fa-file-import icon-hover"></i>
+                </button>
+                <button id="downloadNotesBtn" class="btn-gray" aria-label="Baixar Todos os Contratos" title="Baixar todos os contratos como um arquivo JSON">
+                    <i class="fas fa-download icon-hover"></i>
+                </button>
+                <button id="toggleReportsBtn" class="btn-wine-white" aria-label="Ver Relatórios" title="Ver Relatórios">
+                    <i class="fas fa-chart-bar icon-hover"></i>
+                </button>
+                <button id="logoutBtn" class="btn-gray" aria-label="Logout" title="Deslogar da aplicação">
+                    <i class="fas fa-sign-out-alt icon-hover"></i>
+                </button>
+                <input type="file" id="fileInput" class="hidden" accept=".json">
+            </div>
+
+            <!-- Notification Area -->
+            <div id="notificationArea" class="w-full max-w-4xl mb-4 text-center"></div>
+
+            <div class="my-4 border-t-2 border-gray-300"></div>
+
+<!-- Existing HTML code for the modal -->
+<div id="contestationModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+    <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
+        <h2 class="text-xl font-semibold mb-4 text-center">Criar Contestação</h2>
+        <form id="contestationForm" class="space-y-4">
+            <div id="contractSelectionFields">
+                <label for="searchContract" class="block">Pesquisar Contrato:</label>
+                <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" placeholder="Buscar contrato...">
+                <label for="selectContract" class="block">Selecionar Contrato: *</label>
+                <select id="selectContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                    <option value="">Selecione um contrato...</option>
+                </select>
+            </div>
+            <div id="contestationDetails" class="hidden">
+                <div>
+                    <label for="contestationItem" class="block">Item Contestato: *</label>
+                    <input type="text" id="contestationItem" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                </div>
+                <div>
+                    <label for="itemType" class="block">Tipo de Item: *</label>
+                    <select id="itemType" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                        <option value="Estético">Estético</option>
+                        <option value="Estrutural">Estrutural</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="addItemBtn" class="btn-wine-red">
+                        <i class="fas fa-plus icon-hover"></i>
+                    </button>
+                </div>
+            </div>
         </form>
+        <ul id="contestedItemsList" class="mt-4 space-y-2">
+            <!-- Itens contestados serão adicionados aqui -->
+        </ul>
+        <div class="flex justify-end space-x-2 mt-4">
+            <button type="button" id="cancelContestationBtn" class="btn-gray">
+                <i class="fas fa-times icon-hover"></i> Cancelar
+            </button>
+            <button type="button" id="saveContestationBtn" class="btn-wine-red">
+                <i class="fas fa-save icon-hover"></i> Salvar Contestação
+            </button>
+        </div>
     </div>
 </div>
 
-<!-- Logo Section -->
-<div id="logoSection" class="mb-6 hidden">
-    <img src="https://i.imgur.com/RFP2esb.png" alt="Logo" class="mx-auto h-24">
-</div>
+<script>
+    // Existing JavaScript code for initializing and handling events
+    document.getElementById('selectContract').addEventListener('change', (e) => {
+        const selectedContract = e.target.value;
+        const contestationDetails = document.getElementById('contestationDetails');
+        const contractSelectionFields = document.getElementById('contractSelectionFields');
+        if (selectedContract) {
+            contestationDetails.classList.remove('hidden');
+            contractSelectionFields.classList.add('hidden');
+        } else {
+            contestationDetails.classList.add('hidden');
+            contractSelectionFields.classList.remove('hidden');
+        }
+    });
 
-<!-- Main Layout -->
-<div id="mainLayout" class="flex flex-1 w-full hidden">
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col items-center p-4">
-        <!-- User Info -->
-        <div id="userInfo" class="mb-4 text-center text-xl font-semibold hidden flex items-center">
-            <img id="userIcon" class="user-icon" src="https://i.imgur.com/kooxTdN.jpeg" alt="User Icon">
-            <span id="loggedUser" class="ml-2"></span>
-        </div>
+    document.getElementById('cancelContestationBtn').addEventListener('click', () => {
+        const contestationDetails = document.getElementById('contestationDetails');
+        const contractSelectionFields = document.getElementById('contractSelectionFields');
+        contestationDetails.classList.add('hidden');
+        contractSelectionFields.classList.remove('hidden');
+        document.getElementById('contestationForm').reset();
+    });
+</script>
 
-        <!-- Main Controls -->
-        <div class="mb-6 w-full max-w-4xl flex justify-center space-x-4">
-            <button id="createNoteBtn" class="btn-wine-white" aria-label="Criar Anotação">
-                <i class="fas fa-plus"></i>
-            </button>
-            <button id="createScheduleBtn" class="btn-wine-white" aria-label="Criar Agendamento">
-                <i class="fas fa-calendar-alt"></i>
-            </button>
-            <button id="importNotesBtn" class="btn-gray" aria-label="Importar Contratos">
-                <i class="fas fa-file-import"></i>
-            </button>
-            <button id="downloadNotesBtn" class="btn-gray" aria-label="Baixar Todos os Contratos">
-                <i class="fas fa-download"></i>
-            </button>
-            <button id="logoutBtn" class="btn-gray" aria-label="Logout">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
-            <input type="file" id="fileInput" class="hidden" accept=".json">
-        </div>
-
-        <!-- Notification Area -->
-        <div id="notificationArea" class="w-full max-w-4xl mb-4 text-center"></div>
-
-        <!-- Dashboard Section -->
-        <div id="dashboard" class="w-full max-w-2xl mb-6 text-center bg-transparent p-6 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-bold mb-4">Painel de Controle de Anotações</h2>
-            <div class="relative w-full h-96 mx-auto">
-            <canvas id="statusChart" style="background: transparent;"></canvas>
-            </div>
-        </div>
-
-        <div class="my-4 border-t-2 border-gray-300"></div>
-
-        <!-- Note Creation Modal -->
-        <div id="noteModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
-            <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md">
-                <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
-                <form id="noteForm" class="space-y-4">
-                    <div>
-                        <label for="contractNumber" class="block">Número de Contrato: *</label>
-                        <input type="text" id="contractNumber" required pattern="[A-Za-z0-9-]+" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                        <span id="contractNumberError" class="text-red-900 hidden">Número de contrato inválido - use apenas letras, números e hífen</span>
+            <!-- Contract List Modal -->
+            <div id="contractListModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+                <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-3xl bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
+                    <h2 class="text-xl font-semibold mb-4 text-center">Lista de Contratos</h2>
+                    <!-- Search Bar -->
+                    <div class="mb-4">
+                        <input type="text" id="contractSearchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
                     </div>
-
-                    <div class="flex space-x-4">
-                        <div class="w-1/2">
-                            <label for="locator" class="block">Locador: *</label>
-                            <input type="text" id="locator" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                            <span id="locatorError" class="text-red-900 hidden">Nome do Locador deve ter ao menos 3 caracteres</span>
-                        </div>
-                        <div class="w-1/2">
-                            <label for="tenant" class="block">Locatário: *</label>
-                            <input type="text" id="tenant" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                            <span id="tenantError" class="text-red-900 hidden">Nome do Locatário deve ter ao menos 3 caracteres</span>
-                        </div>
+                    <div id="contractList" class="space-y-2 max-h-96 overflow-y-auto">
+                        <!-- Contract list items will be appended here -->
                     </div>
-
-                    <div>
-                        <label for="address" class="block">Endereço: *</label>
-                        <input type="text" id="address" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                        <span id="addressError" class="text-red-900 hidden">Endereço deve ter ao menos 5 caracteres</span>
-                    </div>
-
-                    <div>
-                        <label for="problem" class="block">Problema: *</label>
-                        <textarea id="problem" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"></textarea>
-                        <span id="problemError" class="text-red-900 hidden">Problema deve ter ao menos 10 caracteres</span>
-                    </div>
-
-                    <div>
-                        <label for="module" class="block">Módulo: *</label>
-                        <select id="module" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                            <option value="Chamado Novo">Chamado Novo</option>
-                            <option value="Em Andamento">Em Andamento</option>
-                            <option value="Em Acordo">Em Acordo</option>
-                            <option value="Em Execução">Em Execução</option>
-                            <option value="Chamado Finalizado">Chamado Finalizado</option>
-                        </select>
-                    </div>
-
-<div class="flex justify-end space-x-2">
-                        <button type="button" id="cancelNoteBtn" class="btn-gray">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <button type="submit" class="btn-wine-red">
-                            <i class="fas fa-save"></i>
+                    <div class="flex justify-end space-x-2 mt-4">
+                        <button type="button" id="closeContractListBtn" class="btn-gray">
+                            <i class="fas fa-times icon-hover"></i>
                         </button>
                     </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="my-4 border-t-2 border-gray-300"></div>
-
-        <!-- Schedule Creation Modal -->
-        <div id="scheduleModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
-            <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md">
-                <h2 class="text-xl font-semibold mb-4 text-center">Criar Agendamento</h2>
-                <form id="scheduleForm" class="space-y-4">
-                    <div>
-                        <label for="searchContract" class="block">Pesquisar Contrato:</label>
-                        <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400" placeholder="Buscar contrato...">
-                    </div>
-                    <div>
-                        <label for="existingContract" class="block">Selecionar Contrato: *</label>
-                        <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                            <option value="">Selecione um contrato...</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="providerName" class="block">Nome do Prestador: *</label>
-                        <input type="text" id="providerName" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                    </div>
-                    <div>
-                        <label for="scheduleDate" class="block">Data do Agendamento: *</label>
-                        <input type="date" id="scheduleDate" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                    </div>
-                    <div>
-                        <label for="scheduleDescription" class="block">Descrição do Agendamento: *</label>
-                        <textarea id="scheduleDescription" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"></textarea>
-                    </div>
-                    <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancelScheduleModalBtn" class="btn-gray">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <button type="submit" class="btn-wine-red">
-                            <i class="fas fa-save"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="my-4 border-t-2 border-gray-300"></div>
-
-        <!-- Note Details Modal -->
-        <div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
-            <div class="details-container transform transition-all duration-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-end">
-                    <button type="button" id="closeDetailsBtn" class="btn-gray">
-                        <i class="fas fa-times"></i>
-                    </button>
                 </div>
-                <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+            </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Coluna da esquerda - Detalhes -->
-                    <div class="space-y-4">
-                        <div id="noteDetailsContent" class="bg-white p-4 rounded-lg shadow-md relative text-black"></div>
-
-                        <div class="flex space-x-2">
-                            <button type="button" id="copyDetailsBtn" class="btn-gray" aria-label="Copiar Detalhes">
-                                <i class="fas fa-copy"></i>
-                            </button>
-                            <button type="button" id="downloadContractBtn" class="btn-gray" aria-label="Baixar Contrato">
-                                <i class="fas fa-file-download"></i>
-                            </button>
-                            <button type="button" id="cancelScheduleBtn" class="btn-gray" aria-label="Cancelar Agendamento">
-                                <i class="fas fa-calendar-times"></i>
-                            </button>
-                            <button type="button" id="deleteNoteBtn" class="btn-gray" aria-label="Excluir Anotação">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <button type="button" id="finalizeNoteBtn" class="btn-gray hidden" aria-label="Finalizar Anotação">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button type="button" id="reopenNoteBtn" class="btn-gray hidden" aria-label="Reabrir Anotação">
-                                <i class="fas fa-undo"></i>
-                            </button>
-                            <button type="button" id="specialClauseBtn" class="btn-gray" aria-label="Transformar em Cláusula Especial">
-                                <i class="fas fa-star"></i>
-                            </button>
-                        </div>
+            <!-- Note Creation Modal -->
+            <div id="noteModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+                <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
+                    <h2 class="text-xl font-semibold mb-4 text-center">Criar Anotação</h2>
+                    <form id="noteForm" class="space-y-4">
                         <div>
-                            <label for="moduleDetail" class="block">Módulo: *</label>
-                            <select id="moduleDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
-                                <option value="Chamado Novo">Chamado Novo</option>
-                                <option value="Em Andamento">Em Andamento</option>
-                                <option value="Em Acordo">Em Acordo</option>
-                                <option value="Em Execução">Em Execução</option>
-                                <option value="Chamado Finalizado">Chamado Finalizado</option>
+                            <label for="contractNumber" class="block">Número de Contrato: *</label>
+                            <input type="text" id="contractNumber" required pattern="[A-Za-z0-9-]+" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                            <span id="contractNumberError" class="text-red-900 hidden">Número de contrato inválido - use apenas letras, números e hífen</span>
+                        </div>
+
+                        <div class="flex space-x-4">
+                            <div class="w-1/2">
+                                <label for="locator" class="block">Locador: *</label>
+                                <input type="text" id="locator" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                                <span id="locatorError" class="text-red-900 hidden">Nome do Locador deve ter ao menos 3 caracteres</span>
+                            </div>
+                            <div class="w-1/2">
+                                <label for="tenant" class="block">Locatário: *</label>
+                                <input type="text" id="tenant" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                                <span id="tenantError" class="text-red-900 hidden">Nome do Locatário deve ter ao menos 3 caracteres</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="address" class="block">Endereço: *</label>
+                            <input type="text" id="address" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                            <span id="addressError" class="text-red-900 hidden">Endereço deve ter ao menos 5 caracteres</span>
+                        </div>
+
+                        <div>
+                            <label for="problem" class="block">Problema: *</label>
+                            <textarea id="problem" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400 min-h-[100px]"></textarea>
+                            <span id="problemError" class="text-red-900 hidden">Problema deve ter ao menos 10 caracteres</span>
+                        </div>
+
+                        <div>
+                            <label for="module" class="block">Categoria: *</label>
+                            <select id="module" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-900">
+                                <option value="Manutenção">Manutenção</option>
+                                <option value="Contestação">Contestação</option>
+                                <option value="Cláusula Especial">Cláusula Especial</option>
+                                <option value="Autorização">Autorização</option>
+                                <option value="Notificação">Notificação</option>
                             </select>
                         </div>
-                    </div>
 
-                    <!-- Coluna da direita - Comentários -->
-                    <div class="space-y-4">
-                        <div class="bg-dark-900 p-4 rounded-lg shadow-md">
-                            <h3 class="text-lg font-semibold mb-4">Comentários</h3>
-                            <form id="commentForm" class="mb-4">
-                                <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-900 min-h-[50px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
-                            </form>
-                            <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
-                            <button id="showMoreCommentsBtn" class="text-white-900 cursor-pointer">Mostrar Mais Comentários</button>
-                            <button id="backToTopBtn" class="text-red-900 cursor-pointer hidden">Voltar ao Chamado Novo dos Comentários</button>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancelNoteBtn" class="btn-gray">
+                                <i class="fas fa-times icon-hover"></i>
+                            </button>
+                            <button type="submit" class="btn-wine-red">
+                                <i class="fas fa-save"></i>
+                            </button>
                         </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="my-4 border-t-2 border-gray-300"></div>
+
+            <!-- Schedule Creation Modal -->
+            <div id="scheduleModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+                <div class="bg-dark-800 rounded-lg shadow-lg transform transition-all duration-300 p-6 w-full max-w-md bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
+                    <h2 class="text-xl font-semibold mb-4 text-center">Criar Agendamento</h2>
+                    <form id="scheduleForm" class="space-y-4">
+                        <div>
+                            <label for="searchContract" class="block">Pesquisar Contrato:</label>
+                            <input type="text" id="searchContract" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" placeholder="Buscar contrato...">
+                        </div>
+                        <div>
+                            <label for="existingContract" class="block">Selecionar Contrato: *</label>
+                            <select id="existingContract" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                                <option value="">Selecione um contrato...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="providerName" class="block">Nome do Prestador: *</label>
+                            <input type="text" id="providerName" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                        </div>
+                        <div>
+                            <label for="scheduleDate" class="block">Data do Agendamento: *</label>
+                            <input type="date" id="scheduleDate" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400">
+                        </div>
+                        <div>
+                            <label for="scheduleDescription" class="block">Descrição do Agendamento: *</label>
+                            <textarea id="scheduleDescription" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400 min-h-[100px]"></textarea>
+                        </div>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancelScheduleModalBtn" class="btn-gray">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button type="submit" class="btn-wine-red">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="my-4 border-t-2 border-gray-300"></div>
+
+            <!-- Note Details Modal -->
+            <div id="noteDetailsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 z-40 hidden">
+                <div class="details-container transform transition-all duration-300 p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto bg-gradient-to-r from-gray-800 via-gray-700 to-black text-white">
+                    <div class="flex justify-end">
+                        <button type="button" id="closeDetailsBtn" class="btn-gray">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
+                    <h2 class="text-2xl font-semibold mb-4 text-center">Detalhes da Anotação</h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Coluna da esquerda - Detalhes -->
+                        <div class="space-y-4">
+                            <div id="noteDetailsContent" class="details-container">
+                                <h3>Informações do Contrato</h3>
+                                <p><strong>Número de Contrato:</strong> <span>12345</span></p>
+                                <p><strong>Locador:</strong> <span>Nome do Locador</span></p>
+                                <p><strong>Locatário:</strong> <span>Nome do Locatário</span></p>
+                                <p><strong>Problema:</strong> <span>Descrição do problema</span></p>
+                                <p><strong>Endereço:</strong> 
+                                    <a href="https://www.google.com/maps/search/?api=1&query=Endereço completo" target="_blank" class="text-red-900 hover:text-red-700">
+                                        Endereço completo
+                                    </a>
+                                </p>
+                                <!-- Remova esta linha -->
+                                <!-- <p><strong>Status:</strong> <span class="font-semibold text-red-900">Em Aberto</span></p> -->
+                                <p><strong>Finalizado em:</strong> <span>Data de finalização</span></p>
+                                <p><strong>Prestador:</strong> <span>Nome do Prestador</span></p>
+                                <p><strong>Data do Agendamento:</strong> <span>Data do Agendamento</span></p>
+                                <p><strong>Descrição do Agendamento:</strong> <span>Descrição do Agendamento</span></p>
+                            </div>
+
+                            <div class="flex space-x-2">
+                                <button type="button" id="copyDetailsBtn" class="btn-gray" aria-label="Copiar Detalhes">
+                                    <i class="fas fa-copy icon-hover"></i>
+                                </button>
+                                <button type="button" id="downloadContractBtn" class="btn-gray" aria-label="Baixar Contrato">
+                                    <i class="fas fa-file-download icon-hover"></i>
+                                </button>
+                                <button type="button" id="cancelScheduleBtn" class="btn-gray" aria-label="Cancelar Agendamento">
+                                    <i class="fas fa-calendar-times icon-hover"></i>
+                                </button>
+                                <button type="button" id="deleteNoteBtn" class="btn-gray" aria-label="Excluir Anotação">
+                                    <i class="fas fa-trash icon-hover"></i>
+                                </button>
+                                <button type="button" id="finalizeNoteBtn" class="btn-gray hidden" aria-label="Finalizar Anotação">
+                                    <i class="fas fa-check icon-hover"></i>
+                                </button>
+                                <button type="button" id="reopenNoteBtn" class="btn-gray hidden" aria-label="Reabrir Anotação">
+                                    <i class="fas fa-undo icon-hover"></i>
+                                </button>
+                                <button type="button" id="specialClauseBtn" class="btn-gray" aria-label="Transformar em Cláusula Especial">
+                                    <i class="fas fa-star icon-hover"></i>
+                                </button>
+                                <button type="button" id="editPendenteBtn" class="btn-gray" aria-label="Editar Pendente">
+                                    <i class="fas fa-edit icon-hover"></i>
+                                </button>
+                            </div>
+                            <div>
+                    <label for="moduleDetail" class="block">Categoria: *</label>
+                    <select id="moduleDetail" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400">
+                        <option value="Manutenção">Manutenção</option>
+                        <option value="Contestação">Contestação</option>
+                        <option value="Cláusula Especial">Cláusula Especial</option>
+                        <option value="Autorização">Autorização</option>
+                        <option value="Notificação">Notificação</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Coluna da direita - Comentários -->
+            <div class="space-y-4">
+                <div class="bg-dark-900 p-4 rounded-lg shadow-md">
+                    <form id="commentForm" class="mb-4">
+                        <textarea id="commentText" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-900 min-h-[50px]" placeholder="Digite seu comentário aqui... (Pressione Enter para enviar)"></textarea>
+                    </form>
+                    <div id="commentsContainer" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+                    <button id="showMoreCommentsBtn" class="text-white-900 cursor-pointer">Mostrar Mais Comentários</button>
+                    <button id="backToTopBtn" class="text-red-900 cursor-pointer hidden">Voltar ao Topo dos Comentários</button>
                 </div>
             </div>
         </div>
@@ -580,7 +823,7 @@ main {
 <div class="flex flex-wrap items-center justify-between mb-4 space-x-4">
     <div class="relative flex-1">
         <input type="text" id="searchInput" placeholder="Pesquisar contratos..." class="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" aria-label="Pesquisar contratos">
-        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        <i class="fas fa-search icon-hover absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
     </div>
     <div>
         <select id="dateFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
@@ -600,12 +843,12 @@ main {
     </div>
     <div>
         <select id="moduleFilter" class="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-white-400" style="color: rgb(255, 255, 255);">
-            <option value="all" style="color: black;">Todos os Módulos</option>
-            <option value="Chamado Novo" style="color: black;">Chamado Novo</option>
-            <option value="Em Andamento" style="color: black;">Em Andamento</option>
-            <option value="Em Acordo" style="color: black;">Em Acordo</option>
-            <option value="Em Execução" style="color: black;">Em Execução</option>
-            <option value="Chamado Finalizado" style="color: black;">Chamado Finalizado</option>
+            <option value="all" style="color: black;">Todas as Categorias</option>
+            <option value="Manutenção" style="color: black;">Manutenção</option>
+            <option value="Contestação" style="color: black;">Contestação</option>
+            <option value="Cláusula Especial" style="color: black;">Cláusula Especial</option>
+            <option value="Autorização" style="color: black;">Autorização</option>
+            <option value="Notificação" style="color: black;">Notificação</option>
         </select>
     </div>
 </div>
@@ -623,16 +866,16 @@ main {
 <script>
 // Utility Functions
 const utils = {
-showNotification: (message, type = 'success') => {
-const notificationArea = document.getElementById('notificationArea');
-notificationArea.innerHTML = ''; // Clear existing notifications
+    showNotification: (message, type = 'success') => {
+        const notificationArea = document.getElementById('notificationArea');
+        notificationArea.innerHTML = ''; // Clear existing notifications
 
-const notification = document.createElement('div');
-notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
-notification.textContent = message;
-notificationArea.appendChild(notification);
-setTimeout(() => notificationArea.removeChild(notification), 5000);
-},
+        const notification = document.createElement('div');
+        notification.className = `notification ${type === 'success' ? 'notification-success' : type === 'alert' ? 'notification-alert' : 'notification-error'}`;
+        notification.textContent = message;
+        notificationArea.appendChild(notification);
+        setTimeout(() => notificationArea.removeChild(notification), 5000);
+    },
 
 sanitizeInput: (input) => {
 if (typeof input !== 'string') return '';
@@ -673,19 +916,19 @@ return errors;
 },
 
 formatDate: (dateString) => {
-try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return 'Data inválida';
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Data inválida';
 
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
 
-    return `${day}/${month}/${year}`;
-} catch (e) {
-    console.error('Error formatting date:', e);
-    return 'Data inválida';
-}
+        return `${day}/${month}/${year}`;
+    } catch (e) {
+        console.error('Error formatting date:', e);
+        return 'Data inválida';
+    }
 },
 
 calculateDaysOpen: (dateString) => {
@@ -746,6 +989,10 @@ this.chart = null; // Add this line to keep track of the chart instance
 setInterval(() => this.renderDashboard(), 60000);
 }
 
+filterContractList(searchTerm) {
+    this.renderContractList(searchTerm);
+}
+
 cleanInvalidNotes() {
 const validNotes = {};
 Object.entries(this.notes).forEach(([key, note]) => {
@@ -758,7 +1005,62 @@ this.saveToLocalStorage();
 }
 
 initializeEventListeners() {
-// Event Listeners para os botões principais
+    // Event Listeners para os botões principais
+    document.getElementById('toggleReportsBtn').addEventListener('click', () => {
+    const reportsSection = document.getElementById('reportsSection');
+    reportsSection.classList.toggle('hidden');
+    if (!reportsSection.classList.contains('hidden')) {
+        reportsSection.classList.add('fade-in', 'scale-in');
+        noteManager.renderReports(); // Adiciona esta linha para garantir que os relatórios sejam atualizados
+    } else {
+        reportsSection.classList.remove('fade-in', 'scale-in');
+    }
+});
+
+document.getElementById('contractSearchInput').addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    noteManager.filterContractList(searchTerm);
+});
+
+        // Event listener for viewing contract list
+        document.getElementById('viewContractsBtn').addEventListener('click', () => {
+            this.renderContractList();
+            this.toggleModal('contractListModal');
+        });
+
+        // Event listener for closing contract list modal
+        document.getElementById('closeContractListBtn').addEventListener('click', () => {
+            this.toggleModal('contractListModal');
+        });
+
+        // Event listener for editing pendente text
+        document.getElementById('editPendenteBtn').addEventListener('click', () => {
+            const noteKey = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+            this.editPendenteText(noteKey);
+        });
+
+
+document.getElementById('closeReportsBtn').addEventListener('click', () => {
+    const reportsSection = document.getElementById('reportsSection');
+    reportsSection.classList.add('hidden');
+    reportsSection.classList.remove('fade-in', 'scale-in');
+});
+
+
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        noteManager.closeAllModals();
+        
+        const reportsSection = document.getElementById('reportsSection');
+        if (!reportsSection.classList.contains('hidden')) {
+            reportsSection.classList.add('hidden');
+            reportsSection.classList.remove('fade-in', 'scale-in');
+        }
+    }
+});
+
+
 document.getElementById('createNoteBtn').addEventListener('click', () => {
     if (this.isAuthenticated()) {
         this.closeAllModals();
@@ -776,6 +1078,27 @@ document.getElementById('noteForm').addEventListener('submit', (e) => {
     e.preventDefault();
     if (this.isAuthenticated()) {
         this.handleFormSubmit();
+    }
+});
+
+document.getElementById('createContestationBtn').addEventListener('click', () => {
+    if (noteManager.isAuthenticated()) {
+        noteManager.closeAllModals();
+        noteManager.populateContractDropdownForContestation();
+        noteManager.toggleModal('contestationModal');
+        document.getElementById('selectContract').focus();
+    }
+});
+
+document.getElementById('cancelContestationBtn').addEventListener('click', () => {
+    noteManager.toggleModal('contestationModal');
+    document.getElementById('contestationForm').reset();
+});
+
+document.getElementById('contestationForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (noteManager.isAuthenticated()) {
+        noteManager.handleContestationFormSubmit();
     }
 });
 
@@ -885,46 +1208,46 @@ document.getElementById('copyDetailsBtn').addEventListener('click', () => {
 });
 
 document.getElementById('downloadContractBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        const noteKey = document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent;
-        this.downloadSingleContract(noteKey);
-    }
-});
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.downloadSingleContract(noteKey);
+            }
+        });
 
-document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        const noteKey = document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent;
-        this.cancelSchedule(noteKey);
-    }
-});
+        document.getElementById('cancelScheduleBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.cancelSchedule(noteKey);
+            }
+        });
 
-document.getElementById('deleteNoteBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        const noteKey = document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent;
-        this.deleteNote(noteKey);
-    }
-});
+        document.getElementById('deleteNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.deleteNote(noteKey);
+            }
+        });
 
-document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        const noteKey = document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent;
-        this.finalizeNote(noteKey);
-    }
-});
+        document.getElementById('finalizeNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.finalizeNote(noteKey);
+            }
+        });
 
-document.getElementById('reopenNoteBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        const noteKey = document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent;
-        this.reopenNote(noteKey);
-    }
-});
+        document.getElementById('reopenNoteBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                const noteKey = document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent;
+                this.reopenNote(noteKey);
+            }
+        });
 
-document.getElementById('specialClauseBtn').addEventListener('click', () => {
+        document.getElementById('specialClauseBtn').addEventListener('click', () => {
     if (this.isAuthenticated()) {
         const noteKey = document.getElementById('noteDetailsContent')
             .querySelector('p strong + span').textContent;
@@ -932,6 +1255,7 @@ document.getElementById('specialClauseBtn').addEventListener('click', () => {
     }
 });
 
+// Atualizar o EventListener para updateNoteCategory
 document.getElementById('moduleDetail').addEventListener('change', (e) => {
     if (this.isAuthenticated()) {
         const noteKey = document.getElementById('noteDetailsContent')
@@ -940,83 +1264,186 @@ document.getElementById('moduleDetail').addEventListener('change', (e) => {
     }
 });
 
-document.getElementById('showMoreCommentsBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        this.currentCommentPage++;
-        this.renderComments(document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent);
-    }
-});
-
-document.getElementById('backToTopBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        this.currentCommentPage = 1;
-        this.renderComments(document.getElementById('noteDetailsContent')
-            .querySelector('p strong + span').textContent);
-    }
-});
-
-// Event listener to close all modals with the 'Esc' key
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        this.closeAllModals();
-    }
-});
-
-// Event listeners for pagination buttons
-document.getElementById('prevPageBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        this.prevPage();
-    }
-});
-
-document.getElementById('nextPageBtn').addEventListener('click', () => {
-    if (this.isAuthenticated()) {
-        this.nextPage();
-    }
-});
-
-// Event listener for keyboard navigation
-document.addEventListener('keydown', (e) => {
-    if (this.isAuthenticated()) {
-        if (e.key === 'ArrowLeft') {
-            this.prevPage();
-        } else if (e.key === 'ArrowRight') {
-            this.nextPage();
-        } else if (e.key === 'Delete') {
-            const noteKey = this.selectedNoteKey;
-            if (noteKey) {
-                this.deleteNote(noteKey);
+        document.getElementById('showMoreCommentsBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.currentCommentPage++;
+                this.renderComments(document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent);
             }
+        });
+
+        document.getElementById('backToTopBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.currentCommentPage = 1;
+                this.renderComments(document.getElementById('noteDetailsContent')
+                    .querySelector('p strong + span').textContent);
+            }
+        });
+
+
+        
+        // Event listener to close all modals with the 'Esc' key
+        document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        // Fechar todos os modais
+        this.closeAllModals();
+        
+        // Fechar o modal de Relatórios e Estatísticas, se estiver aberto
+        const reportsSection = document.getElementById('reportsSection');
+        if (!reportsSection.classList.contains('hidden')) {
+            reportsSection.classList.add('hidden');
         }
     }
 });
+
+        // Event listeners for pagination buttons
+        document.getElementById('prevPageBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.prevPage();
+            }
+        });
+
+        document.getElementById('nextPageBtn').addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.nextPage();
+            }
+        });
+
+// Event listener for keyboard navigation
+document.addEventListener('keydown', (e) => {
+    const noteDetailsModal = document.getElementById('noteDetailsModal');
+    const isModalOpen = !noteDetailsModal.classList.contains('hidden');
+
+    if (noteManager.isAuthenticated()) {
+        if (!isModalOpen && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+            if (e.key === 'ArrowLeft') {
+                noteManager.prevPage();
+            } else if (e.key === 'ArrowRight') {
+                noteManager.nextPage();
+            }
+        } else if (isModalOpen && e.key === 'Delete') {
+            const noteKey = noteManager.selectedNoteKey;
+            if (noteKey) {
+                noteManager.deleteNote(noteKey);
+                    }
+                }
+            }
+        });
+    }
+
+    renderContractList(searchTerm = '') {
+    const contractList = document.getElementById('contractList');
+    contractList.innerHTML = '';
+
+    const columns = 2;  // Define the number of columns
+    const columnWrappers = Array.from({ length: columns }, () => {
+        const column = document.createElement('div');
+        column.className = 'contract-column space-y-2';
+        contractList.appendChild(column);
+        return column;
+    });
+
+    // Obtenha os contratos em ordem de edição
+    const sortedNotes = Object.keys(this.notes).sort((a, b) => {
+        const noteA = this.notes[a];
+        const noteB = this.notes[b];
+        const dateA = new Date(noteA.lastEdited || noteA.createdAt);
+        const dateB = new Date(noteB.lastEdited || noteB.createdAt);
+        return dateB - dateA;
+    });
+
+    // Filtrar contratos com base no termo de pesquisa e status
+    const filteredNotes = sortedNotes.filter(noteKey => {
+        const note = this.notes[noteKey];
+        const matchesSearchTerm = noteKey.toLowerCase().includes(searchTerm) ||
+                                  note.locator.toLowerCase().includes(searchTerm) ||
+                                  note.tenant.toLowerCase().includes(searchTerm) ||
+                                  note.address.toLowerCase().includes(searchTerm) ||
+                                  note.problem.toLowerCase().includes(searchTerm);
+        const isNotFinalized = note.status !== 'closed' && note.module !== 'Chamado Finalizado';
+        return matchesSearchTerm && isNotFinalized;
+    });
+
+    filteredNotes.forEach((noteKey, index) => {
+        const note = this.notes[noteKey];
+        const listItem = document.createElement('div');
+        listItem.className = 'contract-list-item flex justify-between items-center';
+        listItem.innerHTML = `<span>${noteKey} (${note.pendente || 'PENDENTE'})</span>`;
+
+        listItem.addEventListener('click', () => {
+            this.showNoteDetails(noteKey);
+            this.toggleModal('contractListModal');
+        });
+
+        // Apply the appropriate class based on the status of the note
+        const today = new Date().toISOString().split('T')[0];
+        const isVerifiedToday = note.status === 'verified_today';
+        listItem.classList.add(isVerifiedToday ? 'verified-today' : 'not-verified-today');
+
+        // Append the list item to one of the columns
+        const columnIndex = index % columns;
+        columnWrappers[columnIndex].appendChild(listItem);
+    });
 }
 
-isAuthenticated() {
-    if (!this.currentUser) {
-        this.showNotesBlurred();
-        this.showLogin();
-        return false;
-    } else {
-        this.hideNotesBlurred();
-        return true;
+editPendenteText(noteKey) {
+    const note = this.notes[noteKey];
+    const newPendenteText = prompt('Digite o novo texto do pendente:', note.pendente || '');
+    if (newPendenteText !== null) {
+        note.pendente = newPendenteText;
+        note.lastEdited = new Date().toISOString(); // Adicione a data de edição
+
+        // Atualize o status para 'verified_today'
+        note.status = 'verified_today';
+
+        this.saveToLocalStorage();
+
+        // Fechar o modal de detalhes e reabri-lo
+        this.toggleModal('noteDetailsModal');
+        this.showNoteDetails(noteKey);
+
+        utils.showNotification('Texto do pendente atualizado com sucesso!', 'success');
     }
 }
 
-showNotesBlurred() {
-    document.getElementById('notesContainer').classList.add('blurred-notes');
-}
+    isAuthenticated() {
+        if (!this.currentUser) {
+            this.showNotesBlurred();
+            this.showLogin();
+            return false;
+        } else {
+            this.hideNotesBlurred();
+            return true;
+        }
+    }
 
-hideNotesBlurred() {
-    document.getElementById('notesContainer').classList.remove('blurred-notes');
-}
+    showNotesBlurred() {
+        document.getElementById('notesContainer').classList.add('blurred-notes');
+    }
+
+    hideNotesBlurred() {
+        document.getElementById('notesContainer').classList.remove('blurred-notes');
+    }
+
+// Adicione as classes de animação ao elemento modal no JavaScript
 
 toggleModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
         // Toggle the visibility of the modal
         modal.classList.toggle('hidden');
+
+        if (!modal.classList.contains('hidden')) {
+            // Adicione as classes de animação quando o modal for exibido
+            modal.classList.add('fade-in', 'scale-in');
+            // Adicione a classe no-scroll ao body
+            document.body.classList.add('no-scroll');
+        } else {
+            // Remova as classes de animação quando o modal for oculto
+            modal.classList.remove('fade-in', 'scale-in');
+            // Remova a classe no-scroll do body
+            document.body.classList.remove('no-scroll');
+        }
 
         // Reset form if cancelling note creation
         if (modalId === 'noteModal' && modal.classList.contains('hidden')) {
@@ -1030,72 +1457,75 @@ closeAllModals() {
     document.querySelectorAll('.modal-overlay').forEach(modal => {
         modal.classList.add('hidden');
     });
+    // Remova a classe no-scroll do body
+    document.body.classList.remove('no-scroll');
 }
 
-handleFormSubmit() {
+    handleFormSubmit() {
     const formData = {
         contractNumber: document.getElementById('contractNumber').value,
         locator: document.getElementById('locator').value,
         tenant: document.getElementById('tenant').value,
         problem: document.getElementById('problem').value,
         address: document.getElementById('address').value,
-        module: document.getElementById('module').value,
+        module: document.getElementById('module').value, // Categoria
         createdAt: utils.getCurrentDateTime()
     };
 
-    const errors = utils.validateForm(formData);
-    if (errors.length > 0) {
-        errors.forEach(error => {
-            if (error.includes('Número de contrato inválido')) {
-                document.getElementById('contractNumberError').classList.remove('hidden');
-            }
-            if (error.includes('Nome do Locador')) {
-                document.getElementById('locatorError').classList.remove('hidden');
-            }
-            if (error.includes('Nome do Locatário')) {
-                document.getElementById('tenantError').classList.remove('hidden');
-            }
-            if (error.includes('Problema')) {
-                document.getElementById('problemError').classList.remove('hidden');
-            }
-            if (error.includes('Endereço')) {
-                document.getElementById('addressError').classList.remove('hidden');
-            }
-        });
-        utils.showNotification(errors.join('\n'), 'error');
-        return;
+        const errors = utils.validateForm(formData);
+        if (errors.length > 0) {
+            errors.forEach(error => {
+                if (error.includes('Número de contrato inválido')) {
+                    document.getElementById('contractNumberError').classList.remove('hidden');
+                }
+                if (error.includes('Nome do Locador')) {
+                    document.getElementById('locatorError').classList.remove('hidden');
+                }
+                if (error.includes('Nome do Locatário')) {
+                    document.getElementById('tenantError').classList.remove('hidden');
+                }
+                if (error.includes('Problema')) {
+                    document.getElementById('problemError').classList.remove('hidden');
+                }
+                if (error.includes('Endereço')) {
+                    document.getElementById('addressError').classList.remove('hidden');
+                }
+            });
+            utils.showNotification(errors.join('\n'), 'error');
+            return;
+        }
+
+        const sanitizedData = {
+            contractNumber: utils.sanitizeInput(formData.contractNumber),
+            locator: utils.sanitizeInput(formData.locator),
+            tenant: utils.sanitizeInput(formData.tenant),
+            problem: utils.sanitizeInput(formData.problem),
+            address: utils.sanitizeInput(formData.address),
+            module: utils.sanitizeInput(formData.module),
+            createdAt: formData.createdAt
+        };
+
+        const existingNotes = Object.keys(this.notes).filter(key => 
+            key.startsWith(sanitizedData.contractNumber + '#'));
+
+        const sequence = existingNotes.length + 1;
+        const noteKey = `${sanitizedData.contractNumber} #${sequence}`;
+
+        this.notes[noteKey] = {
+            ...sanitizedData,
+            status: 'open',
+            comments: [],
+            createdBy: this.currentUser.email
+        };
+
+        this.renderNotes();
+        this.saveToLocalStorage();
+        utils.showNotification('Anotação criada com sucesso!', 'success');
+        document.getElementById('noteForm').reset();
+        this.toggleModal('noteModal');
     }
 
-    const sanitizedData = {
-        contractNumber: utils.sanitizeInput(formData.contractNumber),
-        locator: utils.sanitizeInput(formData.locator),
-        tenant: utils.sanitizeInput(formData.tenant),
-        problem: utils.sanitizeInput(formData.problem),
-        address: utils.sanitizeInput(formData.address),
-        module: utils.sanitizeInput(formData.module),
-        createdAt: formData.createdAt
-    };
-
-    const existingNotes = Object.keys(this.notes).filter(key => 
-        key.startsWith(sanitizedData.contractNumber + '#'));
-
-    const sequence = existingNotes.length + 1;
-    const noteKey = `${sanitizedData.contractNumber} #${sequence}`;
-
-    this.notes[noteKey] = {
-        ...sanitizedData,
-        status: 'open',
-        comments: [],
-        createdBy: this.currentUser.email
-    };
-
-    this.renderNotes();
-    this.saveToLocalStorage();
-    utils.showNotification('Anotação criada com sucesso!', 'success');
-    document.getElementById('noteForm').reset();
-    this.toggleModal('noteModal');
-}
-
+// Atualizar a função renderNotes para utilizar moduleFilter
 renderNotes(searchResults = null) {
     const container = document.getElementById('notesContainer');
     container.innerHTML = '';
@@ -1112,7 +1542,7 @@ renderNotes(searchResults = null) {
         filteredNotes = notesArray.filter(note => note.status === statusFilter);
     }
 
-    // Filter notes based on module
+    // Filter notes based on category
     const moduleFilter = document.getElementById('moduleFilter').value;
     if (moduleFilter !== 'all') {
         filteredNotes = filteredNotes.filter(note => note.module === moduleFilter);
@@ -1129,29 +1559,30 @@ renderNotes(searchResults = null) {
 
     notesToDisplay.forEach(note => {
         const noteButton = document.createElement('button');
-        noteButton.className = `note-button ${
-            note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
+        noteButton.className = `note-button ${note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
             (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
             (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
             (note.status === 'special_clause' ? 'status-clausula-especial' :
-            'bg-red-900 hover:bg-red-900')))
-        } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
+            (note.status === 'finished' ? 'bg-blue-500 hover:bg-blue-700' : 'bg-red-900 hover:bg-red-900'))))} text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
 
         const displayDate = note.status === 'scheduled' ? utils.formatDate(note.scheduleDate) : utils.formatDate(note.createdAt);
 
         noteButton.innerHTML = `
-            <span class="module-status module-${note.module.toLowerCase()}">${note.module}</span>
-            <span class="block font-bold">${utils.sanitizeInput(note.key)}</span>
-            <span class="block text-sm">Locador: ${utils.sanitizeInput(note.locator)}</span>
-            <span class="block text-sm">Locatário: ${utils.sanitizeInput(note.tenant)}</span>
-            <span class="block text-xs mt-1">${displayDate}</span>
-            <span class="block text-xs mt-1">
-                ${note.status === 'open' ? `Em Aberto` : 
-                (note.status === 'scheduled' ? 'Em Agendamento' : 
-                (note.status === 'verified_today' ? 'Verificado Hoje' : 
-                (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
-            </span>
-            <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
+            <div class="p-4 text-center">
+                <span class="module-status module-${note.module.toLowerCase()}">${note.module}</span>
+                <span class="block font-bold text-xl mt-2">${utils.sanitizeInput(note.key)}</span>
+                <span class="block text-sm mt-1"><strong>Locador:</strong> ${utils.sanitizeInput(note.locator)}</span>
+                <span class="block text-sm"><strong>Locatário:</strong> ${utils.sanitizeInput(note.tenant)}</span>
+                <span class="block text-xs mt-1"><strong>Data:</strong> ${displayDate}</span>
+                <span class="block text-xs mt-1">
+                    ${note.status === 'open' ? `Em Aberto` : 
+                    (note.status === 'scheduled' ? 'Em Agendamento' : 
+                    (note.status === 'verified_today' ? 'Verificado Hoje' : 
+                    (note.status === 'special_clause' ? 'Cláusula Especial' : 
+                    (note.status === 'finished' ? 'Chamado Finalizado' : 'Finalizado'))))}
+                </span>
+                <span class="block text-xs opacity-75 mt-1">${note.comments?.length || 0} comentário(s)</span>
+            </div>
         `;
         noteButton.dataset.contract = note.key;
         noteButton.dataset.locator = note.locator.toLowerCase();
@@ -1181,165 +1612,151 @@ renderNotes(searchResults = null) {
 }
 
 showNoteDetails(noteKey) {
-    try {
-        const note = this.notes[noteKey];
-        const detailsContent = document.getElementById('noteDetailsContent');
+    const note = this.notes[noteKey];
+    const detailsContent = document.getElementById('noteDetailsContent');
 
-        detailsContent.innerHTML = `
-            <div class="space-y-3">
-                <div class="pb-2 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold">Informações do Contrato</h3>
-                </div>
-                <div class="grid grid-cols-1 gap-2">
-                    <div class="absolute top-2 right-2 text-gray-700 text-sm">${utils.formatDate(note.createdAt)}</div>
-                    <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
-                    <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
-                    <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
-                    <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
-                    <p><strong>Endereço:</strong> <span>${utils.sanitizeInput(note.address)}</span>
-                        <button class="ml-2 text-red-900 hover:text-red-700" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(note.address)}', '_blank')">
-                            <i class="fas fa-search"></i>
-                        </button></p>
-                    <p><strong>Status:</strong> <span class="font-semibold ${
-                        note.status === 'open' ? 'text-red-900' :
-                        (note.status === 'scheduled' ? 'text-yellow-600' :
-                        (note.status === 'verified_today' ? 'text-purple-600' :
-                        (note.status === 'special_clause' ? 'text-orange-600' : 'text-green-600')))
-                    }">
-                        ${note.status === 'open' ? 'Em Aberto' : 
-                        (note.status === 'scheduled' ? 'Em agendamento' : 
-                        (note.status === 'verified_today' ? 'Verificado Hoje' : 
-                        (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
-                    </span></p>
-                    ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
-                    ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
-                    ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
-                    ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
-                </div>
-            </div>
-        `;
+    detailsContent.innerHTML = `
+    <div class="space-y-3">
+        <div class="pb-2 border-b border-gray-200">
+            <h3 class="text-lg font-semibold mb-4 text-center">Informações do Contrato</h3>
+        </div>
+        <div class="grid grid-cols-1 gap-2">
+            <div class="absolute top-2 right-2 text-gray-700 text-sm">${utils.formatDate(note.createdAt)}</div>
+            <p><strong>Número de Contrato:</strong> <span>${utils.sanitizeInput(noteKey)}</span></p>
+            <p><strong>Locador:</strong> <span>${utils.sanitizeInput(note.locator)}</span></p>
+            <p><strong>Locatário:</strong> <span>${utils.sanitizeInput(note.tenant)}</span></p>
+            <p><strong>Problema:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.problem)}</span></p>
+            <p><strong>Endereço:</strong> 
+                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(note.address)}" target="_blank" class="text-red-900 hover:text-red-700">
+                    ${utils.sanitizeInput(note.address)}
+                </a>
+            </p>
+            ${note.closedAt ? `<p><strong>Finalizado em:</strong> <span>${utils.formatDate(note.closedAt)}</span></p>` : ''}
+            ${note.status === 'scheduled' ? `<p><strong>Prestador:</strong> <span>${utils.sanitizeInput(note.providerName)}</span></p>` : ''}
+            ${note.status === 'scheduled' ? `<p><strong>Data do Agendamento:</strong> <span>${utils.formatDate(note.scheduleDate)}</span></p>` : ''}
+            ${note.status === 'scheduled' ? `<p><strong>Descrição do Agendamento:</strong> <span class="whitespace-pre-wrap">${utils.sanitizeInput(note.scheduleDescription)}</span></p>` : ''}
+            <p><strong>Pendente:</strong> <span>${utils.sanitizeInput(note.pendente || 'PENDENTE')}</span></p>
+        </div>
+    </div>
+    `;
 
-        // Update the module dropdown in the details modal
-        document.getElementById('moduleDetail').value = note.module;
+ // Update the category dropdown in the details modal
+document.getElementById('moduleDetail').value = note.module;
 
-        // Mostrar/ocultar botões "Finalizar" e "Reabrir" com base no status
-        const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
-        const reopenNoteBtn = document.getElementById('reopenNoteBtn');
-        if (note.status === 'closed') {
-            finalizeNoteBtn.classList.add('hidden');
-            reopenNoteBtn.classList.remove('hidden');
-        } else {
-            finalizeNoteBtn.classList.remove('hidden');
-            reopenNoteBtn.classList.add('hidden');
-        }
+// Mostrar/ocultar botões "Finalizar" e "Reabrir" com base no status
+const finalizeNoteBtn = document.getElementById('finalizeNoteBtn');
+const reopenNoteBtn = document.getElementById('reopenNoteBtn');
+if (note.status === 'closed') {
+    finalizeNoteBtn.classList.add('hidden');
+    reopenNoteBtn.classList.remove('hidden');
+} else {
+    finalizeNoteBtn.classList.remove('hidden');
+    reopenNoteBtn.classList.add('hidden');
+}
 
-        // Mostrar/ocultar botão "Cancelar Agendamento" com base no status
-        const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
-        if (note.status === 'scheduled') {
-            cancelScheduleBtn.style.display = 'flex';
-        } else {
-            cancelScheduleBtn.style.display = 'none';
-        }
+// Mostrar/ocultar botão "Cancelar Agendamento" com base no status
+const cancelScheduleBtn = document.getElementById('cancelScheduleBtn');
+if (note.status === 'scheduled') {
+    cancelScheduleBtn.style.display = 'flex';
+} else {
+    cancelScheduleBtn.style.display = 'none';
+}
 
-        // Inicialize a página atual de comentários
-        this.currentCommentPage = 1;
-        this.renderComments(noteKey);
-        this.toggleModal('noteDetailsModal');
-        document.getElementById('commentText').focus();
-    } catch (error) {
-        console.error('Erro ao exibir detalhes da nota:', error);
-        utils.showNotification('Erro ao carregar detalhes', 'error');
-    }
+// Inicialize a página atual de comentários
+this.currentCommentPage = 1;
+this.renderComments(noteKey);
+this.toggleModal('noteDetailsModal');
+document.getElementById('commentText').focus();
 }
 
 renderComments(noteKey) {
-    try {
-        const commentsContainer = document.getElementById('commentsContainer');
-        commentsContainer.innerHTML = '';
+try {
+    const commentsContainer = document.getElementById('commentsContainer');
+    commentsContainer.innerHTML = '';
 
-        const note = this.notes[noteKey];
-        if (!Array.isArray(note.comments)) {
-            note.comments = [];
-        }
+    const note = this.notes[noteKey];
+    if (!Array.isArray(note.comments)) {
+        note.comments = [];
+    }
 
-        const start = (this.currentCommentPage - 1) * this.commentsPerPage;
-        const end = start + this.commentsPerPage;
-        const commentsToShow = note.comments.slice(start, end);
+    const start = (this.currentCommentPage - 1) * this.commentsPerPage;
+    const end = start + this.commentsPerPage;
+    const commentsToShow = note.comments.slice(start, end);
 
-        commentsToShow.forEach((comment) => {
-            const commentElement = document.createElement('div');
-            commentElement.className = 'comment';
+    commentsToShow.forEach((comment) => {
+        const commentElement = document.createElement('div');
+        commentElement.className = 'comment';
 
-            commentElement.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <div class="flex-grow">
-                        <p class="comment-text">${utils.applyBoldFormatting(utils.sanitizeInput(comment.text))}</p>
-                        <div class="mt-2 text-sm text-white-500">
-                            <span>${utils.formatDate(comment.dateTime)}</span>
-                            <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
-                            ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button id="edit-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Editar Comentário">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button id="delete-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Excluir Comentário">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        <button id="add-subcomment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Adicionar Subcomentário">
-                            <i class="fas fa-comment-dots"></i>
-                        </button>
+        commentElement.innerHTML = `
+            <div class="flex justify-between items-start">
+                <div class="flex-grow">
+                    <p class="comment-text">${utils.applyBoldFormatting(utils.sanitizeInput(comment.text))}</p>
+                    <div class="mt-2 text-sm text-white-500">
+                        <span>${utils.formatDate(comment.dateTime)}</span>
+                        <span class="italic">(por ${utils.sanitizeInput(comment.author)})</span>
+                        ${comment.editedAt ? ` <span class="italic">(editado em ${utils.formatDate(comment.editedAt)})</span>` : ''}
                     </div>
                 </div>
-                <div id="subcomments-${comment.id}" class="ml-6 mt-2 space-y-2"></div>
-            `;
+                <div class="flex space-x-2">
+                    <button id="edit-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Editar Comentário">
+                        <i class="fas fa-edit icon-hover"></i>
+                    </button>
+                    <button id="delete-comment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Excluir Comentário">
+                        <i class="fas fa-trash icon-hover"></i>
+                    </button>
+                    <button id="add-subcomment-${comment.id}" class="ml-2 text-white-500 hover:text-white-500" aria-label="Adicionar Subcomentário">
+                        <i class="fas fa-comment-dots icon-hover"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="subcomments-${comment.id}" class="ml-6 mt-2 space-y-2"></div>
+        `;
 
-            commentsContainer.appendChild(commentElement);
+        commentsContainer.appendChild(commentElement);
 
-            // Add click event listener for editing comments
-            document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
-                if (this.isAuthenticated()) {
-                    this.editComment(noteKey, comment.id);
-                }
-            });
-
-// Add click event listener for deleting comments
-            document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
-                if (this.isAuthenticated()) {
-                    this.deleteComment(noteKey, comment.id);
-                }
-            });
-
-            // Add click event listener for adding subcomments
-            document.getElementById(`add-subcomment-${comment.id}`).addEventListener('click', () => {
-                if (this.isAuthenticated()) {
-                    this.addSubcomment(noteKey, comment.id);
-                }
-            });
-
-            // Render subcomments if any
-            this.renderSubcomments(noteKey, comment.id);
+        // Add click event listener for editing comments
+        document.getElementById(`edit-comment-${comment.id}`).addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.editComment(noteKey, comment.id);
+            }
         });
 
-        // Mostrar/ocultar botão "Mostrar Mais Comentários"
-        const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
-        const backToTopBtn = document.getElementById('backToTopBtn');
-        if (end >= note.comments.length) {
-            showMoreCommentsBtn.style.display = 'none';
-            if (this.currentCommentPage > 1) {
-                backToTopBtn.style.display = 'block';
-            } else {
-                backToTopBtn.style.display = 'none';
+        // Add click event listener for deleting comments
+        document.getElementById(`delete-comment-${comment.id}`).addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.deleteComment(noteKey, comment.id);
             }
+        });
+
+        // Add click event listener for adding subcomments
+        document.getElementById(`add-subcomment-${comment.id}`).addEventListener('click', () => {
+            if (this.isAuthenticated()) {
+                this.addSubcomment(noteKey, comment.id);
+            }
+        });
+
+        // Render subcomments if any
+        this.renderSubcomments(noteKey, comment.id);
+    });
+
+    // Mostrar/ocultar botão "Mostrar Mais Comentários"
+    const showMoreCommentsBtn = document.getElementById('showMoreCommentsBtn');
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    if (end >= note.comments.length) {
+        showMoreCommentsBtn.style.display = 'none';
+        if (this.currentCommentPage > 1) {
+            backToTopBtn.style.display = 'block';
         } else {
-            showMoreCommentsBtn.style.display = 'block';
             backToTopBtn.style.display = 'none';
         }
-    } catch (error) {
-        console.error('Erro ao renderizar comentários:', error);
-        utils.showNotification('Erro ao carregar comentários', 'error');
+    } else {
+        showMoreCommentsBtn.style.display = 'block';
+        backToTopBtn.style.display = 'none';
     }
+} catch (error) {
+    console.error('Erro ao renderizar comentários:', error);
+    utils.showNotification('Erro ao carregar comentários', 'error');
+}
 }
 
 renderSubcomments(noteKey, commentId) {
@@ -1414,7 +1831,7 @@ addSubcomment(noteKey, commentId) {
         const subcomment = {
             id: Date.now().toString(),
             text: utils.sanitizeInput(subcommentText),
-            dateTime: utils.getCurrentDateTime(),
+            dateTime: new Date().toISOString(), // Use current date
             author: this.currentUser.email
         };
 
@@ -1446,7 +1863,7 @@ handleCommentSubmit() {
         const comment = {
             id: Date.now().toString(),
             text: utils.sanitizeInput(commentText),
-            dateTime: utils.getCurrentDateTime(),
+            dateTime: new Date().toISOString(), // Use current date
             author: this.currentUser.email
         };
 
@@ -1459,16 +1876,6 @@ handleCommentSubmit() {
         // Update status to 'verified_today' only if the current status is not 'scheduled'
         if (this.notes[noteKey].status !== 'scheduled') {
             this.notes[noteKey].status = 'verified_today';
-        }
-
-        // Move to 'Em Andamento' if in 'Chamado Novo' and a comment is added
-        if (this.notes[noteKey].module === 'Chamado Novo') {
-            this.notes[noteKey].module = 'Em Andamento';
-        }
-
-        // Move to 'Em Acordo' if in 'Em Andamento' and there are 3 or more comments
-        if (this.notes[noteKey].module === 'Em Andamento' && this.notes[noteKey].comments.length >= 3) {
-            this.notes[noteKey].module = 'Em Acordo';
         }
 
         this.saveToLocalStorage();
@@ -1489,10 +1896,10 @@ updateNoteStatusAndModule(noteKey, newStatus) {
         note.status = newStatus;
 
         // Update module based on status changes
-        if (newStatus === 'scheduled') {
-            note.module = 'Em Execução';
-        } else if (newStatus === 'closed') {
+        if (newStatus === 'closed') {
             note.module = 'Chamado Finalizado';
+        } else if (newStatus === 'special_clause') {
+            note.module = 'Cláusula Especial';
         }
 
         this.saveToLocalStorage();
@@ -1519,82 +1926,82 @@ editComment(noteKey, commentId) {
             return;
         }
 
-        // Create edit modal
-        const editModal = document.createElement('div');
-        editModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        editModal.innerHTML = `
-            <div class="bg-dark-800 rounded-lg shadow-lg p-6 w-full max-w-md">
-                <h3 class="text-lg font-semibold mb-4">Editar Comentário</h3>
-                <form id="editCommentForm" class="space-y-4">
-                    <textarea 
-                        id="editCommentText" 
-                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"
-                        required
-                    >${note.comments[commentIndex].text}</textarea>
-                    <div class="flex justify-end space-x-2">
-                        <button type="button" id="cancelEditComment" class="bg-gray-700 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
-                            <i class="fas fa-times mr-2"></i>Cancelar
-                        </button>
-                        <button type="submit" class="bg-red-900 hover:bg-red-900 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duration-200">
-                            <i class="fas fa-save mr-2"></i>Salvar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        `;
+            // Create edit modal
+            const editModal = document.createElement('div');
+            editModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            editModal.innerHTML = `
+                <div class="bg-dark-800 rounded-lg shadow-lg p-6 w-full max-w-md">
+                    <h3 class="text-lg font-semibold mb-4">Editar Comentário</h3>
+                    <form id="editCommentForm" class="space-y-4">
+                        <textarea 
+                            id="editCommentText" 
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 min-h-[100px]"
+                            required
+                        >${note.comments[commentIndex].text}</textarea>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" id="cancelEditComment" class="bg-gray-700 hover:bg-gray-700 focus:ring-gray-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
+                                <i class="fas fa-times mr-2"></i>Cancelar
+                            </button>
+                            <button type="submit" class="bg-red-900 hover:bg-red-900 focus:ring-red-400 px-4 py-2 text-white font-semibold rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-75 transition-colors duração-200">
+                                <i class="fas fa-save mr-2"></i>Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
 
-        // Add modal to the document
-        document.body.appendChild(editModal);
+            // Add modal to the document
+            document.body.appendChild(editModal);
 
-        // Get form elements
-        const form = document.getElementById('editCommentForm');
-        const cancelBtn = document.getElementById('cancelEditComment');
-        const textarea = document.getElementById('editCommentText');
+            // Get form elements
+            const form = document.getElementById('editCommentForm');
+            const cancelBtn = document.getElementById('cancelEditComment');
+            const textarea = document.getElementById('editCommentText');
 
-        // Handle cancel
-        cancelBtn.addEventListener('click', () => {
-            document.body.removeChild(editModal);
-        });
-
-        // Handle ESC key and Del key
-        document.addEventListener('keydown', function escAndDelListener(e) {
-            if (e.key === 'Escape' || e.key === 'Delete') {
+            // Handle cancel
+            cancelBtn.addEventListener('click', () => {
                 document.body.removeChild(editModal);
-                document.removeEventListener('keydown', escAndDelListener);
-            }
-        });
+            });
 
-        // Handle form submit
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const newText = textarea.value.trim();
-
-            if (newText) {
-                note.comments[commentIndex].text = utils.sanitizeInput(newText);
-                note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
-                // Update status to 'verified_today' only if the current status is not 'scheduled'
-                if (note.status !== 'scheduled') {
-                    note.status = 'verified_today';
+            // Handle ESC key and Del key
+            document.addEventListener('keydown', function escAndDelListener(e) {
+                if (e.key === 'Escape' || e.key === 'Delete') {
+                    document.body.removeChild(editModal);
+                    document.removeEventListener('keydown', escAndDelListener);
                 }
-                this.saveToLocalStorage();
-                this.renderComments(noteKey);
-                this.updateNoteButton(noteKey);
-                document.body.removeChild(editModal);
-                utils.showNotification('Comentário atualizado com sucesso!', 'success');
-            } else {
-                utils.showNotification('O comentário não pode estar vazio.', 'error');
-            }
-        });
+            });
 
-        // Focus on textarea
-        textarea.focus();
-    } catch (error) {
-        console.error('Erro ao editar comentário:', error);
-        utils.showNotification('Erro ao editar comentário', 'error');
+            // Handle form submit
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const newText = textarea.value.trim();
+
+                if (newText) {
+                    note.comments[commentIndex].text = utils.sanitizeInput(newText);
+                    note.comments[commentIndex].editedAt = utils.getCurrentDateTime();
+                    // Update status to 'verified_today' only if the current status is not 'scheduled'
+                    if (note.status !== 'scheduled') {
+                        note.status = 'verified_today';
+                    }
+                    this.saveToLocalStorage();
+                    this.renderComments(noteKey);
+                    this.updateNoteButton(noteKey);
+                    document.body.removeChild(editModal);
+                    utils.showNotification('Comentário atualizado com sucesso!', 'success');
+                } else {
+                    utils.showNotification('O comentário não pode estar vazio.', 'error');
+                }
+            });
+
+            // Focus on textarea
+            textarea.focus();
+        } catch (error) {
+            console.error('Erro ao editar comentário:', error);
+            utils.showNotification('Erro ao editar comentário', 'error');
+        }
     }
-}
 
-deleteComment(noteKey, commentId) {
+    deleteComment(noteKey, commentId) {
     try {
         const note = this.notes[noteKey];
         if (!Array.isArray(note.comments)) {
@@ -1729,19 +2136,15 @@ deleteSubcomment(noteKey, commentId, subcommentId) {
     }
 }
 
+// Atualizar a função updateNoteModule para updateNoteCategory
 updateNoteModule(noteKey, newModule) {
-    try {
-        const note = this.notes[noteKey];
-        note.module = newModule;
+    const note = this.notes[noteKey];
+    note.module = newModule;
 
-        this.saveToLocalStorage();
-        this.renderNotes();
-        this.showNoteDetails(noteKey);
-        utils.showNotification('Módulo da anotação atualizado com sucesso!', 'success');
-    } catch (error) {
-        console.error('Erro ao atualizar módulo da anotação:', error);
-        utils.showNotification('Erro ao atualizar módulo da anotação', 'error');
-    }
+    this.saveToLocalStorage();
+    this.renderNotes();
+    this.showNoteDetails(noteKey); // Certifique-se de atualizar os detalhes sem fechar o modal
+    utils.showNotification('Categoria da anotação atualizada com sucesso!', 'success');
 }
 
 cancelSchedule(noteKey) {
@@ -1773,6 +2176,10 @@ deleteNote(noteKey) {
 finalizeNote(noteKey) {
     try {
         this.updateNoteStatusAndModule(noteKey, 'closed');
+        this.notes[noteKey].module = 'Chamado Finalizado'; // Define a nova categoria aqui
+        this.saveToLocalStorage();
+        this.renderNotes();
+        utils.showNotification('Nota finalizada com sucesso!', 'success');
     } catch (error) {
         console.error('Erro ao finalizar nota:', error);
         utils.showNotification('Erro ao finalizar nota', 'error');
@@ -1791,8 +2198,18 @@ reopenNote(noteKey) {
 transformToSpecialClause(noteKey) {
     try {
         const note = this.notes[noteKey];
+        
+        // Verificar e adicionar campos ausentes
+        if (!note.hasOwnProperty('status')) {
+            note.status = 'open';
+        }
+        if (!note.hasOwnProperty('module')) {
+            note.module = ''; // Adicione um valor padrão apropriado aqui
+        }
+
         if (note.status !== 'special_clause') {
             note.status = 'special_clause';
+            note.module = 'Cláusula Especial'; // Certifique-se de atualizar o módulo também
             this.saveToLocalStorage();
             this.renderNotes();
             this.showNoteDetails(noteKey);
@@ -1810,6 +2227,7 @@ saveToLocalStorage() {
     try {
         localStorage.setItem('notes', JSON.stringify(this.notes));
         localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
+        localStorage.setItem('reportStats', JSON.stringify(this.generateReportStats()));
         utils.showNotification('Dados salvos localmente com sucesso!', 'success');
     } catch (error) {
         console.error('Erro ao salvar no localStorage:', error);
@@ -1817,10 +2235,35 @@ saveToLocalStorage() {
     }
 }
 
+// Método para gerar estatísticas do relatório
+generateReportStats() {
+    const statusData = {
+        open: 0,
+        closed: 0,
+        scheduled: 0,
+        verified_today: 0,
+        special_clause: 0
+    };
+
+    const moduleData = {};
+
+    Object.values(this.notes).forEach(note => {
+        statusData[note.status] = (statusData[note.status] || 0) + 1;
+        moduleData[note.module] = (moduleData[note.module] || 0) + 1;
+    });
+
+    return {
+        statusData,
+        moduleData
+    };
+}
+
 loadFromLocalStorage() {
     try {
         const savedNotes = localStorage.getItem('notes');
         const savedUser = localStorage.getItem('currentUser');
+        const savedReportStats = localStorage.getItem('reportStats');
+        
         if (savedNotes) {
             this.notes = JSON.parse(savedNotes);
             this.fixOldNotes();
@@ -1830,6 +2273,9 @@ loadFromLocalStorage() {
             this.currentUser = JSON.parse(savedUser);
             this.updateUserInfo();
             this.showMainLayout();
+        }
+        if (savedReportStats) {
+            this.reportStats = JSON.parse(savedReportStats);
         }
         this.updateVerifiedNotes();
     } catch (error) {
@@ -1863,9 +2309,6 @@ fixOldNotes() {
         if (!note.hasOwnProperty('scheduleDescription')) {
             note.scheduleDescription = '';
         }
-        if (!note.hasOwnProperty('module')) {
-            note.module = 'Chamado Novo';
-        }
     });
     this.saveToLocalStorage();
 }
@@ -1884,12 +2327,11 @@ updateUserInfo() {
 }
 
 getUserIcon(email) {
-    if (email === 'manutencao@madia.com.br') {
-        return 'https://i.imgur.com/kooxTdN.jpeg';
-    } else if (email === 'manutencao1@madia.com.br') {
-        return 'https://i.imgur.com/kooxTdN.jpeg';
+    const defaultIcon = 'https://i.imgur.com/kooxTdN.jpeg';
+    if (email === 'manutencao@madia.com.br' || email === 'manutencao1@madia.com.br') {
+        return defaultIcon;
     }
-    return 'https://i.imgur.com/kooxTdN.jpeg';
+    return defaultIcon;
 }
 
 updateVerifiedNotes() {
@@ -1905,7 +2347,7 @@ updateVerifiedNotes() {
                 return commentDateStr === todayStr;
             });
 
-            // Se houver comentários de hoje e o status não for 'scheduled', marcar como verified_today
+            // Se houver comentários de hoje e o status não for 'scheduled' ou 'closed', marcar como verified_today
             if (hasCommentsToday && note.status !== 'scheduled' && note.status !== 'closed') {
                 note.status = 'verified_today';
             }
@@ -1982,10 +2424,10 @@ updateNoteButton(noteKey) {
 
         noteButton.className = `note-button ${
             note.status === 'closed' ? 'bg-green-500 hover:bg-green-700' :
-            (note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
-            (note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
-            (note.status === 'special_clause' ? 'status-clausula-especial' :
-            'bg-red-900 hover:bg-red-900')))
+            note.status === 'scheduled' ? 'bg-yellow-500 hover:bg-yellow-700' :
+            note.status === 'verified_today' ? 'bg-purple-500 hover:bg-purple-700' :
+            note.status === 'special_clause' ? 'status-clausula-especial' :
+            'bg-red-900 hover:bg-red-900'
         } text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200`;
     }
 }
@@ -2033,11 +2475,12 @@ handleScheduleFormSubmit() {
 
         note.status = 'scheduled';
         note.providerName = utils.sanitizeInput(providerName);
-        note.scheduleDate = scheduleDate;
-        note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
 
-        // Update module to 'Em Execução'
-        note.module = 'Em Execução';
+        // Ajuste para garantir que a data seja armazenada corretamente
+        const adjustedScheduleDate = new Date(scheduleDate + 'T00:00:00Z').toISOString();
+        note.scheduleDate = adjustedScheduleDate;
+
+        note.scheduleDescription = utils.sanitizeInput(scheduleDescription);
 
         this.saveToLocalStorage();
         this.renderNotes();
@@ -2098,7 +2541,6 @@ handleFileImport(event) {
                 }
 
                 let importCount = 0;
-                const totalNotes = Object.keys(importedNotes).length;
 
                 for (const [noteKey, note] of Object.entries(importedNotes)) {
                     try {
@@ -2106,13 +2548,25 @@ handleFileImport(event) {
                             this.notes[noteKey] = {
                                 ...note,
                                 createdAt: note.createdAt || utils.getCurrentDateTime(),
-                                createdBy: this.currentUser.email,
+                                createdBy: note.createdBy || this.currentUser.email,
                                 status: note.status || 'open',
                                 providerName: note.providerName || '',
                                 scheduleDate: note.scheduleDate || '',
                                 scheduleDescription: note.scheduleDescription || '',
-                                module: note.module || 'Chamado Novo',
-                                comments: Array.isArray(note.comments) ? note.comments : []
+                                comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
+                                    id: comment.id || Date.now().toString(),
+                                    text: utils.sanitizeInput(comment.text || ''),
+                                    dateTime: comment.dateTime || utils.getCurrentDateTime(),
+                                    author: comment.author || this.currentUser.email,
+                                    editedAt: comment.editedAt || null,
+                                    subcomments: Array.isArray(comment.subcomments) ? comment.subcomments.map(subcomment => ({
+                                        id: subcomment.id || Date.now().toString(),
+                                        text: utils.sanitizeInput(subcomment.text || ''),
+                                        dateTime: subcomment.dateTime || utils.getCurrentDateTime(),
+                                        author: subcomment.author || this.currentUser.email,
+                                        editedAt: subcomment.editedAt || null
+                                    })) : []
+                                })) : []
                             };
                             importCount++;
                         }
@@ -2156,7 +2610,7 @@ validateImportedNote(note, noteKey) {
             throw new Error(`Campos obrigatórios ausentes: ${missingFields.join(', ')}`);
         }
 
-        // Normalizar os comentários
+        // Normalizar os comentários e subcomentários
         if (!Array.isArray(note.comments)) {
             note.comments = [];
         }
@@ -2166,7 +2620,14 @@ validateImportedNote(note, noteKey) {
             text: utils.sanitizeInput(comment.text || ''),
             dateTime: comment.dateTime || utils.getCurrentDateTime(),
             author: comment.author || this.currentUser.email,
-            editedAt: comment.editedAt || null
+            editedAt: comment.editedAt || null,
+            subcomments: Array.isArray(comment.subcomments) ? comment.subcomments.map(subcomment => ({
+                id: subcomment.id || Date.now().toString(),
+                text: utils.sanitizeInput(subcomment.text || ''),
+                dateTime: subcomment.dateTime || utils.getCurrentDateTime(),
+                author: subcomment.author || this.currentUser.email,
+                editedAt: subcomment.editedAt || null
+            })) : []
         }));
 
         return true;
@@ -2201,13 +2662,19 @@ exportNotes() {
                 providerName: note.providerName || '',
                 scheduleDate: note.scheduleDate || '',
                 scheduleDescription: note.scheduleDescription || '',
-                module: note.module || 'Chamado Novo',
                 comments: Array.isArray(note.comments) ? note.comments.map(comment => ({
                     id: comment.id || Date.now().toString(),
                     text: utils.sanitizeInput(comment.text || ''),
                     dateTime: comment.dateTime || utils.getCurrentDateTime(),
                     author: comment.author || this.currentUser.email,
-                    editedAt: comment.editedAt || null
+                    editedAt: comment.editedAt || null,
+                    subcomments: Array.isArray(comment.subcomments) ? comment.subcomments.map(subcomment => ({
+                        id: subcomment.id || Date.now().toString(),
+                        text: utils.sanitizeInput(subcomment.text || ''),
+                        dateTime: subcomment.dateTime || utils.getCurrentDateTime(),
+                        author: subcomment.author || this.currentUser.email,
+                        editedAt: subcomment.editedAt || null
+                    })) : []
                 })) : []
             };
 
@@ -2252,7 +2719,6 @@ renderDashboard() {
         data: {
             labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje', 'Cláusula Especial'],
             datasets: [{
-                label: 'Quantidade de Chamados',
                 data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today, statusData.special_clause],
                 backgroundColor: ['#1E90FF', '#32CD32', '#FFD700', '#800080', '#D900FF'],
                 borderColor: ['#1C7ED6', '#2E8B57', '#DAA520', '#6A0DAD', '#B800DB'],
@@ -2287,15 +2753,14 @@ renderDashboard() {
 
 showMainLayout() {
     document.getElementById('loginModal').classList.add('hidden');
-    document.getElementById('logoSection').classList.remove('hidden');
     document.getElementById('mainLayout').classList.remove('hidden');
-    this.renderDashboard(); // Ensure the dashboard is rendered when showing the main layout
+    // Comente ou remova esta linha:
+    // this.renderDashboard();
 }
 
 showLogin() {
     this.closeAllModals();
     document.getElementById('loginModal').classList.remove('hidden');
-    document.getElementById('logoSection').classList.add('hidden');
     document.getElementById('mainLayout').classList.add('hidden');
 }
 
@@ -2304,6 +2769,73 @@ logout() {
     localStorage.removeItem('currentUser');
     this.showLogin();
 }
+
+renderReports() {
+    this.renderStatusChart();
+    this.renderModuleChart();
+    this.renderTimelineChart();
+}
+
+renderStatusChart() {
+    const statusData = {
+        open: 0,
+        closed: 0,
+        scheduled: 0,
+        verified_today: 0,
+        special_clause: 0
+    };
+
+    Object.values(this.notes).forEach(note => {
+        statusData[note.status] = (statusData[note.status] || 0) + 1;
+    });
+
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje', 'Cláusula Especial'],
+            datasets: [{
+                data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today, statusData.special_clause],
+                backgroundColor: ['#1E90FF', '#32CD32', '#FFD700', '#800080', '#D900FF']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+renderModuleChart() {
+    const moduleData = {};
+
+    Object.values(this.notes).forEach(note => {
+        moduleData[note.module] = (moduleData[note.module] || 0) + 1;
+    });
+
+    const ctx = document.getElementById('moduleChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(moduleData),
+            datasets: [{
+                label: 'Quantidade',
+                data: Object.values(moduleData),
+                backgroundColor: ['#1E90FF', '#32CD32', '#FFD700', '#800080', '#D900FF']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
 }
 
 // Inicializa a aplicação
@@ -2316,13 +2848,13 @@ setInterval(() => {
     }
 }, 60000); // 60000 ms = 1 minuto
 
-// Login handling
+// Manipulação de login
 document.getElementById('loginForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
 
-    // Simulating a login check. In a real application, you would check against a database or authentication service.
+    // Simulação de verificação de login. Em uma aplicação real, você verificaria contra um banco de dados ou serviço de autenticação.
     if ((email === 'manutencao@madia.com.br' && password === 'password123') || (email === 'manutencao1@madia.com.br' && password === 'password123')) {
         noteManager.currentUser = { email };
         noteManager.saveToLocalStorage();
@@ -2333,7 +2865,138 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
     }
 });
 
-// Event listener for global search
+document.getElementById('searchContract').addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    noteManager.filterContractDropdown(searchTerm);
+});
+
+document.getElementById('selectContract').addEventListener('change', (e) => {
+    const selectedContract = e.target.value;
+    const contestationDetails = document.getElementById('contestationDetails');
+    if (selectedContract) {
+        contestationDetails.classList.remove('hidden');
+    } else {
+        contestationDetails.classList.add('hidden');
+    }
+});
+
+document.getElementById('addItemBtn').addEventListener('click', () => {
+    const contestationItem = document.getElementById('contestationItem').value;
+    const itemType = document.getElementById('itemType').value;
+    const selectedContract = document.getElementById('selectContract').value;
+
+    if (!contestationItem || !itemType) {
+        utils.showNotification('Todos os campos são obrigatórios', 'error');
+        return;
+    }
+
+    const contestedItemsList = document.getElementById('contestedItemsList');
+    const listItem = document.createElement('li');
+    listItem.className = 'flex justify-between items-center p-2 border rounded-md';
+
+    listItem.innerHTML = `
+        <span>${contestationItem} (${itemType})</span>
+        <button type="button" class="btn-gray removeItemBtn">
+            <i class="fas fa-trash icon-hover"></i>
+        </button>
+    `;
+
+    listItem.querySelector('.removeItemBtn').addEventListener('click', () => {
+        contestedItemsList.removeChild(listItem);
+    });
+
+    contestedItemsList.appendChild(listItem);
+
+    // Limpar os campos de item de contestação, mas manter o contrato selecionado
+    document.getElementById('contestationItem').value = '';
+    document.getElementById('itemType').value = 'Estético';
+});
+
+document.getElementById('saveContestationBtn').addEventListener('click', () => {
+    const selectContract = document.getElementById('selectContract').value;
+    const contestedItemsList = document.getElementById('contestedItemsList');
+    const contestedItems = Array.from(contestedItemsList.children).map(item => {
+        const [itemText, itemType] = item.querySelector('span').textContent.split(' (');
+        return {
+            item: itemText.trim(),
+            type: itemType.replace(')', '').trim(),
+            dateTime: utils.getCurrentDateTime(),
+            author: noteManager.currentUser.email
+        };
+    });
+
+    if (!selectContract || contestedItems.length === 0) {
+        utils.showNotification('Selecione um contrato e adicione itens contestados.', 'error');
+        return;
+    }
+
+    const note = noteManager.notes[selectContract];
+    if (!note) {
+        utils.showNotification('Contrato não encontrado', 'error');
+        return;
+    }
+
+    if (!note.locator) {
+        utils.showNotification('Nome do locador não encontrado', 'error');
+        return;
+    }
+
+    // Organize contested items
+    const structuralItems = contestedItems.filter(item => item.type === 'Estrutural');
+    const aestheticItems = contestedItems.filter(item => item.type === 'Estético');
+    const organizedItems = [...structuralItems, ...aestheticItems];
+
+    const contractDetails = `Número do Contrato: ${selectContract}\nEndereço: ${note.address}\n\n`;
+    const contestationComment = organizedItems.map(item => `- ${item.item} (${item.type})`).join('\n');
+    const greeting = `Boa tarde, ${note.locator}, tudo bem?\n\n`;
+    const intro = `Segue a contestação/laudo complementar dos quinze dias, conforme previsto em contrato, realizada pelos inquilinos do imóvel ${note.address}.\n\n`;
+    const itemIntro = `Abaixo, seguem os itens estruturais e/ou estéticos para sua ciência e providências:\n\n`;
+
+    const comment = {
+        id: Date.now().toString(),
+        text: `${greeting}${intro}${itemIntro}${contestationComment}`,
+        dateTime: utils.getCurrentDateTime(),
+        author: noteManager.currentUser.email
+    };
+
+    if (!Array.isArray(note.comments)) {
+        note.comments = [];
+    }
+
+    note.comments.unshift(comment);
+
+    noteManager.saveToLocalStorage();
+    noteManager.renderNotes();
+    document.getElementById('contestedItemsList').innerHTML = '';
+    noteManager.toggleModal('contestationModal');
+    utils.showNotification('Contestação salva com sucesso!', 'success');
+});
+
+NoteManager.prototype.filterContractDropdown = function(searchTerm) {
+    const selectContractDropdown = document.getElementById('selectContract');
+    const options = selectContractDropdown.querySelectorAll('option');
+
+    options.forEach(option => {
+        const isVisible = option.value.includes(searchTerm) || option.textContent.toLowerCase().includes(searchTerm);
+        option.style.display = isVisible ? '' : 'none';
+    });
+}
+
+NoteManager.prototype.populateContractDropdownForContestation = function() {
+    const selectContractDropdown = document.getElementById('selectContract');
+    selectContractDropdown.innerHTML = '<option value="">Selecione um contrato...</option>';
+
+    Object.keys(this.notes).forEach(noteKey => {
+        const note = this.notes[noteKey];
+        if (note.module === 'Contestação' && note.status !== 'closed') {
+            const option = document.createElement('option');
+            option.value = noteKey;
+            option.textContent = noteKey;
+            selectContractDropdown.appendChild(option);
+        }
+    });
+};
+// Event listener para busca global
 document.getElementById('searchInput').addEventListener('input', () => {
     if (noteManager.isAuthenticated()) {
         const searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -2352,7 +3015,7 @@ document.getElementById('searchInput').addEventListener('input', () => {
     }
 });
 
-// Utility function to copy note comments to clipboard
+// Função utilitária para copiar comentários da nota para a área de transferência
 noteManager.copyNoteComments = (noteKey) => {
     try {
         const note = noteManager.notes[noteKey];
@@ -2379,7 +3042,7 @@ noteManager.copyNoteComments = (noteKey) => {
     }
 }
 
-// Utility function to download a single contract
+// Função utilitária para baixar um contrato individual
 noteManager.downloadSingleContract = (noteKey) => {
     try {
         const note = noteManager.notes[noteKey];
@@ -2395,23 +3058,20 @@ noteManager.downloadSingleContract = (noteKey) => {
         }).join('\n\n'); // Adiciona uma linha em branco entre cada comentário
 
         const details = `
-Número de Contrato: ${noteKey}
-Locador: ${note.locator}
-Locatário: ${note.tenant}
-Problema: ${note.problem}
-Endereço: ${note.address}
-Status: ${note.status === 'open' ? 'Em Aberto' : 
-        (note.status === 'scheduled' ? 'Em Agendamento' : 
-        (note.status === 'verified_today' ? 'Verificado Hoje' : 
-        (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
-${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
-${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
-${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
-${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
-Comentários:
-
-${commentsWithSubcomments}
-        `.trim();
+    Número de Contrato: ${noteKey}
+    Locador: ${note.locator}
+    Locatário: ${note.tenant}
+    Problema: ${note.problem}
+    Endereço: ${note.address}
+    Status: ${note.status === 'open' ? 'Em Aberto' : (note.status === 'scheduled' ? 'Em Agendamento' : (note.status === 'verified_today' ? 'Verificado Hoje' : (note.status === 'special_clause' ? 'Cláusula Especial' : 'Finalizado')))}
+    ${note.closedAt ? `Finalizado em: ${utils.formatDate(note.closedAt)}` : ''}
+    ${note.status === 'scheduled' ? `Prestador: ${note.providerName}` : ''}
+    ${note.status === 'scheduled' ? `Data do Agendamento: ${utils.formatDate(note.scheduleDate)}` : ''}
+    ${note.status === 'scheduled' ? `Descrição do Agendamento: ${note.scheduleDescription}` : ''}
+    Comentários:
+    
+    ${commentsWithSubcomments}
+`.trim();
 
         const filename = `${noteKey}.txt`;
         utils.downloadFile(details, filename, 'text/plain');
@@ -2422,7 +3082,111 @@ ${commentsWithSubcomments}
     }
 }
 
-// Function to search all contracts and prioritize comments
+function renderStatusChart() {
+    const statusData = {
+        open: 0,
+        closed: 0,
+        scheduled: 0,
+        verified_today: 0,
+        special_clause: 0
+    };
+
+    Object.values(this.notes).forEach(note => {
+        statusData[note.status] = (statusData[note.status] || 0) + 1;
+    });
+
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Abertos', 'Fechados', 'Em Agendamento', 'Verificados Hoje', 'Cláusula Especial'],
+            datasets: [{
+                data: [statusData.open, statusData.closed, statusData.scheduled, statusData.verified_today, statusData.special_clause],
+                backgroundColor: ['#1E90FF', '#32CD32', '#FFD700', '#800080', '#D900FF']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    color: '#ffffff',
+                    anchor: 'end',
+                    align: 'start',
+                    offset: -10,
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    borderRadius: 25,
+                    backgroundColor: (context) => {
+                        return context.dataset.backgroundColor;
+                    },
+                    font: {
+                        weight: 'bold',
+                        size: 10
+                    },
+                    formatter: (value) => {
+                        return value;
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
+function renderModuleChart() {
+    const moduleData = {};
+
+    Object.values(this.notes).forEach(note => {
+        moduleData[note.module] = (moduleData[note.module] || 0) + 1;
+    });
+
+    const ctx = document.getElementById('moduleChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(moduleData),
+            datasets: [{
+                label: 'Quantidade',
+                data: Object.values(moduleData),
+                backgroundColor: ['#1E90FF', '#32CD32', '#FFD700', '#800080', '#D900FF']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                datalabels: {
+                    color: '#ffffff',
+                    anchor: 'end',
+                    align: 'start',
+                    offset: -10,
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    borderRadius: 25,
+                    backgroundColor: (context) => {
+                        return context.dataset.backgroundColor;
+                    },
+                    font: {
+                        weight: 'bold',
+                        size: 10
+                    },
+                    formatter: (value) => {
+                        return value;
+                    }
+                }
+            }
+        },
+        plugins: [ChartDataLabels]
+    });
+}
+
+// Função para buscar todos os contratos e priorizar comentários
 noteManager.searchAllContracts = (searchTerm) => {
     const results = [];
     Object.keys(noteManager.notes).forEach(noteKey => {
@@ -2441,7 +3205,7 @@ noteManager.searchAllContracts = (searchTerm) => {
         }
     });
 
-    // Prioritize notes with matching comments
+    // Priorizar notas com comentários correspondentes
     results.sort((a, b) => {
         const aContainsComment = noteManager.notes[a].comments.some(comment => comment.text.toLowerCase().includes(searchTerm));
         const bContainsComment = noteManager.notes[b].comments.some(comment => comment.text.toLowerCase().includes(searchTerm));
@@ -2450,6 +3214,15 @@ noteManager.searchAllContracts = (searchTerm) => {
 
     return results;
 };
+
+// Inicialize o Tippy.js para todos os botões com o atributo title
+tippy('[title]', {
+    placement: 'top', // Coloca o tooltip acima dos botões
+    animation: 'shift-away', // Animação do tooltip
+    theme: 'light', // Tema do tooltip
+    delay: [0, 0], // Remove qualquer atraso na exibição e ocultação do tooltip
+});
+
 </script>
 </body>
 </html>
