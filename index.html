@@ -728,6 +728,16 @@
                                 <button type="button" id="editPendenteBtn" class="btn-gray" aria-label="Editar Pendente">
                                     <i class="fas fa-edit icon-hover"></i>
                                 </button>
+                                <!-- Botão para exportar comentários -->
+                                <button type="button" id="exportCommentsBtn" class="btn-gray" aria-label="Exportar Comentários">
+                                    <i class="fas fa-file-export icon-hover"></i>
+                                </button>
+                                <!-- Botão para importar comentários -->
+                                <button type="button" id="importCommentsBtn" class="btn-gray" aria-label="Importar Comentários">
+                                    <i class="fas fa-file-import icon-hover"></i>
+                                </button>
+                                <!-- Input oculto para importação de arquivos -->
+                                <input type="file" id="importCommentsInput" class="hidden" accept=".json">
                             </div>
                             <div>
                     <label for="moduleDetail" class="block">Categoria: *</label>
@@ -944,6 +954,24 @@ this.saveToLocalStorage();
 }
 
 initializeEventListeners() {
+
+    // Event listener para exportar comentários
+    document.getElementById('exportCommentsBtn').addEventListener('click', () => {
+        const noteKey = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+        this.exportComments(noteKey);
+    });
+
+    // Event listener para importar comentários
+    document.getElementById('importCommentsBtn').addEventListener('click', () => {
+        document.getElementById('importCommentsInput').click();
+    });
+
+    // Event listener para input de arquivo de importação de comentários
+    document.getElementById('importCommentsInput').addEventListener('change', (e) => {
+        const noteKey = document.getElementById('noteDetailsContent').querySelector('p strong + span').textContent;
+        this.importComments(e, noteKey);
+    });
+
     // Event Listeners para os botões principais
     document.getElementById('toggleReportsBtn').addEventListener('click', () => {
     const reportsSection = document.getElementById('reportsSection');
@@ -2769,6 +2797,84 @@ NoteManager.prototype.filterContractDropdown = function(searchTerm) {
         option.style.display = isVisible ? '' : 'none';
     });
 }
+
+NoteManager.prototype.exportComments = function(noteKey) {
+    try {
+        const note = this.notes[noteKey];
+        if (!note || !Array.isArray(note.comments) || note.comments.length === 0) {
+            utils.showNotification('Não há comentários para exportar.', 'alert');
+            return;
+        }
+
+        const commentsJson = JSON.stringify(note.comments, null, 2);
+        const filename = `comentarios_${noteKey}.json`;
+        utils.downloadFile(commentsJson, filename, 'application/json');
+        utils.showNotification('Comentários exportados com sucesso!', 'success');
+    } catch (error) {
+        console.error('Erro ao exportar comentários:', error);
+        utils.showNotification('Erro ao exportar comentários.', 'error');
+    }
+};
+
+NoteManager.prototype.importComments = function(event, noteKey) {
+    try {
+        const file = event.target.files[0];
+        if (!file) {
+            utils.showNotification('Nenhum arquivo selecionado.', 'error');
+            return;
+        }
+
+        if (!file.name.endsWith('.json')) {
+            utils.showNotification('Por favor, selecione um arquivo JSON válido.', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedComments = JSON.parse(e.target.result);
+
+                if (!Array.isArray(importedComments)) {
+                    throw new Error('Formato de arquivo inválido.');
+                }
+
+                const validComments = importedComments.map(comment => ({
+                    id: comment.id || Date.now().toString(),
+                    text: utils.sanitizeInput(comment.text || ''),
+                    dateTime: comment.dateTime || utils.getCurrentDateTime(),
+                    author: comment.author || this.currentUser.email,
+                    editedAt: comment.editedAt || null,
+                    subcomments: Array.isArray(comment.subcomments) ? comment.subcomments.map(subcomment => ({
+                        id: subcomment.id || Date.now().toString(),
+                        text: utils.sanitizeInput(subcomment.text || ''),
+                        dateTime: subcomment.dateTime || utils.getCurrentDateTime(),
+                        author: subcomment.author || this.currentUser.email,
+                        editedAt: subcomment.editedAt || null
+                    })) : []
+                }));
+
+                this.notes[noteKey].comments = validComments;
+                this.saveToLocalStorage();
+                this.renderComments(noteKey);
+                utils.showNotification('Comentários importados com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao importar comentários:', error);
+                utils.showNotification(`Erro ao importar comentários: ${error.message}`, 'error');
+            }
+        };
+
+        reader.onerror = () => {
+            utils.showNotification('Erro ao ler o arquivo.', 'error');
+        };
+
+        reader.readAsText(file);
+    } catch (error) {
+        console.error('Erro ao importar comentários:', error);
+        utils.showNotification('Erro ao importar comentários.', 'error');
+    } finally {
+        event.target.value = ''; // Reset file input
+    }
+};
 
 // Event listener para busca global
 document.getElementById('searchInput').addEventListener('input', () => {
