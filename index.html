@@ -1397,11 +1397,10 @@ editPendenteText(noteKey) {
         note.status = 'verified_today';
 
         this.saveToLocalStorage();
-        
-        // Fechar e reabrir a Lista de Contratos para atualizar
-        this.toggleModal('contractListModal');
-        this.renderContractList();
-        this.toggleModal('contractListModal');
+
+        // Fechar o modal de detalhes e reabri-lo
+        this.toggleModal('noteDetailsModal');
+        this.showNoteDetails(noteKey);
 
         utils.showNotification('Texto do pendente atualizado com sucesso!', 'success');
     }
