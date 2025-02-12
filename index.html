@@ -1292,7 +1292,7 @@ document.addEventListener('keydown', (e) => {
         return column;
     });
 
-    // Obtenha os contratos em ordem de edição
+    // Obtenha os contratos em ordem de edição do texto pendente
     const sortedNotes = Object.keys(this.notes).sort((a, b) => {
         const noteA = this.notes[a];
         const noteB = this.notes[b];
@@ -1317,7 +1317,9 @@ document.addEventListener('keydown', (e) => {
         const note = this.notes[noteKey];
         const listItem = document.createElement('div');
         listItem.className = 'contract-list-item flex justify-between items-center';
-        listItem.innerHTML = `<span>${noteKey} (${note.pendente || 'PENDENTE'})</span>`;
+        
+        const lastEditedDate = note.lastEdited ? utils.formatDate(note.lastEdited) : 'N/A';
+        listItem.innerHTML = `<span>${noteKey} (${note.pendente || 'PENDENTE'}) - Editado em: ${lastEditedDate}</span>`;
 
         listItem.addEventListener('click', () => {
             this.showNoteDetails(noteKey);
